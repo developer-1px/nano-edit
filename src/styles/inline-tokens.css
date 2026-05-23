@@ -6,7 +6,7 @@
 
 .nano-md-token {
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   word-break: normal;
 }
 

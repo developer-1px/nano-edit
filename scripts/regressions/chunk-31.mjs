@@ -236,6 +236,28 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   assert.equal(baseCss.includes('markdown-body'), false)
 })
 
+test('Document surface wraps prose without emergency breaking by default', () => {
+  const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
+  const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
+  const inlineCss = readFileSync(new URL('../../src/styles/inline-tokens.css', import.meta.url), 'utf8')
+  const documentRule = /\.ProseMirror\.nano-document \{([\s\S]*?)\n\}/.exec(baseCss)
+  const blockContentRule = /\.nano-block-content \{([\s\S]*?)\n\}/.exec(editorCss)
+  const inlineTokenRule = /\.nano-md-token \{([\s\S]*?)\n\}/.exec(inlineCss)
+  const referenceTitleRule = /\.nano-bookmark-title,[\s\S]*?\.nano-tag-ref-title \{([\s\S]*?)\n\}/.exec(editorCss)
+  const referenceDetailRule = /\.nano-bookmark-detail,[\s\S]*?\.nano-bookmark-url \{([\s\S]*?)\n\}/.exec(editorCss)
+
+  assert(documentRule, 'document rule should be present')
+  assert(blockContentRule, 'block content rule should be present')
+  assert(inlineTokenRule, 'inline token rule should be present')
+  assert(referenceTitleRule, 'reference title rule should be present')
+  assert(referenceDetailRule, 'reference detail rule should be present')
+
+  for (const rule of [documentRule, blockContentRule, inlineTokenRule, referenceTitleRule, referenceDetailRule]) {
+    assert(rule[1].includes('overflow-wrap: break-word;'))
+    assert.equal(rule[1].includes('overflow-wrap: anywhere;'), false)
+  }
+})
+
 test('Document surface keeps tables and callouts visually quiet', () => {
   const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
   const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')

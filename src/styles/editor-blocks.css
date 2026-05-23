@@ -5,7 +5,7 @@
 
 .nano-block-content {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .nano-block-insert-picker {
@@ -273,7 +273,7 @@
 .nano-tag-ref-title {
   min-width: 0;
   color: var(--nano-text);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   font-weight: 600;
 }
 
@@ -282,7 +282,7 @@
 .nano-bookmark-url {
   min-width: 0;
   color: var(--nano-muted);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   font-size: 0.875em;
 }
 

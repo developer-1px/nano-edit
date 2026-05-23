@@ -96,7 +96,7 @@ textarea:focus-visible {
   min-height: calc(100svh - 108px);
   outline: none;
   caret-color: var(--nano-text);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   word-break: normal;
   line-height: 1.65;
 }
