@@ -9,6 +9,7 @@ import {
 } from './nano-view-engine-runtime'
 import { createNanoViewCommandRunners } from './nano-view-command-runners'
 import { createNanoViewContext } from './nano-view-context-init'
+import { createNanoEditorAttributes } from './nano-view-editor-attributes'
 import type { NanoViewHandle, NanoViewOptions } from './nano-view-context'
 import { createNanoEditorState } from './nano-view-editor-state'
 import {
@@ -56,13 +57,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
   })
   ctx.view = new EditorView(ctx.editor, {
     state: createNanoEditorState(ctx, input, keymaps),
-    attributes: {
-      class: 'nano-document',
-      role: 'textbox',
-      'aria-label': 'Document',
-      'aria-multiline': 'true',
-      spellcheck: 'false',
-    },
+    attributes: createNanoEditorAttributes(options),
     dispatchTransaction: (transaction) => engine().dispatchProseMirrorTransaction(transaction),
   })
   ctx.editor.addEventListener('keydown', ctx.slashKeydownListener, true)

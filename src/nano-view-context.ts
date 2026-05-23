@@ -8,6 +8,8 @@ export const TEXT_MERGE_MS = 600
 export interface NanoViewOptions {
   mount: HTMLElement
   engine: NanoDocumentEngine
+  ariaLabel?: string
+  spellcheck?: boolean
 }
 
 export interface NanoViewHandle {
