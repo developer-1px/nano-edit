@@ -11,6 +11,11 @@ test('Markdown link actions resolve titled and angle-wrapped destinations', () =
     'files/project%20brief.pdf',
   )
   assert.equal(externalHrefFromMarkdownLink('[broken](files/project brief.pdf)'), null)
+  assert.equal(externalHrefFromMarkdownLink('[mail](mailto:editor@example.com)'), 'mailto:editor@example.com')
+  assert.equal(externalHrefFromMarkdownLink('[section](#release-notes)'), '#release-notes')
+  assert.equal(externalHrefFromMarkdownLink('[blocked](javascript:alert(1))'), null)
+  assert.equal(externalHrefFromMarkdownLink('[blocked](<data:text/html,alert(1)>)'), null)
+  assert.equal(externalHrefFromMarkdownLink('[blocked](file:///private/etc/passwd)'), null)
 })
 
 test('Bear Markdown links preserve balanced parentheses and angle destinations', () => {
@@ -46,4 +51,3 @@ test('Bear Markdown links preserve explicit angle destination spelling', () => {
   assert.equal(nanoMarkdownFromDocument(document), markdown)
   assert.equal(nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(prosemirrorDocFromNano(document)) }), markdown)
 })
-

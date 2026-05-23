@@ -51,7 +51,7 @@ export function toggleCollapsedBlock(ctx: NanoViewContext, id: string): void {
 }
 
 export function copyMarkdown(ctx: NanoViewContext): void {
-  void writeClipboardText(nanoMarkdownFromDocument(ctx.engine.value))
+  void writeClipboardText(nanoMarkdownFromDocument(ctx.engine.value)).catch(() => undefined)
 }
 
 export function refreshInspector(ctx: NanoViewContext, deps: NanoEngineDeps): void {
