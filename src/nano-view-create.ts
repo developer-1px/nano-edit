@@ -74,7 +74,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
   ctx.view = new EditorView(ctx.editor, {
     state: createNanoEditorState(ctx, input, keymaps),
     attributes: {
-      class: 'markdown-body',
+      class: 'nano-document',
       role: 'textbox',
       'aria-multiline': 'true',
       spellcheck: 'false',

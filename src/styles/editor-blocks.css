@@ -104,7 +104,8 @@
   user-select: none;
 }
 
-.markdown-body .nano-callout {
+.nano-document .nano-quote,
+.nano-document .nano-callout {
   display: grid;
   grid-template-columns: 16px minmax(0, 1fr);
   column-gap: 8px;
@@ -113,6 +114,10 @@
   padding: 0 0 0 0.9em;
   color: inherit;
   border-left: 2px solid var(--nano-border);
+}
+
+.nano-document .nano-quote {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .nano-callout-marker {
@@ -193,8 +198,8 @@
   font: 600 12px/1.4 var(--nano-sans);
 }
 
-.markdown-body .nano-code,
-.markdown-body .nano-math-block {
+.nano-document .nano-code,
+.nano-document .nano-math-block {
   white-space: pre-wrap;
 }
 
@@ -203,7 +208,7 @@
   display: block;
 }
 
-.markdown-body .nano-divider {
+.nano-document .nano-divider {
   min-height: 22px;
   display: grid;
   align-items: center;
@@ -216,12 +221,12 @@
   background: var(--nano-border);
 }
 
-.markdown-body .nano-image,
-.markdown-body .nano-bookmark,
-.markdown-body .nano-attachment,
-.markdown-body .nano-note-ref,
-.markdown-body .nano-tag-ref,
-.markdown-body .nano-table {
+.nano-document .nano-image,
+.nano-document .nano-bookmark,
+.nano-document .nano-attachment,
+.nano-document .nano-note-ref,
+.nano-document .nano-tag-ref,
+.nano-document .nano-table {
   margin: 0 0 16px;
 }
 

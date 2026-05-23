@@ -196,6 +196,20 @@ test('Inspector chrome uses icon elements instead of text placeholders', () => {
   assert.equal(inspectorCss.includes('content: attr(data-index-symbol);'), false)
 })
 
+test('Document surface does not depend on GitHub markdown viewer CSS', () => {
+  const main = readFileSync(new URL('../../src/main.ts', import.meta.url), 'utf8')
+  const viewCreate = readFileSync(new URL('../../src/nano-view-create.ts', import.meta.url), 'utf8')
+  const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
+  const packageJson = readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+
+  assert.equal(main.includes('github-markdown-css'), false)
+  assert.equal(packageJson.includes('github-markdown-css'), false)
+  assert(viewCreate.includes("class: 'nano-document'"))
+  assert.equal(viewCreate.includes('markdown-body'), false)
+  assert(baseCss.includes('.ProseMirror.nano-document'))
+  assert.equal(baseCss.includes('markdown-body'), false)
+})
+
 test('Inspector index uses visual labels instead of raw Markdown markers', () => {
   const index = nanoDocumentIndex(nanoDocumentFromMarkdown([
     '## Closed title ###',

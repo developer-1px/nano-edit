@@ -17,7 +17,6 @@
     "vite": "^8.0.12"
   },
   "dependencies": {
-    "github-markdown-css": "^5.9.0",
     "lucide": "^1.16.0",
     "prosemirror-commands": "^1.7.1",
     "prosemirror-keymap": "^1.2.3",
