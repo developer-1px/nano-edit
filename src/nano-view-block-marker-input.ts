@@ -40,6 +40,20 @@ export function headingPrefixInputTransaction(
   const block = $from.parent
   if (text !== '#' || block.type.name !== nanoNodeNames.paragraph) return null
 
+  if ($from.parentOffset === 0 && block.textContent.length > 0) {
+    const headingType = state.schema.nodes[nanoNodeNames.heading]
+    if (!headingType) return null
+
+    const blockPosition = $from.before()
+    const transaction = state.tr.setNodeMarkup(blockPosition, headingType, {
+      id: block.attrs.id,
+      level: 1,
+      headingStyle: 'atx',
+    })
+    transaction.setSelection(TextSelection.create(transaction.doc, blockPosition + 1))
+    return transaction
+  }
+
   const textBefore = block.textBetween(0, $from.parentOffset)
   if (textBefore.length !== $from.parentOffset || block.textContent.length !== textBefore.length) return null
 

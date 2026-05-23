@@ -147,6 +147,23 @@ test('Bear empty heading marker input runs through text input before Enter', () 
   ])
 })
 
+test('Bear heading marker input promotes existing paragraph text before Enter', () => {
+  const state = textSelectionState('Title', 'md-1', 0)
+  const transaction = blockShortcutTransaction(state, state.selection.from, state.selection.from, '#')
+
+  assert.equal(markdownAfter(state, transaction), '# Title')
+  assert.deepEqual(blocksAfter(state, transaction), [
+    { id: 'md-1', type: 'heading', level: 1, text: 'Title', marks: [] },
+  ])
+
+  const nextState = state.apply(transaction)
+  const h2Transaction = blockShortcutTransaction(nextState, nextState.selection.from, nextState.selection.from, '#')
+  assert.equal(markdownAfter(nextState, h2Transaction), '## Title')
+  assert.deepEqual(blocksAfter(nextState, h2Transaction), [
+    { id: 'md-1', type: 'heading', level: 2, text: 'Title', marks: [] },
+  ])
+})
+
 test('Bear heading marker input at h6 does not leak literal marker text', () => {
   const state = textSelectionState('###### Title', 'md-1', 0)
   assert.equal(
