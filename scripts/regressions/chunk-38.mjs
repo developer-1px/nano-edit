@@ -8,6 +8,7 @@ import { assert, test } from './harness.mjs'
 class FakeStorage {
   constructor(entries = []) {
     this.values = new Map(entries)
+    this.removes = []
     this.writes = []
   }
 
@@ -19,6 +20,11 @@ class FakeStorage {
     const stringValue = String(value)
     this.values.set(key, stringValue)
     this.writes.push([key, stringValue])
+  }
+
+  removeItem(key) {
+    this.values.delete(key)
+    this.removes.push(key)
   }
 }
 
@@ -60,6 +66,8 @@ test('Persisted demo document ignores older demo storage versions', () => {
   const persisted = createPersistedDemoNanoDocument(storage)
 
   assert.deepEqual(persisted.engine.value, initialNanoDocument)
+  assert.equal(storage.getItem('nano-edit:demo-document:v1'), null)
+  assert.deepEqual(storage.removes, ['nano-edit:demo-document:v1'])
   persisted.destroy()
 })
 

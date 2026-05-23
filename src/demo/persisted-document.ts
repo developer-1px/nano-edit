@@ -7,8 +7,11 @@ import {
 import { initialNanoDocument } from './initial-document'
 
 export const DEMO_DOCUMENT_STORAGE_KEY = 'nano-edit:demo-document:v2'
+const STALE_DEMO_DOCUMENT_STORAGE_KEYS = ['nano-edit:demo-document:v1']
 
-export type DemoDocumentStorage = Pick<Storage, 'getItem' | 'setItem'>
+export type DemoDocumentStorage =
+  Pick<Storage, 'getItem' | 'setItem'>
+  & Partial<Pick<Storage, 'removeItem'>>
 
 export interface PersistedDemoNanoDocument {
   engine: NanoDocumentEngine
@@ -19,6 +22,7 @@ export function createPersistedDemoNanoDocument(
   storage: DemoDocumentStorage | null = browserDemoDocumentStorage(),
 ): PersistedDemoNanoDocument {
   const engine = createNanoDocument(readStoredDemoNanoDocument(storage) ?? initialNanoDocument)
+  removeStaleDemoNanoDocuments(storage)
 
   if (!storage) {
     return { engine, destroy() {} }
@@ -66,5 +70,17 @@ function writeStoredDemoNanoDocument(
     storage.setItem(DEMO_DOCUMENT_STORAGE_KEY, JSON.stringify(document))
   } catch {
     // Persistence is best-effort; editing should keep working if storage is unavailable.
+  }
+}
+
+function removeStaleDemoNanoDocuments(storage: DemoDocumentStorage | null): void {
+  if (!storage?.removeItem) return
+
+  for (const key of STALE_DEMO_DOCUMENT_STORAGE_KEYS) {
+    try {
+      storage.removeItem(key)
+    } catch {
+      // Stale demo cleanup is best-effort.
+    }
   }
 }
