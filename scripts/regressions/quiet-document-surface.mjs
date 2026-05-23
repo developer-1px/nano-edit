@@ -3,14 +3,21 @@ import { assert, blockDomSpec, test } from './harness.mjs'
 
 test('Hidden gutter picker chrome stays removed', () => {
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
+  const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
   const blockUi = readFileSync(new URL('../../src/nano-block-ui-decorations.ts', import.meta.url), 'utf8')
   const gutterRuntime = readFileSync(new URL('../../src/nano-view-gutter-runtime.ts', import.meta.url), 'utf8')
+  const inputPlugins = readFileSync(new URL('../../src/nano-view-input-plugins.ts', import.meta.url), 'utf8')
   const inspectorShell = readFileSync(new URL('../../src/nano-inspector-shell.ts', import.meta.url), 'utf8')
   assert.equal(css.includes('block-picker-option'), false)
   assert.equal(css.includes('content: attr(data-md);'), false)
   assert.equal(css.includes('nano-block-insert'), false)
   assert.equal(blockUi.includes('Decoration.widget'), false)
   assert.equal(gutterRuntime.includes('createNanoGutterPickerRuntime'), false)
+  assert.equal(gutterRuntime.includes('handleBlockDrag'), false)
+  for (const dragSurface of ['dragstart', 'dragover', 'dragend', 'drop:', 'clearBlockDragState', 'nano-drop-before', 'nano-block-drag-source']) {
+    assert.equal(inputPlugins.includes(dragSurface), false)
+    assert.equal(editorCss.includes(dragSurface), false)
+  }
   assert.equal(css.includes('content: "/" attr(data-query);'), false)
   assert.equal(inspectorShell.includes('@todo #tag [[note]]'), false)
   assert(inspectorShell.includes("placeholder = 'Search'"))

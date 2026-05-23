@@ -4,7 +4,6 @@ import type { NanoDocumentEngine } from './nano-core'
 import type { NanoShell } from './nano-command-surface'
 
 export const TEXT_MERGE_MS = 600
-export const BLOCK_DRAG_MIME = 'application/x-nano-block-id'
 
 export interface NanoViewOptions {
   mount: HTMLElement

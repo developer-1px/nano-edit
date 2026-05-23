@@ -8,33 +8,6 @@
   overflow-wrap: break-word;
 }
 
-.nano-drop-before,
-.nano-drop-after {
-  position: relative;
-}
-
-.nano-drop-before::after,
-.nano-drop-after::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  left: 0;
-  height: 1px;
-  background: var(--nano-focus-ring);
-}
-
-.nano-drop-before::after {
-  top: -5px;
-}
-
-.nano-drop-after::after {
-  bottom: -5px;
-}
-
-.nano-block-drag-source {
-  opacity: 0.55;
-}
-
 .nano-heading-fold,
 .nano-list-fold {
   width: 16px;

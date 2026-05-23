@@ -1,18 +1,16 @@
 import { Plugin } from 'prosemirror-state'
-import { blockUiDecorations, clearBlockDragState } from './nano-block-ui'
+import { blockUiDecorations } from './nano-block-ui'
 import { syncFoldIndicatorStates } from './nano-fold-indicator'
 import type { NanoViewContext } from './nano-view-context'
-import type { NanoGutterRuntime } from './nano-view-gutter-runtime'
 import type { NanoInputRuntime } from './nano-view-input-runtime'
 import type { NanoInputHandlers } from './nano-view-input-handlers'
 
 export function createNanoInputPlugins(
   ctx: NanoViewContext,
-  gutter: NanoGutterRuntime,
   handlers: NanoInputHandlers,
 ): NanoInputRuntime {
   return {
-    activeBlockPlugin: () => activeBlockPlugin(ctx, gutter),
+    activeBlockPlugin: () => activeBlockPlugin(ctx),
     blockClickPlugin: () => blockClickPlugin(handlers),
     historyInputPlugin: () => historyInputPlugin(handlers),
     shortcutInputPlugin: () => shortcutInputPlugin(handlers),
@@ -54,7 +52,7 @@ function blockClickPlugin(handlers: NanoInputHandlers): Plugin {
   })
 }
 
-function activeBlockPlugin(ctx: NanoViewContext, gutter: NanoGutterRuntime): Plugin {
+function activeBlockPlugin(ctx: NanoViewContext): Plugin {
   return new Plugin({
     view: (view) => {
       syncFoldIndicatorStatesWithoutObserver(view)
@@ -68,15 +66,6 @@ function activeBlockPlugin(ctx: NanoViewContext, gutter: NanoGutterRuntime): Plu
           state,
           ctx.collapsedBlockIds,
         ),
-      handleDOMEvents: {
-        dragstart: (view, event) => gutter.handleBlockDragStart(view, event as DragEvent),
-        dragover: (view, event) => gutter.handleBlockDragOver(view, event as DragEvent),
-        drop: (view, event) => gutter.handleBlockDrop(view, event as DragEvent),
-        dragend: (view) => {
-          clearBlockDragState(view.dom)
-          return false
-        },
-      },
     },
   })
 }

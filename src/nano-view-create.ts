@@ -37,7 +37,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
     engine,
     inspector,
   })
-  const input = createNanoInputRuntime(ctx, gutter, inspector, {
+  const input = createNanoInputRuntime(ctx, inspector, {
     restoreHistory: (direction) => engine().restoreHistory(direction),
     runMarkCommand: runners.runMarkCommand,
     toggleCollapsedBlock: (id) => engine().toggleCollapsedBlock(id),

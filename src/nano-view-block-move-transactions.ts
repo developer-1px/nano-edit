@@ -1,6 +1,5 @@
 import { Fragment } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import type { DropPlacement } from './nano-block-ui'
 import {
   activeBlockRange,
   blockId,
@@ -27,6 +26,7 @@ import {
   blockMoveUnitsOverlap,
 } from './nano-view-block-move-unit'
 import {
+  type DropPlacement,
   positionForTopLevelRangeIndex,
   reorderedBlockMoveRanges,
 } from './nano-view-block-reorder'

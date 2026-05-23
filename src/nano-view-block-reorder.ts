@@ -1,6 +1,7 @@
-import type { DropPlacement } from './nano-block-ui'
 import type { ActiveBlockRange } from './nano-block-structure'
 import type { BlockMoveUnit } from './nano-view-block-move-unit'
+
+export type DropPlacement = 'after' | 'before'
 
 export function reorderedBlockMoveRanges(
   ranges: readonly ActiveBlockRange[],
