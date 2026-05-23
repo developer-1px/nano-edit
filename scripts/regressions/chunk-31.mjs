@@ -55,6 +55,10 @@ test('Demo document stays quiet while covering visual Markdown surfaces', () => 
 
   const appendixIndex = markdown.indexOf('## Appendix')
   assert(appendixIndex > 0, 'demo should keep rich surfaces below a plain document opening')
+  const opening = markdown.slice(0, appendixIndex)
+  assert.equal(opening.includes('#notes'), false)
+  assert.equal(opening.includes('#draft'), false)
+  assert.equal(opening.includes('[[Revision Log]]'), false)
   for (const richSurface of ['| Item |', '```ts', '$$', '![working note image]']) {
     assert(markdown.indexOf(richSurface) > appendixIndex, `demo should keep ${richSurface} below Appendix`)
   }

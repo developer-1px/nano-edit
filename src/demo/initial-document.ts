@@ -5,8 +5,6 @@ const sampleImageSrc = new URL('../assets/hero.png', import.meta.url).href
 
 const initialMarkdown = `# Field Notes
 
-#notes #draft [[Revision Log]]
-
 오늘 기록은 **의미**와 *흐름*만 남긴다. ==확인된 변화==는 남기고, ~~꾸밈말~~은 줄인다.
 
 - [x] 문장 다듬기
