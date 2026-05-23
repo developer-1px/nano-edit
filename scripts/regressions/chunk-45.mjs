@@ -12,6 +12,7 @@ import {
   nanoMarkdownFromDocument,
   prosemirrorDocFromNano,
 } from '../../src/index.ts'
+import { nanoSchema } from '../../src/prosemirror-nano.ts'
 import { assert, test } from './harness.mjs'
 
 test('Default Nano documents are fresh and isolated from exported empty state', () => {
@@ -70,6 +71,42 @@ test('Nano schema rejects blank ids and invalid mark ranges before runtime', () 
   }).success, false)
 })
 
+test('Nano schema rejects malformed table block structure before runtime', () => {
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'table',
+    type: 'table',
+    rows: [],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'table',
+    type: 'table',
+    rows: [['Only one column']],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'table',
+    type: 'table',
+    rows: [['A', 'B'], ['1']],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'table',
+    type: 'table',
+    rows: [['A', 'B']],
+    align: ['left'],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'table',
+    type: 'table',
+    rows: [['A', 'B']],
+    leadingPipes: [true],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'table',
+    type: 'table',
+    rows: [['A', 'B']],
+    separatorCells: ['--', '---'],
+  }).success, false)
+})
+
 test('Markdown parser returns a schema-valid Nano document', () => {
   const document = nanoDocumentFromMarkdown([
     '# 현장 기록',
@@ -116,4 +153,20 @@ test('ProseMirror to Nano conversion returns a schema-valid document', () => {
 
   assert.deepEqual(NanoDocumentSchema.parse(document), document)
   assert.deepEqual(nanoBlocksFromProseMirror(prosemirrorDoc), document.blocks)
+})
+
+test('ProseMirror table conversion pads ragged rows before schema validation', () => {
+  const table = nanoSchema.nodes.table.create({
+    id: 'table',
+    rows: [['A'], ['1', '2']],
+  })
+  const prosemirrorDoc = nanoSchema.nodes.doc.create(null, [table])
+  const document = nanoDocumentFromProseMirror(prosemirrorDoc)
+
+  assert.deepEqual(document.blocks, [{
+    id: 'table',
+    type: 'table',
+    rows: [['A', ''], ['1', '2']],
+  }])
+  assert.deepEqual(NanoDocumentSchema.parse(document), document)
 })

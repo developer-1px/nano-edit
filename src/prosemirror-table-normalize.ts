@@ -6,7 +6,10 @@ export function normalizeTableRows(rows: unknown): string[][] {
     .filter(Array.isArray)
     .map((row) => row.map((cell) => String(cell ?? '')))
     .filter((row) => row.length > 0)
-  return normalized.length > 0 ? normalized : [['', ''], ['', '']]
+  if (normalized.length === 0) return [['', ''], ['', '']]
+
+  const columnCount = Math.max(2, ...normalized.map((row) => row.length))
+  return normalized.map((row) => padTableRow(row, columnCount))
 }
 
 export function normalizeTableAlignments(align: unknown, size: number): TableAlign[] {
@@ -41,7 +44,11 @@ export function normalizeTableSeparatorCells(cells: unknown, align: unknown, siz
 
 export function tableColumnCount(rows: unknown): number {
   const tableRows = Array.isArray(rows) ? rows : []
-  return Math.max(1, ...tableRows.filter(Array.isArray).map((row) => row.length))
+  return Math.max(2, ...tableRows.filter(Array.isArray).map((row) => row.length))
+}
+
+function padTableRow(row: readonly string[], size: number): string[] {
+  return Array.from({ length: size }, (_value, index) => row[index] ?? '')
 }
 
 export function tableLineCount(rows: unknown): number {
