@@ -28,7 +28,7 @@ export function createNanoEngineRuntime(
   }
   return {
     copyMarkdown: () => copyMarkdown(ctx),
-    dispatchProseMirrorTransaction: createProseMirrorTransactionDispatcher(ctx, deps, runtime),
+    dispatchProseMirrorTransaction: createProseMirrorTransactionDispatcher(ctx, runtime),
     refreshInspector: runtime.refreshInspector,
     restoreHistory: (direction) => restoreHistory(ctx, runtime.syncEditorFromEngine, direction),
     syncEditorFromEngine: runtime.syncEditorFromEngine,

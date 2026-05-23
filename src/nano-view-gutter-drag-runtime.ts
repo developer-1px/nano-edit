@@ -6,7 +6,6 @@ import {
 } from './nano-block-ui'
 import { BLOCK_DRAG_MIME, type NanoViewContext } from './nano-view-context'
 import { moveBlockToTargetTransaction } from './nano-view-block-move-transactions'
-import type { NanoGutterPickerRuntime } from './nano-view-gutter-picker-runtime'
 
 interface NanoGutterDragRuntime {
   handleBlockDragOver: (view: EditorView, event: DragEvent) => boolean
@@ -16,7 +15,6 @@ interface NanoGutterDragRuntime {
 
 export function createNanoGutterDragRuntime(
   ctx: NanoViewContext,
-  picker: NanoGutterPickerRuntime,
 ): NanoGutterDragRuntime {
   const handleBlockDragStart = (view: EditorView, _event: DragEvent): boolean => {
     clearBlockDragState(view.dom)
@@ -40,7 +38,6 @@ export function createNanoGutterDragRuntime(
     if (!sourceId || !dropTarget) return false
 
     event.preventDefault()
-    picker.closeGutterPicker(false)
     const transaction = moveBlockToTargetTransaction(
       view.state,
       sourceId,

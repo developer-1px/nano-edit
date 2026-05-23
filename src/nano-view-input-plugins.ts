@@ -66,10 +66,6 @@ function activeBlockPlugin(ctx: NanoViewContext, gutter: NanoGutterRuntime): Plu
       decorations: (state) =>
         blockUiDecorations(
           state,
-          ctx.gutterPickerBlockId,
-          ctx.gutterPickerOptionId,
-          ctx.gutterPickerAction,
-          ctx.gutterPickerTypeahead,
           ctx.collapsedBlockIds,
         ),
       handleDOMEvents: {

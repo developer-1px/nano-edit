@@ -12,8 +12,6 @@ import {
   decorateHeadingNode,
   decorateListNode,
 } from './nano-block-ui-decoration-nodes'
-import { blockInsertPickerElement } from './nano-block-ui-elements'
-import type { GutterPickerAction } from './nano-block-ui-types'
 
 export function blockOptionIdForBlockId(doc: ProseMirrorNode, id: string): string | null {
   let optionId: string | null = null
@@ -29,10 +27,6 @@ export function blockOptionIdForBlockId(doc: ProseMirrorNode, id: string): strin
 
 export function blockUiDecorations(
   state: EditorState,
-  gutterPickerBlockId: string | null,
-  gutterPickerOptionId: string | null,
-  gutterPickerAction: GutterPickerAction | null,
-  gutterPickerTypeahead: string,
   collapsedBlockIds: ReadonlySet<string>,
 ): DecorationSet {
   const decorations: Decoration[] = []
@@ -47,12 +41,6 @@ export function blockUiDecorations(
     if (!hiddenBlockIds.has(id)) {
       decorations.push(
         Decoration.node(block.from, block.to, { class: 'nano-block-active' }),
-      )
-      if (id && id === gutterPickerBlockId) decorations.push(
-        Decoration.widget(block.to, () => blockInsertPickerElement(id, gutterPickerOptionId, gutterPickerAction ?? 'insert', gutterPickerTypeahead), {
-          key: `block-picker:${gutterPickerAction ?? 'insert'}:${id}:${gutterPickerOptionId ?? ''}:${gutterPickerTypeahead}`,
-          side: 1,
-        }),
       )
     }
   }

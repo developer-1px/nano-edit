@@ -4,14 +4,8 @@
 @import './styles/inspector.css';
 @import './styles/command-palette.css';
 
-.block-picker-option::after,
-.nano-block-insert-option::after {
+.block-picker-option::after {
   content: attr(data-md);
-  display: none;
-}
-
-.nano-block-insert-picker::before {
-  content: attr(data-query);
   display: none;
 }
 

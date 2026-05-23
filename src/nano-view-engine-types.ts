@@ -17,6 +17,5 @@ export interface NanoEngineRuntime {
 export interface NanoEngineDeps {
   createEditorState: (doc?: ProseMirrorNode) => Parameters<NanoViewContext['view']['updateState']>[0]
   inspector: NanoInspectorRuntime
-  syncGutterPickerWithSelection: (state: Parameters<NanoViewContext['view']['updateState']>[0]) => void
   toolbar: NanoToolbarRuntime
 }

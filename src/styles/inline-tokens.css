@@ -83,7 +83,15 @@
 .nano-math.nano-source-token,
 .nano-footnote-ref.nano-source-token,
 .nano-raw-external-link.nano-source-token[data-syntax='autolink'] {
-  font-size: 0;
+  font-size: inherit;
+}
+
+.nano-tag.nano-source-token > [aria-hidden='true'],
+.nano-note-link.nano-source-token > [aria-hidden='true'],
+.nano-math.nano-source-token > [aria-hidden='true'],
+.nano-footnote-ref.nano-source-token > [aria-hidden='true'],
+.nano-raw-external-link.nano-source-token[data-syntax='autolink'] > [aria-hidden='true'] {
+  display: none;
 }
 
 .nano-tag.nano-source-token::before,
@@ -92,7 +100,7 @@
 .nano-footnote-ref.nano-source-token::before,
 .nano-raw-external-link.nano-source-token[data-syntax='autolink']::before {
   content: attr(data-label);
-  font-size: 1em;
+  font-size: inherit;
 }
 
 .nano-math.nano-source-token::before {

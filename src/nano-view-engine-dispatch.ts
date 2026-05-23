@@ -10,11 +10,9 @@ import {
   type NanoViewContext,
 } from './nano-view-context'
 import { pruneCollapsedBlocks } from './nano-view-engine-sync'
-import type { NanoEngineDeps } from './nano-view-engine-types'
 
 export function createProseMirrorTransactionDispatcher(
   ctx: NanoViewContext,
-  deps: NanoEngineDeps,
   runtime: {
     refreshInspector: () => void
     syncEditorFromEngine: () => void
@@ -25,7 +23,6 @@ export function createProseMirrorTransactionDispatcher(
     if (transaction.docChanged) pruneCollapsedBlocks(ctx, nextState.doc)
 
     ctx.view.updateState(nextState)
-    deps.syncGutterPickerWithSelection(nextState)
 
     const selection = nanoSelectionFromProseMirror(nextState.doc, nextState.selection)
     if (!transaction.docChanged) {

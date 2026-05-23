@@ -2,7 +2,6 @@ import { initialNanoDocument } from '../../src/demo/initial-document.ts'
 import { blockActionCommands } from '../../src/nano-command-actions-block.ts'
 import { documentActionCommands } from '../../src/nano-command-actions-document.ts'
 import { inspectorActionCommands } from '../../src/nano-command-actions-inspector.ts'
-import { blockOptionTitle } from '../../src/nano-block-ui-elements.ts'
 import { blockOptions } from '../../src/nano-block-options.ts'
 import { blockCommands } from '../../src/nano-command-blocks.ts'
 import { markCommands } from '../../src/nano-command-marks.ts'
@@ -138,13 +137,16 @@ test('Command surfaces keep Markdown triggers searchable but visually quiet', ()
   }
 })
 
-test('Block picker keeps raw Markdown triggers out of visible chrome', () => {
+test('Hidden gutter picker chrome stays removed', () => {
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
+  const blockUi = readFileSync(new URL('../../src/nano-block-ui-decorations.ts', import.meta.url), 'utf8')
+  const gutterRuntime = readFileSync(new URL('../../src/nano-view-gutter-runtime.ts', import.meta.url), 'utf8')
   const inspectorShell = readFileSync(new URL('../../src/nano-inspector-shell.ts', import.meta.url), 'utf8')
-  assert(css.includes('.block-picker-option::after,\n.nano-block-insert-option::after'))
+  assert(css.includes('.block-picker-option::after'))
   assert(css.includes('content: attr(data-md);\n  display: none;'))
-  assert(css.includes('.nano-block-insert-picker::before {\n  content: attr(data-query);\n  display: none;'))
-  assert.equal(css.includes('.nano-block-insert-option:hover::after'), false)
+  assert.equal(css.includes('nano-block-insert'), false)
+  assert.equal(blockUi.includes('Decoration.widget'), false)
+  assert.equal(gutterRuntime.includes('createNanoGutterPickerRuntime'), false)
   assert.equal(css.includes('content: "/" attr(data-query);'), false)
   assert.equal(inspectorShell.includes('@todo #tag [[note]]'), false)
   assert(inspectorShell.includes("placeholder = 'Search'"))
@@ -154,15 +156,13 @@ test('Gutter and toolbar labels stay compact without raw Markdown trigger titles
   const markdownOptions = blockOptions.filter((option) => option.markdownTrigger)
   assert(markdownOptions.length > 0)
   for (const option of markdownOptions) {
-    assert.equal(blockOptionTitle(option).includes(option.markdownTrigger), false)
+    assert.equal(option.title.includes(option.markdownTrigger), false)
   }
 
-  const blockUiElements = readFileSync(new URL('../../src/nano-block-ui-elements.ts', import.meta.url), 'utf8')
   const toolbarRuntime = readFileSync(new URL('../../src/nano-view-toolbar-runtime.ts', import.meta.url), 'utf8')
   const toolbarPicker = readFileSync(new URL('../../src/nano-view-toolbar-picker.ts', import.meta.url), 'utf8')
   for (const noisy of ['Move Block', 'Duplicate Block', 'Delete Block', 'Edit Source', 'Copy Markdown', 'Insert Block Type', 'Change Block']) {
     assert.equal(toolbarRuntime.includes(noisy), false)
-    assert.equal(blockUiElements.includes(noisy), false)
     assert.equal(toolbarPicker.includes(noisy), false)
   }
   assert.equal(toolbarRuntime.includes("button('MD'"), false)
@@ -178,9 +178,6 @@ test('Gutter and toolbar labels stay compact without raw Markdown trigger titles
   for (const iconName of ['Bold', 'Italic', 'Underline', 'Strikethrough', 'Highlighter', 'Code2', 'Heading1', 'Heading6', 'ListTodo', 'ListOrdered', 'NotebookText', 'TableIcon']) {
     assert(toolbarPicker.includes(iconName), `toolbar should map ${iconName} icon`)
   }
-  assert.equal(blockUiElements.includes('nano-block-add'), false)
-  assert.equal(blockUiElements.includes('nano-block-handle'), false)
-  assert(blockUiElements.includes("button.dataset.md = option.markdownTrigger ?? ''"))
 })
 
 test('Inline Markdown delimiters stay hidden on hover and focus', () => {
@@ -246,6 +243,7 @@ test('Document surface wraps prose without emergency breaking by default', () =>
   const blockContentRule = /\.nano-block-content \{([\s\S]*?)\n\}/.exec(editorCss)
   const inlineTokenRule = /\.nano-md-token \{([\s\S]*?)\n\}/.exec(inlineCss)
   const inlineSourceLabelRule = /\.nano-tag\.nano-source-token::before,[\s\S]*?\.nano-raw-external-link\.nano-source-token\[data-syntax='autolink'\]::before \{([\s\S]*?)\n\}/.exec(inlineCss)
+  const inlineSourceHiddenRule = /\.nano-tag\.nano-source-token > \[aria-hidden='true'\],[\s\S]*?\.nano-raw-external-link\.nano-source-token\[data-syntax='autolink'\] > \[aria-hidden='true'\] \{([\s\S]*?)\n\}/.exec(inlineCss)
   const referenceTitleRule = /\.nano-bookmark-title,[\s\S]*?\.nano-tag-ref-title \{([\s\S]*?)\n\}/.exec(editorCss)
   const referenceDetailRule = /\.nano-bookmark-detail,[\s\S]*?\.nano-bookmark-url \{([\s\S]*?)\n\}/.exec(editorCss)
 
@@ -253,6 +251,7 @@ test('Document surface wraps prose without emergency breaking by default', () =>
   assert(blockContentRule, 'block content rule should be present')
   assert(inlineTokenRule, 'inline token rule should be present')
   assert(inlineSourceLabelRule, 'inline source label rule should be present')
+  assert(inlineSourceHiddenRule, 'inline source hidden syntax rule should be present')
   assert(referenceTitleRule, 'reference title rule should be present')
   assert(referenceDetailRule, 'reference detail rule should be present')
 
@@ -260,7 +259,9 @@ test('Document surface wraps prose without emergency breaking by default', () =>
     assert(rule[1].includes('overflow-wrap: break-word;'))
     assert.equal(rule[1].includes('overflow-wrap: anywhere;'), false)
   }
-  assert(inlineSourceLabelRule[1].includes('font-size: 1em;'))
+  assert(inlineSourceLabelRule[1].includes('font-size: inherit;'))
+  assert(inlineSourceHiddenRule[1].includes('display: none;'))
+  assert.equal(inlineCss.includes('font-size: 0;'), false)
   assert.equal(inlineSourceLabelRule[1].includes('font-size: 1rem;'), false)
 })
 

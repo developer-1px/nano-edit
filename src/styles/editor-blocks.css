@@ -8,10 +8,6 @@
   overflow-wrap: break-word;
 }
 
-.nano-block-insert-picker {
-  display: none;
-}
-
 .nano-drop-before,
 .nano-drop-after {
   position: relative;

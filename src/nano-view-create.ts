@@ -60,12 +60,11 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
   engineRuntime = createNanoEngineRuntime(ctx, {
     createEditorState: (doc) => createNanoEditorState(ctx, input, keymaps, doc),
     inspector,
-    syncGutterPickerWithSelection: (state) => gutter.syncGutterPickerWithSelection(state),
     toolbar,
   })
 
   installNanoGutterListeners(ctx, gutter)
-  installNanoShell(options, ctx, gutter, {
+  installNanoShell(options, ctx, {
     engine,
     inspector,
     runners,
@@ -81,10 +80,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
     },
     dispatchTransaction: (transaction) => engine().dispatchProseMirrorTransaction(transaction),
   })
-  ctx.editor.addEventListener('click', ctx.blockInsertClickListener)
-  ctx.editor.addEventListener('mouseover', ctx.blockInsertHoverListener)
-  ctx.editor.addEventListener('keydown', ctx.blockInsertKeydownListener, true)
-  document.addEventListener('click', ctx.gutterOutsideClickListener)
+  ctx.editor.addEventListener('keydown', ctx.slashKeydownListener, true)
   ctx.shell.syncInspectorChrome()
   engine().refreshInspector()
 

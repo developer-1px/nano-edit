@@ -14,14 +14,12 @@ import type {
   NanoViewOptions,
 } from './nano-view-context'
 import type { NanoEngineRuntime } from './nano-view-engine-runtime'
-import type { NanoGutterRuntime } from './nano-view-gutter-runtime'
 import type { NanoInspectorRuntime } from './nano-view-inspector-runtime'
 import { nanoCommandAnchorRect } from './nano-view-editor-state'
 
 export function installNanoShell(
   options: NanoViewOptions,
   ctx: NanoViewContext,
-  gutter: NanoGutterRuntime,
   deps: {
     engine: () => NanoEngineRuntime
     inspector: NanoInspectorRuntime
@@ -42,7 +40,7 @@ export function installNanoShell(
         hasTextSelection: !state.selection.empty,
         mode: context.mode,
         actions: {
-          changeBlockById: (id, command) => gutter.runGutterPickerAction(id, command, 'change'),
+          changeBlockById: deps.runners.runChangeBlockById,
           copyMarkdown: () => deps.engine().copyMarkdown(),
           deleteBlock: deps.runners.runDeleteActiveBlock,
           duplicateBlock: deps.runners.runDuplicateActiveBlock,

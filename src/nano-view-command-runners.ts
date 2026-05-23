@@ -5,12 +5,14 @@ import {
   type MarkOption,
 } from './nano-mark-options'
 import type { NanoViewContext } from './nano-view-context'
+import { changeBlockByIdTransaction } from './nano-view-block-edit-transactions'
 import type { NanoEngineRuntime } from './nano-view-engine-runtime'
 import type { NanoInspectorRuntime } from './nano-view-inspector-runtime'
 import type { NanoKeymapRuntime } from './nano-view-keymap-runtime'
 import type { NanoToolbarRuntime } from './nano-view-toolbar-runtime'
 
 export interface NanoViewCommandRunners {
+  runChangeBlockById: (id: string, template: BlockTemplate) => void
   runBlockTemplate: (template: BlockTemplate) => void
   runBlockPickerTemplate: (template: BlockTemplate) => void
   runDeleteActiveBlock: () => void
@@ -50,6 +52,16 @@ export function createNanoViewCommandRunners(
     runEditorCommand(() => keymaps.changeActiveBlockCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view))
   }
 
+  function runChangeBlockById(id: string, template: BlockTemplate): void {
+    runEditorCommand(() => {
+      const transaction = changeBlockByIdTransaction(ctx.view.state, id, template)
+      if (!transaction) return false
+
+      ctx.view.dispatch(transaction.scrollIntoView())
+      return true
+    })
+  }
+
   function runInsertBlockAfterActive(template: BlockTemplate): void {
     runEditorCommand(
       () => keymaps.insertBlockAfterActiveCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view),
@@ -74,6 +86,7 @@ export function createNanoViewCommandRunners(
   }
 
   return {
+    runChangeBlockById,
     runBlockTemplate,
     runBlockPickerTemplate,
     runDeleteActiveBlock: () => runKeymapCommand(() => keymaps.deleteActiveBlockCommand()(ctx.view.state, ctx.view.dispatch, ctx.view)),

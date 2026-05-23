@@ -90,10 +90,7 @@ test('Nano view destroy unmounts once and removes document listeners', () => {
           calls.view += 1
         },
       },
-      blockInsertClickListener: listener,
-      blockInsertHoverListener: listener,
-      blockInsertKeydownListener: listener,
-      gutterOutsideClickListener: listener,
+      slashKeydownListener: listener,
     }
 
     destroyNanoView(ctx)
@@ -105,12 +102,9 @@ test('Nano view destroy unmounts once and removes document listeners', () => {
   assert.deepEqual(calls, { root: 1, shell: 1, view: 1 })
   assert.deepEqual(
     removedEditorListeners.map(([eventName]) => eventName),
-    ['click', 'mouseover', 'keydown'],
+    ['keydown'],
   )
-  assert.deepEqual(
-    removedDocumentListeners.map(([eventName]) => eventName),
-    ['click'],
-  )
+  assert.deepEqual(removedDocumentListeners, [])
 })
 
 test('Inspector shell destroy removes element listeners', () => {

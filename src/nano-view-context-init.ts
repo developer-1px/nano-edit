@@ -22,15 +22,7 @@ export function createNanoViewContext(options: NanoViewOptions): NanoViewContext
     lastTextMergeAt: 0,
     indexSearchQuery: '',
     blockPickerMode: 'insert',
-    gutterPickerAction: null,
-    gutterPickerBlockId: null as string | null,
-    gutterPickerOptionId: null as string | null,
-    gutterPickerTypeahead: '',
-    gutterPickerTypeaheadAt: 0,
     collapsedBlockIds: new Set<string>(),
-    blockInsertClickListener: () => undefined,
-    blockInsertHoverListener: () => undefined,
-    blockInsertKeydownListener: () => undefined,
-    gutterOutsideClickListener: () => undefined,
+    slashKeydownListener: () => undefined,
   }
 }

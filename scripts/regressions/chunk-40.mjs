@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs'
-import { blockInsertPickerElement } from '../../src/nano-block-ui-elements.ts'
 import { createNanoInputClickHandlers } from '../../src/nano-view-input-click-events.ts'
 import { assert, blockDomSpec, nanoMarkdownFromDocument, nanoBlocksFromProseMirror, test, textSelectionState } from './harness.mjs'
 
@@ -109,69 +108,6 @@ test('Todo checkbox keeps a measurable hit target', () => {
   assert(markerRule, 'list marker alignment rule should be present')
   assert(markerRule[1].includes('height: 24px;'))
   assert(markerRule[1].includes('align-items: center;'))
-})
-
-test('Block insert picker exposes listbox option selection state', () => {
-  const originalDocument = globalThis.document
-
-  class FakeElement {
-    constructor(tagName) {
-      this.tagName = tagName
-      this.attributes = new Map()
-      this.children = []
-      this.dataset = {}
-      this.style = {}
-    }
-
-    append(...children) {
-      this.children.push(...children)
-    }
-
-    getAttribute(name) {
-      return this.attributes.get(name) ?? null
-    }
-
-    hasAttribute(name) {
-      return this.attributes.has(name)
-    }
-
-    setAttribute(name, value) {
-      this.attributes.set(name, String(value))
-    }
-  }
-
-  globalThis.document = {
-    createElement: (tagName) => new FakeElement(tagName),
-  }
-
-  try {
-    const picker = blockInsertPickerElement('md/1', 'heading-2', 'insert', '')
-    const selectedOption = picker.children.find((child) => child.dataset.optionId === 'heading-2')
-    const firstOption = picker.children[0]
-
-    assert(selectedOption)
-    assert.equal(picker.id.includes('/'), false)
-    assert.equal(picker.getAttribute('role'), 'listbox')
-    assert.equal(picker.getAttribute('aria-activedescendant'), selectedOption.id)
-    assert.equal(selectedOption.getAttribute('role'), 'option')
-    assert.equal(selectedOption.getAttribute('aria-selected'), 'true')
-    assert.equal(selectedOption.dataset.selected, 'true')
-    assert.equal(selectedOption.tabIndex, 0)
-    assert.equal(firstOption.getAttribute('aria-selected'), String(firstOption === selectedOption))
-
-    const fallbackPicker = blockInsertPickerElement('md/1', 'missing-option', 'change', '')
-    assert.equal(fallbackPicker.getAttribute('aria-activedescendant'), fallbackPicker.children[0].id)
-    assert.equal(fallbackPicker.children[0].getAttribute('aria-selected'), 'true')
-    assert.equal(fallbackPicker.children[0].tabIndex, 0)
-
-    const emptyPicker = blockInsertPickerElement('md/1', 'missing-option', 'insert', 'zzzz')
-    assert.equal(emptyPicker.getAttribute('role'), 'listbox')
-    assert.equal(emptyPicker.hasAttribute('aria-activedescendant'), false)
-    assert.equal(emptyPicker.children[0].className, 'nano-block-insert-empty')
-  } finally {
-    if (originalDocument === undefined) delete globalThis.document
-    else globalThis.document = originalDocument
-  }
 })
 
 test('Todo checkbox toggles from keyboard without exposing Markdown syntax', () => {
