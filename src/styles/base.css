@@ -165,19 +165,19 @@ textarea:focus-visible {
 }
 
 .nano-document code {
-  padding: 0.12em 0.34em;
-  background: var(--nano-soft);
-  border-radius: 3px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
   font-family: var(--nano-mono);
   font-size: 0.9em;
 }
 
 .nano-document pre {
   max-width: 100%;
-  padding: 14px 16px;
+  padding: 0;
   overflow-x: auto;
-  background: var(--nano-soft);
-  border-radius: 4px;
+  background: transparent;
+  border-radius: 0;
   font: 13px/1.55 var(--nano-mono);
 }
 
