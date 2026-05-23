@@ -125,12 +125,12 @@ test('Fold state sync keeps heading names free of fold control text', () => {
   }
 
   class FakeElement {
-    constructor(className, parent = null, innerText = '') {
+    constructor(className, parent = null, attrs = {}) {
       this.className = className
       this.parent = parent
-      this.innerText = innerText
-      this.attrs = {}
+      this.attrs = { ...attrs }
       this.children = []
+      this.childNodes = this.children
       this.classList = new FakeClassList(this)
     }
 
@@ -159,6 +159,7 @@ test('Fold state sync keeps heading names free of fold control text', () => {
     }
 
     getAttribute(name) {
+      if (name === 'class') return this.className
       return this.attrs[name] ?? null
     }
 
@@ -171,9 +172,17 @@ test('Fold state sync keeps heading names free of fold control text', () => {
     }
   }
 
+  class FakeText {
+    constructor(text) {
+      this.nodeType = 3
+      this.textContent = text
+    }
+  }
+
   const heading = new FakeElement('nano-block nano-heading nano-heading-collapsible')
   const fold = new FakeElement('nano-heading-fold', heading)
-  const content = new FakeElement('nano-block-content', heading, 'Visible Heading')
+  const content = new FakeElement('nano-block-content', heading)
+  content.append(new FakeText('Visible '), new FakeElement('nano-note-link nano-source-token', content, { 'data-label': 'Heading' }))
   heading.append(fold, content)
   const root = {
     querySelectorAll(selector) {
@@ -187,11 +196,11 @@ test('Fold state sync keeps heading names free of fold control text', () => {
   assert.equal(heading.attrs['aria-label'], 'Visible Heading')
   assert.equal(fold.attrs['aria-label'], 'Collapse section')
 
-  content.innerText = 'Renamed Heading'
+  content.children.splice(0, content.children.length, new FakeText('Renamed Heading'))
   syncFoldIndicatorStates(root)
   assert.equal(heading.attrs['aria-label'], 'Renamed Heading')
 
-  content.innerText = ''
+  content.children.splice(0, content.children.length, new FakeText(''), new FakeElement('nano-source-token', content, { 'aria-hidden': 'true' }))
   syncFoldIndicatorStates(root)
   assert.equal(heading.attrs['aria-label'], undefined)
 })

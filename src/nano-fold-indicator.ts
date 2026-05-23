@@ -46,13 +46,29 @@ export function syncFoldIndicatorStates(root: ParentNode): void {
 
 function syncHeadingAccessibleLabels(root: ParentNode): void {
   for (const heading of root.querySelectorAll<HTMLElement>('.nano-heading')) {
-    const label = heading.querySelector<HTMLElement>('.nano-block-content')?.innerText.trim() ?? ''
+    const content = heading.querySelector<HTMLElement>('.nano-block-content')
+    const label = content ? visualTextContent(content).replace(/\s+/g, ' ').trim() : ''
     if (label) {
       setAttributeIfChanged(heading, 'aria-label', label)
     } else {
       removeAttributeIfPresent(heading, 'aria-label')
     }
   }
+}
+
+function visualTextContent(node: Node): string {
+  if (node.nodeType === 3) return node.textContent ?? ''
+  if (!isElementLike(node)) return ''
+  if (node.getAttribute('aria-hidden') === 'true') return ''
+
+  const label = node.getAttribute('data-label')
+  if (label) return label
+
+  return Array.from(node.childNodes).map(visualTextContent).join('')
+}
+
+function isElementLike(node: Node): node is Element {
+  return typeof (node as Element).getAttribute === 'function'
 }
 
 function setAttributeIfChanged(element: HTMLElement, name: string, value: string): void {

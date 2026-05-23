@@ -4,7 +4,7 @@ import { inlineMathFormula } from './nano-math'
 import { noteLinkParts } from './nano-note-link'
 import { normalizeTagName, tagDisplayLabel, tagNameFromToken } from './nano-tag'
 import { nanoMarkNames } from './prosemirror-names'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import { labelledSourceTokenDomSpec } from './prosemirror-source-token'
 
 export const referenceMarkSpecs: Record<string, MarkSpec> = {
   [nanoMarkNames.tag]: {
@@ -23,7 +23,7 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
     toDOM: (mark) => {
       const name = normalizeTagName(String(mark.attrs.name ?? ''))
       const label = tagDisplayLabel(name) ?? name
-      return ['span', sourceTokenAttrs('nano-tag', { 'data-tag': name, 'data-label': label, title: label }), 0]
+      return labelledSourceTokenDomSpec('span', 'nano-tag', label, { 'data-tag': name, title: label })
     },
   },
   [nanoMarkNames.noteLink]: {
@@ -39,12 +39,11 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
     }],
     toDOM: (mark) => {
       const label = String(mark.attrs.alias || mark.attrs.target || '')
-      return ['span', sourceTokenAttrs('nano-note-link', {
+      return labelledSourceTokenDomSpec('span', 'nano-note-link', label, {
         'data-target': mark.attrs.target,
-        'data-label': label,
         ...(mark.attrs.alias ? { 'data-alias': mark.attrs.alias } : {}),
         title: label,
-      }), 0]
+      })
     },
   },
   [nanoMarkNames.math]: {
@@ -57,11 +56,10 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
         return { formula: element.dataset.formula ?? inlineMathFormula(element.textContent ?? '') }
       },
     }],
-    toDOM: (mark) => ['span', sourceTokenAttrs('nano-math', {
+    toDOM: (mark) => labelledSourceTokenDomSpec('span', 'nano-math', String(mark.attrs.formula ?? ''), {
       'data-formula': mark.attrs.formula,
-      'data-label': mark.attrs.formula,
       title: mark.attrs.formula,
-    }), 0],
+    }),
   },
   [nanoMarkNames.footnoteRef]: {
     attrs: { name: {} },
@@ -75,11 +73,10 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
     }],
     toDOM: (mark) => {
       const name = footnoteName(String(mark.attrs.name ?? '')) || '1'
-      return ['span', sourceTokenAttrs('nano-footnote-ref', {
+      return labelledSourceTokenDomSpec('span', 'nano-footnote-ref', name, {
         'data-name': name,
-        'data-label': name,
         title: name,
-      }), 0]
+      })
     },
   },
 }

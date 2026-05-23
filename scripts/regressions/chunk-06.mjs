@@ -36,11 +36,11 @@ test('Markdown-visible inline tokens expose source editing hooks', () => {
 })
 
 test('Inline reference marks expose visual labels without losing Markdown source hooks', () => {
-  assert.equal(markDomSpec({ type: 'tag', from: 0, to: 7, name: 'project' })[1]['data-label'], 'project')
-  assert.equal(markDomSpec({ type: 'note_link', from: 0, to: 8, target: 'Target Note' })[1]['data-label'], 'Target Note')
-  assert.equal(markDomSpec({ type: 'note_link', from: 0, to: 5, target: 'Target Note', alias: 'alias' })[1]['data-label'], 'alias')
-  assert.equal(markDomSpec({ type: 'math', from: 0, to: 5, formula: 'E=mc^2' })[1]['data-label'], 'E=mc^2')
-  assert.equal(markDomSpec({ type: 'footnote_ref', from: 0, to: 4, name: '1' })[1]['data-label'], '1')
+  assertLabelledSourceMark(markDomSpec({ type: 'tag', from: 0, to: 7, name: 'project' }), 'project')
+  assertLabelledSourceMark(markDomSpec({ type: 'note_link', from: 0, to: 8, target: 'Target Note' }), 'Target Note')
+  assertLabelledSourceMark(markDomSpec({ type: 'note_link', from: 0, to: 5, target: 'Target Note', alias: 'alias' }), 'alias')
+  assertLabelledSourceMark(markDomSpec({ type: 'math', from: 0, to: 5, formula: 'E=mc^2' }), 'E=mc^2')
+  assertLabelledSourceMark(markDomSpec({ type: 'footnote_ref', from: 0, to: 4, name: '1' }), '1')
 })
 
 test('Inline Markdown delimiters feel editable at visual mark boundaries', () => {
@@ -86,8 +86,16 @@ test('Inline source-token marks unwrap to their visual labels at boundaries', ()
 test('Inline autolinks show URL text without visible angle syntax', () => {
   const spec = markDomSpec({ type: 'link', from: 0, to: 21, href: 'https://example.com', syntax: 'autolink' })
   assert.equal(spec[1]['data-syntax'], 'autolink')
-  assert.equal(spec[1]['data-label'], 'https://example.com')
+  assertLabelledSourceMark(spec, 'https://example.com')
 })
+
+function assertLabelledSourceMark(spec, label) {
+  assert.equal(spec[1]['data-label'], label)
+  assert.equal(spec[1]['aria-label'], label)
+  assert.equal(spec[2][0], 'span')
+  assert.equal(spec[2][1]['aria-hidden'], 'true')
+  assert.equal(spec[2][2], 0)
+}
 
 test('Inline source-token interior input unwraps before editing hidden syntax', () => {
   const noteState = textSelectionState('See [[Target Note|alias]] now', 'md-1', 23)

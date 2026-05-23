@@ -4,7 +4,10 @@ import {
   linkSyntax,
   markdownLinkClose,
 } from './prosemirror-atom-dom'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import {
+  labelledSourceTokenDomSpec,
+  sourceTokenAttrs,
+} from './prosemirror-source-token'
 
 export const linkMarkSpec: MarkSpec = {
   attrs: {
@@ -35,9 +38,7 @@ export const linkMarkSpec: MarkSpec = {
     const image = mark.attrs.image === true
     const imageEmptyAlt = image && mark.attrs.imageEmptyAlt === true
     const markdownClose = markdownLinkClose(mark.attrs.href, mark.attrs.title, mark.attrs.destinationStyle)
-    return [
-      'a',
-      sourceTokenAttrs(syntax ? 'nano-md-link nano-raw-external-link' : `nano-md-token ${image ? 'nano-md-image' : 'nano-md-link'}`, {
+    const attrs = {
         href: mark.attrs.href,
         'data-href': mark.attrs.href,
         ...(mark.attrs.title ? { 'data-title': mark.attrs.title } : {}),
@@ -50,9 +51,15 @@ export const linkMarkSpec: MarkSpec = {
           ...(image ? { 'data-image': 'true' } : {}),
           ...(imageEmptyAlt ? { 'data-image-empty-alt': 'true' } : {}),
         }),
-        ...(syntax === 'autolink' ? { 'data-label': mark.attrs.href } : {}),
         title: mark.attrs.title || mark.attrs.href,
-      }),
+      }
+    if (syntax === 'autolink') {
+      return labelledSourceTokenDomSpec('a', 'nano-md-link nano-raw-external-link', String(mark.attrs.href ?? ''), attrs)
+    }
+
+    return [
+      'a',
+      sourceTokenAttrs(syntax ? 'nano-md-link nano-raw-external-link' : `nano-md-token ${image ? 'nano-md-image' : 'nano-md-link'}`, attrs),
       0,
     ]
   },
