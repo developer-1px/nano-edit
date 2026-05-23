@@ -1,3 +1,4 @@
+import { createNanoInputTextHandlers } from '../../src/nano-view-input-text-events.ts'
 import * as h from './harness.mjs'
 const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
@@ -99,6 +100,35 @@ test('Bear empty heading marker input reacts before Enter', () => {
   const h2State = paragraphState.apply(h2Transaction)
   const h3Transaction = blockShortcutTransaction(h2State, h2State.selection.from, h2State.selection.from, '#')
   assert.equal(markdownAfter(h2State, h3Transaction), '###')
+})
+
+test('Bear empty heading marker input runs through text input before Enter', () => {
+  const view = {
+    state: textState('#'),
+    dispatch(transaction) {
+      this.state = this.state.apply(transaction)
+    },
+  }
+  const handlers = createNanoInputTextHandlers(
+    {
+      collapsedBlockIds: new Set(),
+      shell: {
+        openCommandPalette: () => {
+          throw new Error('heading marker input should not open slash palette')
+        },
+      },
+    },
+    {
+      restoreHistory: () => {},
+      runMarkCommand: () => {},
+      toggleCollapsedBlock: () => {},
+    },
+  )
+
+  assert.equal(handlers.handleShortcutInput(view, view.state.selection.from, view.state.selection.from, '#'), true)
+  assert.deepEqual(nanoBlocksFromProseMirror(view.state.doc), [
+    { id: 'b1', type: 'heading', level: 2, text: '', marks: [] },
+  ])
 })
 
 test('Bear heading marker input at h6 does not leak literal marker text', () => {
