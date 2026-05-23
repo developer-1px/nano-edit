@@ -1,0 +1,28 @@
+{
+  "name": "nano-edit",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "vite",
+    "test": "node --experimental-strip-types --experimental-loader ./scripts/ts-extension-loader.mjs scripts/regressions.mjs",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.2",
+    "vite": "^8.0.12"
+  },
+  "dependencies": {
+    "prosemirror-commands": "^1.7.1",
+    "prosemirror-keymap": "^1.2.3",
+    "prosemirror-model": "^1.25.7",
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.41.8",
+    "zod": "^4.4.3",
+    "zod-crud": "file:../zod-crud/packages/zod-crud"
+  }
+}

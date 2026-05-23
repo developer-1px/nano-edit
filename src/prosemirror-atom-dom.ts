@@ -1,0 +1,5 @@
+export * from './prosemirror-attachment-dom'
+export * from './prosemirror-bookmark-dom'
+export * from './prosemirror-image-dom'
+export * from './prosemirror-link-dom'
+export * from './prosemirror-note-tag-dom'

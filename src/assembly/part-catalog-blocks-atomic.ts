@@ -1,0 +1,60 @@
+import type { EditorPartCatalogItem } from './part-catalog-types'
+
+export const atomicBlockPartCatalog = [
+  {
+    id: 'block.table',
+    label: 'Table block',
+    category: 'block',
+    summary: 'Markdown table preserving alignment cells and leading or trailing pipes.',
+    surfaces: ['document-schema', 'block-option', 'markdown-codec', 'prosemirror-adapter', 'index'],
+    pairsWith: ['index.search-query', 'codec.markdown-source-preservation'],
+  },
+  {
+    id: 'block.image',
+    label: 'Image block',
+    category: 'block',
+    summary: 'Markdown image with alt text, title, and explicit angle destination style.',
+    surfaces: ['document-schema', 'block-option', 'markdown-codec', 'prosemirror-adapter', 'index'],
+    pairsWith: ['index.search-query', 'input.markdown-paste'],
+  },
+  {
+    id: 'block.attachment',
+    label: 'Attachment block',
+    category: 'block',
+    summary: 'File attachment link with label, title, and source destination style.',
+    surfaces: ['document-schema', 'block-option', 'markdown-codec', 'prosemirror-adapter', 'index'],
+    pairsWith: ['index.search-query', 'mark.link'],
+  },
+  {
+    id: 'block.bookmark',
+    label: 'Bookmark block',
+    category: 'block',
+    summary: 'Standalone URL or Markdown link promoted to a navigable bookmark block.',
+    surfaces: ['document-schema', 'block-option', 'markdown-codec', 'prosemirror-adapter', 'index'],
+    pairsWith: ['index.search-query', 'mark.link'],
+  },
+  {
+    id: 'block.note-ref',
+    label: 'Note reference block',
+    category: 'block',
+    summary: 'Standalone wiki link block targeting another note or heading.',
+    surfaces: ['document-schema', 'block-option', 'markdown-codec', 'prosemirror-adapter', 'index'],
+    pairsWith: ['mark.note-link', 'index.backlinks'],
+  },
+  {
+    id: 'block.tag-ref',
+    label: 'Tag reference block',
+    category: 'block',
+    summary: 'Standalone tag block that feeds the document tag index.',
+    surfaces: ['document-schema', 'block-option', 'markdown-codec', 'prosemirror-adapter', 'index'],
+    pairsWith: ['mark.tag', 'index.tags'],
+  },
+  {
+    id: 'block.footnote',
+    label: 'Footnote block',
+    category: 'block',
+    summary: 'Footnote definition preserving tight or spaced marker text.',
+    surfaces: ['document-schema', 'block-option', 'markdown-codec', 'prosemirror-adapter', 'index'],
+    pairsWith: ['mark.footnote-ref', 'codec.markdown-source-preservation'],
+  },
+] as const satisfies readonly EditorPartCatalogItem[]
