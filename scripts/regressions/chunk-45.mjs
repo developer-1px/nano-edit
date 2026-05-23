@@ -2,6 +2,7 @@ import {
   createEmptyNanoDocument,
   createNanoDocument,
   emptyNanoDocument,
+  NanoDocumentSchema,
 } from '../../src/index.ts'
 import { assert, test } from './harness.mjs'
 
@@ -22,4 +23,14 @@ test('Default Nano documents are fresh and isolated from exported empty state', 
   } finally {
     emptyNanoDocument.blocks[0].text = originalText
   }
+})
+
+test('Nano document schema rejects empty and duplicate block collections', () => {
+  assert.equal(NanoDocumentSchema.safeParse({ blocks: [] }).success, false)
+  assert.equal(NanoDocumentSchema.safeParse({
+    blocks: [
+      { id: 'same', type: 'paragraph', text: 'One', marks: [] },
+      { id: 'same', type: 'paragraph', text: 'Two', marks: [] },
+    ],
+  }).success, false)
 })

@@ -45,7 +45,14 @@ test('Persisted demo document restores a valid stored document', () => {
 test('Persisted demo document falls back when stored data is invalid', () => {
   for (const storedValue of [
     '{',
+    JSON.stringify({ blocks: [] }),
     JSON.stringify({ blocks: [{ id: 'bad', type: 'unknown', text: 'bad', marks: [] }] }),
+    JSON.stringify({
+      blocks: [
+        { id: 'same', type: 'paragraph', text: 'First', marks: [] },
+        { id: 'same', type: 'paragraph', text: 'Second', marks: [] },
+      ],
+    }),
   ]) {
     const storage = new FakeStorage([[DEMO_DOCUMENT_STORAGE_KEY, storedValue]])
     const persisted = createPersistedDemoNanoDocument(storage)

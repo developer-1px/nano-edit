@@ -20,8 +20,26 @@ export {
   selectionSnap,
 } from './nano-selection-core'
 
+const NanoDocumentBlocksSchema = z.array(NanoBlockSchema)
+  .min(1)
+  .superRefine((blocks, ctx) => {
+    const seen = new Set<string>()
+    for (const [index, block] of blocks.entries()) {
+      if (!seen.has(block.id)) {
+        seen.add(block.id)
+        continue
+      }
+
+      ctx.addIssue({
+        code: 'custom',
+        message: `Duplicate block id: ${block.id}`,
+        path: [index, 'id'],
+      })
+    }
+  })
+
 export const NanoDocumentSchema = z.object({
-  blocks: z.array(NanoBlockSchema),
+  blocks: NanoDocumentBlocksSchema,
 })
 
 export type NanoMark = z.infer<typeof NanoMarkSchema>
