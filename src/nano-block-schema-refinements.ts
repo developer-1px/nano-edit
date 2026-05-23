@@ -4,6 +4,11 @@ export const NonBlankStringSchema = z.string().refine((value) => value.trim().le
   message: 'Value must not be blank',
 })
 
+export function nonBlankStringValue(value: unknown): string | null {
+  const text = String(value ?? '')
+  return text.trim().length > 0 ? text : null
+}
+
 export function textLineCount(text: string): number {
   return text.split('\n').length
 }

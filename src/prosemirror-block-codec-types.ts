@@ -8,7 +8,7 @@ export interface NanoBlockCodec<TType extends NanoBlockType> {
   nanoType: TType
   nodeName: string
   fromNano: (block: NanoBlockFor<TType>) => ProseMirrorNode
-  toNano: (node: ProseMirrorNode, id: string) => NanoBlockFor<TType>
+  toNano: (node: ProseMirrorNode, id: string) => NanoBlock
 }
 
 export interface AnyNanoBlockCodec {

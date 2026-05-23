@@ -1,3 +1,4 @@
+import { nonBlankStringValue } from './nano-block-schema-refinements'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
@@ -11,8 +12,10 @@ export const noteRefBlockCodec = defineNanoBlockCodec({
     alias: block.alias ?? '',
   }),
   toNano: (node, id) => {
-    const target = typeof node.attrs.target === 'string' && node.attrs.target ? node.attrs.target : ''
+    const target = nonBlankStringValue(node.attrs.target)
     const alias = typeof node.attrs.alias === 'string' && node.attrs.alias ? node.attrs.alias : null
+    if (!target) return { id, type: 'paragraph', text: alias ?? '', marks: [] }
+
     return {
       id,
       type: 'note_ref',

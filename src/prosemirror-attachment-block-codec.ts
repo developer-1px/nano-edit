@@ -1,3 +1,4 @@
+import { nonBlankStringValue } from './nano-block-schema-refinements'
 import { destinationStyle } from './prosemirror-atom-dom'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
 import { nanoNodeNames } from './prosemirror-names'
@@ -16,11 +17,14 @@ export const attachmentBlockCodec = defineNanoBlockCodec({
   toNano: (node, id) => {
     const label = typeof node.attrs.label === 'string' && node.attrs.label ? node.attrs.label : null
     const title = typeof node.attrs.title === 'string' && node.attrs.title ? node.attrs.title : null
+    const src = nonBlankStringValue(node.attrs.src)
+    if (!src) return { id, type: 'paragraph', text: label ?? title ?? '', marks: [] }
+
     const nodeDestinationStyle = destinationStyle(node.attrs.destinationStyle)
     return {
       id,
       type: 'attachment',
-      src: String(node.attrs.src ?? ''),
+      src,
       ...(label ? { label } : {}),
       ...(title ? { title } : {}),
       ...(nodeDestinationStyle ? { destinationStyle: nodeDestinationStyle } : {}),

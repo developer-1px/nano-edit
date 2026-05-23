@@ -5,6 +5,8 @@ import {
   nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
 } from '../../src/index.ts'
+import { nanoMarkFromProseMirrorMark } from '../../src/prosemirror-mark-codec-registry.ts'
+import { nanoMarkNames } from '../../src/prosemirror-names.ts'
 import { nanoNodeNames, nanoSchema } from '../../src/prosemirror-nano.ts'
 import { assert, test } from './harness.mjs'
 
@@ -107,6 +109,37 @@ test('ProseMirror conversion pads partial line source metadata before schema val
       text: 'one\ntwo\nthree',
       marks: [],
     },
+  ])
+  assert.deepEqual(NanoDocumentSchema.parse(document), document)
+})
+
+test('ProseMirror conversion drops blank reference marks before schema validation', () => {
+  const marks = nanoSchema.marks
+
+  assert.equal(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.tag].create({ name: '   ' }), 0, 1), null)
+  assert.equal(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.noteLink].create({ target: '   ', alias: 'Alias' }), 0, 1), null)
+  assert.equal(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.math].create({ formula: '   ' }), 0, 1), null)
+  assert.equal(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.footnoteRef].create({ name: '   ' }), 0, 1), null)
+  assert.equal(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.link].create({ href: '   ' }), 0, 1), null)
+})
+
+test('ProseMirror conversion degrades blank reference atoms before schema validation', () => {
+  const nodes = nanoSchema.nodes
+  const prosemirrorDoc = nodes[nanoNodeNames.doc].create(null, [
+    nodes[nanoNodeNames.bookmark].create({ id: 'bookmark', href: '   ', label: 'Bookmark label' }),
+    nodes[nanoNodeNames.noteRef].create({ id: 'note', target: '   ', alias: 'Note alias' }),
+    nodes[nanoNodeNames.tagRef].create({ id: 'tag', name: '   ' }),
+    nodes[nanoNodeNames.attachment].create({ id: 'attachment', src: '   ', label: 'Attachment label' }),
+    nodes[nanoNodeNames.image].create({ id: 'image', src: '   ', alt: 'Image alt' }),
+  ])
+  const document = nanoDocumentFromProseMirror(prosemirrorDoc)
+
+  assert.deepEqual(document.blocks, [
+    { id: 'bookmark', type: 'paragraph', text: 'Bookmark label', marks: [] },
+    { id: 'note', type: 'paragraph', text: 'Note alias', marks: [] },
+    { id: 'tag', type: 'paragraph', text: '', marks: [] },
+    { id: 'attachment', type: 'paragraph', text: 'Attachment label', marks: [] },
+    { id: 'image', type: 'paragraph', text: 'Image alt', marks: [] },
   ])
   assert.deepEqual(NanoDocumentSchema.parse(document), document)
 })
