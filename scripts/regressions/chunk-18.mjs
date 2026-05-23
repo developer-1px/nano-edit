@@ -81,15 +81,31 @@ test('Bear repeated heading marker input walks visual heading levels', () => {
 })
 
 test('Bear empty heading marker input reacts before Enter', () => {
-  const paragraphState = textState('#')
-  const h2Transaction = blockShortcutTransaction(
+  const paragraphState = textState('')
+  const h1Transaction = blockShortcutTransaction(
     paragraphState,
     paragraphState.selection.from,
     paragraphState.selection.from,
     '#',
   )
-  assert.equal(markdownAfter(paragraphState, h2Transaction), '##')
-  assert.deepEqual(blocksAfter(paragraphState, h2Transaction)[0], {
+  assert.equal(markdownAfter(paragraphState, h1Transaction), '#')
+  assert.deepEqual(blocksAfter(paragraphState, h1Transaction)[0], {
+    id: 'b1',
+    type: 'heading',
+    level: 1,
+    text: '',
+    marks: [],
+  })
+
+  const h1State = paragraphState.apply(h1Transaction)
+  const h2Transaction = blockShortcutTransaction(
+    h1State,
+    h1State.selection.from,
+    h1State.selection.from,
+    '#',
+  )
+  assert.equal(markdownAfter(h1State, h2Transaction), '##')
+  assert.deepEqual(blocksAfter(h1State, h2Transaction)[0], {
     id: 'b1',
     type: 'heading',
     level: 2,
@@ -97,14 +113,14 @@ test('Bear empty heading marker input reacts before Enter', () => {
     marks: [],
   })
 
-  const h2State = paragraphState.apply(h2Transaction)
+  const h2State = h1State.apply(h2Transaction)
   const h3Transaction = blockShortcutTransaction(h2State, h2State.selection.from, h2State.selection.from, '#')
   assert.equal(markdownAfter(h2State, h3Transaction), '###')
 })
 
 test('Bear empty heading marker input runs through text input before Enter', () => {
   const view = {
-    state: textState('#'),
+    state: textState(''),
     dispatch(transaction) {
       this.state = this.state.apply(transaction)
     },
@@ -127,7 +143,7 @@ test('Bear empty heading marker input runs through text input before Enter', () 
 
   assert.equal(handlers.handleShortcutInput(view, view.state.selection.from, view.state.selection.from, '#'), true)
   assert.deepEqual(nanoBlocksFromProseMirror(view.state.doc), [
-    { id: 'b1', type: 'heading', level: 2, text: '', marks: [] },
+    { id: 'b1', type: 'heading', level: 1, text: '', marks: [] },
   ])
 })
 

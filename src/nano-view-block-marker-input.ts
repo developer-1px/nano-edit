@@ -44,7 +44,7 @@ export function headingPrefixInputTransaction(
   if (textBefore.length !== $from.parentOffset || block.textContent.length !== textBefore.length) return null
 
   const source = textBefore + text
-  if (!/^#{2,6}$/.test(source)) return null
+  if (!/^#{1,6}$/.test(source)) return null
 
   return blockShortcutTransactionForTemplate(state, $from, {
     type: 'heading',
