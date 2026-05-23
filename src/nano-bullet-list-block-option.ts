@@ -42,7 +42,6 @@ export const bulletListBlockOption = {
       text: match[3] ?? '',
     }),
   }],
-  toolbar: { label: '•', title: 'Bullet List' },
   matchesTemplate: (template) => template.type === 'list_item' && template.kind === 'bullet',
   matches: (node) => node.type.name === nanoNodeNames.listItem && node.attrs.kind === 'bullet',
   nodeType: () => nanoSchema.nodes[nanoNodeNames.listItem],

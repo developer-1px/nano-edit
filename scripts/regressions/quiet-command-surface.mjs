@@ -94,3 +94,30 @@ test('Toolbar chrome stays removed without losing command metadata', () => {
   assert.equal(viewShell.includes('ctx.toolbar'), false)
   assert.equal(viewShell.includes('ctx.blockPicker'), false)
 })
+
+test('Command metadata is not named after removed toolbar chrome', () => {
+  const sourceFiles = [
+    '../../src/assembly/capability.ts',
+    '../../src/nano-block-options.ts',
+    '../../src/nano-mark-types.ts',
+    '../../src/nano-mark-option-queries.ts',
+    '../../src/nano-mark-options.ts',
+    '../../src/nano-command-marks.ts',
+  ]
+    .map((path) => readFileSync(new URL(path, import.meta.url), 'utf8'))
+    .join('\n')
+
+  for (const obsoleteName of [
+    'BlockToolbar',
+    'MarkToolbar',
+    'blockToolbarOptions',
+    'markToolbarOptions',
+    'toolbar?:',
+    '.toolbar',
+  ]) {
+    assert.equal(sourceFiles.includes(obsoleteName), false, `obsolete toolbar model leaked: ${obsoleteName}`)
+  }
+
+  assert(sourceFiles.includes('MarkCommandDisplay'))
+  assert(sourceFiles.includes('markCommandOptions'))
+})

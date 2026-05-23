@@ -2,7 +2,7 @@ import { nanoMarkNames } from './prosemirror-nano'
 
 export type MarkName = (typeof nanoMarkNames)[keyof typeof nanoMarkNames]
 
-export interface MarkToolbarOption {
+export interface MarkCommandDisplay {
   label: string
   title: string
 }
@@ -29,13 +29,13 @@ export interface MarkShortcutMatch {
 export interface MarkOption {
   id: string
   markName: MarkName
-  toolbar?: MarkToolbarOption
+  command?: MarkCommandDisplay
   keyBindings?: readonly string[]
   inputTypes?: readonly string[]
   shortcuts?: readonly MarkShortcut[]
 }
 
-export type MarkToolbarEntry = MarkOption & { toolbar: MarkToolbarOption }
+export type MarkCommandEntry = MarkOption & { command: MarkCommandDisplay }
 
 export interface MarkKeyBindingEntry {
   option: MarkOption

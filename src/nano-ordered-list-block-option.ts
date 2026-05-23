@@ -48,7 +48,6 @@ export const orderedListBlockOption = {
       text: match[4] ?? '',
     }),
   }],
-  toolbar: { label: '1.', title: 'Numbered List' },
   matchesTemplate: (template) => template.type === 'list_item' && template.kind === 'ordered',
   matches: (node) => node.type.name === nanoNodeNames.listItem && node.attrs.kind === 'ordered',
   nodeType: () => nanoSchema.nodes[nanoNodeNames.listItem],

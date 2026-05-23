@@ -6,16 +6,16 @@ export {
 } from './nano-mark-commands'
 export {
   markKeyBindingEntries,
+  markCommandOptions,
   markOptionForInputType,
-  markToolbarOptions,
 } from './nano-mark-option-queries'
 export { markShortcutTransaction } from './nano-mark-shortcut-transaction'
 export type {
+  MarkCommandDisplay,
+  MarkCommandEntry,
   MarkKeyBindingEntry,
   MarkName,
   MarkOption,
   MarkShortcut,
   MarkShortcutMatch,
-  MarkToolbarEntry,
-  MarkToolbarOption,
 } from './nano-mark-types'

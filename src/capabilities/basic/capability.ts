@@ -44,13 +44,6 @@ function headingBlockOption(level: (typeof headingLevels)[number]): BlockOption 
       pattern: new RegExp(`^#{${level}}(?:\\s+(.*))?$`),
       template: (match) => ({ type: 'heading', level, text: match[1] ?? '' }),
     }],
-    toolbar: level === 1
-      ? {
-          label: 'H1',
-          title: 'Heading 1',
-          active: (node) => node.type.name === nanoNodeNames.heading && headingLevel(node) === 1,
-        }
-      : undefined,
     matchesTemplate: (template) => template.type === 'heading' && template.level === level,
     matches: (node) => node.type.name === nanoNodeNames.heading && headingLevel(node) === level,
     nodeType: () => nanoSchema.nodes[nanoNodeNames.heading],

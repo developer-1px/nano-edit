@@ -61,7 +61,6 @@ const todoBlockOption: BlockOption = {
       text: match[4] ?? '',
     }),
   }],
-  toolbar: { label: '✓', title: 'Todo' },
   click: {
     target: todoBoxTarget,
     transaction: toggleCheckedBlockTransaction,

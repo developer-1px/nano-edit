@@ -7,7 +7,6 @@ import type {
   BlockKeyBindingEntry,
   BlockOption,
   BlockShortcut,
-  BlockToolbarEntry,
   EditorCapability,
 } from './assembly/capability'
 import { blockOptionsFromCapabilities } from './assembly/registry'
@@ -27,8 +26,6 @@ export type {
   BlockNodeContent,
   BlockOption,
   BlockShortcut,
-  BlockToolbarEntry,
-  BlockToolbarOption,
   BulletMarker,
   CalloutTone,
   CheckedMarker,
@@ -71,10 +68,6 @@ export function blockBehaviorForNode(node: ProseMirrorNode): BlockBehavior | nul
 
 export function blockAcceptsInputHints(node: ProseMirrorNode): boolean {
   return blockOptionForNode(node)?.acceptsBlockInputHints !== false
-}
-
-export function blockToolbarOptions(): BlockToolbarEntry[] {
-  return blockOptions.filter((option): option is BlockToolbarEntry => option.toolbar !== undefined)
 }
 
 export function blockShortcutOptions(): BlockShortcut[] {

@@ -55,7 +55,6 @@ export interface BlockOption {
   shortcuts?: readonly BlockShortcut[]
   enterShortcuts?: readonly BlockEnterShortcut[]
   keyBindings?: readonly BlockKeyBinding[]
-  toolbar?: BlockToolbarOption
   click?: BlockClickAction
   matchesTemplate: (template: BlockTemplate) => boolean
   matches: (node: ProseMirrorNode) => boolean
@@ -69,18 +68,11 @@ export interface BlockOption {
   behavior?: BlockBehavior
 }
 
-export interface BlockToolbarOption {
-  label: string
-  title: string
-  active?: (node: ProseMirrorNode) => boolean
-}
-
 export interface BlockClickAction {
   target: (target: EventTarget | null) => Element | null
   transaction: (state: EditorState, position: number) => Transaction | null
 }
 
-export type BlockToolbarEntry = BlockOption & { toolbar: BlockToolbarOption }
 export type BlockClickEntry = BlockOption & { click: BlockClickAction }
 
 export interface BlockKeyBindingEntry {

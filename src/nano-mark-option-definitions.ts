@@ -15,7 +15,7 @@ export const markOptions: readonly MarkOption[] = [
   {
     id: 'bold',
     markName: nanoMarkNames.bold,
-    toolbar: { label: 'B', title: 'Bold' },
+    command: { label: 'B', title: 'Bold' },
     keyBindings: ['Mod-b'],
     inputTypes: ['formatBold'],
     shortcuts: [
@@ -26,7 +26,7 @@ export const markOptions: readonly MarkOption[] = [
   {
     id: 'italic',
     markName: nanoMarkNames.italic,
-    toolbar: { label: 'I', title: 'Italic' },
+    command: { label: 'I', title: 'Italic' },
     keyBindings: ['Mod-i'],
     inputTypes: ['formatItalic'],
     shortcuts: [
@@ -37,7 +37,7 @@ export const markOptions: readonly MarkOption[] = [
   {
     id: 'underline',
     markName: nanoMarkNames.underline,
-    toolbar: { label: 'U', title: 'Underline' },
+    command: { label: 'U', title: 'Underline' },
     keyBindings: ['Mod-u'],
     inputTypes: ['formatUnderline'],
     shortcuts: [{ name: 'underline-tilde', open: '~' }],
@@ -45,7 +45,7 @@ export const markOptions: readonly MarkOption[] = [
   {
     id: 'strike',
     markName: nanoMarkNames.strike,
-    toolbar: { label: 'S', title: 'Strikethrough' },
+    command: { label: 'S', title: 'Strikethrough' },
     keyBindings: ['Shift-Mod-x'],
     inputTypes: ['formatStrikeThrough'],
     shortcuts: [{ name: 'strike-tilde', open: '~~' }],
@@ -53,13 +53,13 @@ export const markOptions: readonly MarkOption[] = [
   {
     id: 'highlight',
     markName: nanoMarkNames.highlight,
-    toolbar: { label: 'H', title: 'Highlight' },
+    command: { label: 'H', title: 'Highlight' },
     shortcuts: [{ name: 'highlight-equals', open: '==' }],
   },
   {
     id: 'code',
     markName: nanoMarkNames.code,
-    toolbar: { label: '<>', title: 'Inline Code' },
+    command: { label: '<>', title: 'Inline Code' },
     shortcuts: [{ name: 'code-backtick', match: codeSpanShortcutMatch }],
   },
   {

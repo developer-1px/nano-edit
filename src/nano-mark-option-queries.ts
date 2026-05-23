@@ -1,12 +1,12 @@
 import { markOptions } from './nano-mark-option-definitions'
 import type {
+  MarkCommandEntry,
   MarkKeyBindingEntry,
   MarkOption,
-  MarkToolbarEntry,
 } from './nano-mark-types'
 
-export function markToolbarOptions(): MarkToolbarEntry[] {
-  return markOptions.filter((option): option is MarkToolbarEntry => option.toolbar !== undefined)
+export function markCommandOptions(): MarkCommandEntry[] {
+  return markOptions.filter((option): option is MarkCommandEntry => option.command !== undefined)
 }
 
 export function markKeyBindingEntries(): MarkKeyBindingEntry[] {
