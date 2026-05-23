@@ -1,8 +1,8 @@
 import { EditorView } from 'prosemirror-view'
-import { createNanoGutterRuntime } from './nano-view-gutter-runtime'
 import { createNanoInputRuntime } from './nano-view-input-runtime'
 import { createNanoInspectorRuntime } from './nano-view-inspector-runtime'
 import { createNanoKeymapRuntime } from './nano-view-keymap-runtime'
+import { createNanoSlashCommandRuntime } from './nano-view-slash-command-runtime'
 import {
   createNanoEngineRuntime,
   type NanoEngineRuntime,
@@ -13,7 +13,7 @@ import type { NanoViewHandle, NanoViewOptions } from './nano-view-context'
 import { createNanoEditorState } from './nano-view-editor-state'
 import {
   destroyNanoView,
-  installNanoGutterListeners,
+  installNanoSlashCommandListeners,
 } from './nano-view-lifecycle'
 import {
   destroyMountedNanoView,
@@ -26,7 +26,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
   destroyMountedNanoView(options.mount)
   const ctx = createNanoViewContext(options)
   const inspector = createNanoInspectorRuntime(ctx)
-  const gutter = createNanoGutterRuntime(ctx)
+  const slashCommands = createNanoSlashCommandRuntime(ctx)
   let engineRuntime: NanoEngineRuntime
   const engine = () => engineRuntime
   const keymaps = createNanoKeymapRuntime(ctx, {
@@ -48,7 +48,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
     inspector,
   })
 
-  installNanoGutterListeners(ctx, gutter)
+  installNanoSlashCommandListeners(ctx, slashCommands)
   installNanoShell(options, ctx, {
     engine,
     inspector,

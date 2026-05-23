@@ -1,11 +1,11 @@
 import type { NanoViewContext } from './nano-view-context'
-import type { NanoGutterRuntime } from './nano-view-gutter-runtime'
+import type { NanoSlashCommandRuntime } from './nano-view-slash-command-runtime'
 
-export function installNanoGutterListeners(
+export function installNanoSlashCommandListeners(
   ctx: NanoViewContext,
-  gutter: NanoGutterRuntime,
+  slashCommands: NanoSlashCommandRuntime,
 ): void {
-  ctx.slashKeydownListener = (event) => gutter.handleBlockInsertKeydown(event)
+  ctx.slashKeydownListener = (event) => slashCommands.handleSlashKeydown(event)
 }
 
 export function destroyNanoView(ctx: NanoViewContext): void {

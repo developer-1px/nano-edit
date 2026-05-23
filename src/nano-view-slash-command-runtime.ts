@@ -2,14 +2,14 @@ import { activeBlockId } from './nano-view-active-block'
 import type { NanoViewContext } from './nano-view-context'
 import { slashPickerBlockIdFromSelection } from './nano-view-keyboard-transactions'
 
-interface NanoGutterKeyboardRuntime {
-  handleBlockInsertKeydown: (event: KeyboardEvent) => void
+export interface NanoSlashCommandRuntime {
+  handleSlashKeydown: (event: KeyboardEvent) => void
 }
 
-export function createNanoGutterKeyboardRuntime(
+export function createNanoSlashCommandRuntime(
   ctx: NanoViewContext,
-): NanoGutterKeyboardRuntime {
-  const handleBlockInsertKeydown = (event: KeyboardEvent): void => {
+): NanoSlashCommandRuntime {
+  const handleSlashKeydown = (event: KeyboardEvent): void => {
     if (event.key !== '/') return
 
     const blockId = slashPickerBlockIdFromSelection(ctx.view.state)
@@ -20,5 +20,5 @@ export function createNanoGutterKeyboardRuntime(
     ctx.shell.openCommandPalette('slash', blockId)
   }
 
-  return { handleBlockInsertKeydown }
+  return { handleSlashKeydown }
 }
