@@ -57,9 +57,18 @@ export function copyMarkdown(ctx: NanoViewContext): void {
 export function refreshInspector(ctx: NanoViewContext, deps: NanoEngineDeps): void {
   deps.inspector.renderIndex()
   deps.inspector.renderMarkdown()
-  ctx.toolbar.querySelector<HTMLButtonElement>('[data-action="undo"]')!.disabled = !ctx.engine.history.canUndo
-  ctx.toolbar.querySelector<HTMLButtonElement>('[data-action="redo"]')!.disabled = !ctx.engine.history.canRedo
+  setToolbarHistoryButtonDisabled(ctx, 'undo', !ctx.engine.history.canUndo)
+  setToolbarHistoryButtonDisabled(ctx, 'redo', !ctx.engine.history.canRedo)
   deps.toolbar.refreshToolbarState()
+}
+
+function setToolbarHistoryButtonDisabled(
+  ctx: NanoViewContext,
+  action: 'redo' | 'undo',
+  disabled: boolean,
+): void {
+  const button = ctx.toolbar.querySelector<HTMLButtonElement>(`[data-action="${action}"]`)
+  if (button) button.disabled = disabled
 }
 
 export function pruneCollapsedBlocks(ctx: NanoViewContext, doc: ProseMirrorNode): void {
