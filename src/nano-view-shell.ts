@@ -82,5 +82,5 @@ function prepareNanoRoot(ctx: NanoViewContext): void {
   ctx.root = document.createElement('section')
   ctx.root.className = 'nano'
   ctx.editor = document.createElement('div')
-  ctx.editor.className = 'editor'
+  ctx.editor.className = 'nano-editor'
 }

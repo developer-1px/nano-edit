@@ -1,29 +1,6 @@
-:root {
-  --nano-bg: #ffffff;
-  --nano-text: #1f2328;
-  --nano-muted: #59636e;
-  --nano-border: #d1d9e0;
-  --nano-focus: #24292f;
-  --nano-focus-ring: #8c959f;
-  --nano-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --nano-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
-}
-
 .nano,
 .nano * {
   box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--nano-bg);
-}
-
-html,
-body,
-#app {
-  max-width: 100%;
-  overflow-x: hidden;
 }
 
 .nano button,
@@ -57,6 +34,15 @@ body,
 }
 
 .nano {
+  --nano-bg: #ffffff;
+  --nano-text: #1f2328;
+  --nano-muted: #59636e;
+  --nano-border: #d1d9e0;
+  --nano-focus: #24292f;
+  --nano-focus-ring: #8c959f;
+  --nano-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --nano-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+
   min-height: 100svh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -73,7 +59,7 @@ body,
   grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
 }
 
-.editor {
+.nano-editor {
   width: 100%;
   min-width: 0;
   min-height: 100svh;
@@ -94,11 +80,11 @@ body,
   line-height: 1.65;
 }
 
-.ProseMirror:focus-visible {
+.nano .ProseMirror:focus-visible {
   outline: none;
 }
 
-.ProseMirror-selectednode {
+.nano .ProseMirror-selectednode {
   outline: 1px solid var(--nano-border);
   outline-offset: 2px;
 }
@@ -214,7 +200,7 @@ body,
     grid-template-columns: 1fr;
   }
 
-  .editor {
+  .nano-editor {
     min-height: 100svh;
     padding: 32px 20px;
   }

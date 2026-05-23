@@ -1,4 +1,5 @@
 import 'prosemirror-view/style/prosemirror.css'
+import './styles/demo-host.css'
 import './style.css'
 import { createPersistedDemoNanoDocument } from './demo/persisted-document'
 import { createNanoView } from './nano-view'

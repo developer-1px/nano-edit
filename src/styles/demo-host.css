@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  background: #ffffff;
+}
+
+html,
+body,
+#app {
+  max-width: 100%;
+  overflow-x: hidden;
+}
