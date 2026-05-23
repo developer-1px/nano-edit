@@ -1,4 +1,5 @@
 import type { NodeSpec } from 'prosemirror-model'
+import { nonBlankStringValue } from './nano-block-schema-refinements'
 import {
   destinationStyle,
   markdownImageToken,
@@ -20,8 +21,11 @@ export const imageNodeSpec: NodeSpec = {
     tag: 'figure.nano-image',
     getAttrs: (dom) => {
       const image = (dom as HTMLElement).querySelector('img')
+      const src = nonBlankStringValue(image?.getAttribute('src'))
+      if (!src) return false
+
       return {
-        src: image?.getAttribute('src') ?? '',
+        src,
         alt: image?.getAttribute('alt') ?? '',
         destinationStyle: (dom as HTMLElement).dataset.destinationStyle ?? '',
         title: image?.getAttribute('title') ?? '',
@@ -29,11 +33,15 @@ export const imageNodeSpec: NodeSpec = {
     },
   }, {
     tag: 'img[src]',
-    getAttrs: (dom) => ({
-      src: (dom as HTMLElement).getAttribute('src') ?? '',
-      alt: (dom as HTMLElement).getAttribute('alt') ?? '',
-      title: (dom as HTMLElement).getAttribute('title') ?? '',
-    }),
+    getAttrs: (dom) => {
+      const element = dom as HTMLElement
+      const src = nonBlankStringValue(element.getAttribute('src'))
+      return src ? {
+        src,
+        alt: element.getAttribute('alt') ?? '',
+        title: element.getAttribute('title') ?? '',
+      } : false
+    },
   }],
   toDOM: (node) => [
     'figure',

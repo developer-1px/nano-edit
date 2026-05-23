@@ -1,4 +1,5 @@
 import type { MarkSpec } from 'prosemirror-model'
+import { nonBlankStringValue } from './nano-block-schema-refinements'
 import {
   destinationStyle,
   linkSyntax,
@@ -23,8 +24,11 @@ export const linkMarkSpec: MarkSpec = {
     tag: 'a[href]',
     getAttrs: (dom) => {
       const element = dom as HTMLElement
+      const href = nonBlankStringValue(element.getAttribute('href'))
+      if (!href) return false
+
       return {
-        href: element.getAttribute('href'),
+        href,
         destinationStyle: element.dataset.destinationStyle ?? '',
         title: element.dataset.title ?? '',
         syntax: element.dataset.syntax ?? '',

@@ -1,4 +1,5 @@
 import type { MarkSpec } from 'prosemirror-model'
+import { nonBlankStringValue } from './nano-block-schema-refinements'
 import { footnoteName } from './nano-footnote'
 import { inlineMathFormula } from './nano-math'
 import { noteLinkParts } from './nano-note-link'
@@ -14,10 +15,11 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
       tag: 'span.nano-tag',
       getAttrs: (dom) => {
         const element = dom as HTMLElement
-        return {
-          name: tagNameFromToken(element.textContent ?? '')
+        const name = nonBlankStringValue(
+          tagNameFromToken(element.textContent ?? '')
             ?? normalizeTagName(element.dataset.tag ?? ''),
-        }
+        )
+        return name ? { name } : false
       },
     }],
     toDOM: (mark) => {
@@ -34,7 +36,8 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
       getAttrs: (dom) => {
         const element = dom as HTMLElement
         const parts = noteLinkParts(element.dataset.target ?? element.textContent ?? '')
-        return { target: parts?.target ?? '', alias: element.dataset.alias ?? parts?.alias ?? '' }
+        const target = nonBlankStringValue(parts?.target)
+        return target ? { target, alias: element.dataset.alias ?? parts?.alias ?? '' } : false
       },
     }],
     toDOM: (mark) => {
@@ -53,7 +56,8 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
       tag: 'span.nano-math',
       getAttrs: (dom) => {
         const element = dom as HTMLElement
-        return { formula: element.dataset.formula ?? inlineMathFormula(element.textContent ?? '') }
+        const formula = nonBlankStringValue(element.dataset.formula ?? inlineMathFormula(element.textContent ?? ''))
+        return formula ? { formula } : false
       },
     }],
     toDOM: (mark) => labelledSourceTokenDomSpec('span', 'nano-math', String(mark.attrs.formula ?? ''), {
@@ -68,7 +72,8 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
       tag: 'span.nano-footnote-ref',
       getAttrs: (dom) => {
         const element = dom as HTMLElement
-        return { name: footnoteName(element.dataset.name ?? element.textContent ?? '') }
+        const name = nonBlankStringValue(footnoteName(element.dataset.name ?? element.textContent ?? ''))
+        return name ? { name } : false
       },
     }],
     toDOM: (mark) => {

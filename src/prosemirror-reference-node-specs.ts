@@ -1,4 +1,5 @@
 import type { NodeSpec } from 'prosemirror-model'
+import { nonBlankStringValue } from './nano-block-schema-refinements'
 import { noteLinkParts } from './nano-note-link'
 import { normalizeTagName } from './nano-tag'
 import {
@@ -18,8 +19,11 @@ export const bookmarkNodeSpec: NodeSpec = {
     tag: 'div.nano-bookmark',
     getAttrs: (dom) => {
       const element = dom as HTMLElement
+      const href = nonBlankStringValue(element.dataset.href ?? element.querySelector('a')?.getAttribute('href'))
+      if (!href) return false
+
       return {
-        href: element.dataset.href ?? element.querySelector('a')?.getAttribute('href') ?? '',
+        href,
         label: element.dataset.label ?? '',
         title: element.dataset.title ?? '',
         destinationStyle: element.dataset.destinationStyle ?? '',
@@ -40,8 +44,11 @@ export const noteRefNodeSpec: NodeSpec = {
     getAttrs: (dom) => {
       const element = dom as HTMLElement
       const parts = noteLinkParts(element.dataset.target ?? element.textContent ?? '')
+      const target = nonBlankStringValue(parts?.target ?? element.dataset.target)
+      if (!target) return false
+
       return {
-        target: parts?.target ?? element.dataset.target ?? '',
+        target,
         alias: element.dataset.alias ?? parts?.alias ?? '',
       }
     },
@@ -58,7 +65,8 @@ export const tagRefNodeSpec: NodeSpec = {
     tag: 'div.nano-tag-ref',
     getAttrs: (dom) => {
       const element = dom as HTMLElement
-      return { name: normalizeTagName(element.dataset.tag ?? element.textContent ?? '') }
+      const name = nonBlankStringValue(normalizeTagName(element.dataset.tag ?? element.textContent ?? ''))
+      return name ? { name } : false
     },
   }],
   toDOM: (node) => tagRefDomSpec(node.attrs.id, node.attrs.name),
@@ -73,8 +81,11 @@ export const attachmentNodeSpec: NodeSpec = {
     tag: 'div.nano-attachment',
     getAttrs: (dom) => {
       const element = dom as HTMLElement
+      const src = nonBlankStringValue(element.dataset.src ?? element.querySelector('a')?.getAttribute('href'))
+      if (!src) return false
+
       return {
-        src: element.dataset.src ?? element.querySelector('a')?.getAttribute('href') ?? '',
+        src,
         label: element.dataset.label ?? '',
         title: element.dataset.title ?? '',
         destinationStyle: element.dataset.destinationStyle ?? '',

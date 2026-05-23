@@ -5,9 +5,18 @@ import {
   nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
 } from '../../src/index.ts'
+import { imageNodeSpec } from '../../src/prosemirror-image-node-spec.ts'
+import { linkMarkSpec } from '../../src/prosemirror-link-mark-spec.ts'
 import { nanoMarkFromProseMirrorMark } from '../../src/prosemirror-mark-codec-registry.ts'
 import { nanoMarkNames } from '../../src/prosemirror-names.ts'
 import { nanoNodeNames, nanoSchema } from '../../src/prosemirror-nano.ts'
+import {
+  attachmentNodeSpec,
+  bookmarkNodeSpec,
+  noteRefNodeSpec,
+  tagRefNodeSpec,
+} from '../../src/prosemirror-reference-node-specs.ts'
+import { referenceMarkSpecs } from '../../src/prosemirror-reference-mark-specs.ts'
 import { assert, test } from './harness.mjs'
 
 test('ProseMirror to Nano conversion returns a schema-valid document', () => {
@@ -143,3 +152,56 @@ test('ProseMirror conversion degrades blank reference atoms before schema valida
   ])
   assert.deepEqual(NanoDocumentSchema.parse(document), document)
 })
+
+test('ProseMirror DOM parsing rejects blank reference marks before attr creation', () => {
+  assert.equal(parseAttrs(referenceMarkSpecs[nanoMarkNames.tag], element({ dataset: { tag: '   ' } })), false)
+  assert.equal(parseAttrs(referenceMarkSpecs[nanoMarkNames.noteLink], element({ dataset: { target: '   ' } })), false)
+  assert.equal(parseAttrs(referenceMarkSpecs[nanoMarkNames.math], element({ dataset: { formula: '   ' } })), false)
+  assert.equal(parseAttrs(referenceMarkSpecs[nanoMarkNames.footnoteRef], element({ dataset: { name: '   ' } })), false)
+  assert.equal(parseAttrs(linkMarkSpec, element({ attrs: { href: '   ' } })), false)
+
+  assert.deepEqual(parseAttrs(referenceMarkSpecs[nanoMarkNames.tag], element({ dataset: { tag: 'release' } })), { name: 'release' })
+  assert.deepEqual(parseAttrs(linkMarkSpec, element({ attrs: { href: 'https://example.com' } })), {
+    href: 'https://example.com',
+    destinationStyle: '',
+    title: '',
+    syntax: '',
+    image: false,
+    imageEmptyAlt: false,
+  })
+})
+
+test('ProseMirror DOM parsing rejects blank reference atoms before attr creation', () => {
+  assert.equal(parseAttrs(bookmarkNodeSpec, element({ dataset: { href: '   ' } })), false)
+  assert.equal(parseAttrs(noteRefNodeSpec, element({ dataset: { target: '   ' } })), false)
+  assert.equal(parseAttrs(tagRefNodeSpec, element({ dataset: { tag: '   ' } })), false)
+  assert.equal(parseAttrs(attachmentNodeSpec, element({ dataset: { src: '   ' } })), false)
+  assert.equal(parseAttrs(imageNodeSpec, element({ query: { img: element({ attrs: { src: '   ' } }) } })), false)
+  assert.equal(parseAttrs(imageNodeSpec, element({ attrs: { src: '   ' } }), 1), false)
+
+  assert.deepEqual(parseAttrs(bookmarkNodeSpec, element({ dataset: { href: 'https://example.com', label: 'Example' } })), {
+    href: 'https://example.com',
+    label: 'Example',
+    title: '',
+    destinationStyle: '',
+    syntax: 'bare',
+  })
+  assert.deepEqual(parseAttrs(imageNodeSpec, element({ attrs: { src: '/image.png', alt: 'Image' } }), 1), {
+    src: '/image.png',
+    alt: 'Image',
+    title: '',
+  })
+})
+
+function parseAttrs(spec, dom, ruleIndex = 0) {
+  return spec.parseDOM[ruleIndex].getAttrs(dom)
+}
+
+function element({ dataset = {}, attrs = {}, textContent = '', query = {} } = {}) {
+  return {
+    dataset,
+    textContent,
+    getAttribute: (name) => attrs[name] ?? null,
+    querySelector: (selector) => query[selector] ?? null,
+  }
+}
