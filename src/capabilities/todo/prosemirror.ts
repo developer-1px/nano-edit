@@ -58,7 +58,6 @@ export const todoNodeSpec: NodeSpec = {
     foldIndicatorDomSpec('nano-list-fold'),
     ['span', { class: 'nano-todo-box', contenteditable: 'false' },
       lucideIcon(node.attrs.checked ? SquareCheck : Square, 'nano-todo-icon'),
-      `${bulletMarker(node.attrs.marker)} [${node.attrs.checked ? checkedMarker(node.attrs.checkedMarker) : ' '}]`,
     ],
     ['span', { class: 'nano-block-content' }, 0],
   ],

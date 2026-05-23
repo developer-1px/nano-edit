@@ -94,14 +94,7 @@
 .nano-attachment-src,
 .nano-note-ref-token,
 .nano-table-markdown {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  opacity: 0;
-  font-size: 0;
-  line-height: 0;
-  user-select: none;
+  display: none;
 }
 
 .nano-document .nano-quote,

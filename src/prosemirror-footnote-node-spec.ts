@@ -42,7 +42,7 @@ export const footnoteNodeSpec: NodeSpec = {
       ['span', sourceTokenAttrs('nano-footnote-marker', {
         contenteditable: 'false',
         'data-label': name,
-      }), `[^${name}]:`],
+      })],
       ['span', { class: 'nano-block-content' }, 0],
     ]
   },
