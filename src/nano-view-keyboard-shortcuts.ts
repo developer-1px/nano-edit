@@ -16,6 +16,7 @@ import {
 } from './nano-view-block-marker-input'
 import { blockShortcutTransactionForTemplate } from './nano-view-block-shortcut-template'
 import { continuationMarkerInputTransaction } from './nano-view-continuation-markers'
+import { paragraphPrefixInputTransaction } from './nano-view-paragraph-prefix-input'
 
 export function blockShortcutTransaction(
   state: EditorState,
@@ -37,6 +38,9 @@ export function blockShortcutTransaction(
 
   const headingPrefixTransaction = headingPrefixInputTransaction(state, $from, text)
   if (headingPrefixTransaction) return headingPrefixTransaction
+
+  const paragraphPrefixTransaction = paragraphPrefixInputTransaction(state, $from, text)
+  if (paragraphPrefixTransaction) return paragraphPrefixTransaction
 
   const todoMarkerTransaction = todoMarkerInputTransaction(state, $from, text)
   if (todoMarkerTransaction) return todoMarkerTransaction

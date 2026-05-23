@@ -1,6 +1,17 @@
 import * as h from './harness.mjs'
 const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
+function paragraphSelectionState(text, offset) {
+  const doc = prosemirrorDocFromNano({
+    blocks: [{ id: 'b1', type: 'paragraph', text, marks: [] }],
+  })
+  return EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 1 + offset),
+  })
+}
+
 test('Bear empty todos stay todo blocks without trailing filler', () => {
   const markdown = '- [ ]\n- [x]\n  - [ ] child'
   const document = nanoDocumentFromMarkdown(markdown)
@@ -95,6 +106,36 @@ test('Bear list marker input at visual list start edits source marker, not conte
     markdownAfter(paddedOrderedStartState, blockShortcutTransaction(paddedOrderedStartState, paddedOrderedStartState.selection.from, paddedOrderedStartState.selection.from, '8')),
     '008) item',
   )
+})
+
+test('Bear paragraph prefix markers promote existing text before Enter', () => {
+  const bulletState = paragraphSelectionState('-Task', 1)
+  const bulletTransaction = blockShortcutTransaction(bulletState, bulletState.selection.from, bulletState.selection.from, ' ')
+  assert.equal(markdownAfter(bulletState, bulletTransaction), '- Task')
+  assert.deepEqual(blocksAfter(bulletState, bulletTransaction), [
+    { id: 'b1', type: 'list_item', kind: 'bullet', indent: 0, text: 'Task', marks: [] },
+  ])
+
+  const orderedState = paragraphSelectionState('07)Task', 3)
+  const orderedTransaction = blockShortcutTransaction(orderedState, orderedState.selection.from, orderedState.selection.from, ' ')
+  assert.equal(markdownAfter(orderedState, orderedTransaction), '07) Task')
+  assert.deepEqual(blocksAfter(orderedState, orderedTransaction), [
+    { id: 'b1', type: 'list_item', kind: 'ordered', indent: 0, start: 7, orderedMarker: ')', orderedStartText: '07', text: 'Task', marks: [] },
+  ])
+
+  const quoteState = paragraphSelectionState('>Quote', 1)
+  const quoteTransaction = blockShortcutTransaction(quoteState, quoteState.selection.from, quoteState.selection.from, ' ')
+  assert.equal(markdownAfter(quoteState, quoteTransaction), '> Quote')
+  assert.deepEqual(blocksAfter(quoteState, quoteTransaction), [
+    { id: 'b1', type: 'quote', quoteMarkerSpacing: ['space'], text: 'Quote', marks: [] },
+  ])
+
+  const todoState = paragraphSelectionState('- [X]Task', 5)
+  const todoTransaction = blockShortcutTransaction(todoState, todoState.selection.from, todoState.selection.from, ' ')
+  assert.equal(markdownAfter(todoState, todoTransaction), '- [X] Task')
+  assert.deepEqual(blocksAfter(todoState, todoTransaction), [
+    { id: 'b1', type: 'todo', checked: true, checkedMarker: 'X', indent: 0, text: 'Task', marks: [] },
+  ])
 })
 
 test('Bear todo marker input at visual checkbox start edits source marker and checkbox state', () => {
