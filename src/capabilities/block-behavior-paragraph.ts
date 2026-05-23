@@ -1,5 +1,6 @@
 import { TextSelection, type EditorState, type Transaction } from 'prosemirror-state'
 import type { BlockKeyboardContext } from '../assembly/capability'
+import { atxSpacing } from '../prosemirror-block-attrs'
 import { nanoNodeNames } from '../prosemirror-nano'
 
 export function toggleCheckedBlockTransaction(
@@ -38,6 +39,17 @@ export function decreaseHeadingAtStartThenParagraph(context: BlockKeyboardContex
   if (context.block.attrs.headingStyle === 'setext') {
     return setParagraphTransaction(context.state, context.blockPosition, context.block.attrs.id)
   }
+
+  const textSpacing = atxSpacing(context.block.attrs.atxTextSpacing)
+  if (textSpacing > 1) {
+    const transaction = context.state.tr.setNodeMarkup(context.blockPosition, context.block.type, {
+      ...context.block.attrs,
+      atxTextSpacing: textSpacing > 2 ? textSpacing - 1 : null,
+    })
+    transaction.setSelection(TextSelection.create(transaction.doc, context.blockPosition + 1))
+    return transaction
+  }
+
   if (level <= 1) return setParagraphTransaction(context.state, context.blockPosition, context.block.attrs.id)
 
   const transaction = context.state.tr.setNodeMarkup(context.blockPosition, context.block.type, {

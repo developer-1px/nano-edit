@@ -1,6 +1,7 @@
 import type { ResolvedPos } from 'prosemirror-model'
 import { EditorState, TextSelection, type Transaction } from 'prosemirror-state'
 import { footnoteName } from './nano-footnote'
+import { atxSpacing } from './prosemirror-block-attrs'
 import {
   quoteMarkerDepthsOrNull,
   quoteMarkerSpacingOrNull,
@@ -47,7 +48,16 @@ export function headingMarkerSpaceInputTransaction(
     return null
   }
 
-  return state.tr.setSelection(TextSelection.create(state.doc, $from.before() + 1))
+  const blockPosition = $from.before()
+  const spacing = atxSpacing(block.attrs.atxTextSpacing)
+  if (spacing <= 1) return state.tr.setSelection(TextSelection.create(state.doc, blockPosition + 1))
+
+  const transaction = state.tr.setNodeMarkup(blockPosition, block.type, {
+    ...block.attrs,
+    atxTextSpacing: spacing + 1,
+  })
+  transaction.setSelection(TextSelection.create(transaction.doc, blockPosition + 1))
+  return transaction
 }
 
 export function headingPrefixInputTransaction(

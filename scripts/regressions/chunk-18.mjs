@@ -33,6 +33,13 @@ test('Bear ATX heading spacing preserves imported Markdown source', () => {
   assert.equal(nanoMarkdownFromDocument(document), markdown)
   assert.equal(nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(prosemirrorDocFromNano(document)) }), markdown)
   assert.deepEqual(nanoDocumentIndex(document).outline.map((entry) => entry.label), ['Wide title'])
+
+  const spacingState = textSelectionState('###  Wide title', 'md-1', 0)
+  assert.equal(
+    markdownAfter(spacingState, blockShortcutTransaction(spacingState, spacingState.selection.from, spacingState.selection.from, ' ')),
+    '###   Wide title',
+  )
+  assert.equal(markdownAfter(spacingState, backspaceBlockTransaction(spacingState)), '### Wide title')
 })
 
 test('Bear heading level changes keep Markdown marker style', () => {
