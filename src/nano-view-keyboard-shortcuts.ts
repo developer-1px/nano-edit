@@ -8,6 +8,7 @@ import {
   calloutMarkerInputTransaction,
   footnoteMarkerInputTransaction,
   headingMarkerInputTransaction,
+  headingMarkerSpaceInputTransaction,
   headingPrefixInputTransaction,
   listMarkerInputTransaction,
   quoteMarkerInputTransaction,
@@ -35,6 +36,9 @@ export function blockShortcutTransaction(
 
   const headingMarkerTransaction = headingMarkerInputTransaction(state, $from, text)
   if (headingMarkerTransaction) return headingMarkerTransaction
+
+  const headingMarkerSpaceTransaction = headingMarkerSpaceInputTransaction(state, $from, text)
+  if (headingMarkerSpaceTransaction) return headingMarkerSpaceTransaction
 
   const headingPrefixTransaction = headingPrefixInputTransaction(state, $from, text)
   if (headingPrefixTransaction) return headingPrefixTransaction

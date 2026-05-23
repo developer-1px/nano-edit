@@ -2,6 +2,20 @@ import { createNanoInputTextHandlers } from '../../src/nano-view-input-text-even
 import * as h from './harness.mjs'
 const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
+function typeShortcutText(initialState, text) {
+  let state = initialState
+  for (const input of text) {
+    const { from, to } = state.selection
+    const transaction = blockShortcutTransaction(state, from, to, input) ?? state.tr.insertText(input, from, to)
+    state = state.apply(transaction)
+  }
+  return state
+}
+
+function markdownFromState(state) {
+  return nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(state.doc) })
+}
+
 test('Bear ATX heading spacing preserves imported Markdown source', () => {
   const markdown = '###  Wide title  ####'
   const document = nanoDocumentFromMarkdown(markdown)
@@ -161,6 +175,26 @@ test('Bear heading marker input promotes existing paragraph text before Enter', 
   assert.equal(markdownAfter(nextState, h2Transaction), '## Title')
   assert.deepEqual(blocksAfter(nextState, h2Transaction), [
     { id: 'md-1', type: 'heading', level: 2, text: 'Title', marks: [] },
+  ])
+})
+
+test('Bear heading prefix marker space does not leak into existing text', () => {
+  const h1State = typeShortcutText(textSelectionState('Title', 'md-1', 0), '# ')
+  assert.equal(markdownFromState(h1State), '# Title')
+  assert.deepEqual(nanoBlocksFromProseMirror(h1State.doc), [
+    { id: 'md-1', type: 'heading', level: 1, text: 'Title', marks: [] },
+  ])
+
+  const h2State = typeShortcutText(textSelectionState('Title', 'md-1', 0), '## ')
+  assert.equal(markdownFromState(h2State), '## Title')
+  assert.deepEqual(nanoBlocksFromProseMirror(h2State.doc), [
+    { id: 'md-1', type: 'heading', level: 2, text: 'Title', marks: [] },
+  ])
+
+  const emptyState = typeShortcutText(textState(''), '# ')
+  assert.equal(markdownFromState(emptyState), '#')
+  assert.deepEqual(nanoBlocksFromProseMirror(emptyState.doc), [
+    { id: 'b1', type: 'heading', level: 1, text: '', marks: [] },
   ])
 })
 

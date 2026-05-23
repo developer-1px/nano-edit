@@ -32,6 +32,24 @@ export function headingMarkerInputTransaction(
   return transaction
 }
 
+export function headingMarkerSpaceInputTransaction(
+  state: EditorState,
+  $from: ResolvedPos,
+  text: string,
+): Transaction | null {
+  const block = $from.parent
+  if (
+    text !== ' '
+    || $from.parentOffset !== 0
+    || block.type.name !== nanoNodeNames.heading
+    || block.attrs.headingStyle === 'setext'
+  ) {
+    return null
+  }
+
+  return state.tr.setSelection(TextSelection.create(state.doc, $from.before() + 1))
+}
+
 export function headingPrefixInputTransaction(
   state: EditorState,
   $from: ResolvedPos,
