@@ -10,6 +10,10 @@ import {
   markdownPasteTransaction,
 } from './nano-view-markdown-transactions'
 import {
+  markdownTextFromClipboardData,
+  writeMarkdownTextToClipboardData,
+} from './nano-view-clipboard-data'
+import {
   blockShortcutTransaction,
   inlineSourceTokenTextInputTransaction,
   slashPickerBlockIdFromInput,
@@ -56,7 +60,9 @@ export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoI
   }
 
   const handlePaste = (view: EditorView, event: ClipboardEvent): boolean => {
-    const text = event.clipboardData?.getData('text/plain') ?? ''
+    if (!event.clipboardData) return false
+
+    const text = markdownTextFromClipboardData(event.clipboardData)
     const transaction = markdownPasteTransaction(view.state, text, ctx.collapsedBlockIds)
     if (!transaction) return false
 
@@ -70,7 +76,7 @@ export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoI
     if (!markdown || !event.clipboardData) return false
 
     event.preventDefault()
-    event.clipboardData.setData('text/plain', markdown)
+    writeMarkdownTextToClipboardData(event.clipboardData, markdown)
     return true
   }
 
