@@ -1,4 +1,4 @@
-import type { NanoBlock, NanoDocument } from './nano-core'
+import { NanoDocumentSchema, type NanoBlock, type NanoDocument } from './nano-core'
 import { textBlock } from './nano-markdown-text-block'
 import type { MarkdownParseState } from './nano-markdown-types'
 import {
@@ -51,7 +51,9 @@ export function nanoDocumentFromMarkdown(markdown: string): NanoDocument {
     index = paragraph.nextIndex
   }
 
-  return { blocks: blocks.length > 0 ? blocks : [textBlock('paragraph', '', state)] }
+  return NanoDocumentSchema.parse({
+    blocks: blocks.length > 0 ? blocks : [textBlock('paragraph', '', state)],
+  })
 }
 
 function parseStructuredBlock(lines: readonly string[], index: number, state: MarkdownParseState) {

@@ -5,6 +5,7 @@ import {
   NanoBlockSchema,
   NanoDocumentSchema,
   NanoMarkSchema,
+  nanoDocumentFromMarkdown,
 } from '../../src/index.ts'
 import { assert, test } from './harness.mjs'
 
@@ -62,4 +63,21 @@ test('Nano schema rejects blank ids and invalid mark ranges before runtime', () 
       marks: [{ type: 'bold', from: 0, to: 8 }],
     }],
   }).success, false)
+})
+
+test('Markdown parser returns a schema-valid Nano document', () => {
+  const document = nanoDocumentFromMarkdown([
+    '# 현장 기록',
+    '',
+    '오늘은 **비 냄새**와 ==과일 상자==를 남긴다.',
+    '',
+    '- [x] 오전 메모 정리',
+    '- [ ] 금요일 일정 다시 확인',
+    '',
+    '[[시장 골목]]과 #notes',
+  ].join('\n'))
+
+  const parsed = NanoDocumentSchema.safeParse(document)
+  assert.equal(parsed.success, true)
+  assert.deepEqual(parsed.data, document)
 })
