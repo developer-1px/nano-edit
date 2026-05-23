@@ -12,6 +12,7 @@ import {
   orderedStartText,
   orderedStartTextAttrs,
 } from './prosemirror-block-attrs'
+import { foldIndicatorDomSpec } from './nano-fold-indicator'
 import { sourceTokenAttrs } from './prosemirror-source-token'
 
 export const listItemNodeSpec: NodeSpec = {
@@ -57,7 +58,7 @@ export const listItemNodeSpec: NodeSpec = {
       ...blockIndentAttrs(node.attrs.indent),
       ...indentTextAttrs(node.attrs.indentText),
     },
-    ['span', { class: 'nano-list-fold', contenteditable: 'false', 'aria-hidden': 'true' }, '>'],
+    foldIndicatorDomSpec('nano-list-fold'),
     ['span', sourceTokenAttrs('nano-list-marker', {
       contenteditable: 'false',
       'data-marker': bulletMarker(node.attrs.marker),

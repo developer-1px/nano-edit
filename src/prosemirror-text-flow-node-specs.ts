@@ -9,6 +9,7 @@ import {
   setextLength,
   setextMarker,
 } from './prosemirror-block-attrs'
+import { foldIndicatorDomSpec } from './nano-fold-indicator'
 import { sourceTokenAttrs } from './prosemirror-source-token'
 
 export const paragraphNodeSpec: NodeSpec = {
@@ -50,7 +51,7 @@ export const headingNodeSpec: NodeSpec = {
       ...headingAtxDataAttrs(node.attrs),
       ...headingSetextDataAttrs(node.attrs),
     },
-    ['span', { class: 'nano-heading-fold', contenteditable: 'false', 'aria-hidden': 'true' }, '>'],
+    foldIndicatorDomSpec('nano-heading-fold'),
     ['span', sourceTokenAttrs('nano-block-md-prefix', { contenteditable: 'false' }), headingPrefixToken(node.attrs.headingStyle, node.attrs.level, node.attrs.atxTextSpacing)],
     ['span', { class: 'nano-block-content' }, 0],
     ...headingSuffixDomSpec(
