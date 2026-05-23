@@ -1,5 +1,7 @@
 import type { Node as ProseMirrorNode, NodeSpec } from 'prosemirror-model'
+import { Square, SquareCheck } from 'lucide'
 import type { NanoBlock, NanoMark } from '../../nano-core'
+import { lucideIcon } from '../../nano-icons'
 import {
   bulletMarker,
   checkedMarker,
@@ -53,7 +55,10 @@ export const todoNodeSpec: NodeSpec = {
       ...indentTextAttrs(node.attrs.indentText),
     },
     ['span', { class: 'nano-list-fold', contenteditable: 'false', 'aria-hidden': 'true' }, '>'],
-    ['span', { class: 'nano-todo-box', contenteditable: 'false' }, `${bulletMarker(node.attrs.marker)} [${node.attrs.checked ? checkedMarker(node.attrs.checkedMarker) : ' '}]`],
+    ['span', { class: 'nano-todo-box', contenteditable: 'false' },
+      lucideIcon(node.attrs.checked ? SquareCheck : Square, 'nano-todo-icon'),
+      `${bulletMarker(node.attrs.marker)} [${node.attrs.checked ? checkedMarker(node.attrs.checkedMarker) : ' '}]`,
+    ],
     ['span', { class: 'nano-block-content' }, 0],
   ],
 }

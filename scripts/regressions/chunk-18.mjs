@@ -79,6 +79,28 @@ test('Bear repeated heading marker input walks visual heading levels', () => {
   ])
 })
 
+test('Bear empty heading marker input reacts before Enter', () => {
+  const paragraphState = textState('#')
+  const h2Transaction = blockShortcutTransaction(
+    paragraphState,
+    paragraphState.selection.from,
+    paragraphState.selection.from,
+    '#',
+  )
+  assert.equal(markdownAfter(paragraphState, h2Transaction), '##')
+  assert.deepEqual(blocksAfter(paragraphState, h2Transaction)[0], {
+    id: 'b1',
+    type: 'heading',
+    level: 2,
+    text: '',
+    marks: [],
+  })
+
+  const h2State = paragraphState.apply(h2Transaction)
+  const h3Transaction = blockShortcutTransaction(h2State, h2State.selection.from, h2State.selection.from, '#')
+  assert.equal(markdownAfter(h2State, h3Transaction), '###')
+})
+
 test('Bear heading marker input at h6 does not leak literal marker text', () => {
   const state = textSelectionState('###### Title', 'md-1', 0)
   assert.equal(

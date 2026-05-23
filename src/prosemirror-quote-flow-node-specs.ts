@@ -1,4 +1,7 @@
 import type { NodeSpec } from 'prosemirror-model'
+import { AlertTriangle, Diamond, Info, Lightbulb } from 'lucide'
+import type { CalloutTone } from './assembly/capability'
+import { lucideIcon } from './nano-icons'
 import {
   calloutMarkerToken,
   calloutTone,
@@ -75,6 +78,7 @@ export const calloutNodeSpec: NodeSpec = {
         'data-tone': tone,
         ...calloutDataAttrs(node.attrs),
       },
+      ['span', { class: 'nano-callout-icon', contenteditable: 'false', 'aria-hidden': 'true' }, lucideIcon(calloutIcon(tone), 'nano-callout-icon-svg')],
       ['span', sourceTokenAttrs('nano-callout-marker', { contenteditable: 'false' }), calloutMarkerToken(
         tone,
         node.attrs.calloutMarkerSpacing,
@@ -84,6 +88,21 @@ export const calloutNodeSpec: NodeSpec = {
       ['span', { class: 'nano-block-content' }, 0],
     ]
   },
+}
+
+function calloutIcon(tone: CalloutTone) {
+  switch (tone) {
+    case 'tip':
+      return Lightbulb
+    case 'important':
+      return Diamond
+    case 'warning':
+    case 'caution':
+      return AlertTriangle
+    case 'note':
+    default:
+      return Info
+  }
 }
 
 function calloutDataAttrs(attrs: Record<string, unknown>): Record<string, string> {

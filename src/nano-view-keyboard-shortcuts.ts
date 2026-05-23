@@ -42,6 +42,9 @@ export function blockShortcutTransaction(
   const headingMarkerTransaction = headingMarkerInputTransaction(state, $from, text)
   if (headingMarkerTransaction) return headingMarkerTransaction
 
+  const headingPrefixTransaction = headingPrefixInputTransaction(state, $from, text)
+  if (headingPrefixTransaction) return headingPrefixTransaction
+
   const todoMarkerTransaction = todoMarkerInputTransaction(state, $from, text)
   if (todoMarkerTransaction) return todoMarkerTransaction
 
@@ -93,6 +96,27 @@ function headingMarkerInputTransaction(
   })
   transaction.setSelection(TextSelection.create(transaction.doc, blockPosition + 1))
   return transaction
+}
+
+function headingPrefixInputTransaction(
+  state: EditorState,
+  $from: ResolvedPos,
+  text: string,
+): Transaction | null {
+  const block = $from.parent
+  if (text !== '#' || block.type.name !== nanoNodeNames.paragraph) return null
+
+  const textBefore = block.textBetween(0, $from.parentOffset)
+  if (textBefore.length !== $from.parentOffset || block.textContent.length !== textBefore.length) return null
+
+  const source = textBefore + text
+  if (!/^#{2,6}$/.test(source)) return null
+
+  return blockShortcutTransactionForTemplate(state, $from, {
+    type: 'heading',
+    level: source.length,
+    text: '',
+  })
 }
 
 function todoMarkerInputTransaction(
