@@ -27,7 +27,8 @@ export function bookmarkDomSpec(id: unknown, href: unknown, label: unknown, titl
       'a',
       { class: 'nano-md-link nano-bookmark-link', href: url, 'data-href': url, contenteditable: 'false', title: url },
       ['span', { class: 'nano-bookmark-title' }, bookmarkLabelText],
-      ...(bookmarkTitle ? [['span', { class: 'nano-bookmark-detail' }, bookmarkTitle] as DOMOutputSpec] : []),
+      ...(bookmarkTitle ? [' ', ['span', { class: 'nano-bookmark-detail' }, bookmarkTitle] as DOMOutputSpec] : []),
+      ' ',
       ['span', sourceTokenAttrs('nano-bookmark-url', {
         contenteditable: 'false',
         'data-source': bookmarkMarkdownToken(url, bookmarkLabelText, bookmarkTitle, linkSyntaxValue, bookmarkDestinationStyle),

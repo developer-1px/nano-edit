@@ -46,8 +46,10 @@ test('Bookmark cards show visual destination without losing Markdown source toke
     destinationStyle: 'angle',
     syntax: 'markdown',
   })
+  const link = domSpecElementByClass(spec, 'nano-bookmark-link')
   const url = domSpecElementByClass(spec, 'nano-bookmark-url')
 
+  assert(link.includes(' '))
   assert.equal(url[1]['data-source'], '[Bear](<https://bear.app> "Bear Home")')
   assert.equal(url[1].contenteditable, 'false')
   assert.equal(url[2], 'https://bear.app')
@@ -89,7 +91,9 @@ test('Standalone file links become attachment blocks without stealing external b
   )
 
   const spec = blockDomSpec(document.blocks[0])
+  const link = domSpecElementByClass(spec, 'nano-attachment-link')
   const source = domSpecElementByClass(spec, 'nano-attachment-src')
+  assert(link.includes(' '))
   assert.equal(source[1].contenteditable, 'false')
   assert.equal(source[2], markdown)
 })

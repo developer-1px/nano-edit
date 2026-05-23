@@ -254,10 +254,6 @@
   text-decoration: none;
 }
 
-.nano-attachment-link {
-  display: inline;
-}
-
 .nano-attachment-icon {
   display: none;
 }
@@ -281,18 +277,8 @@
   font-size: 0.875em;
 }
 
-.nano-bookmark-detail::before,
-.nano-attachment-detail::before,
-.nano-bookmark-url::before {
-  content: ' ';
-}
-
 .nano-bookmark-url {
   font-family: var(--nano-mono);
-}
-
-.nano-tag-ref-card {
-  display: inline;
 }
 
 .nano-table {

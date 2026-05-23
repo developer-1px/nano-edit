@@ -25,7 +25,7 @@ export function attachmentDomSpec(id: unknown, src: unknown, label: unknown, tit
       { class: 'nano-md-link nano-attachment-link', href: fileSrc, 'data-href': fileSrc, contenteditable: 'false', title: attachmentTitle || fileSrc },
       ['span', { class: 'nano-attachment-icon' }, attachmentIcon(fileSrc)],
       ['span', { class: 'nano-attachment-title' }, attachmentLabelText],
-      ...(attachmentTitle ? [['span', { class: 'nano-attachment-detail' }, attachmentTitle] as DOMOutputSpec] : []),
+      ...(attachmentTitle ? [' ', ['span', { class: 'nano-attachment-detail' }, attachmentTitle] as DOMOutputSpec] : []),
       ['span', hiddenSourceTokenAttrs('nano-attachment-src'), markdownAttachmentToken(attachmentLabelText, fileSrc, attachmentTitle, attachmentDestinationStyle)],
     ],
   ]
