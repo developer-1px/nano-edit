@@ -62,6 +62,7 @@ export const todoNodeSpec: NodeSpec = {
       role: 'checkbox',
       'aria-checked': String(node.attrs.checked),
       'aria-label': 'Todo',
+      tabindex: '0',
       title: node.attrs.checked ? 'Done' : 'Todo',
     },
       lucideIcon(node.attrs.checked ? SquareCheck : Square, 'nano-todo-icon'),

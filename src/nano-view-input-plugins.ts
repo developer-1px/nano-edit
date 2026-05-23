@@ -46,6 +46,7 @@ function blockClickPlugin(handlers: NanoInputHandlers): Plugin {
     props: {
       handleDOMEvents: {
         click: (view, event) => handlers.handleEditorClick(view, event),
+        keydown: (view, event) => handlers.handleEditorKeydown(view, event as KeyboardEvent),
         mousedown: (_view, event) => handlers.handleEditorMouseDown(event),
       },
     },

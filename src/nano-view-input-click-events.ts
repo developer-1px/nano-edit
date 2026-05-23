@@ -46,6 +46,21 @@ export function createNanoInputClickHandlers(
     return true
   }
 
+  const handleEditorKeydown = (view: EditorView, event: KeyboardEvent): boolean => {
+    if (event.key !== ' ' && event.key !== 'Enter') return false
+
+    const action = blockClickActionFromEventTarget(view.state.doc, event.target)
+    if (!action) return false
+
+    const transaction = action.option.click.transaction(view.state, action.position)
+    if (!transaction) return false
+
+    event.preventDefault()
+    view.dispatch(transaction.scrollIntoView())
+    view.focus()
+    return true
+  }
+
   const handleEditorMouseDown = (event: MouseEvent): boolean => {
     if (
       externalLinkHrefFromEventTarget(event.target)
@@ -62,7 +77,7 @@ export function createNanoInputClickHandlers(
     return true
   }
 
-  return { handleEditorClick, handleEditorMouseDown }
+  return { handleEditorClick, handleEditorKeydown, handleEditorMouseDown }
 }
 
 function openLinkClick(view: EditorView, event: MouseEvent, href: string): boolean {
