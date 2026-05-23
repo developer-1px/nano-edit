@@ -1,0 +1,127 @@
+.nano-source-token,
+.nano-md-link,
+.nano-raw-link {
+  cursor: text;
+}
+
+.nano-md-token {
+  white-space: normal;
+  word-break: break-all;
+}
+
+.nano-inline-code,
+.nano-raw-code,
+.nano-math,
+.nano-raw-math,
+.nano-footnote-ref,
+.nano-raw-footnote-ref {
+  font-family: var(--nano-mono);
+  font-size: 0.9em;
+}
+
+.nano-highlight,
+.nano-raw-highlight {
+  background: #fff8c5;
+}
+
+.nano-tag,
+.nano-raw-tag,
+.nano-note-link,
+.nano-raw-note-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--nano-border);
+  text-underline-offset: 0.2rem;
+}
+
+.nano-md-link,
+.nano-raw-link {
+  color: var(--nano-focus);
+}
+
+.nano-raw-bold {
+  font-weight: 600;
+}
+
+.nano-raw-italic {
+  font-style: italic;
+}
+
+.nano-raw-underline {
+  text-decoration: underline;
+}
+
+.nano-raw-strike {
+  text-decoration: line-through;
+}
+
+.nano-md-token::before,
+.nano-md-token::after {
+  width: 0;
+  display: inline-block;
+  overflow: hidden;
+  color: var(--nano-muted);
+  opacity: 0;
+  font-family: var(--nano-mono);
+  text-decoration: none;
+}
+
+.nano-md-token::before {
+  content: attr(data-md-open);
+}
+
+.nano-md-token::after {
+  content: attr(data-md-close);
+}
+
+.nano-tag.nano-source-token,
+.nano-note-link.nano-source-token,
+.nano-math.nano-source-token,
+.nano-footnote-ref.nano-source-token,
+.nano-raw-external-link.nano-source-token[data-syntax='autolink'] {
+  font-size: 0;
+}
+
+.nano-tag.nano-source-token::before,
+.nano-note-link.nano-source-token::before,
+.nano-math.nano-source-token::before,
+.nano-footnote-ref.nano-source-token::before,
+.nano-raw-external-link.nano-source-token[data-syntax='autolink']::before {
+  content: attr(data-label);
+  font-size: 1rem;
+}
+
+.nano-math.nano-source-token::before {
+  font-family: var(--nano-mono);
+  font-size: 0.9rem;
+}
+
+.nano-footnote-ref.nano-source-token {
+  display: inline-block;
+  color: var(--nano-muted);
+  vertical-align: super;
+}
+
+.nano-footnote-ref.nano-source-token::before {
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+.nano-icon {
+  width: 1em;
+  height: 1em;
+  display: block;
+  flex: none;
+}
+
+.nano-todo-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.nano-callout-icon-svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.9;
+}

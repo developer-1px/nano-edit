@@ -1,0 +1,236 @@
+.inspector {
+  width: min(370px, calc(100vw - 32px));
+  max-height: calc(100svh - 32px);
+  position: fixed;
+  z-index: 20;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border: 1px solid var(--nano-border);
+  background: var(--nano-bg);
+  overflow: hidden;
+}
+
+.inspector[hidden] {
+  display: none;
+}
+
+.nano[data-inspector='pinned'] .inspector {
+  width: auto;
+  height: 100svh;
+  max-height: none;
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  right: auto;
+  border-width: 0 0 0 1px;
+}
+
+.inspector-header {
+  min-height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px;
+  border-bottom: 1px solid var(--nano-border);
+}
+
+.inspector-tabs,
+.inspector-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.inspector-header button,
+.inspector-trigger {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+}
+
+.inspector-header button[data-icon='index']::before {
+  content: 'i';
+}
+
+.inspector-header button[data-icon='source']::before {
+  content: 's';
+}
+
+.inspector-header button[data-icon='pin']::before {
+  content: 'p';
+}
+
+.inspector-header button[data-icon='close']::before {
+  content: 'x';
+}
+
+.inspector-body,
+.inspector section {
+  min-height: 0;
+  display: grid;
+}
+
+.inspector section[hidden] {
+  display: none;
+}
+
+.nano-index,
+.nano-markdown {
+  min-height: 0;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  background: var(--nano-bg);
+  color: var(--nano-text);
+  font: 12px/1.45 var(--nano-mono);
+}
+
+.nano-index-panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.nano-index,
+.nano-markdown {
+  flex: 1;
+}
+
+.nano-index-search {
+  width: calc(100% - 20px);
+  height: 30px;
+  margin: 10px 10px 0;
+  padding: 0 8px;
+  border: 1px solid var(--nano-border);
+  background: var(--nano-bg);
+  color: var(--nano-text);
+  font: 12px/1 var(--nano-mono);
+}
+
+.nano-index-section + .nano-index-section {
+  margin-top: 10px;
+}
+
+.nano-index-empty,
+.nano-index p {
+  margin: 0;
+  color: var(--nano-muted);
+}
+
+.nano-index h3 {
+  margin: 0 0 4px;
+  color: var(--nano-muted);
+  font: 600 11px/1 var(--nano-sans);
+  text-transform: uppercase;
+}
+
+.nano-index-entry,
+.nano-markdown-block {
+  width: 100%;
+  height: auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow-wrap: anywhere;
+  text-align: left;
+  font: inherit;
+}
+
+.nano-index-entry {
+  min-height: 24px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 6px;
+  align-items: start;
+  padding: 3px 4px;
+}
+
+.nano-index-entry::before {
+  content: attr(data-index-symbol);
+  grid-row: 1 / span 2;
+  color: var(--nano-muted);
+  font-weight: 700;
+}
+
+.nano-index-entry-label,
+.nano-index-entry-detail {
+  min-width: 0;
+  grid-column: 2;
+}
+
+.nano-index-entry-detail {
+  margin-top: -2px;
+  color: var(--nano-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.nano-index-entry:hover,
+.nano-index-entry[data-active='true'],
+.nano-markdown-block:hover,
+.nano-markdown-block[data-active='true'] {
+  color: var(--nano-focus);
+}
+
+.nano-index-entry[data-active='true'],
+.nano-markdown-block[data-active='true'] {
+  font-weight: 700;
+}
+
+.nano-markdown-block {
+  min-height: 24px;
+  display: block;
+  padding: 4px;
+  white-space: pre-wrap;
+}
+
+textarea.nano-markdown-block {
+  min-height: 28px;
+  border: 1px solid var(--nano-focus);
+  outline: none;
+  resize: vertical;
+}
+
+.nano-markdown-block + .nano-markdown-block {
+  margin-top: 4px;
+}
+
+.inspector-trigger {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 19;
+  opacity: 0;
+}
+
+.inspector-trigger::before {
+  content: 'i';
+}
+
+.inspector-trigger:hover,
+.inspector-trigger:focus-visible,
+.inspector-trigger[data-active='true'] {
+  color: var(--nano-focus);
+  opacity: 0.8;
+}
+
+.nano[data-inspector='pinned'] .inspector-trigger {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .inspector,
+  .nano[data-inspector='pinned'] .inspector {
+    width: auto;
+    height: min(58svh, 460px);
+    max-height: calc(100svh - 20px);
+    position: fixed;
+    top: auto;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    border: 1px solid var(--nano-border);
+  }
+}
