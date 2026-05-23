@@ -46,12 +46,21 @@ test('Persisted demo document falls back when stored data is invalid', () => {
   for (const storedValue of [
     '{',
     JSON.stringify({ blocks: [] }),
+    JSON.stringify({ blocks: [{ id: '   ', type: 'paragraph', text: 'Blank id', marks: [] }] }),
     JSON.stringify({ blocks: [{ id: 'bad', type: 'unknown', text: 'bad', marks: [] }] }),
     JSON.stringify({
       blocks: [
         { id: 'same', type: 'paragraph', text: 'First', marks: [] },
         { id: 'same', type: 'paragraph', text: 'Second', marks: [] },
       ],
+    }),
+    JSON.stringify({
+      blocks: [{
+        id: 'bad-mark',
+        type: 'paragraph',
+        text: 'Short',
+        marks: [{ type: 'bold', from: 0, to: 8 }],
+      }],
     }),
   ]) {
     const storage = new FakeStorage([[DEMO_DOCUMENT_STORAGE_KEY, storedValue]])

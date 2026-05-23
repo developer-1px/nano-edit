@@ -1,6 +1,7 @@
 export {
   NanoBlockSchema,
   NanoDocumentSchema,
+  NanoMarkSchema,
   blockTextPointer,
   blocksPointer,
   createEmptyNanoDocument,

@@ -50,4 +50,12 @@ export const NanoMarkSchema = z.discriminatedUnion('type', [
   MarkRangeBaseSchema.extend({
     type: z.literal('source'),
   }),
-])
+]).superRefine((mark, ctx) => {
+  if (mark.from < mark.to) return
+
+  ctx.addIssue({
+    code: 'custom',
+    message: 'Mark range must have positive length',
+    path: ['to'],
+  })
+})

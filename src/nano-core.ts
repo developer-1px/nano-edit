@@ -27,14 +27,25 @@ const NanoDocumentBlocksSchema = z.array(NanoBlockSchema)
     for (const [index, block] of blocks.entries()) {
       if (!seen.has(block.id)) {
         seen.add(block.id)
-        continue
+      } else {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Duplicate block id: ${block.id}`,
+          path: [index, 'id'],
+        })
       }
 
-      ctx.addIssue({
-        code: 'custom',
-        message: `Duplicate block id: ${block.id}`,
-        path: [index, 'id'],
-      })
+      if (!('text' in block) || !('marks' in block)) continue
+
+      for (const [markIndex, mark] of block.marks.entries()) {
+        if (mark.to <= block.text.length) continue
+
+        ctx.addIssue({
+          code: 'custom',
+          message: `Mark range exceeds block text length: ${mark.to} > ${block.text.length}`,
+          path: [index, 'marks', markIndex, 'to'],
+        })
+      }
     }
   })
 

@@ -2,7 +2,9 @@ import {
   createEmptyNanoDocument,
   createNanoDocument,
   emptyNanoDocument,
+  NanoBlockSchema,
   NanoDocumentSchema,
+  NanoMarkSchema,
 } from '../../src/index.ts'
 import { assert, test } from './harness.mjs'
 
@@ -32,5 +34,32 @@ test('Nano document schema rejects empty and duplicate block collections', () =>
       { id: 'same', type: 'paragraph', text: 'One', marks: [] },
       { id: 'same', type: 'paragraph', text: 'Two', marks: [] },
     ],
+  }).success, false)
+})
+
+test('Nano schema rejects blank ids and invalid mark ranges before runtime', () => {
+  assert.equal(NanoBlockSchema.safeParse({
+    id: '   ',
+    type: 'paragraph',
+    text: 'Blank id',
+    marks: [],
+  }).success, false)
+  assert.equal(NanoMarkSchema.safeParse({
+    type: 'bold',
+    from: 2,
+    to: 2,
+  }).success, false)
+  assert.equal(NanoMarkSchema.safeParse({
+    type: 'italic',
+    from: 4,
+    to: 2,
+  }).success, false)
+  assert.equal(NanoDocumentSchema.safeParse({
+    blocks: [{
+      id: 'one',
+      type: 'paragraph',
+      text: 'Short',
+      marks: [{ type: 'bold', from: 0, to: 8 }],
+    }],
   }).success, false)
 })
