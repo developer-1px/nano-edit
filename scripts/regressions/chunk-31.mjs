@@ -222,6 +222,30 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   assert.equal(baseCss.includes('markdown-body'), false)
 })
 
+test('Document surface keeps tables and callouts visually quiet', () => {
+  const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
+  const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
+  const tableCellRule = /\.nano-document th,\n\.nano-document td \{([\s\S]*?)\n\}/.exec(baseCss)
+  const calloutRule = [...editorCss.matchAll(/\.nano-document \.nano-callout \{([\s\S]*?)\n\}/g)]
+    .map((match) => match[1])
+    .find((body) => body.includes('display: block;'))
+  const calloutIconRule = /\.nano-callout-icon \{([\s\S]*?)\n\}/.exec(editorCss)
+
+  assert(tableCellRule, 'table cell rule should be present')
+  assert(tableCellRule[1].includes('border: 0;'))
+  assert(tableCellRule[1].includes('border-bottom: 1px solid var(--nano-border);'))
+  assert.equal(tableCellRule[1].includes('border: 1px solid'), false)
+
+  assert(calloutRule, 'callout rule should be present')
+  assert(calloutRule.includes('display: block;'))
+  assert(calloutRule.includes('padding: 0;'))
+  assert(calloutRule.includes('border-left: 0;'))
+
+  assert(calloutIconRule, 'callout icon rule should be present')
+  assert(calloutIconRule[1].includes('display: none;'))
+  assert.equal(calloutIconRule[1].includes('inline-grid'), false)
+})
+
 test('Inspector index uses visual labels instead of raw Markdown markers', () => {
   const index = nanoDocumentIndex(nanoDocumentFromMarkdown([
     '## Closed title ###',
