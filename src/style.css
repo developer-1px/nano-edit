@@ -99,6 +99,14 @@ textarea:focus-visible {
   margin-top: 8px;
 }
 
+.nano-block + .nano-heading {
+  margin-top: 22px;
+}
+
+.nano-heading + .nano-block {
+  margin-top: 10px;
+}
+
 .nano-block-active {
   position: relative;
 }
@@ -321,7 +329,7 @@ textarea:focus-visible {
 .nano-callout {
   max-width: 760px;
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr);
   gap: 8px;
   padding-left: 12px;
   border-left: 2px solid var(--line);
@@ -329,9 +337,13 @@ textarea:focus-visible {
 
 .nano-callout-marker {
   color: var(--muted);
-  font: 600 10px/1.2 var(--sans);
+  font-size: 0;
   text-transform: lowercase;
   user-select: none;
+}
+
+.nano-callout-marker::before {
+  font: 600 10px/1.2 var(--sans);
 }
 
 .nano-callout[data-tone='note'] .nano-callout-marker::before {
@@ -363,6 +375,7 @@ textarea:focus-visible {
 }
 
 .nano-todo-box {
+  position: relative;
   width: 18px;
   height: 1.65em;
   display: inline-grid;
@@ -381,8 +394,14 @@ textarea:focus-visible {
 }
 
 .nano-todo[data-checked='true'] .nano-todo-box::before {
-  background: var(--text);
   border-color: var(--text);
+}
+
+.nano-todo[data-checked='true'] .nano-todo-box::after {
+  content: '✓';
+  position: absolute;
+  color: var(--text);
+  font: 700 11px/1 var(--sans);
 }
 
 .nano-todo[data-checked='true'] .nano-block-content {
@@ -568,7 +587,13 @@ textarea:focus-visible {
 .nano-tag,
 .nano-raw-tag,
 .nano-note-link,
-.nano-raw-note-link,
+.nano-raw-note-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 2px;
+}
+
 .nano-md-link,
 .nano-raw-link {
   color: var(--focus);
