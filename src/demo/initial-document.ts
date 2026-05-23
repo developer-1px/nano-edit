@@ -5,35 +5,36 @@ const sampleImageSrc = new URL('../assets/hero.png', import.meta.url).href
 
 const initialMarkdown = `# Field Notes
 
-#editor #notes [[Release Notes]]
+#notes #draft [[Revision Log]]
 
-오늘 메모는 **의미**와 *흐름*만 남긴다. ==중요한 변화==는 남기고, ~~설명용 장식~~은 지운다.
+오늘 기록은 **의미**와 *흐름*만 남긴다. ==확인된 변화==는 남기고, ~~꾸밈말~~은 줄인다.
 
 - [x] 문장 다듬기
 - [x] 체크 항목 정리
-- [ ] 인용 확인
+- [ ] 근거 확인
   - [ ] 사진 캡션
   - [ ] 첨부 파일
+- [ ] 다음 검토 예약
 
 1. Collect
 2. Trim
 3. Send
 
-> [!NOTE] 작성 중인 문장은 그대로 두고, 표시만 낮춘다.[^draft]
+> [!NOTE] 판단보다 관찰을 먼저 적는다.[^draft]
 
-## Release Notes
+## Revision Log
 
-첫 문단은 짧게 유지한다. \`draft\` 상태에서는 근거가 보이는 문장만 남긴다.
+첫 문단은 짧게 둔다. \`draft\` 상태에서는 출처가 있는 문장만 남긴다.
+
+> [!IMPORTANT] 선택지는 넓게 두고, 화면은 낮게 둔다.
+
+## Appendix
 
 | Item | Owner | State |
 | --- | --- | --- |
 | opening | Mina | ready |
 | image | Joon | check |
 | appendix | Ara | later |
-
-> [!IMPORTANT] 선택지는 넓고, 표면은 낮다.
-
-## Draft
 
 \`\`\`ts
 const note = {
@@ -42,7 +43,7 @@ const note = {
 }
 \`\`\`
 
-Inline math keeps the estimate compact: $focus = signal - noise$.
+계산은 본문을 끊지 않을 만큼만 둔다: $focus = signal - noise$.
 
 $$
 \\text{next} = \\text{evidence} + \\text{revision}
@@ -50,9 +51,9 @@ $$
 
 ## References
 
-[[Release Notes]]와 #editor 태그는 같은 흐름을 다시 찾게 한다. [Bear](https://bear.app)는 가까운 기준점이다.
+[[Revision Log]]와 #notes 태그는 같은 흐름을 다시 찾게 한다. [reference](https://example.org/notes "Reference")만 남긴다.
 
-https://bear.app
+https://example.org/notes
 
 [Field notes](files/field-notes.pdf "PDF")
 

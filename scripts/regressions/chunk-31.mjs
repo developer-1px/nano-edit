@@ -30,6 +30,7 @@ test('Demo document stays quiet while covering visual Markdown surfaces', () => 
     'visual surface',
     'portable markdown',
     'Command map',
+    'https://bear.app',
   ]
   for (const copy of forbiddenShowcaseCopy) {
     assert.equal(markdown.includes(copy), false, `demo should not expose showcase copy: ${copy}`)
@@ -51,6 +52,12 @@ test('Demo document stays quiet while covering visual Markdown surfaces', () => 
   assert(index.bookmarks.length > 0)
   assert(index.attachments.length > 0)
   assert(index.footnotes.length > 0)
+
+  const appendixIndex = markdown.indexOf('## Appendix')
+  assert(appendixIndex > 0, 'demo should keep rich surfaces below a plain document opening')
+  for (const richSurface of ['| Item |', '```ts', '$$', '![working note image]']) {
+    assert(markdown.indexOf(richSurface) > appendixIndex, `demo should keep ${richSurface} below Appendix`)
+  }
 })
 
 function commandOptions(overrides = {}) {
