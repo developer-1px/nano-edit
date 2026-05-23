@@ -5,6 +5,10 @@ import {
   markdownIndentText,
   orderedStartTemplateAttrs,
 } from './nano-block-option-list-values'
+import {
+  calloutTone,
+  quoteMarkerDepth,
+} from './nano-block-option-quote-values'
 import { nanoNodeNames } from './prosemirror-names'
 
 export function paragraphPrefixInputTransaction(
@@ -19,9 +23,20 @@ export function paragraphPrefixInputTransaction(
   if (textBefore.length !== $from.parentOffset || block.textContent.length <= textBefore.length) return null
 
   const source = textBefore + text
-  const quoteMatch = /^> $/.exec(source)
+  const calloutMatch = /^(>+)( ?)\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\] $/i.exec(source)
+  if (calloutMatch) {
+    return replaceParagraphPrefix(state, $from, nanoNodeNames.callout, {
+      tone: calloutTone(calloutMatch[3]),
+      calloutMarkerDepths: quoteMarkerDepthAttrs(calloutMatch[1] ?? '>'),
+      calloutMarkerSpacing: [calloutMatch[2] === ' ' ? 'space' : 'none'],
+      calloutTextSpacing: 'space',
+    })
+  }
+
+  const quoteMatch = /^(>+) $/.exec(source)
   if (quoteMatch) {
     return replaceParagraphPrefix(state, $from, nanoNodeNames.quote, {
+      quoteMarkerDepths: quoteMarkerDepthAttrs(quoteMatch[1] ?? '>'),
       quoteMarkerSpacing: ['space'],
     })
   }
@@ -82,4 +97,9 @@ function listIndentAttrs(rawIndent: string): { indent: number; indentText?: stri
     indent: markdownIndentLevel(rawIndent),
     ...(rawIndentText ? { indentText: rawIndentText } : {}),
   }
+}
+
+function quoteMarkerDepthAttrs(marker: string): number[] | null {
+  const depth = quoteMarkerDepth(marker)
+  return depth > 1 ? [depth] : null
 }
