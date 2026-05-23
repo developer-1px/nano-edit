@@ -11,7 +11,7 @@ import { indexEntrySymbol } from '../../src/nano-view-index.ts'
 import { assert, blockDomSpec, nanoDocumentFromMarkdown, nanoDocumentIndex, nanoMarkdownFromDocument, test } from './harness.mjs'
 import { readFileSync } from 'node:fs'
 
-test('Demo document stays quiet while covering visual Markdown surfaces', () => {
+test('Demo document stays a compact note instead of a feature showcase', () => {
   const markdown = nanoMarkdownFromDocument(initialNanoDocument)
   const forbiddenShowcaseCopy = [
     '/todo',
@@ -31,38 +31,41 @@ test('Demo document stays quiet while covering visual Markdown surfaces', () => 
     'portable markdown',
     'Command map',
     'https://bear.app',
+    '## Appendix',
+    '```',
+    '$$',
+    '![working note image]',
+    'https://example.org',
+    'files/field-notes.pdf',
+    '[^draft]',
   ]
   for (const copy of forbiddenShowcaseCopy) {
     assert.equal(markdown.includes(copy), false, `demo should not expose showcase copy: ${copy}`)
   }
 
   const blockTypes = new Set(initialNanoDocument.blocks.map((block) => block.type))
-  for (const type of ['heading', 'paragraph', 'todo', 'list_item', 'callout', 'table', 'code', 'math', 'bookmark', 'attachment', 'image', 'footnote', 'divider']) {
-    assert(blockTypes.has(type), `demo should cover ${type} blocks`)
+  for (const type of ['heading', 'paragraph', 'todo', 'list_item']) {
+    assert(blockTypes.has(type), `demo should keep core note block: ${type}`)
   }
+  for (const type of ['callout', 'table', 'code', 'math', 'bookmark', 'attachment', 'image', 'footnote', 'divider']) {
+    assert.equal(blockTypes.has(type), false, `demo should not showcase ${type} blocks`)
+  }
+  assert(initialNanoDocument.blocks.length <= 12, 'demo should stay short enough to read as a note')
 
   const markTypes = new Set(initialNanoDocument.blocks.flatMap((block) => block.marks?.map((mark) => mark.type) ?? []))
-  for (const type of ['bold', 'italic', 'highlight', 'strike', 'code', 'math', 'tag', 'note_link', 'link', 'footnote_ref']) {
-    assert(markTypes.has(type), `demo should cover ${type} marks`)
+  for (const type of ['bold', 'italic', 'highlight', 'strike', 'code', 'tag', 'note_link']) {
+    assert(markTypes.has(type), `demo should keep quiet inline mark: ${type}`)
+  }
+  for (const type of ['math', 'link', 'footnote_ref']) {
+    assert.equal(markTypes.has(type), false, `demo should not showcase ${type} marks`)
   }
 
   const index = nanoDocumentIndex(initialNanoDocument)
   assert(index.tags.length > 0)
   assert(index.noteLinks.length > 0)
-  assert(index.bookmarks.length > 0)
-  assert(index.attachments.length > 0)
-  assert(index.footnotes.length > 0)
-
-  const appendixIndex = markdown.indexOf('## Appendix')
-  assert(appendixIndex > 0, 'demo should keep rich surfaces below a plain document opening')
-  const opening = markdown.slice(0, appendixIndex)
-  assert.equal(opening.includes('#notes'), false)
-  assert.equal(opening.includes('#draft'), false)
-  assert.equal(opening.includes('[[Revision Log]]'), false)
-  assert.equal(opening.includes('[^draft]'), false)
-  for (const richSurface of ['| Item |', '```ts', '$$', '![working note image]']) {
-    assert(markdown.indexOf(richSurface) > appendixIndex, `demo should keep ${richSurface} below Appendix`)
-  }
+  assert.equal(index.bookmarks.length, 0)
+  assert.equal(index.attachments.length, 0)
+  assert.equal(index.footnotes.length, 0)
 })
 
 function commandOptions(overrides = {}) {

@@ -60,12 +60,22 @@ test('Todo checkbox exposes state without visible Markdown syntax', () => {
 
 test('Todo checkbox keeps a measurable hit target', () => {
   const css = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
+  const listRule = /\.nano-todo,\n\.nano-list-item \{([\s\S]*?)\n\}/.exec(css)
   const checkboxRule = /\.nano-todo-box \{([\s\S]*?)\n\}/.exec(css)
+  const markerRule = /\.nano-list-marker \{([\s\S]*?)\n\}/.exec(css)
 
+  assert(listRule, 'list layout rule should be present')
+  assert(listRule[1].includes('align-items: start;'))
+  assert.equal(listRule[1].includes('align-items: baseline;'), false)
   assert(checkboxRule, 'todo checkbox rule should be present')
   assert(checkboxRule[1].includes('width: 20px;'))
   assert(checkboxRule[1].includes('height: 24px;'))
+  assert(checkboxRule[1].includes('place-items: center;'))
+  assert.equal(checkboxRule[1].includes('padding-top:'), false)
   assert.equal(checkboxRule[1].includes('font-size: 0;'), false)
+  assert(markerRule, 'list marker alignment rule should be present')
+  assert(markerRule[1].includes('height: 24px;'))
+  assert(markerRule[1].includes('align-items: center;'))
 })
 
 test('Block insert picker exposes listbox option selection state', () => {

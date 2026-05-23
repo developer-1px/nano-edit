@@ -138,7 +138,7 @@
   display: grid;
   grid-template-columns: 14px 20px minmax(0, 1fr);
   column-gap: 4px;
-  align-items: baseline;
+  align-items: start;
   margin: 0 0 0.28em;
   margin-left: calc(var(--nano-indent, 0) * 24px);
   line-height: 1.6;
@@ -149,9 +149,8 @@
   height: 24px;
   box-sizing: border-box;
   display: inline-grid;
-  place-items: start center;
+  place-items: center;
   align-self: start;
-  padding-top: 4px;
   color: #57606a;
   line-height: 1;
 }
@@ -165,9 +164,16 @@
   text-decoration: line-through;
 }
 
+.nano-list-marker {
+  height: 24px;
+  display: inline-grid;
+  align-items: center;
+  justify-items: end;
+}
+
 .nano-list-marker::before {
   color: var(--nano-muted);
-  font: 400 1em/1.6 var(--nano-sans);
+  font: 400 1em/1 var(--nano-sans);
   font-variant-numeric: tabular-nums;
 }
 
