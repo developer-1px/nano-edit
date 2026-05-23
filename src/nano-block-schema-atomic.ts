@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { NanoBlockIdSchema } from './nano-block-id-schema'
+import { addArrayLengthIssue } from './nano-block-schema-refinements'
 
 const TableAlignSchema = z.enum(['left', 'center', 'right']).nullable()
 const TableSeparatorCellSchema = z.string().regex(/^:?-{3,}:?$/)
@@ -27,26 +28,11 @@ const TableBlockSchema = z.object({
     })
   })
 
-  addLengthIssue(ctx, 'align', block.align?.length, columnCount)
-  addLengthIssue(ctx, 'separatorCells', block.separatorCells?.length, columnCount)
-  addLengthIssue(ctx, 'leadingPipes', block.leadingPipes?.length, lineCount)
-  addLengthIssue(ctx, 'trailingPipes', block.trailingPipes?.length, lineCount)
+  addArrayLengthIssue(ctx, 'align', block.align?.length, columnCount)
+  addArrayLengthIssue(ctx, 'separatorCells', block.separatorCells?.length, columnCount)
+  addArrayLengthIssue(ctx, 'leadingPipes', block.leadingPipes?.length, lineCount)
+  addArrayLengthIssue(ctx, 'trailingPipes', block.trailingPipes?.length, lineCount)
 })
-
-function addLengthIssue(
-  ctx: z.RefinementCtx,
-  path: string,
-  actual: number | undefined,
-  expected: number,
-): void {
-  if (actual === undefined || actual === expected) return
-
-  ctx.addIssue({
-    code: 'custom',
-    message: `${path} length ${actual}; expected ${expected}`,
-    path: [path],
-  })
-}
 
 export const atomicBlockSchemas = [
   z.object({

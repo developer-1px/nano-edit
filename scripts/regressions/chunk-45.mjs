@@ -107,6 +107,50 @@ test('Nano schema rejects malformed table block structure before runtime', () =>
   }).success, false)
 })
 
+test('Nano schema rejects source metadata arrays that do not match text lines', () => {
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'quote',
+    type: 'quote',
+    text: 'one\ntwo',
+    marks: [],
+    quoteMarkerSpacing: ['space'],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'callout',
+    type: 'callout',
+    tone: 'tip',
+    text: 'one\ntwo',
+    marks: [],
+    calloutMarkerDepths: [1],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'list',
+    type: 'list_item',
+    kind: 'bullet',
+    indent: 0,
+    text: 'one\ntwo\nthree',
+    marks: [],
+    continuationIndents: ['  '],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'todo',
+    type: 'todo',
+    checked: false,
+    indent: 0,
+    text: 'one',
+    marks: [],
+    continuationIndents: [],
+  }).success, false)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'footnote',
+    type: 'footnote',
+    name: '1',
+    text: 'one\ntwo',
+    marks: [],
+    footnoteContinuationIndents: ['    ', '\t'],
+  }).success, false)
+})
+
 test('Markdown parser returns a schema-valid Nano document', () => {
   const document = nanoDocumentFromMarkdown([
     '# 현장 기록',
