@@ -35,30 +35,33 @@ export function createNanoViewCommandRunners(
   const focus = () => ctx.view.focus()
   const close = () => deps.toolbar().closeBlockPicker()
 
-  function runMarkCommand(option: MarkOption): void {
+  function runEditorCommand(command: () => boolean, options: { closeOnSuccess?: boolean } = {}): void {
     sync()
-    markCommand(option)(ctx.view.state, ctx.view.dispatch, ctx.view)
+    if (!command()) return
+    if (options.closeOnSuccess) close()
     focus()
+  }
+
+  function runMarkCommand(option: MarkOption): void {
+    runEditorCommand(() => markCommand(option)(ctx.view.state, ctx.view.dispatch, ctx.view))
   }
 
   function runBlockTemplate(template: BlockTemplate): void {
-    sync()
-    keymaps.changeActiveBlockCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view)
-    focus()
+    runEditorCommand(() => keymaps.changeActiveBlockCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view))
   }
 
   function runInsertBlockAfterActive(template: BlockTemplate): void {
-    sync()
-    keymaps.insertBlockAfterActiveCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view)
-    close()
-    focus()
+    runEditorCommand(
+      () => keymaps.insertBlockAfterActiveCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view),
+      { closeOnSuccess: true },
+    )
   }
 
   function runChangeActiveBlock(template: BlockTemplate): void {
-    sync()
-    keymaps.changeActiveBlockCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view)
-    close()
-    focus()
+    runEditorCommand(
+      () => keymaps.changeActiveBlockCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view),
+      { closeOnSuccess: true },
+    )
   }
 
   function runBlockPickerTemplate(template: BlockTemplate): void {
@@ -67,10 +70,7 @@ export function createNanoViewCommandRunners(
   }
 
   function runKeymapCommand(command: () => boolean): void {
-    sync()
-    command()
-    close()
-    focus()
+    runEditorCommand(command, { closeOnSuccess: true })
   }
 
   return {
@@ -80,8 +80,8 @@ export function createNanoViewCommandRunners(
     runDuplicateActiveBlock: () => runKeymapCommand(() => keymaps.duplicateActiveBlockCommand()(ctx.view.state, ctx.view.dispatch, ctx.view)),
     runFocusActiveMarkdownSource: () => {
       sync()
+      if (!deps.inspector.focusActiveMarkdownSource()) return
       close()
-      deps.inspector.focusActiveMarkdownSource()
     },
     runIndentActiveBlock: (direction) => runKeymapCommand(() => keymaps.indentActiveBlockCommand(direction)(ctx.view.state, ctx.view.dispatch, ctx.view)),
     runInsertBlockAfterActive,

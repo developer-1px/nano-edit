@@ -81,7 +81,7 @@ function handleMarkdownEditorKeydown(
 ): void {
   if (event.key === 'Escape') {
     event.preventDefault()
-    editor.value = entry.markdown
+    resetMarkdownSourceEditor(editor, entry.markdown)
     ctx.view.focus()
     return
   }
@@ -104,4 +104,9 @@ function applyMarkdownBlockSource(ctx: NanoViewContext, id: string, markdown: st
 
   const transaction = markdownBlockSourceTransaction(ctx.view.state, id, markdown, ctx.collapsedBlockIds)
   if (transaction) ctx.view.dispatch(transaction.scrollIntoView())
+}
+
+function resetMarkdownSourceEditor(editor: HTMLTextAreaElement, markdown: string): void {
+  editor.value = markdown
+  syncMarkdownSourceRows(editor)
 }
