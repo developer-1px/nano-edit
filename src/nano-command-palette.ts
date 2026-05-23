@@ -18,11 +18,20 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
   let paletteMode: CommandPaletteMode | null = null
   let paletteBlockId: string | null = null
   let paletteSelectedIndex = 0
+  let destroyed = false
+  let focusFrameId: number | null = null
 
   const { commandInput, commandList, commandPalette } = createCommandPaletteElements()
 
+  const cancelPendingFocus = (): void => {
+    if (focusFrameId === null) return
+    cancelAnimationFrame(focusFrameId)
+    focusFrameId = null
+  }
+
   const closeCommandPalette = (restoreFocus = true): void => {
     if (!paletteMode) return
+    cancelPendingFocus()
     paletteMode = null
     paletteBlockId = null
     paletteSelectedIndex = 0
@@ -62,6 +71,8 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
   }
 
   const openCommandPalette = (mode: CommandPaletteMode, blockId: string | null = null): void => {
+    if (destroyed) return
+    cancelPendingFocus()
     paletteMode = mode
     paletteBlockId = blockId
     paletteSelectedIndex = 0
@@ -71,7 +82,10 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
     commandPalette.hidden = false
     positionCommandPalette(commandPalette, paletteMode, options.commandAnchorRect)
     renderCommandPalette()
-    requestAnimationFrame(() => commandInput.focus())
+    focusFrameId = requestAnimationFrame(() => {
+      focusFrameId = null
+      if (!destroyed && paletteMode) commandInput.focus()
+    })
   }
 
   const movePaletteSelection = (delta: number): void => {
@@ -110,6 +124,10 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
     commandPalette,
     openCommandPalette,
     destroy: () => {
+      if (destroyed) return
+      destroyed = true
+      cancelPendingFocus()
+      closeCommandPalette(false)
       document.removeEventListener('keydown', handleGlobalShortcut, true)
       document.removeEventListener('click', handleOutsideClick)
     },

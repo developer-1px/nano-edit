@@ -16,9 +16,15 @@ import {
   destroyNanoView,
   installNanoGutterListeners,
 } from './nano-view-lifecycle'
+import {
+  destroyMountedNanoView,
+  forgetMountedNanoView,
+  rememberMountedNanoView,
+} from './nano-view-mount-registry'
 import { installNanoShell } from './nano-view-shell'
 
 export function createNanoView(options: NanoViewOptions): NanoViewHandle {
+  destroyMountedNanoView(options.mount)
   const ctx = createNanoViewContext(options)
   const inspector = createNanoInspectorRuntime(ctx)
   const gutter = createNanoGutterRuntime(ctx)
@@ -83,7 +89,13 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
   ctx.shell.syncInspectorChrome()
   engine().refreshInspector()
 
-  return {
-    destroy: () => destroyNanoView(ctx),
+  let handle: NanoViewHandle
+  handle = {
+    destroy: () => {
+      forgetMountedNanoView(options.mount, handle)
+      destroyNanoView(ctx)
+    },
   }
+  rememberMountedNanoView(options.mount, handle)
+  return handle
 }
