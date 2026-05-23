@@ -246,6 +246,29 @@ test('Document surface keeps tables and callouts visually quiet', () => {
   assert.equal(calloutIconRule[1].includes('inline-grid'), false)
 })
 
+test('Document surface keeps reference blocks inline', () => {
+  const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
+  const referenceRule = /\.nano-bookmark-link,[\s\S]*?\.nano-tag-ref-card \{([\s\S]*?)\n\}/.exec(editorCss)
+  const attachmentRule = /\.nano-attachment-link \{([\s\S]*?)\n\}/.exec(editorCss)
+  const attachmentIconRule = /\.nano-attachment-icon \{([\s\S]*?)\n\}/.exec(editorCss)
+  const tagRefRule = /\.nano-tag-ref-card \{([\s\S]*?)\n\}/.exec(editorCss)
+
+  assert(referenceRule, 'reference link rule should be present')
+  assert(referenceRule[1].includes('display: inline;'))
+  assert.equal(referenceRule[1].includes('display: grid;'), false)
+
+  assert(attachmentRule, 'attachment link rule should be present')
+  assert(attachmentRule[1].includes('display: inline;'))
+  assert.equal(attachmentRule[1].includes('grid-template-columns'), false)
+
+  assert(attachmentIconRule, 'attachment icon rule should be present')
+  assert(attachmentIconRule[1].includes('display: none;'))
+
+  assert(tagRefRule, 'tag reference rule should be present')
+  assert(tagRefRule[1].includes('display: inline;'))
+  assert.equal(tagRefRule[1].includes('inline-grid'), false)
+})
+
 test('Inspector index uses visual labels instead of raw Markdown markers', () => {
   const index = nanoDocumentIndex(nanoDocumentFromMarkdown([
     '## Closed title ###',

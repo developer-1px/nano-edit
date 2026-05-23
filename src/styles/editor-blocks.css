@@ -244,23 +244,17 @@
 .nano-attachment-link,
 .nano-note-ref-card,
 .nano-tag-ref-card {
-  display: grid;
-  gap: 2px;
-  align-items: start;
+  display: inline;
   color: inherit;
   text-decoration: none;
 }
 
 .nano-attachment-link {
-  grid-template-columns: 28px minmax(0, 1fr);
-  gap: 2px 8px;
-  align-items: baseline;
+  display: inline;
 }
 
 .nano-attachment-icon {
-  grid-row: 1 / span 3;
-  color: var(--nano-muted);
-  font: 700 10px/1.4 var(--nano-mono);
+  display: none;
 }
 
 .nano-bookmark-title,
@@ -282,12 +276,18 @@
   font-size: 0.875em;
 }
 
+.nano-bookmark-detail::before,
+.nano-attachment-detail::before,
+.nano-bookmark-url::before {
+  content: ' ';
+}
+
 .nano-bookmark-url {
   font-family: var(--nano-mono);
 }
 
 .nano-tag-ref-card {
-  display: inline-grid;
+  display: inline;
 }
 
 .nano-table {
