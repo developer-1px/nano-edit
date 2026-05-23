@@ -98,6 +98,8 @@ test('Document surface wraps prose without emergency breaking by default', () =>
   assert(inlineSourceLabelRule[1].includes('font-size: inherit;'))
   assert(inlineSourceHiddenRule[1].includes('display: none;'))
   assert.equal(inlineCss.includes('font-size: 0;'), false)
+  assert.equal(editorCss.includes('font-size: 0;'), false)
+  assert.equal(editorCss.includes('.nano-footnote-marker::before'), false)
   assert.equal(inlineSourceLabelRule[1].includes('font-size: 1rem;'), false)
 })
 

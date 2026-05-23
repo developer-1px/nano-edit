@@ -79,6 +79,7 @@ test('Block source tokens expose quiet visual labels', () => {
 
   const footnoteMarkers = domSpecElementsByClass(blockDomSpec({ id: 'footnote', type: 'footnote', name: 'commands', text: 'Detail', marks: [] }), 'nano-footnote-marker')
   assert.equal(footnoteMarkers[0][1]['data-label'], 'commands')
+  assert.equal(footnoteMarkers[0][2], 'commands')
 })
 
 function domSpecElementsByClass(spec, className) {

@@ -202,13 +202,8 @@
 
 .nano-footnote-marker {
   color: var(--nano-muted);
-  font-size: 0;
-  user-select: none;
-}
-
-.nano-footnote-marker::before {
-  content: attr(data-label);
   font: 600 12px/1.4 var(--nano-sans);
+  user-select: none;
 }
 
 .nano-document .nano-code,
