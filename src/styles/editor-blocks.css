@@ -115,7 +115,10 @@
 }
 
 .nano-document .nano-callout {
-  display: block;
+  display: grid;
+  grid-template-columns: 1em minmax(0, 1fr);
+  column-gap: 0.5em;
+  align-items: start;
   padding: 0;
   border-left: 0;
 }
@@ -125,7 +128,11 @@
 }
 
 .nano-callout-icon {
-  display: none;
+  height: 1.65em;
+  display: inline-grid;
+  place-items: center;
+  color: var(--nano-muted);
+  opacity: 0.72;
 }
 
 .nano-callout .nano-block-content {

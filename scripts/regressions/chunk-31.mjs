@@ -242,7 +242,7 @@ test('Document surface keeps tables and callouts visually quiet', () => {
   const tableCellRule = /\.nano-document th,\n\.nano-document td \{([\s\S]*?)\n\}/.exec(baseCss)
   const calloutRule = [...editorCss.matchAll(/\.nano-document \.nano-callout \{([\s\S]*?)\n\}/g)]
     .map((match) => match[1])
-    .find((body) => body.includes('display: block;'))
+    .find((body) => body.includes('display: grid;'))
   const calloutIconRule = /\.nano-callout-icon \{([\s\S]*?)\n\}/.exec(editorCss)
 
   assert(tableCellRule, 'table cell rule should be present')
@@ -251,13 +251,15 @@ test('Document surface keeps tables and callouts visually quiet', () => {
   assert.equal(tableCellRule[1].includes('border: 1px solid'), false)
 
   assert(calloutRule, 'callout rule should be present')
-  assert(calloutRule.includes('display: block;'))
+  assert(calloutRule.includes('display: grid;'))
+  assert(calloutRule.includes('grid-template-columns: 1em minmax(0, 1fr);'))
   assert(calloutRule.includes('padding: 0;'))
   assert(calloutRule.includes('border-left: 0;'))
 
   assert(calloutIconRule, 'callout icon rule should be present')
-  assert(calloutIconRule[1].includes('display: none;'))
-  assert.equal(calloutIconRule[1].includes('inline-grid'), false)
+  assert(calloutIconRule[1].includes('display: inline-grid;'))
+  assert(calloutIconRule[1].includes('color: var(--nano-muted);'))
+  assert.equal(calloutIconRule[1].includes('background'), false)
 })
 
 test('Document surface keeps reference blocks inline', () => {
