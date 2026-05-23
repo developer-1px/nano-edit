@@ -49,6 +49,20 @@ test('Persisted demo document falls back when stored data is invalid', () => {
   }
 })
 
+test('Persisted demo document ignores older demo storage versions', () => {
+  const staleDocument = {
+    blocks: [{ id: 'stale-1', type: 'paragraph', text: 'Old demo opening', marks: [] }],
+  }
+  const storage = new FakeStorage([
+    ['nano-edit:demo-document:v1', JSON.stringify(staleDocument)],
+  ])
+
+  const persisted = createPersistedDemoNanoDocument(storage)
+
+  assert.deepEqual(persisted.engine.value, initialNanoDocument)
+  persisted.destroy()
+})
+
 test('Persisted demo document saves edits and stops saving after destroy', () => {
   const storage = new FakeStorage()
   const persisted = createPersistedDemoNanoDocument(storage)

@@ -6,7 +6,7 @@ import {
 } from '../nano-core'
 import { initialNanoDocument } from './initial-document'
 
-export const DEMO_DOCUMENT_STORAGE_KEY = 'nano-edit:demo-document:v1'
+export const DEMO_DOCUMENT_STORAGE_KEY = 'nano-edit:demo-document:v2'
 
 export type DemoDocumentStorage = Pick<Storage, 'getItem' | 'setItem'>
 
