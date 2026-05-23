@@ -18,7 +18,7 @@ const initialMarkdown = `# Field Notes
 2. Trim
 3. Send
 
-> [!NOTE] 판단보다 관찰을 먼저 적는다.[^draft]
+> [!NOTE] 판단보다 관찰을 먼저 적는다.
 
 ## Revision Log
 
@@ -49,7 +49,7 @@ $$
 
 ## References
 
-[[Revision Log]]와 #notes 태그는 같은 흐름을 다시 찾게 한다. [reference](https://example.org/notes "Reference")만 남긴다.
+[[Revision Log]]와 #notes 태그는 같은 흐름을 다시 찾게 한다. 근거 문장[^draft]과 [reference](https://example.org/notes "Reference")만 남긴다.
 
 https://example.org/notes
 
