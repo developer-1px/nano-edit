@@ -27,14 +27,22 @@ test('Hidden block picker chrome stays removed', () => {
   assert(inspectorShell.includes("placeholder = 'Search'"))
 })
 
-test('Inline Markdown delimiters stay hidden on hover and focus', () => {
+test('Inline Markdown delimiters surface only in the active block', () => {
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
-  const hoverRule = /\.nano \.nano-md-token:hover::before,[\s\S]*?\.nano \.nano-md-token:focus-within::after \{([\s\S]*?)\n\}/.exec(css)
-  assert(hoverRule, 'inline delimiter hover/focus rule should be present')
-  assert(hoverRule[1].includes('width: 0;'))
-  assert(hoverRule[1].includes('opacity: 0;'))
-  assert.equal(hoverRule[1].includes('width: auto;'), false)
+  const inlineCss = readFileSync(new URL('../../src/styles/inline-tokens.css', import.meta.url), 'utf8')
+  const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
+  const quietRule = /\.nano-md-token::before,[\s\S]*?\.nano-md-token::after \{([\s\S]*?)\n\}/.exec(inlineCss)
+  const activeRule = /\.nano-block-active \.nano-md-token::before,[\s\S]*?\.nano-block-active \.nano-md-token::after \{([\s\S]*?)\n\}/.exec(inlineCss)
+  assert(quietRule, 'inline delimiter quiet rule should be present')
+  assert(activeRule, 'inline delimiter active-block rule should be present')
+  assert(quietRule[1].includes('width: 0;'))
+  assert(quietRule[1].includes('opacity: 0;'))
+  assert(activeRule[1].includes('width: auto;'))
+  assert(activeRule[1].includes('opacity: 0.72;'))
   assert.equal(/^\.nano-md-token:hover/m.test(css), false)
+  assert.equal(css.includes('.nano-md-token:focus-within'), false)
+  assert(editorCss.includes('.nano-block-active .nano-block-md-prefix'))
+  assert(editorCss.includes('.nano-block-active .nano-callout-marker'))
 })
 
 test('Accessible chrome avoids Markdown jargon outside explicit source actions', () => {

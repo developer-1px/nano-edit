@@ -99,6 +99,28 @@
   display: none;
 }
 
+.nano-block-active .nano-block-md-prefix,
+.nano-block-active .nano-code-fence,
+.nano-block-active .nano-math-fence,
+.nano-block-active .nano-divider-token,
+.nano-block-active .nano-image-markdown,
+.nano-block-active .nano-attachment-src,
+.nano-block-active .nano-note-ref-token,
+.nano-block-active .nano-table-markdown,
+.nano-block-active .nano-callout-marker {
+  display: inline;
+  color: var(--nano-muted);
+  font-family: var(--nano-mono);
+  font-size: 0.9em;
+  opacity: 0.78;
+}
+
+.nano-block-active .nano-code-fence,
+.nano-block-active .nano-math-fence,
+.nano-block-active .nano-table-markdown {
+  display: block;
+}
+
 .nano-callout-icon {
   height: 1.65em;
   display: inline-grid;

@@ -4,11 +4,3 @@
 @import './styles/inline-tokens.css';
 @import './styles/inspector.css';
 @import './styles/command-palette.css';
-
-.nano .nano-md-token:hover::before,
-.nano .nano-md-token:hover::after,
-.nano .nano-md-token:focus-within::before,
-.nano .nano-md-token:focus-within::after {
-  width: 0;
-  opacity: 0;
-}
