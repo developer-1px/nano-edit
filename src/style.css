@@ -228,6 +228,12 @@ textarea:focus-visible {
   color: var(--focus);
 }
 
+.nano-block-handle,
+.nano-block-add,
+.nano-block-insert-picker {
+  display: none;
+}
+
 .nano-heading {
   font-weight: 700;
   line-height: 1.24;
@@ -328,18 +334,12 @@ textarea:focus-visible {
 
 .nano-callout {
   max-width: 760px;
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: 8px;
-  padding-left: 12px;
+  padding-left: 14px;
   border-left: 2px solid var(--line);
 }
 
 .nano-callout-marker {
-  color: var(--muted);
-  font-size: 0;
-  text-transform: lowercase;
-  user-select: none;
+  display: none;
 }
 
 .nano-callout-marker::before {
@@ -650,6 +650,14 @@ textarea:focus-visible {
   font-size: 0;
 }
 
+.nano-footnote-ref.nano-source-token {
+  width: 0.45rem;
+  display: inline-block;
+  overflow: hidden;
+  color: transparent;
+  vertical-align: baseline;
+}
+
 .nano-tag.nano-source-token::before,
 .nano-note-link.nano-source-token::before,
 .nano-math.nano-source-token::before,
@@ -665,7 +673,10 @@ textarea:focus-visible {
 }
 
 .nano-footnote-ref.nano-source-token::before {
-  font-size: 0.78rem;
+  content: '†';
+  color: var(--muted);
+  font: 0.72rem/1 var(--sans);
+  vertical-align: super;
 }
 
 .inspector {
@@ -880,7 +891,7 @@ textarea.nano-markdown-block {
   right: 14px;
   bottom: 14px;
   z-index: 19;
-  opacity: 0.18;
+  opacity: 0;
 }
 
 .inspector-trigger::before {
