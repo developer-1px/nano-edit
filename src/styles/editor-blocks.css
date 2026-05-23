@@ -26,8 +26,8 @@
   position: absolute;
   right: 0;
   left: 0;
-  height: 2px;
-  background: var(--nano-focus);
+  height: 1px;
+  background: var(--nano-focus-ring);
 }
 
 .nano-drop-before::after {
@@ -106,13 +106,13 @@
 
 .markdown-body .nano-callout {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
+  grid-template-columns: 16px minmax(0, 1fr);
   column-gap: 8px;
   align-items: start;
-  margin: 0 0 16px;
-  padding: 0 1em;
-  color: var(--nano-muted);
-  border-left: 0.25em solid var(--nano-border);
+  margin: 0 0 0.9em;
+  padding: 0 0 0 0.9em;
+  color: inherit;
+  border-left: 2px solid var(--nano-border);
 }
 
 .nano-callout-marker {
@@ -120,7 +120,7 @@
 }
 
 .nano-callout-icon {
-  min-height: 1.5em;
+  min-height: 1.65em;
   display: inline-grid;
   place-items: center;
   color: var(--nano-muted);
@@ -133,17 +133,20 @@
 .nano-todo,
 .nano-list-item {
   display: grid;
-  grid-template-columns: 16px 24px minmax(0, 1fr);
-  align-items: start;
-  margin: 0 0 0.25em;
+  grid-template-columns: 14px 20px minmax(0, 1fr);
+  column-gap: 4px;
+  align-items: baseline;
+  margin: 0 0 0.28em;
   margin-left: calc(var(--nano-indent, 0) * 24px);
+  line-height: 1.6;
 }
 
 .nano-todo-box {
-  width: 18px;
-  height: 1.5em;
+  width: 16px;
+  height: 1.6em;
   display: inline-grid;
-  place-items: center;
+  place-items: start center;
+  padding-top: 0.28em;
   color: #57606a;
   font-size: 0;
 }
@@ -159,11 +162,12 @@
 
 .nano-list-marker::before {
   color: var(--nano-muted);
-  font: 600 0.9em/1.5 var(--nano-mono);
+  font: 400 1em/1.6 var(--nano-sans);
+  font-variant-numeric: tabular-nums;
 }
 
 .nano-list-bullet .nano-list-marker::before {
-  content: '-';
+  content: '•';
 }
 
 .nano-list-ordered .nano-list-marker::before {
@@ -172,7 +176,7 @@
 
 .nano-footnote {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr);
   gap: 8px;
   align-items: baseline;
   margin-bottom: 0.25em;
@@ -200,10 +204,10 @@
 }
 
 .markdown-body .nano-divider {
-  min-height: 24px;
+  min-height: 22px;
   display: grid;
   align-items: center;
-  margin: 16px 0;
+  margin: 14px 0;
 }
 
 .nano-divider::after {

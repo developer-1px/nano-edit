@@ -1,4 +1,16 @@
+import {
+  AtSign,
+  Circle,
+  CornerDownLeft,
+  ExternalLink,
+  FilePlus2,
+  FileText,
+} from 'lucide'
 import type { IndexEntry } from './nano-document-index'
+import {
+  lucideIconElement,
+  type IconNode,
+} from './nano-icons'
 import type { NanoViewContext } from './nano-view-context'
 import {
   indexEntryBlockIds,
@@ -20,7 +32,10 @@ export function indexEntryButton(
   navigation: NanoInspectorNavigation,
 ): HTMLButtonElement {
   const button = document.createElement('button')
+  const icon = document.createElement('span')
   const label = document.createElement('span')
+  icon.className = 'nano-index-entry-icon'
+  icon.append(lucideIconElement(indexEntryIcon(action), 'nano-index-icon'))
   label.className = 'nano-index-entry-label'
   label.textContent = entry.label
   button.type = 'button'
@@ -31,20 +46,37 @@ export function indexEntryButton(
   button.dataset.active = String(activeId !== null && indexEntryBlockIds(entry).includes(activeId))
   button.dataset.blockId = entry.blockId
   button.dataset.indexSymbol = indexEntrySymbol(action)
-  appendIndexEntryLabel(button, label, entry)
+  appendIndexEntryLabel(button, icon, label, entry)
   button.addEventListener('click', () => runIndexEntryAction(entry, action, ctx, navigation))
   return button
 }
 
-function appendIndexEntryLabel(button: HTMLButtonElement, label: HTMLElement, entry: IndexEntry): void {
+function indexEntryIcon(action: IndexEntryAction): IconNode {
+  switch (action) {
+    case 'tag':
+      return AtSign
+    case 'note':
+      return FileText
+    case 'missing-note':
+      return FilePlus2
+    case 'backlink':
+      return CornerDownLeft
+    case 'external':
+      return ExternalLink
+    case 'select':
+      return Circle
+  }
+}
+
+function appendIndexEntryLabel(button: HTMLButtonElement, icon: HTMLElement, label: HTMLElement, entry: IndexEntry): void {
   if (!entry.detail) {
-    button.append(label)
+    button.append(icon, label)
     return
   }
   const detail = document.createElement('span')
   detail.className = 'nano-index-entry-detail'
   detail.textContent = entry.detail
-  button.append(label, detail)
+  button.append(icon, label, detail)
 }
 
 function runIndexEntryAction(

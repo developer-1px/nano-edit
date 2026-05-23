@@ -179,6 +179,23 @@ test('Accessible chrome avoids Markdown jargon outside explicit source actions',
   assert(inspectorShell.includes("labeledSection('source'"))
 })
 
+test('Inspector chrome uses icon elements instead of text placeholders', () => {
+  const inspectorShell = readFileSync(new URL('../../src/nano-inspector-shell.ts', import.meta.url), 'utf8')
+  const inspectorEntry = readFileSync(new URL('../../src/nano-view-inspector-index-entry.ts', import.meta.url), 'utf8')
+  const inspectorCss = readFileSync(new URL('../../src/styles/inspector.css', import.meta.url), 'utf8')
+
+  assert(inspectorShell.includes("from 'lucide'"))
+  assert(inspectorShell.includes("shellButton('', 'Index', ListTree)"))
+  assert(inspectorShell.includes("shellButton('', 'Source', FileCode2)"))
+  assert(inspectorShell.includes("lucideIconElement(PanelRightOpen"))
+  assert(inspectorEntry.includes("lucideIconElement(indexEntryIcon(action), 'nano-index-icon')"))
+  assert.equal(inspectorCss.includes("content: 'i';"), false)
+  assert.equal(inspectorCss.includes("content: 's';"), false)
+  assert.equal(inspectorCss.includes("content: 'p';"), false)
+  assert.equal(inspectorCss.includes("content: 'x';"), false)
+  assert.equal(inspectorCss.includes('content: attr(data-index-symbol);'), false)
+})
+
 test('Inspector index uses visual labels instead of raw Markdown markers', () => {
   const index = nanoDocumentIndex(nanoDocumentFromMarkdown([
     '## Closed title ###',

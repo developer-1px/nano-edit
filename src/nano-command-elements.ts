@@ -1,9 +1,14 @@
 import type { NanoCommand } from './nano-command-registry'
+import {
+  lucideIconElement,
+  type IconNode,
+} from './nano-icons'
 
-export function shellButton(label: string, title: string): HTMLButtonElement {
+export function shellButton(label: string, title: string, icon?: IconNode): HTMLButtonElement {
   const button = document.createElement('button')
   button.type = 'button'
-  button.textContent = label
+  if (icon) button.append(lucideIconElement(icon, 'nano-shell-icon'))
+  else button.textContent = label
   button.title = title
   button.ariaLabel = title
   return button

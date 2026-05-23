@@ -6,7 +6,8 @@
 
 .nano-md-token {
   white-space: normal;
-  word-break: break-all;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .nano-inline-code,
@@ -36,7 +37,10 @@
 
 .nano-md-link,
 .nano-raw-link {
-  color: var(--nano-focus);
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--nano-border);
+  text-underline-offset: 0.2rem;
 }
 
 .nano-raw-bold {
@@ -115,13 +119,19 @@
 }
 
 .nano-todo-icon {
-  width: 16px;
-  height: 16px;
-  stroke-width: 2;
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
 }
 
 .nano-callout-icon-svg {
   width: 14px;
   height: 14px;
-  stroke-width: 1.9;
+  stroke-width: 1.8;
+}
+
+.nano-shell-icon {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
 }

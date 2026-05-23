@@ -1,5 +1,13 @@
+import {
+  FileCode2,
+  ListTree,
+  PanelRightOpen,
+  Pin,
+  X,
+} from 'lucide'
 import type { InspectorMode, InspectorTab } from './nano-command-surface'
 import { labeledSection, shellButton } from './nano-command-elements'
+import { lucideIconElement } from './nano-icons'
 import { storedInspectorMode, storeInspectorMode } from './nano-inspector-storage'
 
 interface NanoInspectorShellOptions {
@@ -28,16 +36,16 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   inspectorHeader.className = 'inspector-header'
   const inspectorTabs = document.createElement('div')
   inspectorTabs.className = 'inspector-tabs'
-  const indexTab = shellButton('', 'Index')
+  const indexTab = shellButton('', 'Index', ListTree)
   indexTab.dataset.icon = 'index'
-  const markdownTab = shellButton('', 'Source')
+  const markdownTab = shellButton('', 'Source', FileCode2)
   markdownTab.dataset.icon = 'source'
   inspectorTabs.append(indexTab, markdownTab)
   const inspectorControls = document.createElement('div')
   inspectorControls.className = 'inspector-controls'
-  const pinButton = shellButton('', 'Pin')
+  const pinButton = shellButton('', 'Pin', Pin)
   pinButton.dataset.icon = 'pin'
-  const closeButton = shellButton('', 'Hide')
+  const closeButton = shellButton('', 'Hide', X)
   closeButton.dataset.icon = 'close'
   inspectorControls.append(pinButton, closeButton)
   inspectorHeader.append(inspectorTabs, inspectorControls)
@@ -70,6 +78,7 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   inspectorTrigger.className = 'inspector-trigger'
   inspectorTrigger.title = 'Inspector'
   inspectorTrigger.ariaLabel = 'Inspector'
+  inspectorTrigger.append(lucideIconElement(PanelRightOpen, 'nano-shell-icon'))
 
   const syncInspectorChrome = (): void => {
     options.root.dataset.inspector = inspectorMode
