@@ -186,13 +186,14 @@ test('Document surface keeps code content unframed', () => {
 
   assert(inlineCodeRule, 'inline code rule should be present')
   assert(inlineCodeRule[1].includes('background: transparent;'))
-  assert(inlineCodeRule[1].includes('border-radius: 0;'))
   assert(inlineCodeRule[1].includes('padding: 0;'))
+  assert.equal(inlineCodeRule[1].includes('border-radius'), false)
   assert.equal(inlineCodeRule[1].includes('var(--nano-soft)'), false)
 
   assert(blockCodeRule, 'block code rule should be present')
   assert(blockCodeRule[1].includes('background: transparent;'))
-  assert(blockCodeRule[1].includes('border-radius: 0;'))
   assert(blockCodeRule[1].includes('padding: 0;'))
+  assert.equal(blockCodeRule[1].includes('border-radius'), false)
   assert.equal(blockCodeRule[1].includes('var(--nano-soft)'), false)
+  assert.equal(baseCss.includes('--nano-soft'), false)
 })

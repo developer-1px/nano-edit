@@ -3,7 +3,6 @@
   --nano-text: #1f2328;
   --nano-muted: #59636e;
   --nano-border: #d1d9e0;
-  --nano-soft: #f6f8fa;
   --nano-focus: #24292f;
   --nano-focus-ring: #8c959f;
   --nano-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -166,7 +165,6 @@ textarea:focus-visible {
 .nano-document code {
   padding: 0;
   background: transparent;
-  border-radius: 0;
   font-family: var(--nano-mono);
   font-size: 0.9em;
 }
@@ -176,14 +174,12 @@ textarea:focus-visible {
   padding: 0;
   overflow-x: auto;
   background: transparent;
-  border-radius: 0;
   font: 13px/1.55 var(--nano-mono);
 }
 
 .nano-document pre code {
   padding: 0;
   background: transparent;
-  border-radius: 0;
   font: inherit;
 }
 

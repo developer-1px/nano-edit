@@ -64,6 +64,7 @@
 
 .nano-index,
 .nano-markdown {
+  flex: 1;
   min-height: 0;
   margin: 0;
   padding: 10px;
@@ -84,11 +85,6 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-.nano-index,
-.nano-markdown {
-  flex: 1;
 }
 
 .nano-index-search {
