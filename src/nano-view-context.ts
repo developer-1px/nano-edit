@@ -29,6 +29,7 @@ export interface NanoViewContext {
   indexOutput: HTMLElement
   markdownOutput: HTMLElement
   view: EditorView
+  destroyed: boolean
   lastTextMergePath: Pointer | null
   lastTextMergeAt: number
   indexSearchQuery: string

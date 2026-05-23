@@ -13,6 +13,8 @@ export function installNanoGutterListeners(
 }
 
 export function destroyNanoView(ctx: NanoViewContext): void {
+  if (ctx.destroyed) return
+  ctx.destroyed = true
   ctx.editor.removeEventListener('click', ctx.blockAddClickListener)
   ctx.editor.removeEventListener('click', ctx.blockHandleClickListener)
   ctx.editor.removeEventListener('mouseover', ctx.blockInsertHoverListener)
@@ -20,4 +22,5 @@ export function destroyNanoView(ctx: NanoViewContext): void {
   document.removeEventListener('click', ctx.gutterOutsideClickListener)
   ctx.shell.destroy()
   ctx.view.destroy()
+  ctx.root.remove()
 }

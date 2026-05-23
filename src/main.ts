@@ -10,7 +10,11 @@ if (!app) {
   throw new Error('Missing #app')
 }
 
-createNanoView({
+const nanoView = createNanoView({
   mount: app,
   engine: createDemoNanoDocument(),
 })
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => nanoView.destroy())
+}

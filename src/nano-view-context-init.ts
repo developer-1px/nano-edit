@@ -17,6 +17,7 @@ export function createNanoViewContext(options: NanoViewOptions): NanoViewContext
     indexOutput: null as unknown as HTMLElement,
     markdownOutput: null as unknown as HTMLElement,
     view: null as unknown as EditorView,
+    destroyed: false,
     lastTextMergePath: null as Pointer | null,
     lastTextMergeAt: 0,
     indexSearchQuery: '',
