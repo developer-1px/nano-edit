@@ -34,3 +34,23 @@ test('Decorative Markdown tokens stay out of document text', () => {
   assert(hiddenBlockTokenRule[1].includes('display: none;'))
   assert.equal(hiddenBlockTokenRule[1].includes('position: absolute;'), false)
 })
+
+test('Todo checkbox exposes state without visible Markdown syntax', () => {
+  const checkedSpec = blockDomSpec({
+    id: 'todo',
+    type: 'todo',
+    checked: true,
+    checkedMarker: 'X',
+    indent: 0,
+    text: 'Done',
+    marks: [],
+  })
+  const checkbox = checkedSpec.find((child) => Array.isArray(child) && child[1]?.class === 'nano-todo-box')
+
+  assert(checkbox)
+  assert.equal(checkbox[1].role, 'checkbox')
+  assert.equal(checkbox[1]['aria-checked'], 'true')
+  assert.equal(checkbox[1]['aria-label'], 'Todo')
+  assert.equal(checkbox[1].title, 'Done')
+  assert.equal(specText(checkbox).includes('- [X]'), false)
+})
