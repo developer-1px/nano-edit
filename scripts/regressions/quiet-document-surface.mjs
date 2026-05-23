@@ -140,6 +140,27 @@ test('Document surface keeps tables and callouts visually quiet', () => {
   assert.equal(calloutIconRule[1].includes('background'), false)
 })
 
+test('Document surface keeps controls as quiet indicators', () => {
+  const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
+  const inlineCss = readFileSync(new URL('../../src/styles/inline-tokens.css', import.meta.url), 'utf8')
+  const todoIconRule = /\.nano-todo-icon \{([\s\S]*?)\n\}/.exec(inlineCss)
+  const foldHoverRule = /\.nano-heading-collapsible:hover \.nano-heading-fold,[\s\S]*?\.nano-list-collapsed \.nano-list-fold \{([\s\S]*?)\n\}/.exec(editorCss)
+  const todoBoxRule = /\.nano-todo-box \{([\s\S]*?)\n\}/.exec(editorCss)
+
+  assert(todoIconRule, 'todo icon rule should be present')
+  assert(todoIconRule[1].includes('width: 13px;'))
+  assert(todoIconRule[1].includes('height: 13px;'))
+  assert(todoIconRule[1].includes('stroke-width: 1.65;'))
+
+  assert(todoBoxRule, 'todo box rule should be present')
+  assert(todoBoxRule[1].includes('opacity: 0.72;'))
+  assert.equal(todoBoxRule[1].includes('#57606a'), false)
+
+  assert(foldHoverRule, 'fold hover rule should be present')
+  assert(foldHoverRule[1].includes('opacity: 0.26;'))
+  assert.equal(foldHoverRule[1].includes('opacity: 0.45;'), false)
+})
+
 test('Document surface keeps reference blocks inline', () => {
   const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
   const referenceRule = /\.nano-bookmark-link,[\s\S]*?\.nano-tag-ref-card \{([\s\S]*?)\n\}/.exec(editorCss)

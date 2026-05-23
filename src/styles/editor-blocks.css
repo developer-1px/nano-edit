@@ -10,7 +10,7 @@
 
 .nano-heading-fold,
 .nano-list-fold {
-  width: 16px;
+  width: 14px;
   display: inline-grid;
   place-items: center;
   color: var(--nano-muted);
@@ -23,7 +23,7 @@
 
 .nano-heading-fold {
   height: 1.2em;
-  margin-left: -18px;
+  margin-left: -16px;
   margin-right: 2px;
   vertical-align: 0.08em;
 }
@@ -37,7 +37,7 @@
 .nano-list-fold {
   position: absolute;
   top: 0.3em;
-  left: -18px;
+  left: -16px;
   height: 1.5em;
 }
 
@@ -54,7 +54,7 @@
 .nano-list-fold:hover,
 .nano-list-fold:focus-visible,
 .nano-list-collapsed .nano-list-fold {
-  opacity: 0.45;
+  opacity: 0.26;
 }
 
 .nano-block-collapsed-child {
@@ -116,8 +116,8 @@
 .nano-list-item {
   position: relative;
   display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  column-gap: 6px;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 5px;
   align-items: start;
   margin: 0 0 0.28em;
   margin-left: calc(var(--nano-indent, 0) * 22px);
@@ -125,18 +125,20 @@
 }
 
 .nano-todo-box {
-  width: 20px;
-  height: 24px;
+  width: 18px;
+  height: 1.6em;
   box-sizing: border-box;
   display: inline-grid;
   place-items: center;
   align-self: start;
-  color: #57606a;
+  color: var(--nano-muted);
   line-height: 1;
+  opacity: 0.72;
 }
 
 .nano-todo[data-checked='true'] .nano-todo-box {
   color: var(--nano-text);
+  opacity: 0.78;
 }
 
 .nano-todo[data-checked='true'] .nano-block-content {
@@ -145,7 +147,7 @@
 }
 
 .nano-list-marker {
-  height: 24px;
+  height: 1.6em;
   display: inline-grid;
   align-items: center;
   justify-items: end;

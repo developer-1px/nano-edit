@@ -3,21 +3,21 @@ import { nanoDocumentFromMarkdown } from '../nano-markdown'
 
 const initialMarkdown = `# Field Notes
 
-오늘 기록은 **의미**와 *흐름*만 남긴다. ==확인된 변화==는 남기고, ~~꾸밈말~~은 줄인다.
+오늘은 **관찰**과 *순서*만 적는다. ==비가 그친 뒤== 공기가 가벼웠고, ~~괜찮다~~는 말은 줄였다.
 
-- [x] 문장 다듬기
-- [ ] 근거 확인
-- [ ] 다음 검토 예약
+- [x] 오전 메모 정리
+- [ ] 민아에게 사진 묶음 보내기
+- [ ] 금요일 일정 다시 확인
 
-## Revision Log
+## 시장 골목
 
-첫 문단은 짧게 둔다. \`draft\` 상태에서는 출처가 있는 문장만 남긴다.
+첫 문장은 짧게 둔다. \`draft\`에는 들은 말과 본 장면만 남긴다.
 
-1. Collect
-2. Trim
-3. Send
+1. 버스 정류장
+2. 과일 가게
+3. 사무실 앞
 
-[[Revision Log]]와 #notes 태그는 같은 흐름을 다시 찾게 한다.`
+[[시장 골목]]과 #notes 태그로 다음 기록을 묶는다.`
 
 export const initialNanoDocument: NanoDocument = nanoDocumentFromMarkdown(initialMarkdown)
 

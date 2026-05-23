@@ -28,6 +28,12 @@ test('Demo document stays a compact note instead of a feature showcase', () => {
     'https://example.org',
     'files/field-notes.pdf',
     '[^draft]',
+    '의미와 흐름',
+    '꾸밈말',
+    'Revision Log',
+    'Collect',
+    'Trim',
+    'Send',
   ]
   for (const copy of forbiddenShowcaseCopy) {
     assert.equal(markdown.includes(copy), false, `demo should not expose showcase copy: ${copy}`)
