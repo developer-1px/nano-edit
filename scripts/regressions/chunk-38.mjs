@@ -63,6 +63,7 @@ test('Persisted demo document ignores older demo storage versions', () => {
     ['nano-edit:demo-document:v1', JSON.stringify(staleDocument)],
     ['nano-edit:demo-document:v2', JSON.stringify(staleDocument)],
     ['nano-edit:demo-document:v3', JSON.stringify(staleDocument)],
+    ['nano-edit:demo-document:v4', JSON.stringify(staleDocument)],
   ])
 
   const persisted = createPersistedDemoNanoDocument(storage)
@@ -71,10 +72,12 @@ test('Persisted demo document ignores older demo storage versions', () => {
   assert.equal(storage.getItem('nano-edit:demo-document:v1'), null)
   assert.equal(storage.getItem('nano-edit:demo-document:v2'), null)
   assert.equal(storage.getItem('nano-edit:demo-document:v3'), null)
+  assert.equal(storage.getItem('nano-edit:demo-document:v4'), null)
   assert.deepEqual(storage.removes, [
     'nano-edit:demo-document:v1',
     'nano-edit:demo-document:v2',
     'nano-edit:demo-document:v3',
+    'nano-edit:demo-document:v4',
   ])
   persisted.destroy()
 })
