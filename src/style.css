@@ -1,4 +1,5 @@
 @import './styles/base.css';
+@import './styles/prosemirror.css';
 @import './styles/editor-blocks.css';
 @import './styles/inline-tokens.css';
 @import './styles/inspector.css';

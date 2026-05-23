@@ -4,8 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./style.css": "./src/style.css"
   },
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "dev": "vite",
     "test": "node --experimental-strip-types --experimental-loader ./scripts/ts-extension-loader.mjs scripts/regressions.mjs",

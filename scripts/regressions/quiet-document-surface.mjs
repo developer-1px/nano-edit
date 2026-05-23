@@ -69,12 +69,21 @@ test('Inspector chrome uses icon elements instead of text placeholders', () => {
 
 test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   const main = readFileSync(new URL('../../src/main.ts', import.meta.url), 'utf8')
+  const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
+  const prosemirrorCss = readFileSync(new URL('../../src/styles/prosemirror.css', import.meta.url), 'utf8')
   const viewCreate = readFileSync(new URL('../../src/nano-view-create.ts', import.meta.url), 'utf8')
   const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
-  const packageJson = readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+  const packageJson = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'))
 
   assert.equal(main.includes('github-markdown-css'), false)
-  assert.equal(packageJson.includes('github-markdown-css'), false)
+  assert.equal(main.includes('prosemirror-view/style/prosemirror.css'), false)
+  assert.equal(JSON.stringify(packageJson).includes('github-markdown-css'), false)
+  assert.equal(packageJson.exports['./style.css'], './src/style.css')
+  assert(packageJson.sideEffects.includes('**/*.css'))
+  assert(css.includes("@import './styles/prosemirror.css';"))
+  assert(prosemirrorCss.includes('.nano .ProseMirror {'))
+  assert(prosemirrorCss.includes('white-space: break-spaces;'))
+  assert.equal(prosemirrorCss.includes('.ProseMirror-selectednode {\n  outline: 2px solid #8cf;'), false)
   assert(viewCreate.includes("class: 'nano-document'"))
   assert(viewCreate.includes("'aria-label': 'Document'"))
   assert(baseCss.includes('.nano-editor'))
