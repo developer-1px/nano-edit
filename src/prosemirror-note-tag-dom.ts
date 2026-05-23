@@ -1,6 +1,9 @@
 import type { DOMOutputSpec } from 'prosemirror-model'
 import { normalizeTagName, tagDisplayLabel } from './nano-tag'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import {
+  hiddenSourceTokenAttrs,
+  sourceTokenAttrs,
+} from './prosemirror-source-token'
 
 export function noteLinkTitle(target: unknown, alias: unknown): string {
   const value = String(target ?? '')
@@ -30,7 +33,7 @@ export function noteRefDomSpec(id: unknown, target: unknown, alias: unknown): DO
         title: label,
       },
       ['span', { class: 'nano-note-ref-title' }, label],
-      ['span', sourceTokenAttrs('nano-note-ref-token', { contenteditable: 'false' }), token],
+      ['span', hiddenSourceTokenAttrs('nano-note-ref-token'), token],
     ],
   ]
 }

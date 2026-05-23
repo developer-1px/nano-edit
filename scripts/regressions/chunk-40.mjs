@@ -9,6 +9,13 @@ function specText(spec) {
   return spec.map(specText).join('')
 }
 
+function domSpecElementsByClass(spec, className) {
+  if (!Array.isArray(spec)) return []
+  const attrs = spec[1] && typeof spec[1] === 'object' && !Array.isArray(spec[1]) ? spec[1] : null
+  const own = typeof attrs?.class === 'string' && attrs.class.split(/\s+/).includes(className) ? [spec] : []
+  return own.concat(spec.flatMap((part) => domSpecElementsByClass(part, className)))
+}
+
 test('Decorative Markdown tokens stay out of document text', () => {
   const todoText = specText(blockDomSpec({
     id: 'todo',
@@ -35,6 +42,30 @@ test('Decorative Markdown tokens stay out of document text', () => {
   assert(hiddenBlockTokenRule, 'hidden block source token rule should be present')
   assert(hiddenBlockTokenRule[1].includes('display: none;'))
   assert.equal(hiddenBlockTokenRule[1].includes('position: absolute;'), false)
+})
+
+test('Hidden block source tokens stay out of the accessibility surface', () => {
+  const tokenCases = [
+    ['heading prefix', blockDomSpec({ id: 'heading', type: 'heading', level: 2, text: 'Title', marks: [] }), 'nano-block-md-prefix'],
+    ['quote prefix', blockDomSpec({ id: 'quote', type: 'quote', text: 'Quote', marks: [] }), 'nano-block-md-prefix'],
+    ['callout marker', blockDomSpec({ id: 'callout', type: 'callout', tone: 'tip', text: 'Tip', marks: [] }), 'nano-callout-marker'],
+    ['code fence', blockDomSpec({ id: 'code', type: 'code', language: 'ts', text: 'const x = 1' }), 'nano-code-fence'],
+    ['math fence', blockDomSpec({ id: 'math', type: 'math', text: 'E=mc^2' }), 'nano-math-fence'],
+    ['divider marker', blockDomSpec({ id: 'divider', type: 'divider' }), 'nano-divider-token'],
+    ['attachment source', blockDomSpec({ id: 'attachment', type: 'attachment', src: 'files/brief.pdf', label: 'Brief' }), 'nano-attachment-src'],
+    ['note ref token', blockDomSpec({ id: 'note', type: 'note_ref', target: 'Release Notes' }), 'nano-note-ref-token'],
+    ['image source', blockDomSpec({ id: 'image', type: 'image', src: 'assets/cover.png', alt: 'cover' }), 'nano-image-markdown'],
+    ['table source', blockDomSpec({ id: 'table', type: 'table', rows: [['A', 'B'], ['1', '2']] }), 'nano-table-markdown'],
+  ]
+
+  for (const [label, spec, className] of tokenCases) {
+    const tokens = domSpecElementsByClass(spec, className)
+    assert(tokens.length > 0, `${label} should expose a hidden source token`)
+    for (const token of tokens) {
+      assert.equal(token[1].contenteditable, 'false', `${label} should not be directly editable`)
+      assert.equal(token[1]['aria-hidden'], 'true', `${label} should stay out of assistive reading`)
+    }
+  }
 })
 
 test('Todo checkbox exposes state without visible Markdown syntax', () => {

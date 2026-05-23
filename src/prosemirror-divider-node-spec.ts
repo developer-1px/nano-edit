@@ -4,7 +4,7 @@ import {
   dividerMarker,
   dividerMarkerLength,
 } from './prosemirror-block-attrs'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const dividerNodeSpec: NodeSpec = {
   group: 'block',
@@ -32,6 +32,6 @@ export const dividerNodeSpec: NodeSpec = {
       role: 'separator',
       'aria-label': 'Divider',
     },
-    ['span', sourceTokenAttrs('nano-divider-token', { contenteditable: 'false' }), dividerMarkdown(node.attrs.marker, node.attrs.markerLength)],
+    ['span', hiddenSourceTokenAttrs('nano-divider-token'), dividerMarkdown(node.attrs.marker, node.attrs.markerLength)],
   ],
 }

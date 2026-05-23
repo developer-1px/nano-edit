@@ -1,6 +1,6 @@
 import type { DOMOutputSpec } from 'prosemirror-model'
 import { rawMarkdownInlineDomSpec } from './prosemirror-raw-markdown'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 import {
   tableAlignDataAttrs,
   tableCellAttrs,
@@ -55,7 +55,7 @@ export function tableDomSpec(
       ['thead', {}, ['tr', {}, ...header.map((cell, index) => ['th', tableCellAttrs(alignments[index]), ...rawMarkdownInlineDomSpec(cell)])]],
       ['tbody', {}, ...bodyRows.map((row) => ['tr', {}, ...row.map((cell, index) => ['td', tableCellAttrs(alignments[index]), ...rawMarkdownInlineDomSpec(cell)])])],
     ],
-    ['figcaption', sourceTokenAttrs('nano-table-markdown', { contenteditable: 'false' }), markdownTableToken(
+    ['figcaption', hiddenSourceTokenAttrs('nano-table-markdown'), markdownTableToken(
       tableRows,
       alignments,
       separators,

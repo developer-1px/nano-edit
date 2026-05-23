@@ -1,5 +1,5 @@
 import type { DOMOutputSpec } from 'prosemirror-model'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 import {
   destinationStyle,
   markdownLinkClose,
@@ -26,7 +26,7 @@ export function attachmentDomSpec(id: unknown, src: unknown, label: unknown, tit
       ['span', { class: 'nano-attachment-icon' }, attachmentIcon(fileSrc)],
       ['span', { class: 'nano-attachment-title' }, attachmentLabelText],
       ...(attachmentTitle ? [['span', { class: 'nano-attachment-detail' }, attachmentTitle] as DOMOutputSpec] : []),
-      ['span', sourceTokenAttrs('nano-attachment-src', { contenteditable: 'false' }), markdownAttachmentToken(attachmentLabelText, fileSrc, attachmentTitle, attachmentDestinationStyle)],
+      ['span', hiddenSourceTokenAttrs('nano-attachment-src'), markdownAttachmentToken(attachmentLabelText, fileSrc, attachmentTitle, attachmentDestinationStyle)],
     ],
   ]
 }

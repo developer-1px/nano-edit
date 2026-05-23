@@ -3,7 +3,7 @@ import {
   destinationStyle,
   markdownImageToken,
 } from './prosemirror-atom-dom'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const imageNodeSpec: NodeSpec = {
   group: 'block',
@@ -45,7 +45,7 @@ export const imageNodeSpec: NodeSpec = {
         : {}),
     },
     ['img', { src: node.attrs.src, alt: node.attrs.alt ?? '', ...(node.attrs.title ? { title: node.attrs.title } : {}) }],
-    ['figcaption', sourceTokenAttrs('nano-image-markdown', { contenteditable: 'false' }), markdownImageToken(
+    ['figcaption', hiddenSourceTokenAttrs('nano-image-markdown'), markdownImageToken(
       node.attrs.alt,
       node.attrs.src,
       node.attrs.title,

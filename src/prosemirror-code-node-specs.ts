@@ -9,7 +9,7 @@ import {
   codeFenceOpenToken,
 } from './prosemirror-block-attrs'
 import { nanoNodeNames } from './prosemirror-names'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const nanoCodeNodeSpecs: Record<string, NodeSpec> = {
   [nanoNodeNames.codeBlock]: {
@@ -48,8 +48,7 @@ export const nanoCodeNodeSpecs: Record<string, NodeSpec> = {
         'data-fence-marker': codeFenceMarker(node.attrs.fenceMarker),
         'data-fence-length': String(codeFenceLength(node.attrs.fenceLength)),
       },
-      ['span', sourceTokenAttrs('nano-code-fence', {
-        contenteditable: 'false',
+      ['span', hiddenSourceTokenAttrs('nano-code-fence', {
         'data-fence-role': 'open',
         ...(node.attrs.language ? { 'data-label': String(node.attrs.language) } : {}),
       }), codeFenceOpenToken(
@@ -60,8 +59,7 @@ export const nanoCodeNodeSpecs: Record<string, NodeSpec> = {
         node.attrs.fenceInfoSpacing,
       )],
       ['code', { 'data-language': node.attrs.language ?? '' }, 0],
-      ['span', sourceTokenAttrs('nano-code-fence', {
-        contenteditable: 'false',
+      ['span', hiddenSourceTokenAttrs('nano-code-fence', {
         'data-fence-role': 'close',
       }), codeFenceCloseToken(
         node.attrs.fenceMarker,
@@ -89,13 +87,11 @@ export const nanoCodeNodeSpecs: Record<string, NodeSpec> = {
         'data-id': node.attrs.id,
         ...(mathStyle(node.attrs.mathStyle) ? { 'data-math-style': mathStyle(node.attrs.mathStyle) } : {}),
       },
-      ['span', sourceTokenAttrs('nano-math-fence', {
-        contenteditable: 'false',
+      ['span', hiddenSourceTokenAttrs('nano-math-fence', {
         'data-fence-role': 'open',
       }), '$$'],
       ['code', { class: 'nano-math-content' }, 0],
-      ['span', sourceTokenAttrs('nano-math-fence', {
-        contenteditable: 'false',
+      ['span', hiddenSourceTokenAttrs('nano-math-fence', {
         'data-fence-role': 'close',
       }), '$$'],
     ],

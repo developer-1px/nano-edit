@@ -1,5 +1,5 @@
 import type { DOMOutputSpec } from 'prosemirror-model'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export function clampHeadingLevel(level: unknown): 1 | 2 | 3 | 4 | 5 | 6 {
   const value = typeof level === 'number' ? Math.trunc(level) : 1
@@ -64,14 +64,14 @@ export function headingSuffixDomSpec(
   if (headingStyle(style, level) === 'setext') {
     return [[
       'span',
-      sourceTokenAttrs('nano-block-md-prefix nano-heading-setext-marker', { contenteditable: 'false' }),
+      hiddenSourceTokenAttrs('nano-block-md-prefix nano-heading-setext-marker'),
       ` ${setextMarker(setextMarkerValue, level).repeat(setextLength(setextLengthValue))}`,
     ]]
   }
 
   const closingLength = atxClosingLengthOrNull(atxClosingLength)
   return closingLength
-    ? [['span', sourceTokenAttrs('nano-block-md-prefix nano-heading-atx-close', { contenteditable: 'false' }), `${' '.repeat(atxSpacing(atxClosingSpacing))}${'#'.repeat(closingLength)}`]]
+    ? [['span', hiddenSourceTokenAttrs('nano-block-md-prefix nano-heading-atx-close'), `${' '.repeat(atxSpacing(atxClosingSpacing))}${'#'.repeat(closingLength)}`]]
     : []
 }
 

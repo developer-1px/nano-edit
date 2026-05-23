@@ -12,7 +12,7 @@ import {
   quoteMarkerSpacingValue,
   quotePrefixToken,
 } from './prosemirror-block-attrs'
-import { sourceTokenAttrs } from './prosemirror-source-token'
+import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const quoteNodeSpec: NodeSpec = {
   content: 'inline*',
@@ -40,7 +40,7 @@ export const quoteNodeSpec: NodeSpec = {
         ? { 'data-quote-marker-depths': encodeQuoteMarkerDepths(node.attrs.quoteMarkerDepths) }
         : {}),
     },
-    ['span', sourceTokenAttrs('nano-block-md-prefix', { contenteditable: 'false' }), quotePrefixToken(node.attrs.quoteMarkerSpacing, node.attrs.quoteMarkerDepths)],
+    ['span', hiddenSourceTokenAttrs('nano-block-md-prefix'), quotePrefixToken(node.attrs.quoteMarkerSpacing, node.attrs.quoteMarkerDepths)],
     ['span', { class: 'nano-block-content' }, 0],
   ],
 }
@@ -79,7 +79,7 @@ export const calloutNodeSpec: NodeSpec = {
         ...calloutDataAttrs(node.attrs),
       },
       ['span', { class: 'nano-callout-icon', contenteditable: 'false', 'aria-hidden': 'true' }, lucideIcon(calloutIcon(tone), 'nano-callout-icon-svg')],
-      ['span', sourceTokenAttrs('nano-callout-marker', { contenteditable: 'false' }), calloutMarkerToken(
+      ['span', hiddenSourceTokenAttrs('nano-callout-marker'), calloutMarkerToken(
         tone,
         node.attrs.calloutMarkerSpacing,
         node.attrs.calloutMarkerDepths,
