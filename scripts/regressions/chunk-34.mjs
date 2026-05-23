@@ -6,6 +6,7 @@ class FakeElement {
     this.tagName = tagName
     this.children = []
     this.dataset = {}
+    this.attributes = new Map()
     this.listeners = []
     this.removedListeners = []
     this.style = {
@@ -18,8 +19,24 @@ class FakeElement {
     this.listeners.push(args)
   }
 
+  getAttribute(name) {
+    return this.attributes.get(name) ?? null
+  }
+
+  hasAttribute(name) {
+    return this.attributes.has(name)
+  }
+
   removeEventListener(...args) {
     this.removedListeners.push(args)
+  }
+
+  removeAttribute(name) {
+    this.attributes.delete(name)
+  }
+
+  setAttribute(name, value) {
+    this.attributes.set(name, String(value))
   }
 
   append(...children) {
@@ -36,6 +53,28 @@ class FakeElement {
 
   replaceChildren(...children) {
     this.children = children
+  }
+}
+
+function restoreFakeBrowser({
+  originalCancelAnimationFrame,
+  originalDocument,
+  originalRequestAnimationFrame,
+}) {
+  if (originalDocument === undefined) {
+    delete globalThis.document
+  } else {
+    globalThis.document = originalDocument
+  }
+  if (originalRequestAnimationFrame === undefined) {
+    delete globalThis.requestAnimationFrame
+  } else {
+    globalThis.requestAnimationFrame = originalRequestAnimationFrame
+  }
+  if (originalCancelAnimationFrame === undefined) {
+    delete globalThis.cancelAnimationFrame
+  } else {
+    globalThis.cancelAnimationFrame = originalCancelAnimationFrame
   }
 }
 
@@ -89,20 +128,75 @@ test('Command palette cancels pending focus when destroyed', () => {
       ['keydown', 'click'],
     )
   } finally {
-    if (originalDocument === undefined) {
-      delete globalThis.document
-    } else {
-      globalThis.document = originalDocument
-    }
-    if (originalRequestAnimationFrame === undefined) {
-      delete globalThis.requestAnimationFrame
-    } else {
-      globalThis.requestAnimationFrame = originalRequestAnimationFrame
-    }
-    if (originalCancelAnimationFrame === undefined) {
-      delete globalThis.cancelAnimationFrame
-    } else {
-      globalThis.cancelAnimationFrame = originalCancelAnimationFrame
-    }
+    restoreFakeBrowser({
+      originalCancelAnimationFrame,
+      originalDocument,
+      originalRequestAnimationFrame,
+    })
+  }
+})
+
+test('Command palette exposes combobox listbox selection state', () => {
+  const originalDocument = globalThis.document
+  const originalRequestAnimationFrame = globalThis.requestAnimationFrame
+  const originalCancelAnimationFrame = globalThis.cancelAnimationFrame
+
+  globalThis.document = {
+    addEventListener: () => {},
+    createElement: (tagName) => new FakeElement(tagName),
+    removeEventListener: () => {},
+  }
+  globalThis.requestAnimationFrame = (callback) => {
+    callback()
+    return 1
+  }
+  globalThis.cancelAnimationFrame = () => {}
+
+  try {
+    const palette = createNanoCommandPalette({
+      commandAnchorRect: () => null,
+      commands: () => [
+        { id: 'source', title: 'Source', hint: 'Panel', run: () => {} },
+        { id: 'copy', title: 'Copy', run: () => {} },
+      ],
+      onCommandClose: () => {},
+    })
+    const [input, list] = palette.commandPalette.children
+
+    assert.equal(input.getAttribute('role'), 'combobox')
+    assert.equal(input.getAttribute('aria-autocomplete'), 'list')
+    assert.equal(input.getAttribute('aria-controls'), list.id)
+    assert.equal(input.getAttribute('aria-expanded'), 'false')
+    assert.equal(list.getAttribute('role'), 'listbox')
+
+    palette.openCommandPalette('global')
+
+    assert.equal(input.getAttribute('aria-expanded'), 'true')
+    assert.equal(input.getAttribute('aria-activedescendant'), list.children[0].id)
+    assert.equal(list.children[0].getAttribute('role'), 'option')
+    assert.equal(list.children[0].getAttribute('aria-selected'), 'true')
+    assert.equal(list.children[1].getAttribute('aria-selected'), 'false')
+
+    const keydown = input.listeners.find(([eventName]) => eventName === 'keydown')[1]
+    keydown({
+      key: 'ArrowDown',
+      preventDefault: () => {},
+      shiftKey: false,
+    })
+
+    assert.equal(input.getAttribute('aria-activedescendant'), list.children[1].id)
+    assert.equal(list.children[0].getAttribute('aria-selected'), 'false')
+    assert.equal(list.children[1].getAttribute('aria-selected'), 'true')
+
+    palette.destroy()
+
+    assert.equal(input.getAttribute('aria-expanded'), 'false')
+    assert.equal(input.hasAttribute('aria-activedescendant'), false)
+  } finally {
+    restoreFakeBrowser({
+      originalCancelAnimationFrame,
+      originalDocument,
+      originalRequestAnimationFrame,
+    })
   }
 })

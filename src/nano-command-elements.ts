@@ -25,6 +25,7 @@ export function commandButton(
   command: NanoCommand,
   index: number,
   selectedIndex: number,
+  optionId: string,
   runCommand: (command: NanoCommand) => void,
   selectCommand: () => void,
 ): HTMLButtonElement {
@@ -34,8 +35,12 @@ export function commandButton(
   title.textContent = command.title
   button.type = 'button'
   button.className = 'nano-command-option'
+  button.id = optionId
+  button.setAttribute('role', 'option')
   button.disabled = command.isEnabled?.() === false
   button.dataset.selected = String(index === selectedIndex)
+  button.setAttribute('aria-selected', String(index === selectedIndex))
+  if (button.disabled) button.setAttribute('aria-disabled', 'true')
   button.append(title)
   if (command.hint) {
     const hint = document.createElement('span')

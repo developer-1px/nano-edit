@@ -7,7 +7,15 @@ export interface NanoCommandPaletteElements {
   commandPalette: HTMLElement
 }
 
+let commandPaletteId = 0
+
+export function commandOptionId(commandListId: string, index: number): string {
+  return `${commandListId}-option-${index}`
+}
+
 export function createCommandPaletteElements(): NanoCommandPaletteElements {
+  commandPaletteId += 1
+  const commandListId = `nano-command-list-${commandPaletteId}`
   const commandPalette = document.createElement('div')
   commandPalette.className = 'nano-command-palette'
   commandPalette.hidden = true
@@ -17,8 +25,14 @@ export function createCommandPaletteElements(): NanoCommandPaletteElements {
   commandInput.spellcheck = false
   commandInput.autocomplete = 'off'
   commandInput.ariaLabel = 'Command'
+  commandInput.setAttribute('role', 'combobox')
+  commandInput.setAttribute('aria-autocomplete', 'list')
+  commandInput.setAttribute('aria-controls', commandListId)
+  commandInput.setAttribute('aria-expanded', 'false')
   const commandList = document.createElement('div')
   commandList.className = 'nano-command-list'
+  commandList.id = commandListId
+  commandList.setAttribute('role', 'listbox')
   commandPalette.append(commandInput, commandList)
   return { commandInput, commandList, commandPalette }
 }

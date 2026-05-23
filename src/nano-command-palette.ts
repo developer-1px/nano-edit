@@ -1,7 +1,7 @@
 import type { NanoCommand } from './nano-command-registry'
 import type { CommandPaletteMode, NanoCommandContext } from './nano-command-surface'
 import { commandButton, commandEmptyElement } from './nano-command-elements'
-import { createCommandPaletteElements, positionCommandPalette } from './nano-command-palette-dom'
+import { commandOptionId, createCommandPaletteElements, positionCommandPalette } from './nano-command-palette-dom'
 import { handleCommandPaletteKeydown } from './nano-command-palette-keyboard'
 import {
   movedPaletteSelectionIndex,
@@ -36,6 +36,8 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
     paletteBlockId = null
     paletteSelectedIndex = 0
     commandPalette.hidden = true
+    commandInput.setAttribute('aria-expanded', 'false')
+    commandInput.removeAttribute('aria-activedescendant')
     commandInput.value = ''
     commandList.replaceChildren()
     if (restoreFocus) options.onCommandClose()
@@ -60,12 +62,24 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
   const renderCommandPalette = (): void => {
     const commands = visibleCommands()
     paletteSelectedIndex = nearestEnabledCommandIndex(commands, paletteSelectedIndex)
+    const activeOptionId = commands.length > 0
+      ? commandOptionId(commandList.id, paletteSelectedIndex)
+      : null
+    if (activeOptionId) commandInput.setAttribute('aria-activedescendant', activeOptionId)
+    else commandInput.removeAttribute('aria-activedescendant')
     commandList.replaceChildren(
       ...(commands.length > 0
-        ? commands.map((command, index) => commandButton(command, index, paletteSelectedIndex, runCommand, () => {
-          paletteSelectedIndex = index
-          renderCommandPalette()
-        }))
+        ? commands.map((command, index) => commandButton(
+          command,
+          index,
+          paletteSelectedIndex,
+          commandOptionId(commandList.id, index),
+          runCommand,
+          () => {
+            paletteSelectedIndex = index
+            renderCommandPalette()
+          },
+        ))
         : [commandEmptyElement()]),
     )
   }
@@ -80,6 +94,7 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
     commandInput.placeholder = mode === 'slash' ? '' : 'Command'
     commandPalette.dataset.mode = mode
     commandPalette.hidden = false
+    commandInput.setAttribute('aria-expanded', 'true')
     positionCommandPalette(commandPalette, paletteMode, options.commandAnchorRect)
     renderCommandPalette()
     focusFrameId = requestAnimationFrame(() => {
