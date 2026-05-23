@@ -53,7 +53,9 @@ export function moveActiveBlockTransaction(
   if (!nextRanges) return null
 
   const nextSourceIndex = nextRanges.findIndex((range) => range.from === sourceUnit.from)
-  const nextFrom = positionForTopLevelRangeIndex(nextRanges, nextSourceIndex) + (block.from - sourceUnit.from)
+  const nextSourcePosition = positionForTopLevelRangeIndex(nextRanges, nextSourceIndex)
+  if (nextSourcePosition === null) return null
+  const nextFrom = nextSourcePosition + (block.from - sourceUnit.from)
   const transaction = state.tr.replaceWith(0, state.doc.content.size, Fragment.fromArray(nextRanges.map((range) => range.node)))
   transaction.setSelection(movedBlockSelection(state, transaction.doc, block, nextFrom))
   return transaction
@@ -98,7 +100,9 @@ export function moveBlockToTargetTransaction(
   if (!nextRanges) return null
 
   const nextSourceIndex = nextRanges.findIndex((range) => range.from === sourceUnit.from)
-  const nextFrom = positionForTopLevelRangeIndex(nextRanges, nextSourceIndex) + (sourceRange.from - sourceUnit.from)
+  const nextSourcePosition = positionForTopLevelRangeIndex(nextRanges, nextSourceIndex)
+  if (nextSourcePosition === null) return null
+  const nextFrom = nextSourcePosition + (sourceRange.from - sourceUnit.from)
   const transaction = state.tr.replaceWith(0, state.doc.content.size, Fragment.fromArray(nextRanges.map((range) => range.node)))
   transaction.setSelection(movedBlockSelection(state, transaction.doc, sourceRange, nextFrom))
   return transaction

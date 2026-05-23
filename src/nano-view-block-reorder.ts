@@ -28,10 +28,14 @@ export function topLevelRangeIndex(ranges: readonly ActiveBlockRange[], from: nu
   return ranges.findIndex((range) => range.from === from)
 }
 
-export function positionForTopLevelRangeIndex(ranges: readonly ActiveBlockRange[], index: number): number {
+export function positionForTopLevelRangeIndex(ranges: readonly ActiveBlockRange[], index: number): number | null {
+  if (index < 0 || index > ranges.length) return null
+
   let position = 0
   for (let rangeIndex = 0; rangeIndex < index; rangeIndex += 1) {
-    position += ranges[rangeIndex]!.node.nodeSize
+    const range = ranges[rangeIndex]
+    if (!range) return null
+    position += range.node.nodeSize
   }
   return position
 }
