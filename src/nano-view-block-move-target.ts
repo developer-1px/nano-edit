@@ -52,7 +52,8 @@ export function blockMoveTargetUnitForRange(
   collapsedBlockIds: ReadonlySet<string>,
 ): BlockMoveUnit {
   if (isHeadingSectionMoveUnit(sourceUnit) && isHeadingNode(range.node)) {
-    return blockMoveUnitFromRanges(headingSectionRanges(doc, range))
+    const headingUnit = blockMoveUnitFromRanges(headingSectionRanges(doc, range))
+    if (headingUnit) return headingUnit
   }
 
   return blockMoveUnitForRange(doc, range, collapsedBlockIds)

@@ -1,4 +1,5 @@
 import * as h from './harness.mjs'
+import { blockMoveUnitFromRanges } from '../../src/nano-view-block-move-unit.ts'
 import { positionForTopLevelRangeIndex } from '../../src/nano-view-block-reorder.ts'
 const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
@@ -25,3 +26,16 @@ test('Block reorder position lookup rejects invalid range indexes', () => {
   assert.equal(positionForTopLevelRangeIndex(ranges, 3), null)
 })
 
+test('Block move unit creation rejects empty range lists', () => {
+  const ranges = [
+    { from: 2, to: 5, node: { nodeSize: 3 } },
+    { from: 5, to: 9, node: { nodeSize: 4 } },
+  ]
+
+  assert.equal(blockMoveUnitFromRanges([]), null)
+  assert.deepEqual(blockMoveUnitFromRanges(ranges), {
+    from: 2,
+    to: 9,
+    ranges,
+  })
+})

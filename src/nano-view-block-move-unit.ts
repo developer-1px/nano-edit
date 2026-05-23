@@ -23,14 +23,21 @@ export function blockMoveUnitForRange(
     ? headingSectionRanges(doc, range)
     : listSubtreeRanges(doc, range)
   const ranges = unitRanges.length > 0 ? unitRanges : [range]
-  return blockMoveUnitFromRanges(ranges)
+  return blockMoveUnitFromRanges(ranges) ?? {
+    from: range.from,
+    to: range.to,
+    ranges: [range],
+  }
 }
 
-export function blockMoveUnitFromRanges(ranges: readonly ActiveBlockRange[]): BlockMoveUnit {
-  const first = ranges[0]!
+export function blockMoveUnitFromRanges(ranges: readonly ActiveBlockRange[]): BlockMoveUnit | null {
+  const first = ranges[0]
+  const last = ranges.at(-1)
+  if (!first || !last) return null
+
   return {
     from: first.from,
-    to: ranges[ranges.length - 1]!.to,
+    to: last.to,
     ranges: [...ranges],
   }
 }
