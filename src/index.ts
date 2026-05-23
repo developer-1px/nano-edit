@@ -3,6 +3,7 @@ export {
   NanoDocumentSchema,
   blockTextPointer,
   blocksPointer,
+  createEmptyNanoDocument,
   createNanoDocument,
   emptyNanoDocument,
   point,

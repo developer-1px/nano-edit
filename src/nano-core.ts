@@ -29,11 +29,15 @@ export type NanoBlock = z.infer<typeof NanoBlockSchema>
 export type NanoDocument = z.infer<typeof NanoDocumentSchema>
 export type NanoDocumentEngine = JSONDocument<NanoDocument>
 
-export const emptyNanoDocument: NanoDocument = {
-  blocks: [{ id: 'b1', type: 'paragraph', text: '', marks: [] }],
+export function createEmptyNanoDocument(): NanoDocument {
+  return {
+    blocks: [{ id: 'b1', type: 'paragraph', text: '', marks: [] }],
+  }
 }
 
-export function createNanoDocument(initialDocument: NanoDocument = emptyNanoDocument): NanoDocumentEngine {
+export const emptyNanoDocument: NanoDocument = createEmptyNanoDocument()
+
+export function createNanoDocument(initialDocument: NanoDocument = createEmptyNanoDocument()): NanoDocumentEngine {
   return createJSONDocument(NanoDocumentSchema, initialDocument, {
     history: 200,
     selection: {
