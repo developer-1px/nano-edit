@@ -1,4 +1,4 @@
-import type { NanoDocument } from './nano-core'
+import { NanoDocumentSchema, type NanoDocument } from './nano-core'
 import { nanoDocumentIndex } from './nano-document-index-build'
 import type { NanoDocumentSearchResult } from './nano-document-index-types'
 import { parseNanoSearchQuery } from './nano-document-search-query'
@@ -17,27 +17,28 @@ export function nanoDocumentSearch(document: NanoDocument, query: string): NanoD
   const parsed = parseNanoSearchQuery(query)
   if (!parsed) return null
 
-  const index = nanoDocumentIndex(document)
+  const validDocument = NanoDocumentSchema.parse(document)
+  const index = nanoDocumentIndex(validDocument)
   let matches = parsed.clauses.length > 1
-    ? unionBlockIds(parsed.clauses.map((clause) => searchClauseBlockIds(document, index, clause)))
-    : searchClauseBlockIds(document, index, parsed.clauses[0])
+    ? unionBlockIds(parsed.clauses.map((clause) => searchClauseBlockIds(validDocument, index, clause)))
+    : searchClauseBlockIds(validDocument, index, parsed.clauses[0])
 
   for (const filter of parsed.excludedFilters) {
-    matches = subtractBlockIds(matches, specialSearchBlockIds(filter, document, index))
+    matches = subtractBlockIds(matches, specialSearchBlockIds(filter, validDocument, index))
   }
   for (const tag of parsed.excludedTags) {
-    matches = subtractBlockIds(matches, tagSearchBlockIds(document, tag, 'tree'))
+    matches = subtractBlockIds(matches, tagSearchBlockIds(validDocument, tag, 'tree'))
   }
   for (const tag of parsed.excludedExactTags) {
-    matches = subtractBlockIds(matches, tagSearchBlockIds(document, tag, 'exact'))
+    matches = subtractBlockIds(matches, tagSearchBlockIds(validDocument, tag, 'exact'))
   }
   if (parsed.excludedTerms.length > 0) {
-    matches = subtractBlockIds(matches, textSearchBlockIds(document, parsed.excludedTerms))
+    matches = subtractBlockIds(matches, textSearchBlockIds(validDocument, parsed.excludedTerms))
   }
 
   return {
     query: parsed.query,
-    blockIds: document.blocks.map((block) => block.id).filter((id) => matches.has(id)),
+    blockIds: validDocument.blocks.map((block) => block.id).filter((id) => matches.has(id)),
     filters: parsed.filters,
     excludedFilters: parsed.excludedFilters,
     tags: parsed.tags,

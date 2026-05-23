@@ -32,3 +32,12 @@ test('Public entry exposes Markdown round-trip and document index APIs', () => {
   assert(search)
   assert.deepEqual(search.blockIds, ['md-2'])
 })
+
+test('Public document index APIs reject invalid Nano documents', () => {
+  assert.throws(() => nanoDocumentIndex({
+    blocks: [],
+  }))
+  assert.throws(() => nanoDocumentSearch({
+    blocks: [{ id: 'bad', type: 'paragraph', text: 'Short', marks: [{ type: 'bold', from: 0, to: 10 }] }],
+  }, 'Short'))
+})
