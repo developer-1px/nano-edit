@@ -2,6 +2,7 @@ import { type Node as ProseMirrorNode } from 'prosemirror-model'
 import { Selection, TextSelection } from 'prosemirror-state'
 import type { JSONPatchOperation, JSONPoint, Pointer, SelectionSnap } from 'zod-crud'
 import {
+  NanoDocumentSchema,
   blockTextPointer,
   blocksPointer,
   point,
@@ -24,8 +25,11 @@ export { nanoMarkNames, nanoNodeNames } from './prosemirror-names'
 export { nanoSchema } from './prosemirror-schema'
 
 export function prosemirrorDocFromNano(document: NanoDocument): ProseMirrorNode {
-  const blocks = document.blocks.length > 0 ? document.blocks : [{ id: createBlockId(0), type: 'paragraph', text: '', marks: [] } satisfies NanoBlock]
-  return nanoSchema.nodes[nanoNodeNames.doc].create(null, blocks.map(prosemirrorNodeFromNanoBlock))
+  const validDocument = NanoDocumentSchema.parse(document)
+  return nanoSchema.nodes[nanoNodeNames.doc].create(
+    null,
+    validDocument.blocks.map(prosemirrorNodeFromNanoBlock),
+  )
 }
 
 export function nanoBlocksFromProseMirror(doc: ProseMirrorNode): NanoBlock[] {

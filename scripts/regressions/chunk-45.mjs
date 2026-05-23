@@ -6,6 +6,7 @@ import {
   NanoDocumentSchema,
   NanoMarkSchema,
   nanoDocumentFromMarkdown,
+  prosemirrorDocFromNano,
 } from '../../src/index.ts'
 import { assert, test } from './harness.mjs'
 
@@ -80,4 +81,13 @@ test('Markdown parser returns a schema-valid Nano document', () => {
   const parsed = NanoDocumentSchema.safeParse(document)
   assert.equal(parsed.success, true)
   assert.deepEqual(parsed.data, document)
+})
+
+test('ProseMirror conversion rejects invalid Nano documents instead of repairing them', () => {
+  assert.throws(() => prosemirrorDocFromNano({
+    blocks: [],
+  }))
+  assert.throws(() => prosemirrorDocFromNano({
+    blocks: [{ id: '   ', type: 'paragraph', text: '', marks: [] }],
+  }))
 })
