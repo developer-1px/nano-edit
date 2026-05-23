@@ -7,6 +7,7 @@ import {
   orderedStart,
   orderedStartText,
 } from './prosemirror-block-attrs'
+import { listContinuationDefaultIndent } from './nano-markdown-block-attrs'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
 import {
   inlineContentFromText,
@@ -37,13 +38,19 @@ export const listItemBlockCodec = defineNanoBlockCodec({
     const start = orderedStart(node.attrs.start)
     const startText = orderedStartText(node.attrs.orderedStartText)
     const rawIndent = indentText(node.attrs.indentText)
-    const continuationIndents = normalizeContinuationIndents(node.attrs.continuationIndents)
+    const indent = clampIndent(Number(node.attrs.indent))
+    const marker = listMarkerText(node.attrs, kind, rawIndent, indent, start, startText)
+    const continuationIndents = normalizeContinuationIndentsForText(
+      node.attrs.continuationIndents,
+      node.textContent,
+      listContinuationDefaultIndent(marker),
+    )
     return {
       id,
       type: 'list_item',
       kind,
       ...(continuationIndents ? { continuationIndents } : {}),
-      indent: clampIndent(Number(node.attrs.indent)),
+      indent,
       ...(rawIndent ? { indentText: rawIndent } : {}),
       ...(kind === 'ordered' && start ? { start } : {}),
       ...(kind === 'bullet' && bulletMarker(node.attrs.marker) !== '-' ? { marker: bulletMarker(node.attrs.marker) } : {}),
@@ -54,3 +61,31 @@ export const listItemBlockCodec = defineNanoBlockCodec({
     }
   },
 })
+
+function listMarkerText(
+  attrs: Record<string, unknown>,
+  kind: 'bullet' | 'ordered',
+  rawIndent: string | null | undefined,
+  indent: number,
+  start: number | null,
+  startText: string | null | undefined,
+): string {
+  const indentTextValue = rawIndent ?? '  '.repeat(indent)
+  const marker = kind === 'ordered'
+    ? `${startText ?? String(start ?? 1)}${orderedMarker(attrs.orderedMarker)}`
+    : bulletMarker(attrs.marker)
+  return `${indentTextValue}${marker}`
+}
+
+function normalizeContinuationIndentsForText(
+  indents: unknown,
+  text: string,
+  defaultIndent: string,
+): string[] | null {
+  const normalized = normalizeContinuationIndents(indents)
+  const continuationCount = Math.max(0, text.split('\n').length - 1)
+  if (!normalized || continuationCount === 0) return null
+
+  const values = Array.from({ length: continuationCount }, (_value, index) => normalized[index] ?? defaultIndent)
+  return values.some((indent) => indent !== defaultIndent) ? values : null
+}

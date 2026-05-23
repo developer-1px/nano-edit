@@ -1,6 +1,7 @@
 import type { Node as ProseMirrorNode, NodeSpec } from 'prosemirror-model'
 import { Square, SquareCheck } from 'lucide'
 import type { NanoBlock, NanoMark } from '../../nano-core'
+import { listContinuationDefaultIndent } from '../../nano-markdown-block-attrs'
 import { foldIndicatorDomSpec } from '../../nano-fold-indicator'
 import { lucideIcon } from '../../nano-icons'
 import {
@@ -89,19 +90,39 @@ export function todoBlockFromProseMirrorNode(
   marks: NanoMark[],
 ): TodoBlock {
   const rawIndent = indentText(node.attrs.indentText)
-  const continuationIndents = normalizeContinuationIndents(node.attrs.continuationIndents)
+  const indent = clampIndent(Number(node.attrs.indent))
+  const checked = node.attrs.checked === true
+  const marker = `${rawIndent ?? '  '.repeat(indent)}${bulletMarker(node.attrs.marker)} [${checked ? checkedMarker(node.attrs.checkedMarker) : ' '}]`
+  const continuationIndents = normalizeContinuationIndentsForText(
+    node.attrs.continuationIndents,
+    node.textContent,
+    listContinuationDefaultIndent(marker),
+  )
   return {
     id,
     type: 'todo',
-    checked: node.attrs.checked === true,
+    checked,
     ...(continuationIndents ? { continuationIndents } : {}),
-    indent: clampIndent(Number(node.attrs.indent)),
+    indent,
     ...(rawIndent ? { indentText: rawIndent } : {}),
     ...(bulletMarker(node.attrs.marker) !== '-' ? { marker: bulletMarker(node.attrs.marker) } : {}),
     ...(node.attrs.checked === true && checkedMarker(node.attrs.checkedMarker) !== 'x' ? { checkedMarker: checkedMarker(node.attrs.checkedMarker) } : {}),
     text: node.textContent,
     marks,
   }
+}
+
+function normalizeContinuationIndentsForText(
+  indents: unknown,
+  text: string,
+  defaultIndent: string,
+): string[] | null {
+  const normalized = normalizeContinuationIndents(indents)
+  const continuationCount = Math.max(0, text.split('\n').length - 1)
+  if (!normalized || continuationCount === 0) return null
+
+  const values = Array.from({ length: continuationCount }, (_value, index) => normalized[index] ?? defaultIndent)
+  return values.some((indent) => indent !== defaultIndent) ? values : null
 }
 
 function blockIndentAttrs(indent: unknown): Record<string, string> {

@@ -24,7 +24,10 @@ export const footnoteBlockCodec = defineNanoBlockCodec({
     inlineContentFromText(block.text, block.marks),
   ),
   toNano: (node, id) => {
-    const footnoteContinuationIndents = normalizeFootnoteContinuationIndents(node.attrs.footnoteContinuationIndents)
+    const footnoteContinuationIndents = normalizeFootnoteContinuationIndentsForText(
+      node.attrs.footnoteContinuationIndents,
+      node.textContent,
+    )
     return {
       id,
       type: 'footnote',
@@ -36,3 +39,12 @@ export const footnoteBlockCodec = defineNanoBlockCodec({
     }
   },
 })
+
+function normalizeFootnoteContinuationIndentsForText(indents: unknown, text: string): string[] | null {
+  const normalized = normalizeFootnoteContinuationIndents(indents)
+  const continuationCount = Math.max(0, text.split('\n').length - 1)
+  if (!normalized || continuationCount === 0) return null
+
+  const values = Array.from({ length: continuationCount }, (_value, index) => normalized[index] ?? '    ')
+  return values.some((indent) => indent !== '    ') ? values : null
+}

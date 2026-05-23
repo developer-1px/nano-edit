@@ -27,18 +27,24 @@ export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
       },
       inlineContentFromText(block.text, block.marks),
     ),
-    toNano: (node, id) => ({
-      id,
-      type: 'quote',
-      ...(normalizeQuoteMarkerSpacing(node.attrs.quoteMarkerSpacing)
-        ? { quoteMarkerSpacing: normalizeQuoteMarkerSpacing(node.attrs.quoteMarkerSpacing)! }
-        : {}),
-      ...(normalizeQuoteMarkerDepths(node.attrs.quoteMarkerDepths)
-        ? { quoteMarkerDepths: normalizeQuoteMarkerDepths(node.attrs.quoteMarkerDepths)! }
-        : {}),
-      text: node.textContent,
-      marks: nanoMarksFromProseMirrorNode(node),
-    }),
+    toNano: (node, id) => {
+      const text = node.textContent
+      const quoteMarkerSpacing = normalizeLineMarkerSpacing(
+        node.attrs.quoteMarkerSpacing,
+        text,
+        (line) => line ? 'space' : 'none',
+      )
+      const quoteMarkerDepths = normalizeLineMarkerDepths(node.attrs.quoteMarkerDepths, text)
+
+      return {
+        id,
+        type: 'quote',
+        ...(quoteMarkerSpacing ? { quoteMarkerSpacing } : {}),
+        ...(quoteMarkerDepths ? { quoteMarkerDepths } : {}),
+        text,
+        marks: nanoMarksFromProseMirrorNode(node),
+      }
+    },
   }),
   defineNanoBlockCodec({
     nanoType: 'callout',
@@ -53,21 +59,46 @@ export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
       },
       inlineContentFromText(block.text, block.marks),
     ),
-    toNano: (node, id) => ({
-      id,
-      type: 'callout',
-      tone: calloutTone(node.attrs.tone),
-      ...(normalizeQuoteMarkerDepths(node.attrs.calloutMarkerDepths)
-        ? { calloutMarkerDepths: normalizeQuoteMarkerDepths(node.attrs.calloutMarkerDepths)! }
-        : {}),
-      ...(normalizeQuoteMarkerSpacing(node.attrs.calloutMarkerSpacing)
-        ? { calloutMarkerSpacing: normalizeQuoteMarkerSpacing(node.attrs.calloutMarkerSpacing)! }
-        : {}),
-      ...(quoteMarkerSpacingValue(node.attrs.calloutTextSpacing)
-        ? { calloutTextSpacing: quoteMarkerSpacingValue(node.attrs.calloutTextSpacing)! }
-        : {}),
-      text: node.textContent,
-      marks: nanoMarksFromProseMirrorNode(node),
-    }),
+    toNano: (node, id) => {
+      const text = node.textContent
+      const calloutMarkerDepths = normalizeLineMarkerDepths(node.attrs.calloutMarkerDepths, text)
+      const calloutMarkerSpacing = normalizeLineMarkerSpacing(
+        node.attrs.calloutMarkerSpacing,
+        text,
+        (line, index) => index === 0 ? 'none' : line ? 'space' : 'none',
+      )
+
+      return {
+        id,
+        type: 'callout',
+        tone: calloutTone(node.attrs.tone),
+        ...(calloutMarkerDepths ? { calloutMarkerDepths } : {}),
+        ...(calloutMarkerSpacing ? { calloutMarkerSpacing } : {}),
+        ...(quoteMarkerSpacingValue(node.attrs.calloutTextSpacing)
+          ? { calloutTextSpacing: quoteMarkerSpacingValue(node.attrs.calloutTextSpacing)! }
+          : {}),
+        text,
+        marks: nanoMarksFromProseMirrorNode(node),
+      }
+    },
   }),
 ]
+
+function normalizeLineMarkerSpacing(
+  spacing: unknown,
+  text: string,
+  fallback: (line: string, index: number) => 'space' | 'none',
+): Array<'space' | 'none'> | null {
+  const normalized = normalizeQuoteMarkerSpacing(spacing)
+  if (!normalized) return null
+
+  return text.split('\n').map((line, index) => normalized[index] ?? fallback(line, index))
+}
+
+function normalizeLineMarkerDepths(depths: unknown, text: string): number[] | null {
+  const normalized = normalizeQuoteMarkerDepths(depths)
+  if (!normalized) return null
+
+  const values = Array.from({ length: text.split('\n').length }, (_value, index) => normalized[index] ?? 1)
+  return values.some((value) => value !== 1) ? values : null
+}
