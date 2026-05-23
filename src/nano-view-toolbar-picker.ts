@@ -53,7 +53,7 @@ export function installToolbarBlockPicker(
   ctx.blockPicker.replaceChildren(
     ...blockOptions.map((option) => {
       const title = blockOptionTitle(option)
-      const control = button(option.label, title, () => actions.runBlockPickerTemplate(option.template), blockPickerIcon(title))
+      const control = button(option.label, title, () => actions.runBlockPickerTemplate(option.template), blockPickerIcon(option.id))
       control.classList.add('block-picker-option')
       control.dataset.md = option.markdownTrigger ?? ''
       return control
@@ -61,13 +61,13 @@ export function installToolbarBlockPicker(
   )
   return [
     ...markToolbarOptions().map((option) =>
-      button(option.toolbar.label, option.toolbar.title, () => actions.runMarkCommand(option), markToolbarIcon(option.toolbar.title)),
+      button(option.toolbar.label, option.toolbar.title, () => actions.runMarkCommand(option), markToolbarIcon(option.id)),
     ),
     ...blockToolbarButtons((option) => button(
       option.toolbar.label,
       option.toolbar.title,
       () => actions.runBlockTemplate(option.template),
-      blockToolbarIcon(option.toolbar.title),
+      blockToolbarIcon(option.id),
     )),
     button('', 'Change', () => toggleBlockPicker('convert'), Pilcrow),
     button('', 'Add', () => toggleBlockPicker('insert'), Plus),
@@ -75,93 +75,82 @@ export function installToolbarBlockPicker(
   ]
 }
 
-function markToolbarIcon(title: string): IconNode | undefined {
-  switch (title) {
-    case 'Bold':
+function markToolbarIcon(id: string): IconNode | undefined {
+  switch (id) {
+    case 'bold':
       return Bold
-    case 'Italic':
+    case 'italic':
       return Italic
-    case 'Underline':
+    case 'underline':
       return Underline
-    case 'Strikethrough':
+    case 'strike':
       return Strikethrough
-    case 'Highlight':
+    case 'highlight':
       return Highlighter
-    case 'Inline Code':
+    case 'code':
       return Code2
     default:
       return undefined
   }
 }
 
-function blockToolbarIcon(title: string): IconNode | undefined {
-  switch (title) {
-    case 'Heading 1':
-      return Heading1
-    case 'Todo':
-      return ListTodo
-    case 'Bullet List':
-      return ListIcon
-    case 'Numbered List':
-      return ListOrdered
-    default:
-      return undefined
-  }
+function blockToolbarIcon(id: string): IconNode | undefined {
+  return blockPickerIcon(id)
 }
 
-function blockPickerIcon(title: string): IconNode | undefined {
-  switch (title) {
-    case 'Paragraph':
+function blockPickerIcon(id: string): IconNode | undefined {
+  switch (id) {
+    case 'paragraph':
       return Pilcrow
-    case 'Heading 1':
+    case 'heading-1':
       return Heading1
-    case 'Heading 2':
+    case 'heading-2':
       return Heading2
-    case 'Heading 3':
+    case 'heading-3':
       return Heading3
-    case 'Heading 4':
+    case 'heading-4':
       return Heading4
-    case 'Heading 5':
+    case 'heading-5':
       return Heading5
-    case 'Heading 6':
+    case 'heading-6':
       return Heading6
-    case 'Todo':
+    case 'todo':
       return ListTodo
-    case 'Bullet List':
+    case 'bullet':
       return ListIcon
-    case 'Numbered List':
+    case 'ordered':
       return ListOrdered
-    case 'Footnote':
+    case 'footnote':
       return FileText
-    case 'Note Reference':
+    case 'note-ref':
       return NotebookText
-    case 'Tag Reference':
+    case 'tag-ref':
       return Tags
-    case 'Quote':
+    case 'quote':
       return Quote
-    case 'Callout note':
+    case 'callout-note':
       return Info
-    case 'Callout tip':
+    case 'callout-tip':
       return Lightbulb
-    case 'Callout important':
+    case 'callout-important':
       return Diamond
-    case 'Callout warning':
+    case 'callout-warning':
       return AlertTriangle
-    case 'Callout caution':
+    case 'callout-caution':
       return MessageSquareWarning
-    case 'Code':
+    case 'code':
       return Code2
-    case 'Math':
+    case 'math':
       return Sigma
-    case 'Divider':
+    case 'divider':
       return Minus
-    case 'Bookmark':
+    case 'bookmark':
       return BookmarkIcon
-    case 'Attachment':
+    case 'attachment':
       return Paperclip
-    case 'Image':
+    case 'image':
       return ImageIcon
-    case 'Table':
+    case 'table':
       return TableIcon
     default:
       return undefined
