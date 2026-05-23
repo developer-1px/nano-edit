@@ -57,6 +57,16 @@ test('Todo checkbox exposes state without visible Markdown syntax', () => {
   assert.equal(specText(checkbox).includes('- [X]'), false)
 })
 
+test('Todo checkbox keeps a measurable hit target', () => {
+  const css = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
+  const checkboxRule = /\.nano-todo-box \{([\s\S]*?)\n\}/.exec(css)
+
+  assert(checkboxRule, 'todo checkbox rule should be present')
+  assert(checkboxRule[1].includes('width: 20px;'))
+  assert(checkboxRule[1].includes('height: 24px;'))
+  assert.equal(checkboxRule[1].includes('font-size: 0;'), false)
+})
+
 test('Todo checkbox toggles from keyboard without exposing Markdown syntax', () => {
   const originalElement = globalThis.Element
   class FakeElement {
@@ -107,6 +117,61 @@ test('Todo checkbox toggles from keyboard without exposing Markdown syntax', () 
     assert.equal(prevented, true)
     assert.equal(view.focused, 1)
     assert.equal(nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(view.state.doc) }), '- [x] Task')
+  } finally {
+    if (originalElement === undefined) delete globalThis.Element
+    else globalThis.Element = originalElement
+  }
+})
+
+test('Fold indicator toggles section from keyboard without extra visible chrome', () => {
+  const originalElement = globalThis.Element
+  class FakeElement {
+    constructor(className, dataset = {}, parent = null) {
+      this.className = className
+      this.dataset = dataset
+      this.parent = parent
+    }
+
+    closest(selector) {
+      if (selector === '.nano-list-fold, .nano-heading-fold') {
+        return this.className === 'nano-heading-fold' || this.className === 'nano-list-fold' ? this : null
+      }
+      if (selector === '.nano-block[data-id]') {
+        return this.parent?.dataset?.id ? this.parent : null
+      }
+      return null
+    }
+  }
+
+  globalThis.Element = FakeElement
+  try {
+    const block = new FakeElement('nano-block nano-heading', { id: 'md-1' })
+    const fold = new FakeElement('nano-heading-fold', {}, block)
+    const toggled = []
+    const handlers = createNanoInputClickHandlers({ dispatchAndReveal: () => {} }, {
+      toggleCollapsedBlock: (id) => toggled.push(id),
+    })
+    const view = {
+      focused: 0,
+      state: textSelectionState('# Heading', 'md-1', 0),
+      dispatch() {},
+      focus() {
+        this.focused += 1
+      },
+    }
+    let prevented = false
+
+    assert.equal(handlers.handleEditorKeydown(view, {
+      key: 'Enter',
+      target: fold,
+      preventDefault: () => {
+        prevented = true
+      },
+    }), true)
+
+    assert.deepEqual(toggled, ['md-1'])
+    assert.equal(prevented, true)
+    assert.equal(view.focused, 1)
   } finally {
     if (originalElement === undefined) delete globalThis.Element
     else globalThis.Element = originalElement

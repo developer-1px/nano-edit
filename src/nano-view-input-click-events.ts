@@ -49,6 +49,14 @@ export function createNanoInputClickHandlers(
   const handleEditorKeydown = (view: EditorView, event: KeyboardEvent): boolean => {
     if (event.key !== ' ' && event.key !== 'Enter') return false
 
+    const listFoldBlockId = listFoldBlockIdFromEventTarget(event.target)
+    if (listFoldBlockId) {
+      event.preventDefault()
+      actions.toggleCollapsedBlock(listFoldBlockId)
+      view.focus()
+      return true
+    }
+
     const action = blockClickActionFromEventTarget(view.state.doc, event.target)
     if (!action) return false
 
