@@ -13,7 +13,7 @@ export const commandPartCatalog = [
     id: 'command.block-insert',
     label: 'Block insert command',
     category: 'command',
-    summary: 'Insert a selected block type after the active block or by block id.',
+    summary: 'Insert a command-backed block type after the active block without inventing source-only content.',
     surfaces: ['command', 'block-option', 'prosemirror-adapter'],
     pairsWith: ['view.command-palette'],
   },

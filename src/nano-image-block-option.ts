@@ -1,6 +1,5 @@
 import type { BlockOption } from './assembly/capability'
 import {
-  defaultImageSrc,
   imageNodeForBlockTemplate,
   markdownImageTemplate,
 } from './nano-block-option-internals'
@@ -11,7 +10,6 @@ export const imageBlockOption = {
   label: 'Img',
   title: 'Image',
   markdownTrigger: '![]()',
-  template: { type: 'image', src: defaultImageSrc, alt: 'Working image' },
   shortcuts: [{
     name: 'image',
     pattern: /^!\[((?:\\.|[^\]\\])*)\]\((<[^<>\r\n]+>|\S+)(?:\s+"((?:\\.|[^"\\])*)")?\)$/,
@@ -27,7 +25,7 @@ export const imageBlockOption = {
   nodeType: () => nanoSchema.nodes[nanoNodeNames.image],
   attrs: (template, id) => ({
     id,
-    src: template.type === 'image' ? template.src : defaultImageSrc,
+    src: template.type === 'image' ? template.src : '',
     alt: template.type === 'image' ? template.alt ?? '' : '',
     destinationStyle: template.type === 'image' ? template.destinationStyle ?? '' : '',
     title: template.type === 'image' ? template.title ?? '' : '',

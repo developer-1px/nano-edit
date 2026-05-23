@@ -51,7 +51,7 @@ export interface BlockOption {
   label: string
   title: string
   markdownTrigger?: string
-  template: BlockTemplate
+  template?: BlockTemplate
   shortcuts?: readonly BlockShortcut[]
   enterShortcuts?: readonly BlockEnterShortcut[]
   keyBindings?: readonly BlockKeyBinding[]

@@ -48,7 +48,6 @@ export const referenceBlockOptions: readonly BlockOption[] = [
     label: 'Note',
     title: 'Note Reference',
     markdownTrigger: '[[ ]]',
-    template: { type: 'note_ref', target: 'Today' },
     enterShortcuts: [{
       name: 'note-ref-line',
       pattern: /^\[\[[^\]\n\r]+\]\]$/,
@@ -59,7 +58,7 @@ export const referenceBlockOptions: readonly BlockOption[] = [
     nodeType: () => nanoSchema.nodes[nanoNodeNames.noteRef],
     attrs: (template, id) => ({
       id,
-      target: template.type === 'note_ref' ? template.target : 'Today',
+      target: template.type === 'note_ref' ? template.target : '',
       alias: template.type === 'note_ref' ? template.alias ?? '' : '',
     }),
     canSetTextblockMarkup: false,
@@ -71,7 +70,6 @@ export const referenceBlockOptions: readonly BlockOption[] = [
     label: 'Tag',
     title: 'Tag Reference',
     markdownTrigger: '#tag',
-    template: { type: 'tag_ref', name: 'projects/editor' },
     enterShortcuts: [{
       name: 'tag-ref-line',
       pattern: /^#(?:[\p{L}\p{N}_][\p{L}\p{N}_/-]*|[\p{L}\p{N}_][\p{L}\p{N}_/ -]*#)$/u,
@@ -82,7 +80,7 @@ export const referenceBlockOptions: readonly BlockOption[] = [
     nodeType: () => nanoSchema.nodes[nanoNodeNames.tagRef],
     attrs: (template, id) => ({
       id,
-      name: template.type === 'tag_ref' ? template.name : 'projects/editor',
+      name: template.type === 'tag_ref' ? template.name : '',
     }),
     canSetTextblockMarkup: false,
     insertedNode: tagRefNodeForBlockTemplate,

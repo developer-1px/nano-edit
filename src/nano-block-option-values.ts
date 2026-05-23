@@ -1,4 +1,3 @@
-export { defaultImageSrc } from './nano-block-option-default-values'
 export {
   blockIndent,
   clampIndent,

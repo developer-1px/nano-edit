@@ -3,7 +3,6 @@ import { footnoteDefinition, footnoteName } from './nano-footnote'
 import { noteLinkParts } from './nano-note-link'
 import { tagNameFromToken } from './nano-tag'
 import { externalUrlTokenAt } from './nano-url'
-import { defaultImageSrc } from './nano-block-option-values'
 
 export function footnoteTemplate(source: string): BlockTemplate {
   const footnote = footnoteDefinition(source)
@@ -19,7 +18,7 @@ export function noteRefTemplate(source: string): BlockTemplate {
   const parts = noteLinkParts(source)
   return {
     type: 'note_ref',
-    target: parts?.target ?? 'Today',
+    target: parts?.target ?? '',
     ...(parts?.alias ? { alias: parts.alias } : {}),
   }
 }
@@ -27,7 +26,7 @@ export function noteRefTemplate(source: string): BlockTemplate {
 export function tagRefTemplate(source: string): BlockTemplate {
   return {
     type: 'tag_ref',
-    name: tagNameFromToken(source) ?? 'projects/editor',
+    name: tagNameFromToken(source) ?? '',
   }
 }
 
@@ -35,13 +34,13 @@ export function bookmarkTemplate(source: string): BlockTemplate {
   const token = externalUrlTokenAt(source.trim(), 0)
   return {
     type: 'bookmark',
-    href: token?.href ?? 'https://bear.app',
+    href: token?.href ?? '',
     syntax: token?.syntax ?? 'bare',
   }
 }
 
 export function markdownBookmarkTemplate(match: RegExpExecArray): BlockTemplate {
-  const destination = markdownTemplateDestination(match[2] ?? 'https://bear.app')
+  const destination = markdownTemplateDestination(match[2] ?? '')
   return {
     type: 'bookmark',
     href: destination.href,
@@ -53,7 +52,7 @@ export function markdownBookmarkTemplate(match: RegExpExecArray): BlockTemplate 
 }
 
 export function markdownAttachmentTemplate(match: RegExpExecArray): BlockTemplate {
-  const destination = markdownTemplateDestination(match[2] ?? 'files/brief.pdf')
+  const destination = markdownTemplateDestination(match[2] ?? '')
   return {
     type: 'attachment',
     src: destination.href,
@@ -64,7 +63,7 @@ export function markdownAttachmentTemplate(match: RegExpExecArray): BlockTemplat
 }
 
 export function markdownImageTemplate(match: RegExpExecArray): BlockTemplate {
-  const destination = markdownTemplateDestination(match[2] ?? defaultImageSrc)
+  const destination = markdownTemplateDestination(match[2] ?? '')
   return {
     type: 'image',
     src: destination.href,

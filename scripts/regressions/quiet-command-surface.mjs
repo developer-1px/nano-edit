@@ -52,7 +52,7 @@ test('Command surfaces keep Markdown triggers searchable but visually quiet', ()
   const commands = blockCommands(commandOptions({ mode: 'global' }))
 
   assert(commands.every((command) => !command.title.startsWith('Insert ')))
-  for (const rawHint of ['#', '##', '[[ ]]', '#tag', '[^1]:', '>', '> [!NOTE]', '```', '$$', '---', '![]()', '[file]()', '| |']) {
+  for (const rawHint of ['#', '##', '[^1]:', '>', '> [!NOTE]', '```', '$$', '---', '| |']) {
     assert.equal(
       commands.some((command) => command.hint === rawHint),
       false,
@@ -62,6 +62,17 @@ test('Command surfaces keep Markdown triggers searchable but visually quiet', ()
       commands.some((command) => command.keywords?.includes(rawHint)),
       `block command should keep raw Markdown searchable: ${rawHint}`,
     )
+  }
+
+  for (const sourceOnly of [
+    ['block:note-ref', '[[ ]]'],
+    ['block:tag-ref', '#tag'],
+    ['block:bookmark', 'https://'],
+    ['block:attachment', '[file]()'],
+    ['block:image', '![]()'],
+  ]) {
+    assert.equal(commands.some((command) => command.id === sourceOnly[0]), false, `${sourceOnly[0]} should require explicit source input`)
+    assert(blockOptions.some((option) => option.markdownTrigger === sourceOnly[1]), `${sourceOnly[1]} trigger should still parse typed source`)
   }
 
   assert.deepEqual(
@@ -74,6 +85,27 @@ test('Command surfaces keep Markdown triggers searchable but visually quiet', ()
   const markHints = markCommands(commandOptions()).map((command) => command.hint)
   for (const rawHint of ['**', '*', '~', '~~', '==', '`']) {
     assert.equal(markHints.includes(rawHint), false, `mark command should not expose raw Markdown hint: ${rawHint}`)
+  }
+})
+
+test('Source-only blocks do not carry demo placeholder templates', () => {
+  const sourceOnlyIds = new Set(['note-ref', 'tag-ref', 'bookmark', 'attachment', 'image'])
+  for (const option of blockOptions.filter((blockOption) => sourceOnlyIds.has(blockOption.id))) {
+    assert.equal(option.template, undefined, `${option.id} should not insert placeholder content from commands`)
+    assert(option.markdownTrigger, `${option.id} should still have an explicit source trigger`)
+  }
+
+  for (const sourcePath of [
+    '../../src/nano-image-block-option.ts',
+    '../../src/nano-bookmark-block-option.ts',
+    '../../src/nano-attachment-block-option.ts',
+    '../../src/nano-reference-block-options.ts',
+    '../../src/nano-block-option-templates.ts',
+  ]) {
+    const source = readFileSync(new URL(sourcePath, import.meta.url), 'utf8')
+    for (const placeholder of ['hero.png', 'Working image', 'https://bear.app', 'files/brief.pdf', 'Project brief', 'Today', 'projects/editor']) {
+      assert.equal(source.includes(placeholder), false, `${sourcePath} should not carry ${placeholder}`)
+    }
   }
 })
 

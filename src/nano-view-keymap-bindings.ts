@@ -18,10 +18,14 @@ export function markKeymapCommands(): Record<string, Command> {
 }
 
 export function blockKeymapCommands(commands: BlockKeymapCommands): Record<string, Command> {
-  return Object.fromEntries(blockKeyBindingEntries().map(({ option, keyBinding }) => [
-    keyBinding.key,
-    keyBinding.action === 'insertAfterActive'
-      ? commands.insertBlockAfterActiveCommand(option.template)
-      : commands.changeActiveBlockCommand(option.template),
-  ]))
+  return Object.fromEntries(blockKeyBindingEntries().flatMap(({ option, keyBinding }) => {
+    if (!option.template) return []
+
+    return [[
+      keyBinding.key,
+      keyBinding.action === 'insertAfterActive'
+        ? commands.insertBlockAfterActiveCommand(option.template)
+        : commands.changeActiveBlockCommand(option.template),
+    ]]
+  }))
 }

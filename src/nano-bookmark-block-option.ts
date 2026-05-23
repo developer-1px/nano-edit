@@ -11,7 +11,6 @@ export const bookmarkBlockOption = {
   label: 'Url',
   title: 'Bookmark',
   markdownTrigger: 'https://',
-  template: { type: 'bookmark', href: 'https://bear.app' },
   enterShortcuts: [{
     name: 'bookmark-url',
     pattern: /^(?:<(?:https?:\/\/|mailto:)[^<>\s]+>|(?:https?:\/\/|mailto:)[^\s<>()\[\]{}"']+)$/i,
@@ -26,7 +25,7 @@ export const bookmarkBlockOption = {
   nodeType: () => nanoSchema.nodes[nanoNodeNames.bookmark],
   attrs: (template, id) => ({
     id,
-    href: template.type === 'bookmark' ? template.href : 'https://bear.app',
+    href: template.type === 'bookmark' ? template.href : '',
     label: template.type === 'bookmark' ? template.label ?? '' : '',
     title: template.type === 'bookmark' ? template.title ?? '' : '',
     destinationStyle: template.type === 'bookmark' ? template.destinationStyle ?? '' : '',
