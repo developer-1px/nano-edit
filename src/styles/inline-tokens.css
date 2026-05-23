@@ -92,12 +92,12 @@
 .nano-footnote-ref.nano-source-token::before,
 .nano-raw-external-link.nano-source-token[data-syntax='autolink']::before {
   content: attr(data-label);
-  font-size: 1rem;
+  font-size: 1em;
 }
 
 .nano-math.nano-source-token::before {
   font-family: var(--nano-mono);
-  font-size: 0.9rem;
+  font-size: 0.9em;
 }
 
 .nano-footnote-ref.nano-source-token {

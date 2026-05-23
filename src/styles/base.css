@@ -105,6 +105,11 @@ textarea:focus-visible {
   outline: none;
 }
 
+.ProseMirror-selectednode {
+  outline: 1px solid var(--nano-border);
+  outline-offset: 2px;
+}
+
 .nano-document {
   color: var(--nano-text);
   background: var(--nano-bg);

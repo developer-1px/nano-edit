@@ -66,6 +66,9 @@
 }
 
 .nano-list-fold {
+  position: absolute;
+  top: 0.3em;
+  left: -18px;
   height: 1.5em;
 }
 
@@ -142,12 +145,13 @@
 
 .nano-todo,
 .nano-list-item {
+  position: relative;
   display: grid;
-  grid-template-columns: 14px 20px minmax(0, 1fr);
-  column-gap: 4px;
+  grid-template-columns: 20px minmax(0, 1fr);
+  column-gap: 6px;
   align-items: start;
   margin: 0 0 0.28em;
-  margin-left: calc(var(--nano-indent, 0) * 24px);
+  margin-left: calc(var(--nano-indent, 0) * 22px);
   line-height: 1.6;
 }
 

@@ -233,6 +233,8 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   assert(viewCreate.includes("class: 'nano-document'"))
   assert.equal(viewCreate.includes('markdown-body'), false)
   assert(baseCss.includes('.ProseMirror.nano-document'))
+  assert(baseCss.includes('.ProseMirror-selectednode'))
+  assert.equal(baseCss.includes('#8cf'), false)
   assert.equal(baseCss.includes('markdown-body'), false)
 })
 
@@ -243,12 +245,14 @@ test('Document surface wraps prose without emergency breaking by default', () =>
   const documentRule = /\.ProseMirror\.nano-document \{([\s\S]*?)\n\}/.exec(baseCss)
   const blockContentRule = /\.nano-block-content \{([\s\S]*?)\n\}/.exec(editorCss)
   const inlineTokenRule = /\.nano-md-token \{([\s\S]*?)\n\}/.exec(inlineCss)
+  const inlineSourceLabelRule = /\.nano-tag\.nano-source-token::before,[\s\S]*?\.nano-raw-external-link\.nano-source-token\[data-syntax='autolink'\]::before \{([\s\S]*?)\n\}/.exec(inlineCss)
   const referenceTitleRule = /\.nano-bookmark-title,[\s\S]*?\.nano-tag-ref-title \{([\s\S]*?)\n\}/.exec(editorCss)
   const referenceDetailRule = /\.nano-bookmark-detail,[\s\S]*?\.nano-bookmark-url \{([\s\S]*?)\n\}/.exec(editorCss)
 
   assert(documentRule, 'document rule should be present')
   assert(blockContentRule, 'block content rule should be present')
   assert(inlineTokenRule, 'inline token rule should be present')
+  assert(inlineSourceLabelRule, 'inline source label rule should be present')
   assert(referenceTitleRule, 'reference title rule should be present')
   assert(referenceDetailRule, 'reference detail rule should be present')
 
@@ -256,6 +260,8 @@ test('Document surface wraps prose without emergency breaking by default', () =>
     assert(rule[1].includes('overflow-wrap: break-word;'))
     assert.equal(rule[1].includes('overflow-wrap: anywhere;'), false)
   }
+  assert(inlineSourceLabelRule[1].includes('font-size: 1em;'))
+  assert.equal(inlineSourceLabelRule[1].includes('font-size: 1rem;'), false)
 })
 
 test('Document surface keeps tables and callouts visually quiet', () => {

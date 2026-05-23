@@ -96,6 +96,8 @@ test('Todo checkbox keeps a measurable hit target', () => {
   const markerRule = /\.nano-list-marker \{([\s\S]*?)\n\}/.exec(css)
 
   assert(listRule, 'list layout rule should be present')
+  assert(listRule[1].includes('grid-template-columns: 20px minmax(0, 1fr);'))
+  assert.equal(listRule[1].includes('14px 20px'), false)
   assert(listRule[1].includes('align-items: start;'))
   assert.equal(listRule[1].includes('align-items: baseline;'), false)
   assert(checkboxRule, 'todo checkbox rule should be present')
