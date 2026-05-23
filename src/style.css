@@ -334,12 +334,31 @@ textarea:focus-visible {
 
 .nano-callout {
   max-width: 760px;
-  padding-left: 14px;
-  border-left: 2px solid var(--line);
+  position: relative;
+  padding-left: 16px;
 }
 
 .nano-callout-marker {
   display: none;
+}
+
+.nano-callout::before {
+  content: '';
+  position: absolute;
+  top: 0.72em;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  opacity: 0.68;
+}
+
+.nano-callout[data-tone='important']::before,
+.nano-callout[data-tone='warning']::before,
+.nano-callout[data-tone='caution']::before {
+  border-radius: 1px;
+  transform: rotate(45deg);
 }
 
 .nano-callout-marker::before {
@@ -651,7 +670,7 @@ textarea:focus-visible {
 }
 
 .nano-footnote-ref.nano-source-token {
-  width: 0.45rem;
+  width: 0.38rem;
   display: inline-block;
   overflow: hidden;
   color: transparent;
@@ -673,9 +692,13 @@ textarea:focus-visible {
 }
 
 .nano-footnote-ref.nano-source-token::before {
-  content: '†';
-  color: var(--muted);
-  font: 0.72rem/1 var(--sans);
+  content: '';
+  width: 0.28rem;
+  height: 0.28rem;
+  display: inline-block;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: 0.72;
   vertical-align: super;
 }
 
