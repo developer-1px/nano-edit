@@ -112,3 +112,86 @@ test('Fold indicators expose expanded state only when a section is collapsible',
   assert.equal(fold.attrs['aria-hidden'], 'true')
   assert.equal(fold.attrs['aria-expanded'], undefined)
 })
+
+test('Fold state sync keeps heading names free of fold control text', () => {
+  class FakeClassList {
+    constructor(element) {
+      this.element = element
+    }
+
+    contains(className) {
+      return this.element.className.split(/\s+/).includes(className)
+    }
+  }
+
+  class FakeElement {
+    constructor(className, parent = null, innerText = '') {
+      this.className = className
+      this.parent = parent
+      this.innerText = innerText
+      this.attrs = {}
+      this.children = []
+      this.classList = new FakeClassList(this)
+    }
+
+    append(...children) {
+      this.children.push(...children)
+      for (const child of children) child.parent = this
+    }
+
+    closest(selector) {
+      if (selector !== '.nano-block') return null
+      let element = this
+      while (element) {
+        if (element.classList.contains('nano-block')) return element
+        element = element.parent
+      }
+      return null
+    }
+
+    querySelector(selector) {
+      if (selector !== '.nano-block-content') return null
+      return this.children.find((child) => child.classList.contains('nano-block-content')) ?? null
+    }
+
+    setAttribute(name, value) {
+      this.attrs[name] = String(value)
+    }
+
+    getAttribute(name) {
+      return this.attrs[name] ?? null
+    }
+
+    hasAttribute(name) {
+      return this.attrs[name] !== undefined
+    }
+
+    removeAttribute(name) {
+      delete this.attrs[name]
+    }
+  }
+
+  const heading = new FakeElement('nano-block nano-heading nano-heading-collapsible')
+  const fold = new FakeElement('nano-heading-fold', heading)
+  const content = new FakeElement('nano-block-content', heading, 'Visible Heading')
+  heading.append(fold, content)
+  const root = {
+    querySelectorAll(selector) {
+      if (selector === '.nano-heading-fold, .nano-list-fold') return [fold]
+      if (selector === '.nano-heading') return [heading]
+      return []
+    },
+  }
+
+  syncFoldIndicatorStates(root)
+  assert.equal(heading.attrs['aria-label'], 'Visible Heading')
+  assert.equal(fold.attrs['aria-label'], 'Collapse section')
+
+  content.innerText = 'Renamed Heading'
+  syncFoldIndicatorStates(root)
+  assert.equal(heading.attrs['aria-label'], 'Renamed Heading')
+
+  content.innerText = ''
+  syncFoldIndicatorStates(root)
+  assert.equal(heading.attrs['aria-label'], undefined)
+})

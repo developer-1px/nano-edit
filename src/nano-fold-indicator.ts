@@ -16,6 +16,8 @@ export function foldIndicatorDomSpec(className: 'nano-heading-fold' | 'nano-list
 }
 
 export function syncFoldIndicatorStates(root: ParentNode): void {
+  syncHeadingAccessibleLabels(root)
+
   for (const indicator of root.querySelectorAll<HTMLElement>('.nano-heading-fold, .nano-list-fold')) {
     const block = indicator.closest<HTMLElement>('.nano-block')
     const collapsible = block?.classList.contains('nano-heading-collapsible') === true
@@ -39,6 +41,17 @@ export function syncFoldIndicatorStates(root: ParentNode): void {
     setAttributeIfChanged(indicator, 'aria-expanded', String(!collapsed))
     setAttributeIfChanged(indicator, 'aria-label', collapsed ? 'Expand section' : 'Collapse section')
     setAttributeIfChanged(indicator, 'title', collapsed ? 'Expand section' : 'Collapse section')
+  }
+}
+
+function syncHeadingAccessibleLabels(root: ParentNode): void {
+  for (const heading of root.querySelectorAll<HTMLElement>('.nano-heading')) {
+    const label = heading.querySelector<HTMLElement>('.nano-block-content')?.innerText.trim() ?? ''
+    if (label) {
+      setAttributeIfChanged(heading, 'aria-label', label)
+    } else {
+      removeAttributeIfPresent(heading, 'aria-label')
+    }
   }
 }
 
