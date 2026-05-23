@@ -1,5 +1,8 @@
 import type { MarkSpec } from 'prosemirror-model'
-import { nonBlankStringValue } from './nano-block-schema-refinements'
+import {
+  firstNonBlankStringValue,
+  nonBlankStringValue,
+} from './nano-block-schema-refinements'
 import { footnoteName } from './nano-footnote'
 import { inlineMathFormula } from './nano-math'
 import { noteLinkParts } from './nano-note-link'
@@ -15,9 +18,10 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
       tag: 'span.nano-tag',
       getAttrs: (dom) => {
         const element = dom as HTMLElement
-        const name = nonBlankStringValue(
-          tagNameFromToken(element.textContent ?? '')
-            ?? normalizeTagName(element.dataset.tag ?? ''),
+        const name = firstNonBlankStringValue(
+          tagNameFromToken(element.textContent ?? ''),
+          normalizeTagName(element.dataset.tag ?? ''),
+          normalizeTagName(element.textContent ?? ''),
         )
         return name ? { name } : false
       },
@@ -35,7 +39,7 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
       tag: 'span.nano-note-link',
       getAttrs: (dom) => {
         const element = dom as HTMLElement
-        const parts = noteLinkParts(element.dataset.target ?? element.textContent ?? '')
+        const parts = noteLinkParts(element.dataset.target ?? '') ?? noteLinkParts(element.textContent ?? '')
         const target = nonBlankStringValue(parts?.target)
         return target ? { target, alias: element.dataset.alias ?? parts?.alias ?? '' } : false
       },
@@ -56,7 +60,10 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
       tag: 'span.nano-math',
       getAttrs: (dom) => {
         const element = dom as HTMLElement
-        const formula = nonBlankStringValue(element.dataset.formula ?? inlineMathFormula(element.textContent ?? ''))
+        const formula = firstNonBlankStringValue(
+          element.dataset.formula,
+          inlineMathFormula(element.textContent ?? ''),
+        )
         return formula ? { formula } : false
       },
     }],
@@ -72,7 +79,10 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
       tag: 'span.nano-footnote-ref',
       getAttrs: (dom) => {
         const element = dom as HTMLElement
-        const name = nonBlankStringValue(footnoteName(element.dataset.name ?? element.textContent ?? ''))
+        const name = firstNonBlankStringValue(
+          footnoteName(element.dataset.name ?? ''),
+          footnoteName(element.textContent ?? ''),
+        )
         return name ? { name } : false
       },
     }],

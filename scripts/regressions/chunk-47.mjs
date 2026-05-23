@@ -192,6 +192,36 @@ test('ProseMirror DOM parsing rejects blank reference marks before attr creation
   })
 })
 
+test('ProseMirror DOM parsing falls back when reference datasets are blank', () => {
+  assert.deepEqual(parseAttrs(referenceMarkSpecs[nanoMarkNames.tag], element({
+    dataset: { tag: '   ' },
+    textContent: '#fallback',
+  })), { name: 'fallback' })
+  assert.deepEqual(parseAttrs(referenceMarkSpecs[nanoMarkNames.noteLink], element({
+    dataset: { target: '   ' },
+    textContent: '[[Fallback Note|Alias]]',
+  })), { target: 'Fallback Note', alias: 'Alias' })
+  assert.deepEqual(parseAttrs(referenceMarkSpecs[nanoMarkNames.math], element({
+    dataset: { formula: '   ' },
+    textContent: 'x + y',
+  })), { formula: 'x + y' })
+  assert.deepEqual(parseAttrs(referenceMarkSpecs[nanoMarkNames.footnoteRef], element({
+    dataset: { name: '   ' },
+    textContent: '[^source]',
+  })), { name: 'source' })
+  assert.deepEqual(parseAttrs(linkMarkSpec, element({
+    attrs: { href: '   ' },
+    dataset: { href: 'https://fallback.example' },
+  })), {
+    href: 'https://fallback.example',
+    destinationStyle: '',
+    title: '',
+    syntax: '',
+    image: false,
+    imageEmptyAlt: false,
+  })
+})
+
 test('ProseMirror DOM parsing rejects blank reference atoms before attr creation', () => {
   assert.equal(parseAttrs(bookmarkNodeSpec, element({ dataset: { href: '   ' } })), false)
   assert.equal(parseAttrs(noteRefNodeSpec, element({ dataset: { target: '   ' } })), false)
@@ -211,6 +241,36 @@ test('ProseMirror DOM parsing rejects blank reference atoms before attr creation
     src: '/image.png',
     alt: 'Image',
     title: '',
+  })
+})
+
+test('ProseMirror DOM parsing falls back when reference atom datasets are blank', () => {
+  assert.deepEqual(parseAttrs(bookmarkNodeSpec, element({
+    dataset: { href: '   ' },
+    query: { a: element({ attrs: { href: 'https://fallback.example' } }) },
+  })), {
+    href: 'https://fallback.example',
+    label: '',
+    title: '',
+    destinationStyle: '',
+    syntax: 'bare',
+  })
+  assert.deepEqual(parseAttrs(noteRefNodeSpec, element({
+    dataset: { target: '   ' },
+    textContent: '[[Fallback Note|Alias]]',
+  })), { target: 'Fallback Note', alias: 'Alias' })
+  assert.deepEqual(parseAttrs(tagRefNodeSpec, element({
+    dataset: { tag: '   ' },
+    textContent: '#fallback',
+  })), { name: 'fallback' })
+  assert.deepEqual(parseAttrs(attachmentNodeSpec, element({
+    dataset: { src: '   ' },
+    query: { a: element({ attrs: { href: 'fallback.pdf' } }) },
+  })), {
+    src: 'fallback.pdf',
+    label: '',
+    title: '',
+    destinationStyle: '',
   })
 })
 

@@ -9,6 +9,14 @@ export function nonBlankStringValue(value: unknown): string | null {
   return text.length > 0 ? text : null
 }
 
+export function firstNonBlankStringValue(...values: unknown[]): string | null {
+  for (const value of values) {
+    const text = nonBlankStringValue(value)
+    if (text) return text
+  }
+  return null
+}
+
 export function textLineCount(text: string): number {
   return text.split('\n').length
 }

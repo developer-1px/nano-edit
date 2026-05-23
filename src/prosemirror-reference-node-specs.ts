@@ -1,5 +1,8 @@
 import type { NodeSpec } from 'prosemirror-model'
-import { nonBlankStringValue } from './nano-block-schema-refinements'
+import {
+  firstNonBlankStringValue,
+  nonBlankStringValue,
+} from './nano-block-schema-refinements'
 import { noteLinkParts } from './nano-note-link'
 import { normalizeTagName } from './nano-tag'
 import {
@@ -19,7 +22,7 @@ export const bookmarkNodeSpec: NodeSpec = {
     tag: 'div.nano-bookmark',
     getAttrs: (dom) => {
       const element = dom as HTMLElement
-      const href = nonBlankStringValue(element.dataset.href ?? element.querySelector('a')?.getAttribute('href'))
+      const href = firstNonBlankStringValue(element.dataset.href, element.querySelector('a')?.getAttribute('href'))
       if (!href) return false
 
       return {
@@ -43,8 +46,8 @@ export const noteRefNodeSpec: NodeSpec = {
     tag: 'div.nano-note-ref',
     getAttrs: (dom) => {
       const element = dom as HTMLElement
-      const parts = noteLinkParts(element.dataset.target ?? element.textContent ?? '')
-      const target = nonBlankStringValue(parts?.target ?? element.dataset.target)
+      const parts = noteLinkParts(element.dataset.target ?? '') ?? noteLinkParts(element.textContent ?? '')
+      const target = nonBlankStringValue(parts?.target)
       if (!target) return false
 
       return {
@@ -65,7 +68,10 @@ export const tagRefNodeSpec: NodeSpec = {
     tag: 'div.nano-tag-ref',
     getAttrs: (dom) => {
       const element = dom as HTMLElement
-      const name = nonBlankStringValue(normalizeTagName(element.dataset.tag ?? element.textContent ?? ''))
+      const name = firstNonBlankStringValue(
+        normalizeTagName(element.dataset.tag ?? ''),
+        normalizeTagName(element.textContent ?? ''),
+      )
       return name ? { name } : false
     },
   }],
@@ -81,7 +87,7 @@ export const attachmentNodeSpec: NodeSpec = {
     tag: 'div.nano-attachment',
     getAttrs: (dom) => {
       const element = dom as HTMLElement
-      const src = nonBlankStringValue(element.dataset.src ?? element.querySelector('a')?.getAttribute('href'))
+      const src = firstNonBlankStringValue(element.dataset.src, element.querySelector('a')?.getAttribute('href'))
       if (!src) return false
 
       return {
