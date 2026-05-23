@@ -4,17 +4,21 @@ import {
   blockEnterShortcutOptions,
   blockShortcutOptions,
 } from './nano-block-options'
+import { footnoteMarkerInputTransaction } from './nano-view-footnote-marker-input'
 import {
-  calloutMarkerInputTransaction,
-  footnoteMarkerInputTransaction,
   headingMarkerInputTransaction,
   headingMarkerSpaceInputTransaction,
   headingPrefixInputTransaction,
+} from './nano-view-heading-marker-input'
+import {
   listMarkerInputTransaction,
-  quoteMarkerInputTransaction,
   todoCheckboxInputTransaction,
   todoMarkerInputTransaction,
-} from './nano-view-block-marker-input'
+} from './nano-view-list-marker-input'
+import {
+  calloutMarkerInputTransaction,
+  quoteMarkerInputTransaction,
+} from './nano-view-quote-callout-marker-input'
 import { blockShortcutTransactionForTemplate } from './nano-view-block-shortcut-template'
 import { continuationMarkerInputTransaction } from './nano-view-continuation-markers'
 import { paragraphPrefixInputTransaction } from './nano-view-paragraph-prefix-input'
