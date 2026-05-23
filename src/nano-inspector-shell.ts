@@ -20,6 +20,7 @@ interface NanoInspectorShell {
   inspectorTrigger: HTMLButtonElement
   indexOutput: HTMLElement
   markdownOutput: HTMLElement
+  destroy: () => void
   showInspector: (tab?: InspectorTab) => void
   setInspectorMode: (mode: InspectorMode) => void
   setInspectorTab: (tab: InspectorTab) => void
@@ -107,15 +108,30 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   }
 
   const setInspectorTab = (tab: InspectorTab): void => showInspector(tab)
-  indexSearchInput.addEventListener('input', () => options.onIndexSearch(indexSearchInput.value))
-  indexTab.addEventListener('click', () => setInspectorTab('index'))
-  markdownTab.addEventListener('click', () => setInspectorTab('markdown'))
-  pinButton.addEventListener('click', () => setInspectorMode(inspectorMode === 'pinned' ? 'floating' : 'pinned'))
-  closeButton.addEventListener('click', () => setInspectorMode('hidden'))
-  inspectorTrigger.addEventListener('click', () => {
+  const handleIndexSearchInput = (): void => options.onIndexSearch(indexSearchInput.value)
+  const handleIndexTabClick = (): void => setInspectorTab('index')
+  const handleMarkdownTabClick = (): void => setInspectorTab('markdown')
+  const handlePinClick = (): void => setInspectorMode(inspectorMode === 'pinned' ? 'floating' : 'pinned')
+  const handleCloseClick = (): void => setInspectorMode('hidden')
+  const handleInspectorTriggerClick = (): void => {
     inspectorMode === 'hidden' ? showInspector(inspectorTab) : setInspectorMode('hidden')
-  })
+  }
+  indexSearchInput.addEventListener('input', handleIndexSearchInput)
+  indexTab.addEventListener('click', handleIndexTabClick)
+  markdownTab.addEventListener('click', handleMarkdownTabClick)
+  pinButton.addEventListener('click', handlePinClick)
+  closeButton.addEventListener('click', handleCloseClick)
+  inspectorTrigger.addEventListener('click', handleInspectorTriggerClick)
   syncInspectorChrome()
 
-  return { inspectorElement, inspectorTrigger, indexOutput, markdownOutput, showInspector, setInspectorMode, setInspectorTab, syncInspectorChrome }
+  const destroy = (): void => {
+    indexSearchInput.removeEventListener('input', handleIndexSearchInput)
+    indexTab.removeEventListener('click', handleIndexTabClick)
+    markdownTab.removeEventListener('click', handleMarkdownTabClick)
+    pinButton.removeEventListener('click', handlePinClick)
+    closeButton.removeEventListener('click', handleCloseClick)
+    inspectorTrigger.removeEventListener('click', handleInspectorTriggerClick)
+  }
+
+  return { destroy, inspectorElement, inspectorTrigger, indexOutput, markdownOutput, showInspector, setInspectorMode, setInspectorTab, syncInspectorChrome }
 }

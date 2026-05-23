@@ -50,6 +50,9 @@ export function createNanoShell(options: NanoShellOptions): NanoShell {
     ...inspector,
     commandPalette: palette.commandPalette,
     openCommandPalette: palette.openCommandPalette,
-    destroy: palette.destroy,
+    destroy: () => {
+      inspector.destroy()
+      palette.destroy()
+    },
   }
 }
