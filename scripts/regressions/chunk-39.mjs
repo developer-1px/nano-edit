@@ -1,3 +1,4 @@
+import { syncFoldIndicatorStates } from '../../src/nano-fold-indicator.ts'
 import { assert, blockDomSpec, test } from './harness.mjs'
 
 function specText(spec) {
@@ -36,11 +37,78 @@ test('Fold indicators use lucide icons instead of text markers', () => {
     const fold = specByClass(spec, className)
 
     assert(fold)
-    assert.equal(fold[1].role, 'button')
-    assert.equal(fold[1].tabindex, '0')
-    assert.equal(fold[1]['aria-label'], 'Toggle section')
-    assert.equal(fold[1]['aria-hidden'], undefined)
+    assert.equal(fold[1].role, undefined)
+    assert.equal(fold[1].tabindex, '-1')
+    assert.equal(fold[1]['aria-hidden'], 'true')
+    assert.equal(fold[1]['aria-expanded'], undefined)
     assert(specHasClass(spec, 'nano-fold-icon'))
     assert.equal(specText(spec).includes('>'), false)
   }
+})
+
+test('Fold indicators expose expanded state only when a section is collapsible', () => {
+  class FakeClassList {
+    constructor(element) {
+      this.element = element
+    }
+
+    contains(className) {
+      return this.element.className.split(/\s+/).includes(className)
+    }
+  }
+
+  class FakeElement {
+    constructor(className, parent = null) {
+      this.className = className
+      this.parent = parent
+      this.attrs = {}
+      this.classList = new FakeClassList(this)
+    }
+
+    closest(selector) {
+      if (selector === '.nano-block') return this.parent
+      return null
+    }
+
+    setAttribute(name, value) {
+      this.attrs[name] = String(value)
+    }
+
+    getAttribute(name) {
+      return this.attrs[name] ?? null
+    }
+
+    hasAttribute(name) {
+      return this.attrs[name] !== undefined
+    }
+
+    removeAttribute(name) {
+      delete this.attrs[name]
+    }
+  }
+
+  const block = new FakeElement('nano-block nano-heading-collapsible')
+  const fold = new FakeElement('nano-heading-fold', block)
+  const root = {
+    querySelectorAll: (selector) => selector === '.nano-heading-fold, .nano-list-fold' ? [fold] : [],
+  }
+
+  syncFoldIndicatorStates(root)
+  assert.equal(fold.attrs.role, 'button')
+  assert.equal(fold.attrs.tabindex, '0')
+  assert.equal(fold.attrs['aria-hidden'], undefined)
+  assert.equal(fold.attrs['aria-expanded'], 'true')
+  assert.equal(fold.attrs['aria-label'], 'Collapse section')
+
+  block.className = 'nano-block nano-heading-collapsible nano-heading-collapsed'
+  syncFoldIndicatorStates(root)
+  assert.equal(fold.attrs['aria-expanded'], 'false')
+  assert.equal(fold.attrs['aria-label'], 'Expand section')
+
+  block.className = 'nano-block nano-heading'
+  syncFoldIndicatorStates(root)
+  assert.equal(fold.attrs.role, undefined)
+  assert.equal(fold.attrs.tabindex, '-1')
+  assert.equal(fold.attrs['aria-hidden'], 'true')
+  assert.equal(fold.attrs['aria-expanded'], undefined)
 })

@@ -74,6 +74,9 @@ test('Todo checkbox toggles from keyboard without exposing Markdown syntax', () 
       this.className = className
       this.dataset = dataset
       this.parent = parent
+      this.classList = {
+        contains: (className) => this.className.split(/\s+/).includes(className),
+      }
     }
 
     closest(selector) {
@@ -130,6 +133,9 @@ test('Fold indicator toggles section from keyboard without extra visible chrome'
       this.className = className
       this.dataset = dataset
       this.parent = parent
+      this.classList = {
+        contains: (className) => this.className.split(/\s+/).includes(className),
+      }
     }
 
     closest(selector) {
@@ -145,7 +151,7 @@ test('Fold indicator toggles section from keyboard without extra visible chrome'
 
   globalThis.Element = FakeElement
   try {
-    const block = new FakeElement('nano-block nano-heading', { id: 'md-1' })
+    const block = new FakeElement('nano-block nano-heading nano-heading-collapsible', { id: 'md-1' })
     const fold = new FakeElement('nano-heading-fold', {}, block)
     const toggled = []
     const handlers = createNanoInputClickHandlers({ dispatchAndReveal: () => {} }, {

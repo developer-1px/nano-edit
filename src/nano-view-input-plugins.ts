@@ -1,5 +1,6 @@
 import { Plugin } from 'prosemirror-state'
 import { blockUiDecorations, clearBlockDragState } from './nano-block-ui'
+import { syncFoldIndicatorStates } from './nano-fold-indicator'
 import type { NanoViewContext } from './nano-view-context'
 import type { NanoGutterRuntime } from './nano-view-gutter-runtime'
 import type { NanoInputRuntime } from './nano-view-input-runtime'
@@ -55,6 +56,12 @@ function blockClickPlugin(handlers: NanoInputHandlers): Plugin {
 
 function activeBlockPlugin(ctx: NanoViewContext, gutter: NanoGutterRuntime): Plugin {
   return new Plugin({
+    view: (view) => {
+      syncFoldIndicatorStatesWithoutObserver(view)
+      return {
+        update: syncFoldIndicatorStatesWithoutObserver,
+      }
+    },
     props: {
       decorations: (state) =>
         blockUiDecorations(
@@ -76,4 +83,14 @@ function activeBlockPlugin(ctx: NanoViewContext, gutter: NanoGutterRuntime): Plu
       },
     },
   })
+}
+
+function syncFoldIndicatorStatesWithoutObserver(view: { dom: HTMLElement }): void {
+  const observer = (view as { domObserver?: { start: () => void; stop: () => void } }).domObserver
+  observer?.stop()
+  try {
+    syncFoldIndicatorStates(view.dom)
+  } finally {
+    observer?.start()
+  }
 }

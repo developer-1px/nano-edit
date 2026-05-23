@@ -13,5 +13,8 @@ export function listFoldBlockIdFromEventTarget(target: EventTarget | null): stri
   const element = target instanceof Element
     ? target.closest<HTMLElement>('.nano-list-fold, .nano-heading-fold')
     : null
-  return element?.closest<HTMLElement>('.nano-block[data-id]')?.dataset.id ?? null
+  const block = element?.closest<HTMLElement>('.nano-block[data-id]')
+  const collapsible = block?.classList.contains('nano-heading-collapsible') === true
+    || block?.classList.contains('nano-list-collapsible') === true
+  return collapsible ? block?.dataset.id ?? null : null
 }
