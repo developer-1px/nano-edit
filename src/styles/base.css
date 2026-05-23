@@ -7,16 +7,10 @@
   --nano-focus-ring: #8c959f;
   --nano-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --nano-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
-  color: var(--nano-text);
-  background: var(--nano-bg);
-  font-family: var(--nano-sans);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
+.nano,
+.nano * {
   box-sizing: border-box;
 }
 
@@ -32,13 +26,13 @@ body,
   overflow-x: hidden;
 }
 
-button,
-input,
-textarea {
+.nano button,
+.nano input,
+.nano textarea {
   font: inherit;
 }
 
-button {
+.nano button {
   width: 32px;
   height: 28px;
   border: 0;
@@ -46,18 +40,18 @@ button {
   color: var(--nano-muted);
 }
 
-button:hover:not(:disabled),
-button[data-active='true'] {
+.nano button:hover:not(:disabled),
+.nano button[data-active='true'] {
   color: var(--nano-focus);
 }
 
-button:disabled {
+.nano button:disabled {
   color: #8c959f;
 }
 
-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible {
+.nano button:focus-visible,
+.nano input:focus-visible,
+.nano textarea:focus-visible {
   outline: 1.5px solid var(--nano-focus-ring);
   outline-offset: 2px;
 }
@@ -66,7 +60,13 @@ textarea:focus-visible {
   min-height: 100svh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  color: var(--nano-text);
   background: var(--nano-bg);
+  font-family: var(--nano-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .nano[data-inspector='pinned'] {

@@ -82,6 +82,23 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   assert.equal(baseCss.includes('markdown-body'), false)
 })
 
+test('Base styles stay scoped to the nano surface', () => {
+  const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
+  const rootRule = /^:root \{([\s\S]*?)\n\}/.exec(baseCss)
+
+  assert(rootRule, 'root token rule should be present')
+  assert.equal(rootRule[1].includes('font-family'), false)
+  assert.equal(rootRule[1].includes('background:'), false)
+  assert.equal(rootRule[1].includes('color:'), false)
+  assert.equal(/^button[,\s{]/m.test(baseCss), false)
+  assert.equal(/^input[,\s{]/m.test(baseCss), false)
+  assert.equal(/^textarea[,\s{]/m.test(baseCss), false)
+  assert.equal(/^\* \{/m.test(baseCss), false)
+  assert(baseCss.includes('.nano,\n.nano * {'))
+  assert(baseCss.includes('.nano button,\n.nano input,\n.nano textarea {'))
+  assert(baseCss.includes('.nano button:focus-visible,'))
+})
+
 test('Document surface wraps prose without emergency breaking by default', () => {
   const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
   const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
