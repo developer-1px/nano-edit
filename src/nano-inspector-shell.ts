@@ -27,20 +27,33 @@ interface NanoInspectorShell {
   syncInspectorChrome: () => void
 }
 
+let inspectorShellId = 0
+
 export function createNanoInspectorShell(options: NanoInspectorShellOptions): NanoInspectorShell {
+  inspectorShellId += 1
+  const shellId = `nano-inspector-${inspectorShellId}`
   let inspectorMode = storedInspectorMode()
   let inspectorTab: InspectorTab = 'index'
 
   const inspectorElement = document.createElement('aside')
   inspectorElement.className = 'inspector'
+  inspectorElement.ariaLabel = 'Inspector'
   const inspectorHeader = document.createElement('div')
   inspectorHeader.className = 'inspector-header'
   const inspectorTabs = document.createElement('div')
   inspectorTabs.className = 'inspector-tabs'
+  inspectorTabs.setAttribute('role', 'tablist')
+  inspectorTabs.ariaLabel = 'Inspector views'
   const indexTab = shellButton('', 'Index', ListTree)
+  indexTab.id = `${shellId}-tab-index`
   indexTab.dataset.icon = 'index'
+  indexTab.setAttribute('role', 'tab')
+  indexTab.setAttribute('aria-controls', `${shellId}-panel-index`)
   const markdownTab = shellButton('', 'Source', FileCode2)
+  markdownTab.id = `${shellId}-tab-source`
   markdownTab.dataset.icon = 'source'
+  markdownTab.setAttribute('role', 'tab')
+  markdownTab.setAttribute('aria-controls', `${shellId}-panel-source`)
   inspectorTabs.append(indexTab, markdownTab)
   const inspectorControls = document.createElement('div')
   inspectorControls.className = 'inspector-controls'
@@ -68,9 +81,15 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   const inspectorBody = document.createElement('div')
   inspectorBody.className = 'inspector-body'
   const indexSection = labeledSection('index', indexPanel)
+  indexSection.id = `${shellId}-panel-index`
   indexSection.dataset.inspectorTab = 'index'
+  indexSection.setAttribute('role', 'tabpanel')
+  indexSection.setAttribute('aria-labelledby', indexTab.id)
   const markdownSection = labeledSection('source', markdownOutput)
+  markdownSection.id = `${shellId}-panel-source`
   markdownSection.dataset.inspectorTab = 'markdown'
+  markdownSection.setAttribute('role', 'tabpanel')
+  markdownSection.setAttribute('aria-labelledby', markdownTab.id)
   inspectorBody.append(indexSection, markdownSection)
   inspectorElement.append(inspectorHeader, inspectorBody)
 
@@ -86,9 +105,15 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
     inspectorElement.hidden = inspectorMode === 'hidden'
     inspectorTrigger.dataset.tab = inspectorTab
     inspectorTrigger.dataset.active = String(inspectorMode !== 'hidden')
+    inspectorTrigger.setAttribute('aria-expanded', String(inspectorMode !== 'hidden'))
     indexTab.dataset.active = String(inspectorTab === 'index')
+    indexTab.setAttribute('aria-selected', String(inspectorTab === 'index'))
+    indexTab.tabIndex = inspectorTab === 'index' ? 0 : -1
     markdownTab.dataset.active = String(inspectorTab === 'markdown')
+    markdownTab.setAttribute('aria-selected', String(inspectorTab === 'markdown'))
+    markdownTab.tabIndex = inspectorTab === 'markdown' ? 0 : -1
     pinButton.dataset.active = String(inspectorMode === 'pinned')
+    pinButton.setAttribute('aria-pressed', String(inspectorMode === 'pinned'))
     for (const section of inspectorBody.querySelectorAll<HTMLElement>('[data-inspector-tab]')) {
       section.hidden = section.dataset.inspectorTab !== inspectorTab
     }
@@ -111,6 +136,18 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   const handleIndexSearchInput = (): void => options.onIndexSearch(indexSearchInput.value)
   const handleIndexTabClick = (): void => setInspectorTab('index')
   const handleMarkdownTabClick = (): void => setInspectorTab('markdown')
+  const handleIndexTabKeydown = (event: KeyboardEvent): void => {
+    if (!['ArrowLeft', 'ArrowRight', 'End'].includes(event.key)) return
+    event.preventDefault()
+    setInspectorTab('markdown')
+    markdownTab.focus()
+  }
+  const handleMarkdownTabKeydown = (event: KeyboardEvent): void => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return
+    event.preventDefault()
+    setInspectorTab('index')
+    indexTab.focus()
+  }
   const handlePinClick = (): void => setInspectorMode(inspectorMode === 'pinned' ? 'floating' : 'pinned')
   const handleCloseClick = (): void => setInspectorMode('hidden')
   const handleInspectorTriggerClick = (): void => {
@@ -118,7 +155,9 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   }
   indexSearchInput.addEventListener('input', handleIndexSearchInput)
   indexTab.addEventListener('click', handleIndexTabClick)
+  indexTab.addEventListener('keydown', handleIndexTabKeydown)
   markdownTab.addEventListener('click', handleMarkdownTabClick)
+  markdownTab.addEventListener('keydown', handleMarkdownTabKeydown)
   pinButton.addEventListener('click', handlePinClick)
   closeButton.addEventListener('click', handleCloseClick)
   inspectorTrigger.addEventListener('click', handleInspectorTriggerClick)
@@ -127,7 +166,9 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   const destroy = (): void => {
     indexSearchInput.removeEventListener('input', handleIndexSearchInput)
     indexTab.removeEventListener('click', handleIndexTabClick)
+    indexTab.removeEventListener('keydown', handleIndexTabKeydown)
     markdownTab.removeEventListener('click', handleMarkdownTabClick)
+    markdownTab.removeEventListener('keydown', handleMarkdownTabKeydown)
     pinButton.removeEventListener('click', handlePinClick)
     closeButton.removeEventListener('click', handleCloseClick)
     inspectorTrigger.removeEventListener('click', handleInspectorTriggerClick)
