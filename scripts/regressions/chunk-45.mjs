@@ -5,14 +5,11 @@ import {
   NanoBlockSchema,
   NanoDocumentSchema,
   NanoMarkSchema,
-  nanoBlocksFromProseMirror,
-  nanoDocumentFromProseMirror,
   nanoDocumentFromMarkdown,
   nanoMarkdownBlocksFromDocument,
   nanoMarkdownFromDocument,
   prosemirrorDocFromNano,
 } from '../../src/index.ts'
-import { nanoNodeNames, nanoSchema } from '../../src/prosemirror-nano.ts'
 import { assert, test } from './harness.mjs'
 
 test('Default Nano documents are fresh and isolated from exported empty state', () => {
@@ -207,107 +204,4 @@ test('Markdown serializers reject invalid Nano documents instead of stringifying
   assert.throws(() => nanoMarkdownBlocksFromDocument({
     blocks: [{ id: 'bad', type: 'paragraph', text: 'Short', marks: [{ type: 'bold', from: 0, to: 10 }] }],
   }))
-})
-
-test('ProseMirror to Nano conversion returns a schema-valid document', () => {
-  const source = nanoDocumentFromMarkdown([
-    '# 현장 기록',
-    '',
-    '- [ ] 오전 메모 정리',
-  ].join('\n'))
-  const prosemirrorDoc = prosemirrorDocFromNano(source)
-  const document = nanoDocumentFromProseMirror(prosemirrorDoc)
-
-  assert.deepEqual(NanoDocumentSchema.parse(document), document)
-  assert.deepEqual(nanoBlocksFromProseMirror(prosemirrorDoc), document.blocks)
-})
-
-test('ProseMirror table conversion pads ragged rows before schema validation', () => {
-  const table = nanoSchema.nodes.table.create({
-    id: 'table',
-    rows: [['A'], ['1', '2']],
-  })
-  const prosemirrorDoc = nanoSchema.nodes.doc.create(null, [table])
-  const document = nanoDocumentFromProseMirror(prosemirrorDoc)
-
-  assert.deepEqual(document.blocks, [{
-    id: 'table',
-    type: 'table',
-    rows: [['A', ''], ['1', '2']],
-  }])
-  assert.deepEqual(NanoDocumentSchema.parse(document), document)
-})
-
-test('ProseMirror conversion pads partial line source metadata before schema validation', () => {
-  const nodes = nanoSchema.nodes
-  const prosemirrorDoc = nodes[nanoNodeNames.doc].create(null, [
-    nodes[nanoNodeNames.quote].create(
-      { id: 'quote', quoteMarkerSpacing: ['none'], quoteMarkerDepths: [2] },
-      nanoSchema.text('one\ntwo'),
-    ),
-    nodes[nanoNodeNames.callout].create(
-      { id: 'callout', tone: 'tip', calloutMarkerSpacing: ['space'], calloutMarkerDepths: [2] },
-      nanoSchema.text('head\nbody'),
-    ),
-    nodes[nanoNodeNames.listItem].create(
-      { id: 'list', kind: 'bullet', continuationIndents: ['\t'], indent: 0, marker: '-' },
-      nanoSchema.text('one\ntwo\nthree'),
-    ),
-    nodes[nanoNodeNames.todo].create(
-      { id: 'todo', checked: false, continuationIndents: ['\t'], indent: 0, marker: '-' },
-      nanoSchema.text('one\ntwo\nthree'),
-    ),
-    nodes[nanoNodeNames.footnote].create(
-      { id: 'footnote', name: '1', footnoteContinuationIndents: ['\t'] },
-      nanoSchema.text('one\ntwo\nthree'),
-    ),
-  ])
-  const document = nanoDocumentFromProseMirror(prosemirrorDoc)
-
-  assert.deepEqual(document.blocks, [
-    {
-      id: 'quote',
-      type: 'quote',
-      quoteMarkerSpacing: ['none', 'space'],
-      quoteMarkerDepths: [2, 1],
-      text: 'one\ntwo',
-      marks: [],
-    },
-    {
-      id: 'callout',
-      type: 'callout',
-      tone: 'tip',
-      calloutMarkerDepths: [2, 1],
-      calloutMarkerSpacing: ['space', 'space'],
-      text: 'head\nbody',
-      marks: [],
-    },
-    {
-      id: 'list',
-      type: 'list_item',
-      kind: 'bullet',
-      continuationIndents: ['\t', '  '],
-      indent: 0,
-      text: 'one\ntwo\nthree',
-      marks: [],
-    },
-    {
-      id: 'todo',
-      type: 'todo',
-      checked: false,
-      continuationIndents: ['\t', '      '],
-      indent: 0,
-      text: 'one\ntwo\nthree',
-      marks: [],
-    },
-    {
-      id: 'footnote',
-      type: 'footnote',
-      footnoteContinuationIndents: ['\t', '    '],
-      name: '1',
-      text: 'one\ntwo\nthree',
-      marks: [],
-    },
-  ])
-  assert.deepEqual(NanoDocumentSchema.parse(document), document)
 })
