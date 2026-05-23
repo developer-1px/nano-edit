@@ -7,6 +7,7 @@ class FakeElement {
     this.children = []
     this.dataset = {}
     this.listeners = []
+    this.removedListeners = []
     this.style = {
       removeProperty: () => {},
       setProperty: () => {},
@@ -15,6 +16,10 @@ class FakeElement {
 
   addEventListener(...args) {
     this.listeners.push(args)
+  }
+
+  removeEventListener(...args) {
+    this.removedListeners.push(args)
   }
 
   append(...children) {
@@ -75,6 +80,10 @@ test('Command palette cancels pending focus when destroyed', () => {
 
     assert.deepEqual(canceledFrames, [1])
     assert.equal(palette.commandPalette.children[0].focusCount ?? 0, 0)
+    assert.deepEqual(
+      palette.commandPalette.children[0].removedListeners.map(([eventName]) => eventName),
+      ['input', 'keydown'],
+    )
     assert.deepEqual(
       removedDocumentListeners.map(([eventName]) => eventName),
       ['keydown', 'click'],

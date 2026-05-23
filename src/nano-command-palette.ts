@@ -112,10 +112,12 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
     closeCommandPalette(false)
   }
 
-  commandInput.addEventListener('input', () => {
+  const handleCommandInput = (): void => {
     paletteSelectedIndex = 0
     renderCommandPalette()
-  })
+  }
+
+  commandInput.addEventListener('input', handleCommandInput)
   commandInput.addEventListener('keydown', handleCommandKeydown)
   document.addEventListener('keydown', handleGlobalShortcut, true)
   document.addEventListener('click', handleOutsideClick)
@@ -128,6 +130,8 @@ export function createNanoCommandPalette(options: NanoCommandPaletteOptions): Na
       destroyed = true
       cancelPendingFocus()
       closeCommandPalette(false)
+      commandInput.removeEventListener('input', handleCommandInput)
+      commandInput.removeEventListener('keydown', handleCommandKeydown)
       document.removeEventListener('keydown', handleGlobalShortcut, true)
       document.removeEventListener('click', handleOutsideClick)
     },
