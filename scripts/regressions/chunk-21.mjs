@@ -12,6 +12,20 @@ function paragraphSelectionState(text, offset) {
   })
 }
 
+function typeShortcutText(initialState, text) {
+  let state = initialState
+  for (const input of text) {
+    const { from, to } = state.selection
+    const transaction = blockShortcutTransaction(state, from, to, input) ?? state.tr.insertText(input, from, to)
+    state = state.apply(transaction)
+  }
+  return state
+}
+
+function markdownFromState(state) {
+  return nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(state.doc) })
+}
+
 test('Bear empty todos stay todo blocks without trailing filler', () => {
   const markdown = '- [ ]\n- [x]\n  - [ ] child'
   const document = nanoDocumentFromMarkdown(markdown)
@@ -135,6 +149,56 @@ test('Bear paragraph prefix markers promote existing text before Enter', () => {
   assert.equal(markdownAfter(todoState, todoTransaction), '- [X] Task')
   assert.deepEqual(blocksAfter(todoState, todoTransaction), [
     { id: 'b1', type: 'todo', checked: true, checkedMarker: 'X', indent: 0, text: 'Task', marks: [] },
+  ])
+})
+
+test('Bear paragraph prefix markers keep working through real typed input order', () => {
+  const bulletState = typeShortcutText(paragraphSelectionState('Task', 0), '- ')
+  assert.equal(markdownFromState(bulletState), '- Task')
+  assert.deepEqual(nanoBlocksFromProseMirror(bulletState.doc), [
+    { id: 'b1', type: 'list_item', kind: 'bullet', indent: 0, text: 'Task', marks: [] },
+  ])
+
+  const uncheckedTodoState = typeShortcutText(paragraphSelectionState('Task', 0), '- [ ] ')
+  assert.equal(markdownFromState(uncheckedTodoState), '- [ ] Task')
+  assert.deepEqual(nanoBlocksFromProseMirror(uncheckedTodoState.doc), [
+    { id: 'b1', type: 'todo', checked: false, indent: 0, text: 'Task', marks: [] },
+  ])
+
+  const checkedTodoState = typeShortcutText(paragraphSelectionState('Task', 0), '* [X] ')
+  assert.equal(markdownFromState(checkedTodoState), '* [X] Task')
+  assert.deepEqual(nanoBlocksFromProseMirror(checkedTodoState.doc), [
+    { id: 'b1', type: 'todo', checked: true, indent: 0, marker: '*', checkedMarker: 'X', text: 'Task', marks: [] },
+  ])
+
+  const orderedState = typeShortcutText(paragraphSelectionState('Task', 0), '07) ')
+  assert.equal(markdownFromState(orderedState), '07) Task')
+  assert.deepEqual(nanoBlocksFromProseMirror(orderedState.doc), [
+    { id: 'b1', type: 'list_item', kind: 'ordered', indent: 0, start: 7, orderedMarker: ')', orderedStartText: '07', text: 'Task', marks: [] },
+  ])
+
+  const quoteState = typeShortcutText(paragraphSelectionState('Task', 0), '> ')
+  assert.equal(markdownFromState(quoteState), '> Task')
+  assert.deepEqual(nanoBlocksFromProseMirror(quoteState.doc), [
+    { id: 'b1', type: 'quote', quoteMarkerSpacing: ['space'], text: 'Task', marks: [] },
+  ])
+
+  const indentedBulletState = typeShortcutText(paragraphSelectionState('Task', 0), '  - ')
+  assert.equal(markdownFromState(indentedBulletState), '  - Task')
+  assert.deepEqual(nanoBlocksFromProseMirror(indentedBulletState.doc), [
+    { id: 'b1', type: 'list_item', kind: 'bullet', indent: 1, text: 'Task', marks: [] },
+  ])
+
+  const tabIndentedTodoState = typeShortcutText(paragraphSelectionState('Task', 0), '\t+ [ ] ')
+  assert.equal(markdownFromState(tabIndentedTodoState), '\t+ [ ] Task')
+  assert.deepEqual(nanoBlocksFromProseMirror(tabIndentedTodoState.doc), [
+    { id: 'b1', type: 'todo', checked: false, indent: 2, indentText: '\t', marker: '+', text: 'Task', marks: [] },
+  ])
+
+  const indentedOrderedState = typeShortcutText(paragraphSelectionState('Task', 0), '    003. ')
+  assert.equal(markdownFromState(indentedOrderedState), '    003. Task')
+  assert.deepEqual(nanoBlocksFromProseMirror(indentedOrderedState.doc), [
+    { id: 'b1', type: 'list_item', kind: 'ordered', indent: 2, start: 3, orderedStartText: '003', text: 'Task', marks: [] },
   ])
 })
 

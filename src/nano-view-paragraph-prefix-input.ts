@@ -1,5 +1,10 @@
 import type { ResolvedPos } from 'prosemirror-model'
 import { EditorState, TextSelection, type Transaction } from 'prosemirror-state'
+import {
+  markdownIndentLevel,
+  markdownIndentText,
+  orderedStartTemplateAttrs,
+} from './nano-block-option-list-values'
 import { nanoNodeNames } from './prosemirror-names'
 
 export function paragraphPrefixInputTransaction(
@@ -21,33 +26,33 @@ export function paragraphPrefixInputTransaction(
     })
   }
 
-  const todoMatch = /^([-*+]) \[([ xX])\] $/.exec(source)
+  const todoMatch = /^([ \t]*)([-*+]) \[([ xX])\] $/.exec(source)
   if (todoMatch) {
-    const checkedMarker = todoMatch[2] === 'X' ? 'X' : 'x'
+    const checkedMarker = todoMatch[3] === 'X' ? 'X' : 'x'
     return replaceParagraphPrefix(state, $from, nanoNodeNames.todo, {
-      checked: todoMatch[2]?.toLowerCase() === 'x',
-      marker: todoMatch[1],
+      ...listIndentAttrs(todoMatch[1] ?? ''),
+      checked: todoMatch[3]?.toLowerCase() === 'x',
+      marker: todoMatch[2],
       checkedMarker,
     })
   }
 
-  const bulletMatch = /^([-*+]) $/.exec(source)
+  const bulletMatch = /^([ \t]*)([-*+]) $/.exec(source)
   if (bulletMatch) {
     return replaceParagraphPrefix(state, $from, nanoNodeNames.listItem, {
+      ...listIndentAttrs(bulletMatch[1] ?? ''),
       kind: 'bullet',
-      marker: bulletMatch[1],
+      marker: bulletMatch[2],
     })
   }
 
-  const orderedMatch = /^(\d+)([.)]) $/.exec(source)
+  const orderedMatch = /^([ \t]*)(\d+)([.)]) $/.exec(source)
   if (orderedMatch) {
-    const orderedStartText = orderedMatch[1] ?? '1'
-    const start = Math.max(1, Number(orderedStartText))
     return replaceParagraphPrefix(state, $from, nanoNodeNames.listItem, {
+      ...listIndentAttrs(orderedMatch[1] ?? ''),
       kind: 'ordered',
-      start,
-      orderedStartText: orderedStartText === String(start) ? null : orderedStartText,
-      orderedMarker: orderedMatch[2],
+      ...orderedStartTemplateAttrs(orderedMatch[2]),
+      orderedMarker: orderedMatch[3],
     })
   }
 
@@ -69,4 +74,12 @@ function replaceParagraphPrefix(
   const transaction = state.tr.replaceWith(blockPosition, blockPosition + block.nodeSize, node)
   transaction.setSelection(TextSelection.create(transaction.doc, blockPosition + 1))
   return transaction
+}
+
+function listIndentAttrs(rawIndent: string): { indent: number; indentText?: string } {
+  const rawIndentText = markdownIndentText(rawIndent)
+  return {
+    indent: markdownIndentLevel(rawIndent),
+    ...(rawIndentText ? { indentText: rawIndentText } : {}),
+  }
 }
