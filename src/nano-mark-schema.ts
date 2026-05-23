@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { NonBlankStringSchema } from './nano-block-schema-refinements'
 
 const MarkRangeBaseSchema = z.object({
   from: z.number().int().nonnegative(),
@@ -23,24 +24,24 @@ export const NanoMarkSchema = z.discriminatedUnion('type', [
   }),
   MarkRangeBaseSchema.extend({
     type: z.literal('tag'),
-    name: z.string(),
+    name: NonBlankStringSchema,
   }),
   MarkRangeBaseSchema.extend({
     type: z.literal('note_link'),
-    target: z.string(),
+    target: NonBlankStringSchema,
     alias: z.string().optional(),
   }),
   MarkRangeBaseSchema.extend({
     type: z.literal('math'),
-    formula: z.string(),
+    formula: NonBlankStringSchema,
   }),
   MarkRangeBaseSchema.extend({
     type: z.literal('footnote_ref'),
-    name: z.string(),
+    name: NonBlankStringSchema,
   }),
   MarkRangeBaseSchema.extend({
     type: z.literal('link'),
-    href: z.string(),
+    href: NonBlankStringSchema,
     destinationStyle: z.enum(['angle']).optional(),
     title: z.string().optional(),
     syntax: z.enum(['autolink', 'bare']).optional(),

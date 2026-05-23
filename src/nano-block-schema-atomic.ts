@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import { NanoBlockIdSchema } from './nano-block-id-schema'
-import { addArrayLengthIssue } from './nano-block-schema-refinements'
+import {
+  NonBlankStringSchema,
+  addArrayLengthIssue,
+} from './nano-block-schema-refinements'
 
 const TableAlignSchema = z.enum(['left', 'center', 'right']).nullable()
 const TableSeparatorCellSchema = z.string().regex(/^:?-{3,}:?$/)
@@ -54,7 +57,7 @@ export const atomicBlockSchemas = [
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('bookmark'),
-    href: z.string(),
+    href: NonBlankStringSchema,
     label: z.string().optional(),
     title: z.string().optional(),
     destinationStyle: z.enum(['angle']).optional(),
@@ -63,18 +66,18 @@ export const atomicBlockSchemas = [
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('note_ref'),
-    target: z.string(),
+    target: NonBlankStringSchema,
     alias: z.string().optional(),
   }),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('tag_ref'),
-    name: z.string(),
+    name: NonBlankStringSchema,
   }),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('attachment'),
-    src: z.string(),
+    src: NonBlankStringSchema,
     label: z.string().optional(),
     title: z.string().optional(),
     destinationStyle: z.enum(['angle']).optional(),
@@ -88,7 +91,7 @@ export const atomicBlockSchemas = [
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('image'),
-    src: z.string(),
+    src: NonBlankStringSchema,
     alt: z.string().optional(),
     destinationStyle: z.enum(['angle']).optional(),
     title: z.string().optional(),

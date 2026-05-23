@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+export const NonBlankStringSchema = z.string().refine((value) => value.trim().length > 0, {
+  message: 'Value must not be blank',
+})
+
 export function textLineCount(text: string): number {
   return text.split('\n').length
 }

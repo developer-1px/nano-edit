@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { createTodoBlockSchema } from './capabilities/todo/schema'
 import { createTextBlockBaseSchema } from './capabilities/text-block-schema'
 import {
+  NonBlankStringSchema,
   addArrayLengthIssue,
   continuationLineCount,
   textLineCount,
@@ -52,7 +53,7 @@ const ListItemBlockSchema = TextBlockBaseSchema.extend({
 
 const FootnoteBlockSchema = TextBlockBaseSchema.extend({
   type: z.literal('footnote'),
-  name: z.string(),
+  name: NonBlankStringSchema,
   footnoteContinuationIndents: ContinuationIndentsSchema.optional(),
   footnoteTextSpacing: z.enum(['space', 'none']).optional(),
 }).superRefine((block, ctx) => {

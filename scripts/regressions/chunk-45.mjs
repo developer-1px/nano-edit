@@ -71,6 +71,29 @@ test('Nano schema rejects blank ids and invalid mark ranges before runtime', () 
   }).success, false)
 })
 
+test('Nano schema rejects blank reference targets before runtime', () => {
+  for (const block of [
+    { id: 'bookmark', type: 'bookmark', href: '   ' },
+    { id: 'note', type: 'note_ref', target: '   ' },
+    { id: 'tag', type: 'tag_ref', name: '   ' },
+    { id: 'attachment', type: 'attachment', src: '   ' },
+    { id: 'image', type: 'image', src: '   ' },
+    { id: 'footnote', type: 'footnote', name: '   ', text: '', marks: [] },
+  ]) {
+    assert.equal(NanoBlockSchema.safeParse(block).success, false)
+  }
+
+  for (const mark of [
+    { type: 'tag', name: '   ', from: 0, to: 1 },
+    { type: 'note_link', target: '   ', from: 0, to: 1 },
+    { type: 'math', formula: '   ', from: 0, to: 1 },
+    { type: 'footnote_ref', name: '   ', from: 0, to: 1 },
+    { type: 'link', href: '   ', from: 0, to: 1 },
+  ]) {
+    assert.equal(NanoMarkSchema.safeParse(mark).success, false)
+  }
+})
+
 test('Nano schema rejects malformed table block structure before runtime', () => {
   assert.equal(NanoBlockSchema.safeParse({
     id: 'table',
