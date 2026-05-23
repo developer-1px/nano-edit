@@ -168,6 +168,13 @@ test('Gutter and toolbar labels stay compact without raw Markdown trigger titles
   assert.equal(toolbarRuntime.includes("button('MD'"), false)
   assert(toolbarRuntime.includes("Copy as CopyIcon"))
   assert(toolbarRuntime.includes("button('', 'Copy'"))
+  assert(toolbarPicker.includes("from 'lucide'"))
+  assert(toolbarPicker.includes('blockPickerIcon(title)'))
+  assert(toolbarPicker.includes("markToolbarIcon(option.toolbar.title)"))
+  assert(toolbarPicker.includes("blockToolbarIcon(option.toolbar.title)"))
+  for (const iconName of ['Bold', 'Italic', 'Underline', 'Strikethrough', 'Highlighter', 'Code2', 'Heading1', 'Heading6', 'ListTodo', 'ListOrdered', 'NotebookText', 'TableIcon']) {
+    assert(toolbarPicker.includes(iconName), `toolbar should map ${iconName} icon`)
+  }
   assert.equal(blockUiElements.includes('nano-block-add'), false)
   assert.equal(blockUiElements.includes('nano-block-handle'), false)
   assert(blockUiElements.includes("button.dataset.md = option.markdownTrigger ?? ''"))
