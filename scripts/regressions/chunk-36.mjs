@@ -1,0 +1,70 @@
+import { createNanoInspectorMarkdownRuntime } from '../../src/nano-view-inspector-markdown.ts'
+import { assert, test, textState } from './harness.mjs'
+
+class FakeElement {
+  constructor(tagName) {
+    this.tagName = tagName
+    this.children = []
+    this.dataset = {}
+    this.listeners = []
+  }
+
+  addEventListener(...args) {
+    this.listeners.push(args)
+  }
+
+  focus() {
+    this.focusCount = (this.focusCount ?? 0) + 1
+  }
+
+  querySelector(selector) {
+    if (selector !== 'textarea[data-active="true"]') return null
+    return this.children.find((child) => child.tagName === 'textarea' && child.dataset.active === 'true') ?? null
+  }
+
+  replaceChildren(...children) {
+    this.children = children
+  }
+}
+
+test('Source command focuses the active Markdown source editor', () => {
+  const originalDocument = globalThis.document
+  const markdownOutput = new FakeElement('div')
+  const shellCalls = []
+
+  globalThis.document = {
+    createElement: (tagName) => new FakeElement(tagName),
+  }
+
+  try {
+    const runtime = createNanoInspectorMarkdownRuntime(
+      {
+        collapsedBlockIds: new Set(),
+        markdownOutput,
+        shell: {
+          showInspector: (tab) => shellCalls.push(tab),
+        },
+        view: {
+          state: textState('draft source'),
+        },
+      },
+      {
+        selectBlockById: () => {},
+      },
+    )
+
+    assert.equal(runtime.focusActiveMarkdownSource(), true)
+  } finally {
+    if (originalDocument === undefined) {
+      delete globalThis.document
+    } else {
+      globalThis.document = originalDocument
+    }
+  }
+
+  assert.deepEqual(shellCalls, ['markdown'])
+  assert.equal(markdownOutput.children.length, 1)
+  assert.equal(markdownOutput.children[0].tagName, 'textarea')
+  assert.equal(markdownOutput.children[0].dataset.blockId, 'b1')
+  assert.equal(markdownOutput.children[0].focusCount, 1)
+})

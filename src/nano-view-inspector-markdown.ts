@@ -21,10 +21,20 @@ export function createNanoInspectorMarkdownRuntime(ctx: NanoViewContext, navigat
     if (!activeId) return false
 
     ctx.shell.showInspector('markdown')
+    renderMarkdown()
+    const editor = activeMarkdownSourceEditor(ctx.markdownOutput, activeId)
+    if (!editor) return false
+
+    editor.focus()
     return true
   }
 
   return { focusActiveMarkdownSource, renderMarkdown }
+}
+
+function activeMarkdownSourceEditor(output: HTMLElement, blockId: string): HTMLTextAreaElement | null {
+  const editor = output.querySelector<HTMLTextAreaElement>('textarea[data-active="true"]')
+  return editor?.dataset.blockId === blockId ? editor : null
 }
 
 function markdownBlockControl(
