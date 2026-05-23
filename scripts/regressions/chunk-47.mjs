@@ -130,6 +130,12 @@ test('ProseMirror conversion drops blank reference marks before schema validatio
   assert.equal(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.math].create({ formula: '   ' }), 0, 1), null)
   assert.equal(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.footnoteRef].create({ name: '   ' }), 0, 1), null)
   assert.equal(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.link].create({ href: '   ' }), 0, 1), null)
+  assert.deepEqual(nanoMarkFromProseMirrorMark(marks[nanoMarkNames.link].create({ href: '  https://example.com  ' }), 0, 4), {
+    type: 'link',
+    from: 0,
+    to: 4,
+    href: 'https://example.com',
+  })
 })
 
 test('ProseMirror conversion degrades blank reference atoms before schema validation', () => {
@@ -151,6 +157,21 @@ test('ProseMirror conversion degrades blank reference atoms before schema valida
     { id: 'image', type: 'paragraph', text: 'Image alt', marks: [] },
   ])
   assert.deepEqual(NanoDocumentSchema.parse(document), document)
+
+  const trimmed = nanoDocumentFromProseMirror(nodes[nanoNodeNames.doc].create(null, [
+    nodes[nanoNodeNames.bookmark].create({ id: 'trimmed-bookmark', href: '  https://example.com  ' }),
+    nodes[nanoNodeNames.noteRef].create({ id: 'trimmed-note', target: '  Note Title  ' }),
+    nodes[nanoNodeNames.attachment].create({ id: 'trimmed-attachment', src: '  file.pdf  ' }),
+    nodes[nanoNodeNames.image].create({ id: 'trimmed-image', src: '  image.png  ' }),
+  ]))
+
+  assert.deepEqual(trimmed.blocks, [
+    { id: 'trimmed-bookmark', type: 'bookmark', href: 'https://example.com' },
+    { id: 'trimmed-note', type: 'note_ref', target: 'Note Title' },
+    { id: 'trimmed-attachment', type: 'attachment', src: 'file.pdf' },
+    { id: 'trimmed-image', type: 'image', src: 'image.png' },
+  ])
+  assert.deepEqual(NanoDocumentSchema.parse(trimmed), trimmed)
 })
 
 test('ProseMirror DOM parsing rejects blank reference marks before attr creation', () => {
@@ -160,8 +181,8 @@ test('ProseMirror DOM parsing rejects blank reference marks before attr creation
   assert.equal(parseAttrs(referenceMarkSpecs[nanoMarkNames.footnoteRef], element({ dataset: { name: '   ' } })), false)
   assert.equal(parseAttrs(linkMarkSpec, element({ attrs: { href: '   ' } })), false)
 
-  assert.deepEqual(parseAttrs(referenceMarkSpecs[nanoMarkNames.tag], element({ dataset: { tag: 'release' } })), { name: 'release' })
-  assert.deepEqual(parseAttrs(linkMarkSpec, element({ attrs: { href: 'https://example.com' } })), {
+  assert.deepEqual(parseAttrs(referenceMarkSpecs[nanoMarkNames.tag], element({ dataset: { tag: '  release  ' } })), { name: 'release' })
+  assert.deepEqual(parseAttrs(linkMarkSpec, element({ attrs: { href: '  https://example.com  ' } })), {
     href: 'https://example.com',
     destinationStyle: '',
     title: '',
@@ -179,14 +200,14 @@ test('ProseMirror DOM parsing rejects blank reference atoms before attr creation
   assert.equal(parseAttrs(imageNodeSpec, element({ query: { img: element({ attrs: { src: '   ' } }) } })), false)
   assert.equal(parseAttrs(imageNodeSpec, element({ attrs: { src: '   ' } }), 1), false)
 
-  assert.deepEqual(parseAttrs(bookmarkNodeSpec, element({ dataset: { href: 'https://example.com', label: 'Example' } })), {
+  assert.deepEqual(parseAttrs(bookmarkNodeSpec, element({ dataset: { href: '  https://example.com  ', label: 'Example' } })), {
     href: 'https://example.com',
     label: 'Example',
     title: '',
     destinationStyle: '',
     syntax: 'bare',
   })
-  assert.deepEqual(parseAttrs(imageNodeSpec, element({ attrs: { src: '/image.png', alt: 'Image' } }), 1), {
+  assert.deepEqual(parseAttrs(imageNodeSpec, element({ attrs: { src: '  /image.png  ', alt: 'Image' } }), 1), {
     src: '/image.png',
     alt: 'Image',
     title: '',

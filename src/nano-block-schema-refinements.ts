@@ -5,8 +5,8 @@ export const NonBlankStringSchema = z.string().refine((value) => value.trim().le
 })
 
 export function nonBlankStringValue(value: unknown): string | null {
-  const text = String(value ?? '')
-  return text.trim().length > 0 ? text : null
+  const text = String(value ?? '').trim()
+  return text.length > 0 ? text : null
 }
 
 export function textLineCount(text: string): number {
