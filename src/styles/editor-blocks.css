@@ -8,9 +8,6 @@
   overflow-wrap: anywhere;
 }
 
-.nano-block-active::before,
-.nano-block-handle,
-.nano-block-add,
 .nano-block-insert-picker {
   display: none;
 }

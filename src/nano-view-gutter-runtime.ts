@@ -10,11 +10,10 @@ import { createNanoGutterPickerRuntime } from './nano-view-gutter-picker-runtime
 
 export interface NanoGutterRuntime {
   closeGutterPicker: (refresh?: boolean) => void
-  handleBlockAddClick: (event: MouseEvent) => void
+  handleBlockInsertClick: (event: MouseEvent) => void
   handleBlockDragOver: (view: EditorView, event: DragEvent) => boolean
   handleBlockDragStart: (view: EditorView, event: DragEvent) => boolean
   handleBlockDrop: (view: EditorView, event: DragEvent) => boolean
-  handleBlockHandleClick: (event: MouseEvent) => void
   handleBlockInsertHover: (event: MouseEvent) => void
   handleBlockInsertKeydown: (event: KeyboardEvent) => void
   handleGutterOutsideClick: (event: MouseEvent) => void
@@ -31,11 +30,10 @@ export function createNanoGutterRuntime(ctx: NanoViewContext): NanoGutterRuntime
 
   return {
     closeGutterPicker: picker.closeGutterPicker,
-    handleBlockAddClick: click.handleBlockAddClick,
+    handleBlockInsertClick: click.handleBlockInsertClick,
     handleBlockDragOver: drag.handleBlockDragOver,
     handleBlockDragStart: drag.handleBlockDragStart,
     handleBlockDrop: drag.handleBlockDrop,
-    handleBlockHandleClick: click.handleBlockHandleClick,
     handleBlockInsertHover: click.handleBlockInsertHover,
     handleBlockInsertKeydown: keyboard.handleBlockInsertKeydown,
     handleGutterOutsideClick: click.handleGutterOutsideClick,

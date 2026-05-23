@@ -4,11 +4,21 @@ import {
   type BlockToolbarEntry,
   type BlockToolbarOption,
 } from './nano-block-options'
+import {
+  lucideIconElement,
+  type IconNode,
+} from './nano-icons'
 
-export function button(label: string, title: string, onClick: () => void): HTMLButtonElement {
+export function button(
+  label: string,
+  title: string,
+  onClick: () => void,
+  icon?: IconNode,
+): HTMLButtonElement {
   const button = document.createElement('button')
   button.type = 'button'
-  button.textContent = label
+  if (icon) button.append(lucideIconElement(icon, 'nano-toolbar-icon'))
+  else button.textContent = label
   button.title = title
   button.ariaLabel = title
   button.dataset.action = title.toLowerCase()

@@ -163,9 +163,10 @@ test('Gutter and toolbar labels stay compact without raw Markdown trigger titles
     assert.equal(toolbarPicker.includes(noisy), false)
   }
   assert.equal(toolbarRuntime.includes("button('MD'"), false)
-  assert(toolbarRuntime.includes("button('⎘', 'Copy'"))
-  assert(blockUiElements.includes("addButton.title = 'Add'"))
-  assert(blockUiElements.includes("handle.title = 'Move'"))
+  assert(toolbarRuntime.includes("Copy as CopyIcon"))
+  assert(toolbarRuntime.includes("button('', 'Copy'"))
+  assert.equal(blockUiElements.includes('nano-block-add'), false)
+  assert.equal(blockUiElements.includes('nano-block-handle'), false)
   assert(blockUiElements.includes("button.dataset.md = option.markdownTrigger ?? ''"))
 })
 

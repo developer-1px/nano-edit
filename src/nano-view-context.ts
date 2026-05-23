@@ -40,8 +40,7 @@ export interface NanoViewContext {
   gutterPickerTypeahead: string
   gutterPickerTypeaheadAt: number
   collapsedBlockIds: Set<string>
-  blockAddClickListener: (event: MouseEvent) => void
-  blockHandleClickListener: (event: MouseEvent) => void
+  blockInsertClickListener: (event: MouseEvent) => void
   blockInsertHoverListener: (event: MouseEvent) => void
   blockInsertKeydownListener: (event: KeyboardEvent) => void
   gutterOutsideClickListener: (event: MouseEvent) => void

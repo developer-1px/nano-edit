@@ -75,26 +75,3 @@ export function blockOptionTitle(option: BlockOption): string {
 function domIdPart(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]/g, (character) => `-${character.charCodeAt(0).toString(16)}-`)
 }
-
-export function blockAddElement(id: string): HTMLElement {
-  const addButton = document.createElement('button')
-  addButton.type = 'button'
-  addButton.className = 'nano-block-add'
-  addButton.contentEditable = 'false'
-  addButton.dataset.blockId = id
-  addButton.title = 'Add'
-  addButton.ariaLabel = 'Add'
-  return addButton
-}
-
-export function blockHandleElement(id: string): HTMLElement {
-  const handle = document.createElement('span')
-  handle.className = 'nano-block-handle'
-  handle.contentEditable = 'false'
-  handle.draggable = true
-  handle.dataset.blockId = id
-  handle.title = 'Move'
-  handle.ariaLabel = 'Move'
-  handle.setAttribute('aria-hidden', 'true')
-  return handle
-}

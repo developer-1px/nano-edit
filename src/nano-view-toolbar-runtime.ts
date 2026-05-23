@@ -1,3 +1,15 @@
+import {
+  ArrowDown,
+  ArrowUp,
+  Copy as CopyIcon,
+  CopyPlus,
+  FileCode2,
+  IndentDecrease,
+  IndentIncrease,
+  Redo2,
+  Trash2,
+  Undo2,
+} from 'lucide'
 import { button } from './nano-view-toolbar-controls'
 import { installToolbarBlockPicker } from './nano-view-toolbar-picker'
 import { refreshToolbarState } from './nano-view-toolbar-state'
@@ -19,16 +31,16 @@ export function createNanoToolbarRuntime(
   function installToolbar(): void {
     ctx.toolbar.replaceChildren(
       ...installToolbarBlockPicker(ctx, actions, toggleBlockPicker),
-      button('↑', 'Move Up', () => actions.runMoveActiveBlock('up')),
-      button('↓', 'Move Down', () => actions.runMoveActiveBlock('down')),
-      button('⇥', 'Indent', () => actions.runIndentActiveBlock('in')),
-      button('⇤', 'Outdent', () => actions.runIndentActiveBlock('out')),
-      button('⧉', 'Duplicate', () => actions.runDuplicateActiveBlock()),
-      button('⌫', 'Delete', () => actions.runDeleteActiveBlock()),
-      button('</>', 'Source', () => actions.runFocusActiveMarkdownSource()),
-      button('⎘', 'Copy', () => actions.copyMarkdown()),
-      button('↶', 'Undo', () => actions.restoreHistory('undo')),
-      button('↷', 'Redo', () => actions.restoreHistory('redo')),
+      button('', 'Move Up', () => actions.runMoveActiveBlock('up'), ArrowUp),
+      button('', 'Move Down', () => actions.runMoveActiveBlock('down'), ArrowDown),
+      button('', 'Indent', () => actions.runIndentActiveBlock('in'), IndentIncrease),
+      button('', 'Outdent', () => actions.runIndentActiveBlock('out'), IndentDecrease),
+      button('', 'Duplicate', () => actions.runDuplicateActiveBlock(), CopyPlus),
+      button('', 'Delete', () => actions.runDeleteActiveBlock(), Trash2),
+      button('', 'Source', () => actions.runFocusActiveMarkdownSource(), FileCode2),
+      button('', 'Copy', () => actions.copyMarkdown(), CopyIcon),
+      button('', 'Undo', () => actions.restoreHistory('undo'), Undo2),
+      button('', 'Redo', () => actions.restoreHistory('redo'), Redo2),
     )
   }
 

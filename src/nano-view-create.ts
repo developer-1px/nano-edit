@@ -81,8 +81,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
     },
     dispatchTransaction: (transaction) => engine().dispatchProseMirrorTransaction(transaction),
   })
-  ctx.editor.addEventListener('click', ctx.blockAddClickListener)
-  ctx.editor.addEventListener('click', ctx.blockHandleClickListener)
+  ctx.editor.addEventListener('click', ctx.blockInsertClickListener)
   ctx.editor.addEventListener('mouseover', ctx.blockInsertHoverListener)
   ctx.editor.addEventListener('keydown', ctx.blockInsertKeydownListener, true)
   document.addEventListener('click', ctx.gutterOutsideClickListener)

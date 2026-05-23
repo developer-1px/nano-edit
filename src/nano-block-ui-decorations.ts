@@ -12,7 +12,7 @@ import {
   decorateHeadingNode,
   decorateListNode,
 } from './nano-block-ui-decoration-nodes'
-import { blockAddElement, blockHandleElement, blockInsertPickerElement } from './nano-block-ui-elements'
+import { blockInsertPickerElement } from './nano-block-ui-elements'
 import type { GutterPickerAction } from './nano-block-ui-types'
 
 export function blockOptionIdForBlockId(doc: ProseMirrorNode, id: string): string | null {
@@ -45,15 +45,12 @@ export function blockUiDecorations(
   if (block) {
     const id = typeof block.node.attrs.id === 'string' ? block.node.attrs.id : ''
     if (!hiddenBlockIds.has(id)) {
-      const blockAddWidget = id && id === gutterPickerBlockId
-        ? blockInsertPickerElement(id, gutterPickerOptionId, gutterPickerAction ?? 'insert', gutterPickerTypeahead)
-        : blockAddElement(id)
       decorations.push(
         Decoration.node(block.from, block.to, { class: 'nano-block-active' }),
-        Decoration.widget(block.to, () => blockAddWidget, {
-          key: id === gutterPickerBlockId
-            ? `block-picker:${gutterPickerAction ?? 'insert'}:${id || block.to}:${gutterPickerOptionId ?? ''}:${gutterPickerTypeahead}`
-            : `block-add:${id || block.to}`,
+      )
+      if (id && id === gutterPickerBlockId) decorations.push(
+        Decoration.widget(block.to, () => blockInsertPickerElement(id, gutterPickerOptionId, gutterPickerAction ?? 'insert', gutterPickerTypeahead), {
+          key: `block-picker:${gutterPickerAction ?? 'insert'}:${id}:${gutterPickerOptionId ?? ''}:${gutterPickerTypeahead}`,
           side: 1,
         }),
       )
@@ -63,7 +60,6 @@ export function blockUiDecorations(
   const orderedListIndexes: number[] = []
   for (const range of collapseRanges) {
     const { node, from: offset } = range
-    const id = blockId(node)
     if (range.hidden) {
       decorations.push(Decoration.node(offset, offset + node.nodeSize, { class: 'nano-block-collapsed-child' }))
       continue
@@ -74,10 +70,6 @@ export function blockUiDecorations(
       orderedListIndexes.length = 0
       decorateHeadingNode(decorations, node, offset, range.collapsible, range.collapsed)
     }
-    decorations.push(Decoration.widget(offset, () => blockHandleElement(id), {
-      key: `block-handle:${id || offset}`,
-      side: -1,
-    }))
   }
 
   return DecorationSet.create(state.doc, decorations)

@@ -1,4 +1,8 @@
 import {
+  Pilcrow,
+  Plus,
+} from 'lucide'
+import {
   blockOptions,
 } from './nano-block-options'
 import { blockOptionTitle } from './nano-block-ui'
@@ -32,8 +36,8 @@ export function installToolbarBlockPicker(
       option.toolbar.title,
       () => actions.runBlockTemplate(option.template),
     )),
-    button('¶', 'Change', () => toggleBlockPicker('convert')),
-    button('+', 'Add', () => toggleBlockPicker('insert')),
+    button('', 'Change', () => toggleBlockPicker('convert'), Pilcrow),
+    button('', 'Add', () => toggleBlockPicker('insert'), Plus),
     ctx.blockPicker,
   ]
 }

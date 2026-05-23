@@ -5,8 +5,7 @@ export function installNanoGutterListeners(
   ctx: NanoViewContext,
   gutter: NanoGutterRuntime,
 ): void {
-  ctx.blockAddClickListener = (event) => gutter.handleBlockAddClick(event)
-  ctx.blockHandleClickListener = (event) => gutter.handleBlockHandleClick(event)
+  ctx.blockInsertClickListener = (event) => gutter.handleBlockInsertClick(event)
   ctx.blockInsertHoverListener = (event) => gutter.handleBlockInsertHover(event)
   ctx.blockInsertKeydownListener = (event) => gutter.handleBlockInsertKeydown(event)
   ctx.gutterOutsideClickListener = (event) => gutter.handleGutterOutsideClick(event)
@@ -15,8 +14,7 @@ export function installNanoGutterListeners(
 export function destroyNanoView(ctx: NanoViewContext): void {
   if (ctx.destroyed) return
   ctx.destroyed = true
-  ctx.editor.removeEventListener('click', ctx.blockAddClickListener)
-  ctx.editor.removeEventListener('click', ctx.blockHandleClickListener)
+  ctx.editor.removeEventListener('click', ctx.blockInsertClickListener)
   ctx.editor.removeEventListener('mouseover', ctx.blockInsertHoverListener)
   ctx.editor.removeEventListener('keydown', ctx.blockInsertKeydownListener, true)
   document.removeEventListener('click', ctx.gutterOutsideClickListener)

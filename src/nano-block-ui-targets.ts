@@ -1,10 +1,5 @@
 import type { DropPlacement } from './nano-block-ui-types'
 
-export function blockAddFromEventTarget(target: EventTarget | null): HTMLElement | null {
-  const element = target instanceof Element ? target : null
-  return element?.closest<HTMLElement>('.nano-block-add') ?? null
-}
-
 export function blockInsertPickerFromEventTarget(target: EventTarget | null): HTMLElement | null {
   const element = target instanceof Element ? target : null
   return element?.closest<HTMLElement>('.nano-block-insert-picker') ?? null
@@ -13,11 +8,6 @@ export function blockInsertPickerFromEventTarget(target: EventTarget | null): HT
 export function blockInsertOptionFromEventTarget(target: EventTarget | null): HTMLElement | null {
   const element = target instanceof Element ? target : null
   return element?.closest<HTMLElement>('.nano-block-insert-option') ?? null
-}
-
-export function blockHandleFromEventTarget(target: EventTarget | null): HTMLElement | null {
-  const element = target instanceof Element ? target : null
-  return element?.closest<HTMLElement>('.nano-block-handle') ?? null
 }
 
 export function blockDropTargetFromEvent(root: HTMLElement, event: DragEvent): {

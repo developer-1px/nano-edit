@@ -1,9 +1,7 @@
 import type { EditorView } from 'prosemirror-view'
 import {
   blockDropTargetFromEvent,
-  blockHandleFromEventTarget,
   clearBlockDragState,
-  markBlockDragSource,
   markBlockDropTarget,
 } from './nano-block-ui'
 import { BLOCK_DRAG_MIME, type NanoViewContext } from './nano-view-context'
@@ -20,15 +18,9 @@ export function createNanoGutterDragRuntime(
   ctx: NanoViewContext,
   picker: NanoGutterPickerRuntime,
 ): NanoGutterDragRuntime {
-  const handleBlockDragStart = (view: EditorView, event: DragEvent): boolean => {
-    const handle = blockHandleFromEventTarget(event.target)
-    const id = handle?.dataset.blockId
-    if (!id || !event.dataTransfer) return false
-
-    event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData(BLOCK_DRAG_MIME, id)
-    markBlockDragSource(view.dom, id)
-    return true
+  const handleBlockDragStart = (view: EditorView, _event: DragEvent): boolean => {
+    clearBlockDragState(view.dom)
+    return false
   }
 
   const handleBlockDragOver = (view: EditorView, event: DragEvent): boolean => {
