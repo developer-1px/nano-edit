@@ -20,3 +20,22 @@ export {
   type NanoViewHandle,
   type NanoViewOptions,
 } from './nano-view'
+export {
+  nanoDocumentFromMarkdown,
+  nanoMarkdownBlocksFromDocument,
+  nanoMarkdownFromDocument,
+  type NanoMarkdownBlockEntry,
+} from './nano-markdown'
+export {
+  nanoDocumentIndex,
+  nanoDocumentIndexText,
+  nanoDocumentSearch,
+  type AttachmentIndexEntry,
+  type BacklinkIndexEntry,
+  type ImageIndexEntry,
+  type IndexEntry,
+  type NanoDocumentIndex,
+  type NanoDocumentSearchResult,
+  type NanoSpecialSearch,
+  type TableIndexEntry,
+} from './nano-document-index'
