@@ -7,7 +7,7 @@ export const commandPartCatalog = [
     category: 'command',
     summary: 'Change the active block type while preserving compatible text and source metadata.',
     surfaces: ['command', 'block-option', 'prosemirror-adapter'],
-    pairsWith: ['view.block-toolbar', 'input.typeahead-picker'],
+    pairsWith: ['view.command-palette', 'runtime.selection'],
   },
   {
     id: 'command.block-insert',
@@ -15,7 +15,7 @@ export const commandPartCatalog = [
     category: 'command',
     summary: 'Insert a selected block type after the active block or by block id.',
     surfaces: ['command', 'block-option', 'prosemirror-adapter'],
-    pairsWith: ['input.typeahead-picker'],
+    pairsWith: ['view.command-palette'],
   },
   {
     id: 'command.block-move',

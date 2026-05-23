@@ -5,17 +5,9 @@ export const viewPartCatalog = [
     id: 'view.editor-host',
     label: 'Editor host view',
     category: 'view',
-    summary: 'Mountable host that wires engine state, ProseMirror view, toolbar, and inspectors.',
+    summary: 'Mountable host that wires engine state, ProseMirror view, command palette, and inspectors.',
     surfaces: ['view', 'prosemirror-adapter'],
     pairsWith: ['codec.prosemirror-adapter', 'runtime.json-document'],
-  },
-  {
-    id: 'view.block-toolbar',
-    label: 'Block toolbar',
-    category: 'view',
-    summary: 'Toolbar surface generated from block and mark option metadata.',
-    surfaces: ['view', 'block-option', 'mark-option'],
-    pairsWith: ['command.block-convert', 'input.typeahead-picker'],
   },
   {
     id: 'view.markdown-source',
@@ -24,5 +16,13 @@ export const viewPartCatalog = [
     summary: 'Inspector and inline source editing surface for Markdown-visible document state.',
     surfaces: ['view', 'markdown-codec'],
     pairsWith: ['codec.markdown-source-preservation', 'command.copy-markdown'],
+  },
+  {
+    id: 'view.command-palette',
+    label: 'Command palette',
+    category: 'view',
+    summary: 'Minimal command surface for block, mark, history, document, and inspector actions.',
+    surfaces: ['view', 'command', 'keyboard'],
+    pairsWith: ['command.block-convert', 'command.block-insert', 'input.keyboard-map'],
   },
 ] as const satisfies readonly EditorPartCatalogItem[]

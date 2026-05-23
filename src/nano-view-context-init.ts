@@ -10,8 +10,6 @@ export function createNanoViewContext(options: NanoViewOptions): NanoViewContext
   return {
     engine: options.engine,
     root: document.createElement('section'),
-    toolbar: document.createElement('div'),
-    blockPicker: document.createElement('div'),
     editor: document.createElement('div'),
     shell: null as unknown as NanoShell,
     indexOutput: null as unknown as HTMLElement,
@@ -21,7 +19,6 @@ export function createNanoViewContext(options: NanoViewOptions): NanoViewContext
     lastTextMergePath: null as Pointer | null,
     lastTextMergeAt: 0,
     indexSearchQuery: '',
-    blockPickerMode: 'insert',
     collapsedBlockIds: new Set<string>(),
     slashKeydownListener: () => undefined,
   }

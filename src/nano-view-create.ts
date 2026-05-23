@@ -3,7 +3,6 @@ import { createNanoGutterRuntime } from './nano-view-gutter-runtime'
 import { createNanoInputRuntime } from './nano-view-input-runtime'
 import { createNanoInspectorRuntime } from './nano-view-inspector-runtime'
 import { createNanoKeymapRuntime } from './nano-view-keymap-runtime'
-import { createNanoToolbarRuntime } from './nano-view-toolbar-runtime'
 import {
   createNanoEngineRuntime,
   type NanoEngineRuntime,
@@ -37,19 +36,6 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
   const runners = createNanoViewCommandRunners(ctx, keymaps, {
     engine,
     inspector,
-    toolbar: () => toolbar,
-  })
-  const toolbar = createNanoToolbarRuntime(ctx, {
-    copyMarkdown: () => engine().copyMarkdown(),
-    restoreHistory: (direction) => engine().restoreHistory(direction),
-    runBlockTemplate: runners.runBlockTemplate,
-    runBlockPickerTemplate: runners.runBlockPickerTemplate,
-    runDeleteActiveBlock: runners.runDeleteActiveBlock,
-    runDuplicateActiveBlock: runners.runDuplicateActiveBlock,
-    runFocusActiveMarkdownSource: runners.runFocusActiveMarkdownSource,
-    runIndentActiveBlock: runners.runIndentActiveBlock,
-    runMarkCommand: runners.runMarkCommand,
-    runMoveActiveBlock: runners.runMoveActiveBlock,
   })
   const input = createNanoInputRuntime(ctx, gutter, inspector, {
     restoreHistory: (direction) => engine().restoreHistory(direction),
@@ -60,7 +46,6 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
   engineRuntime = createNanoEngineRuntime(ctx, {
     createEditorState: (doc) => createNanoEditorState(ctx, input, keymaps, doc),
     inspector,
-    toolbar,
   })
 
   installNanoGutterListeners(ctx, gutter)
@@ -69,7 +54,6 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
     inspector,
     runners,
   })
-  toolbar.installToolbar()
   ctx.view = new EditorView(ctx.editor, {
     state: createNanoEditorState(ctx, input, keymaps),
     attributes: {

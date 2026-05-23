@@ -3,7 +3,6 @@ import { assert, test } from './harness.mjs'
 
 function commandRunnersWithDeleteResult(commandResult) {
   const calls = {
-    close: 0,
     focus: 0,
     sync: 0,
   }
@@ -30,11 +29,6 @@ function commandRunnersWithDeleteResult(commandResult) {
       inspector: {
         focusActiveMarkdownSource: () => false,
       },
-      toolbar: () => ({
-        closeBlockPicker: () => {
-          calls.close += 1
-        },
-      }),
     },
   )
   return { calls, runners }
@@ -42,7 +36,6 @@ function commandRunnersWithDeleteResult(commandResult) {
 
 function commandRunnersWithSourceResult(sourceResult) {
   const calls = {
-    close: 0,
     focus: 0,
     source: 0,
     sync: 0,
@@ -69,44 +62,39 @@ function commandRunnersWithSourceResult(sourceResult) {
           return sourceResult
         },
       },
-      toolbar: () => ({
-        closeBlockPicker: () => {
-          calls.close += 1
-        },
-      }),
     },
   )
   return { calls, runners }
 }
 
-test('Command runner keeps picker and focus stable when keymap command fails', () => {
+test('Command runner keeps focus stable when keymap command fails', () => {
   const { calls, runners } = commandRunnersWithDeleteResult(false)
 
   runners.runDeleteActiveBlock()
 
-  assert.deepEqual(calls, { close: 0, focus: 0, sync: 1 })
+  assert.deepEqual(calls, { focus: 0, sync: 1 })
 })
 
-test('Command runner closes picker and restores focus when keymap command succeeds', () => {
+test('Command runner restores focus when keymap command succeeds', () => {
   const { calls, runners } = commandRunnersWithDeleteResult(true)
 
   runners.runDeleteActiveBlock()
 
-  assert.deepEqual(calls, { close: 1, focus: 1, sync: 1 })
+  assert.deepEqual(calls, { focus: 1, sync: 1 })
 })
 
-test('Source command keeps picker open when source focus fails', () => {
+test('Source command leaves editor focus alone when source focus fails', () => {
   const { calls, runners } = commandRunnersWithSourceResult(false)
 
   runners.runFocusActiveMarkdownSource()
 
-  assert.deepEqual(calls, { close: 0, focus: 0, source: 1, sync: 1 })
+  assert.deepEqual(calls, { focus: 0, source: 1, sync: 1 })
 })
 
-test('Source command closes picker without stealing textarea focus', () => {
+test('Source command does not steal textarea focus', () => {
   const { calls, runners } = commandRunnersWithSourceResult(true)
 
   runners.runFocusActiveMarkdownSource()
 
-  assert.deepEqual(calls, { close: 1, focus: 0, source: 1, sync: 1 })
+  assert.deepEqual(calls, { focus: 0, source: 1, sync: 1 })
 })

@@ -1,9 +1,9 @@
 import * as h from './harness.mjs'
 const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
-test('Editor part catalog exposes 50 usable assembly parts', () => {
-  assert.equal(editorPartCatalog.length, 50)
-  assert.equal(editorPartCatalogById.size, 50)
+test('Editor part catalog exposes 49 usable assembly parts', () => {
+  assert.equal(editorPartCatalog.length, 49)
+  assert.equal(editorPartCatalogById.size, 49)
 
   const ids = new Set(editorPartCatalog.map((part) => part.id))
   assert.equal(ids.size, editorPartCatalog.length)
@@ -95,4 +95,3 @@ test('zod-crud history restores Nano selection snapshots on undo and redo', () =
   assert.equal(engine.value.blocks[0].text, 'alpha beta')
   assert.deepEqual(engine.selection?.snapshot().focus, after)
 })
-

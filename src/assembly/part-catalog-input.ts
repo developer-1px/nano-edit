@@ -25,12 +25,4 @@ export const inputPartCatalog = [
     surfaces: ['keyboard', 'command'],
     pairsWith: ['runtime.history', 'command.block-move'],
   },
-  {
-    id: 'input.typeahead-picker',
-    label: 'Typeahead picker',
-    category: 'input',
-    summary: 'Block picker filtering by labels, titles, and Markdown triggers.',
-    surfaces: ['view', 'input-rule', 'command'],
-    pairsWith: ['view.block-toolbar', 'block.paragraph'],
-  },
 ] as const satisfies readonly EditorPartCatalogItem[]

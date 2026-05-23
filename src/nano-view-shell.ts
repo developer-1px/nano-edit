@@ -70,7 +70,6 @@ export function installNanoShell(
   ctx.indexOutput = ctx.shell.indexOutput
   ctx.markdownOutput = ctx.shell.markdownOutput
   ctx.root.append(
-    ctx.toolbar,
     ctx.editor,
     ctx.shell.inspectorElement,
     ctx.shell.inspectorTrigger,
@@ -82,11 +81,6 @@ export function installNanoShell(
 function prepareNanoRoot(ctx: NanoViewContext): void {
   ctx.root = document.createElement('section')
   ctx.root.className = 'nano'
-  ctx.toolbar = document.createElement('div')
-  ctx.toolbar.className = 'toolbar'
-  ctx.blockPicker = document.createElement('div')
-  ctx.blockPicker.className = 'block-picker'
-  ctx.blockPicker.hidden = true
   ctx.editor = document.createElement('div')
   ctx.editor.className = 'editor'
 }

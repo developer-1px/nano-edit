@@ -4,11 +4,6 @@
 @import './styles/inspector.css';
 @import './styles/command-palette.css';
 
-.block-picker-option::after {
-  content: attr(data-md);
-  display: none;
-}
-
 .nano-md-token:hover::before,
 .nano-md-token:hover::after,
 .nano-md-token:focus-within::before,

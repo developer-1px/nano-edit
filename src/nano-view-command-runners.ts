@@ -9,12 +9,9 @@ import { changeBlockByIdTransaction } from './nano-view-block-edit-transactions'
 import type { NanoEngineRuntime } from './nano-view-engine-runtime'
 import type { NanoInspectorRuntime } from './nano-view-inspector-runtime'
 import type { NanoKeymapRuntime } from './nano-view-keymap-runtime'
-import type { NanoToolbarRuntime } from './nano-view-toolbar-runtime'
 
 export interface NanoViewCommandRunners {
   runChangeBlockById: (id: string, template: BlockTemplate) => void
-  runBlockTemplate: (template: BlockTemplate) => void
-  runBlockPickerTemplate: (template: BlockTemplate) => void
   runDeleteActiveBlock: () => void
   runDuplicateActiveBlock: () => void
   runFocusActiveMarkdownSource: () => void
@@ -30,26 +27,19 @@ export function createNanoViewCommandRunners(
   deps: {
     engine: () => NanoEngineRuntime
     inspector: NanoInspectorRuntime
-    toolbar: () => NanoToolbarRuntime
   },
 ): NanoViewCommandRunners {
   const sync = () => deps.engine().syncSelectionFromDOM()
   const focus = () => ctx.view.focus()
-  const close = () => deps.toolbar().closeBlockPicker()
 
-  function runEditorCommand(command: () => boolean, options: { closeOnSuccess?: boolean } = {}): void {
+  function runEditorCommand(command: () => boolean): void {
     sync()
     if (!command()) return
-    if (options.closeOnSuccess) close()
     focus()
   }
 
   function runMarkCommand(option: MarkOption): void {
     runEditorCommand(() => markCommand(option)(ctx.view.state, ctx.view.dispatch, ctx.view))
-  }
-
-  function runBlockTemplate(template: BlockTemplate): void {
-    runEditorCommand(() => keymaps.changeActiveBlockCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view))
   }
 
   function runChangeBlockById(id: string, template: BlockTemplate): void {
@@ -63,38 +53,20 @@ export function createNanoViewCommandRunners(
   }
 
   function runInsertBlockAfterActive(template: BlockTemplate): void {
-    runEditorCommand(
-      () => keymaps.insertBlockAfterActiveCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view),
-      { closeOnSuccess: true },
-    )
-  }
-
-  function runChangeActiveBlock(template: BlockTemplate): void {
-    runEditorCommand(
-      () => keymaps.changeActiveBlockCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view),
-      { closeOnSuccess: true },
-    )
-  }
-
-  function runBlockPickerTemplate(template: BlockTemplate): void {
-    if (ctx.blockPickerMode === 'convert') runChangeActiveBlock(template)
-    else runInsertBlockAfterActive(template)
+    runEditorCommand(() => keymaps.insertBlockAfterActiveCommand(template)(ctx.view.state, ctx.view.dispatch, ctx.view))
   }
 
   function runKeymapCommand(command: () => boolean): void {
-    runEditorCommand(command, { closeOnSuccess: true })
+    runEditorCommand(command)
   }
 
   return {
     runChangeBlockById,
-    runBlockTemplate,
-    runBlockPickerTemplate,
     runDeleteActiveBlock: () => runKeymapCommand(() => keymaps.deleteActiveBlockCommand()(ctx.view.state, ctx.view.dispatch, ctx.view)),
     runDuplicateActiveBlock: () => runKeymapCommand(() => keymaps.duplicateActiveBlockCommand()(ctx.view.state, ctx.view.dispatch, ctx.view)),
     runFocusActiveMarkdownSource: () => {
       sync()
-      if (!deps.inspector.focusActiveMarkdownSource()) return
-      close()
+      deps.inspector.focusActiveMarkdownSource()
     },
     runIndentActiveBlock: (direction) => runKeymapCommand(() => keymaps.indentActiveBlockCommand(direction)(ctx.view.state, ctx.view.dispatch, ctx.view)),
     runInsertBlockAfterActive,

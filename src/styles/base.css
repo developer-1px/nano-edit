@@ -74,12 +74,6 @@ textarea:focus-visible {
   grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
 }
 
-.toolbar,
-.block-picker,
-.block-picker[hidden] {
-  display: none;
-}
-
 .editor {
   width: 100%;
   min-width: 0;
