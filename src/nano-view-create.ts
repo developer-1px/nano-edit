@@ -70,7 +70,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
     attributes: {
       role: 'textbox',
       'aria-multiline': 'true',
-      spellcheck: 'true',
+      spellcheck: 'false',
     },
     dispatchTransaction: (transaction) => engine().dispatchProseMirrorTransaction(transaction),
   })
