@@ -29,11 +29,12 @@ test('Hidden block picker chrome stays removed', () => {
 
 test('Inline Markdown delimiters stay hidden on hover and focus', () => {
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
-  const hoverRule = /\.nano-md-token:hover::before,[\s\S]*?\.nano-md-token:focus-within::after \{([\s\S]*?)\n\}/.exec(css)
+  const hoverRule = /\.nano \.nano-md-token:hover::before,[\s\S]*?\.nano \.nano-md-token:focus-within::after \{([\s\S]*?)\n\}/.exec(css)
   assert(hoverRule, 'inline delimiter hover/focus rule should be present')
   assert(hoverRule[1].includes('width: 0;'))
   assert(hoverRule[1].includes('opacity: 0;'))
   assert.equal(hoverRule[1].includes('width: auto;'), false)
+  assert.equal(/^\.nano-md-token:hover/m.test(css), false)
 })
 
 test('Accessible chrome avoids Markdown jargon outside explicit source actions', () => {
@@ -75,6 +76,7 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   assert.equal(main.includes('github-markdown-css'), false)
   assert.equal(packageJson.includes('github-markdown-css'), false)
   assert(viewCreate.includes("class: 'nano-document'"))
+  assert(viewCreate.includes("'aria-label': 'Document'"))
   assert(baseCss.includes('.nano-editor'))
   assert.equal(baseCss.includes('.editor'), false)
   assert.equal(viewCreate.includes('markdown-body'), false)
@@ -82,6 +84,12 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   assert(baseCss.includes('.nano .ProseMirror-selectednode'))
   assert.equal(baseCss.includes('#8cf'), false)
   assert.equal(baseCss.includes('markdown-body'), false)
+})
+
+test('Demo host language matches the compact Korean note', () => {
+  const indexHtml = readFileSync(new URL('../../index.html', import.meta.url), 'utf8')
+  assert(indexHtml.includes('<html lang="ko">'))
+  assert.equal(indexHtml.includes('<html lang="en">'), false)
 })
 
 test('Base styles stay scoped to the nano surface', () => {

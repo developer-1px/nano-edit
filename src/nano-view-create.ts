@@ -59,6 +59,7 @@ export function createNanoView(options: NanoViewOptions): NanoViewHandle {
     attributes: {
       class: 'nano-document',
       role: 'textbox',
+      'aria-label': 'Document',
       'aria-multiline': 'true',
       spellcheck: 'false',
     },
