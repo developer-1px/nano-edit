@@ -1,4 +1,4 @@
-import type { NanoBlock, NanoDocument } from './nano-core'
+import { NanoDocumentSchema, type NanoBlock, type NanoDocument } from './nano-core'
 import { markdownTodoBlock } from './capabilities/todo/markdown'
 import { inlineMarkdown } from './nano-markdown-inline-serialize'
 import { markdownTable } from './nano-markdown-table'
@@ -34,11 +34,12 @@ export interface NanoMarkdownBlockEntry {
 }
 
 export function nanoMarkdownFromDocument(document: NanoDocument): string {
+  const validDocument = NanoDocumentSchema.parse(document)
   let markdown = ''
   let previousBlock: NanoBlock | null = null
   const orderedListIndexes: number[] = []
 
-  for (const block of document.blocks) {
+  for (const block of validDocument.blocks) {
     if (previousBlock) markdown += markdownBlockSeparator(previousBlock, block)
     const orderedListIndex = nextOrderedListIndex(block, orderedListIndexes)
     markdown += markdownFromBlock(block, orderedListIndex)
@@ -49,8 +50,9 @@ export function nanoMarkdownFromDocument(document: NanoDocument): string {
 }
 
 export function nanoMarkdownBlocksFromDocument(document: NanoDocument): NanoMarkdownBlockEntry[] {
+  const validDocument = NanoDocumentSchema.parse(document)
   const orderedListIndexes: number[] = []
-  return document.blocks.map((block) => ({
+  return validDocument.blocks.map((block) => ({
     blockId: block.id,
     markdown: markdownFromBlock(block, nextOrderedListIndex(block, orderedListIndexes)),
   }))

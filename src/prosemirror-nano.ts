@@ -33,6 +33,10 @@ export function prosemirrorDocFromNano(document: NanoDocument): ProseMirrorNode 
 }
 
 export function nanoBlocksFromProseMirror(doc: ProseMirrorNode): NanoBlock[] {
+  return nanoDocumentFromProseMirror(doc).blocks
+}
+
+export function nanoDocumentFromProseMirror(doc: ProseMirrorNode): NanoDocument {
   const blocks: NanoBlock[] = []
   const usedIds = new Set<string>()
 
@@ -40,14 +44,16 @@ export function nanoBlocksFromProseMirror(doc: ProseMirrorNode): NanoBlock[] {
     blocks.push(nanoBlockFromProseMirrorNode(node, index, usedIds))
   })
 
-  return blocks.length > 0 ? blocks : [{ id: createBlockId(0), type: 'paragraph', text: '', marks: [] }]
+  return NanoDocumentSchema.parse({
+    blocks: blocks.length > 0 ? blocks : [{ id: createBlockId(0), type: 'paragraph', text: '', marks: [] }],
+  })
 }
 
 export function nanoPatchFromDocuments(
   previous: NanoDocument,
   nextDoc: ProseMirrorNode,
 ): JSONPatchOperation[] {
-  return replaceBlocksPatch(previous, nanoBlocksFromProseMirror(nextDoc))
+  return replaceBlocksPatch(previous, nanoDocumentFromProseMirror(nextDoc).blocks)
 }
 
 export function nanoSelectionFromProseMirror(doc: ProseMirrorNode, selection: Selection): SelectionSnap | null {

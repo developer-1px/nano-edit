@@ -5,7 +5,11 @@ import {
   NanoBlockSchema,
   NanoDocumentSchema,
   NanoMarkSchema,
+  nanoBlocksFromProseMirror,
+  nanoDocumentFromProseMirror,
   nanoDocumentFromMarkdown,
+  nanoMarkdownBlocksFromDocument,
+  nanoMarkdownFromDocument,
   prosemirrorDocFromNano,
 } from '../../src/index.ts'
 import { assert, test } from './harness.mjs'
@@ -90,4 +94,26 @@ test('ProseMirror conversion rejects invalid Nano documents instead of repairing
   assert.throws(() => prosemirrorDocFromNano({
     blocks: [{ id: '   ', type: 'paragraph', text: '', marks: [] }],
   }))
+})
+
+test('Markdown serializers reject invalid Nano documents instead of stringifying them', () => {
+  assert.throws(() => nanoMarkdownFromDocument({
+    blocks: [],
+  }))
+  assert.throws(() => nanoMarkdownBlocksFromDocument({
+    blocks: [{ id: 'bad', type: 'paragraph', text: 'Short', marks: [{ type: 'bold', from: 0, to: 10 }] }],
+  }))
+})
+
+test('ProseMirror to Nano conversion returns a schema-valid document', () => {
+  const source = nanoDocumentFromMarkdown([
+    '# 현장 기록',
+    '',
+    '- [ ] 오전 메모 정리',
+  ].join('\n'))
+  const prosemirrorDoc = prosemirrorDocFromNano(source)
+  const document = nanoDocumentFromProseMirror(prosemirrorDoc)
+
+  assert.deepEqual(NanoDocumentSchema.parse(document), document)
+  assert.deepEqual(nanoBlocksFromProseMirror(prosemirrorDoc), document.blocks)
 })

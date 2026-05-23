@@ -23,6 +23,7 @@ export {
   type NanoViewOptions,
 } from './nano-view'
 export {
+  nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
   nanoBlocksFromProseMirror,
 } from './prosemirror-nano'
