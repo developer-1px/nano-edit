@@ -87,7 +87,12 @@ async function runViewport(browser, url, viewport) {
   await waitForExpression(browser, 'Boolean(document.querySelector("[data-id=\\"layout-link\\"] a.nano-md-link"))')
   await evaluate(browser, `(() => {
     document.addEventListener('click', (event) => {
-      if (event.target instanceof Element && event.target.closest('a')) event.preventDefault()
+      const target = event.target instanceof Element
+        ? event.target
+        : event.target instanceof Node
+          ? event.target.parentElement
+          : null
+      if (target?.closest('a')) event.preventDefault()
     }, true)
     return true
   })()`)

@@ -75,16 +75,16 @@
 
 .nano-document .nano-quote,
 .nano-document .nano-callout {
-  margin: 0 0 0.9em;
+  margin: 0.25em 0 1.15em;
   color: inherit;
 }
 
 .nano-document .nano-quote {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  padding: 0 0 0 0.9em;
-  color: inherit;
-  border-left: 2px solid var(--nano-border);
+  padding: 0 0 0 1em;
+  color: #4c494d;
+  border-left: 3px solid var(--nano-accent);
 }
 
 .nano-document .nano-callout {
@@ -106,7 +106,10 @@
   left: calc(-1 * var(--nano-source-lane));
   width: calc(var(--nano-source-lane) - 0.5rem);
   display: block;
+  color: var(--nano-source);
+  font-weight: 600;
   text-align: right;
+  opacity: 0.94;
   pointer-events: none;
 }
 
@@ -122,7 +125,9 @@
 .nano-block-source-tail-marker {
   display: block;
   margin-top: 0.12em;
+  color: var(--nano-source);
   line-height: 1.35;
+  opacity: 0.94;
 }
 
 .nano-callout-icon {
@@ -130,7 +135,7 @@
   display: inline-grid;
   place-items: center;
   color: var(--nano-muted);
-  opacity: 0.72;
+  opacity: 0.74;
 }
 
 .nano-callout .nano-block-content {
@@ -142,17 +147,17 @@
 .nano-list-item {
   position: relative;
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  column-gap: 5px;
+  grid-template-columns: 22px minmax(0, 1fr);
+  column-gap: 6px;
   align-items: start;
-  margin: 0 0 0.28em;
-  margin-left: calc(var(--nano-indent, 0) * 22px);
-  line-height: 1.6;
+  margin: 0 0 0.34em;
+  margin-left: calc(var(--nano-indent, 0) * 24px);
+  line-height: 1.64;
 }
 
 .nano-todo-box {
-  width: 18px;
-  height: 1.6em;
+  width: 22px;
+  height: 1.64em;
   box-sizing: border-box;
   display: inline-grid;
   place-items: center;
@@ -163,8 +168,8 @@
 }
 
 .nano-todo[data-checked='true'] .nano-todo-box {
-  color: var(--nano-text);
-  opacity: 0.78;
+  color: var(--nano-accent);
+  opacity: 0.9;
 }
 
 .nano-todo[data-checked='true'] .nano-block-content {
@@ -173,7 +178,7 @@
 }
 
 .nano-list-marker {
-  height: 1.6em;
+  height: 1.64em;
   display: inline-grid;
   align-items: center;
   justify-items: end;
@@ -181,7 +186,7 @@
 
 .nano-list-marker::before {
   color: var(--nano-muted);
-  font: 400 1em/1 var(--nano-sans);
+  font: 500 0.96em/1 var(--nano-sans);
   font-variant-numeric: tabular-nums;
 }
 
@@ -202,7 +207,7 @@
 }
 
 .nano-footnote-marker {
-  color: var(--nano-muted);
+  color: var(--nano-accent);
   font: 600 12px/1.4 var(--nano-sans);
   user-select: none;
 }
@@ -221,7 +226,7 @@
   min-height: 22px;
   display: grid;
   align-items: center;
-  margin: 14px 0;
+  margin: 1.8em 0;
 }
 
 .nano-divider::after {
@@ -236,13 +241,14 @@
 .nano-document .nano-note-ref,
 .nano-document .nano-tag-ref,
 .nano-document .nano-table {
-  margin: 0 0 16px;
+  margin: 0 0 1.2em;
 }
 
 .nano-image img {
   display: block;
-  max-width: min(100%, 560px);
-  max-height: 380px;
+  max-width: min(100%, 680px);
+  max-height: 440px;
+  border-radius: 6px;
   object-fit: contain;
 }
 
