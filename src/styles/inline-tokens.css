@@ -94,8 +94,15 @@
 }
 
 .nano-inline-source-marker {
-  display: inline;
+  position: absolute;
+  z-index: 1;
+  width: max-content;
+  max-width: min(64ch, calc(100vw - 2rem));
+  height: 1em;
+  overflow: hidden;
   line-height: 1;
+  pointer-events: none;
+  text-overflow: ellipsis;
 }
 
 .nano-inline-source-replaced {
@@ -132,7 +139,7 @@
 .nano-math.nano-source-token.nano-source-token-active::before,
 .nano-footnote-ref.nano-source-token.nano-source-token-active::before,
 .nano-raw-external-link.nano-source-token.nano-source-token-active[data-syntax='autolink']::before {
-  content: none;
+  visibility: hidden;
 }
 
 .nano-math.nano-source-token::before {

@@ -13,6 +13,8 @@
   "scripts": {
     "dev": "vite",
     "test": "node --experimental-strip-types --experimental-loader ./scripts/ts-extension-loader.mjs scripts/regressions.mjs",
+    "test:layout": "node scripts/regressions/browser-layout-stability.mjs",
+    "test:all": "pnpm test && pnpm build && pnpm test:layout",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

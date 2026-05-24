@@ -205,7 +205,6 @@
   .nano-editor {
     min-height: 100svh;
     padding: 32px 20px;
-    padding-left: calc(var(--nano-source-lane) + 20px);
   }
 
   .ProseMirror.nano-document {
