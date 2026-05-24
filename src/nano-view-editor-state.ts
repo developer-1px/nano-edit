@@ -24,6 +24,7 @@ export function createNanoEditorState(
     plugins: [
       input.historyInputPlugin(),
       input.shortcutInputPlugin(),
+      input.sourceRevealPlugin(),
       input.blockClickPlugin(),
       input.activeBlockPlugin(),
       keymap({

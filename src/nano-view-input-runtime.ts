@@ -16,6 +16,7 @@ export interface NanoInputRuntime {
   activeBlockPlugin: () => Plugin
   blockClickPlugin: () => Plugin
   historyInputPlugin: () => Plugin
+  sourceRevealPlugin: () => Plugin
   shortcutInputPlugin: () => Plugin
 }
 

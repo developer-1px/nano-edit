@@ -10,6 +10,7 @@ import {
   type NanoViewContext,
 } from './nano-view-context'
 import { pruneCollapsedBlocks } from './nano-view-engine-sync'
+import { sourceRevealPluginKey } from './nano-source-reveal-plugin'
 
 export function createProseMirrorTransactionDispatcher(
   ctx: NanoViewContext,
@@ -25,6 +26,8 @@ export function createProseMirrorTransactionDispatcher(
     ctx.view.updateState(nextState)
 
     const selection = nanoSelectionFromProseMirror(nextState.doc, nextState.selection)
+    if (!transaction.docChanged && transaction.getMeta(sourceRevealPluginKey)) return
+
     if (!transaction.docChanged) {
       restoreNanoSelection(ctx, selection)
       runtime.refreshInspector()

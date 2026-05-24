@@ -1,6 +1,7 @@
 import { Plugin } from 'prosemirror-state'
 import { blockUiDecorations } from './nano-block-ui'
 import { syncFoldIndicatorStates } from './nano-fold-indicator'
+import { sourceRevealPlugin } from './nano-source-reveal-plugin'
 import type { NanoViewContext } from './nano-view-context'
 import type { NanoInputRuntime } from './nano-view-input-runtime'
 import type { NanoInputHandlers } from './nano-view-input-handlers'
@@ -13,6 +14,7 @@ export function createNanoInputPlugins(
     activeBlockPlugin: () => activeBlockPlugin(ctx),
     blockClickPlugin: () => blockClickPlugin(handlers),
     historyInputPlugin: () => historyInputPlugin(handlers),
+    sourceRevealPlugin: () => sourceRevealPlugin(ctx.collapsedBlockIds),
     shortcutInputPlugin: () => shortcutInputPlugin(handlers),
   }
 }
