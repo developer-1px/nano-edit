@@ -5,6 +5,7 @@
 }
 
 .nano-md-token {
+  position: relative;
   white-space: normal;
   overflow-wrap: break-word;
   word-break: normal;
@@ -61,13 +62,15 @@
 
 .nano-md-token::before,
 .nano-md-token::after {
+  position: absolute;
   width: 0;
-  display: inline-block;
+  height: 0;
   overflow: hidden;
   color: var(--nano-muted);
   opacity: 0;
   font-family: var(--nano-mono);
   text-decoration: none;
+  white-space: pre;
 }
 
 .nano-md-token::before {
