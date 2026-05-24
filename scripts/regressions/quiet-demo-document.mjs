@@ -22,7 +22,6 @@ test('Demo document stays a compact note instead of a feature showcase', () => {
     'Command map',
     'https://bear.app',
     '## Appendix',
-    '```',
     '$$',
     '![working note image]',
     'https://example.org',
@@ -41,21 +40,30 @@ test('Demo document stays a compact note instead of a feature showcase', () => {
   for (const copy of forbiddenShowcaseCopy) {
     assert.equal(markdown.includes(copy), false, `demo should not expose showcase copy: ${copy}`)
   }
+  for (const copy of [
+    '[기상청 단기예보](https://www.weather.go.kr/)',
+    '![시장 골목 가판](https://images.unsplash.com/',
+    '| 항목 | 관찰 | 다음 |',
+    '```js',
+    '[^photo]: 오후에 받은 사진 묶음 기준.',
+  ]) {
+    assert(markdown.includes(copy), `demo should include rich note content: ${copy}`)
+  }
 
   const blockTypes = new Set(initialNanoDocument.blocks.map((block) => block.type))
-  for (const type of ['heading', 'paragraph', 'todo', 'list_item']) {
+  for (const type of ['heading', 'paragraph', 'todo', 'list_item', 'image', 'table', 'code', 'footnote']) {
     assert(blockTypes.has(type), `demo should keep core note block: ${type}`)
   }
-  for (const type of ['callout', 'table', 'code', 'math', 'bookmark', 'attachment', 'image', 'footnote', 'divider']) {
+  for (const type of ['callout', 'math', 'bookmark', 'attachment', 'divider']) {
     assert.equal(blockTypes.has(type), false, `demo should not showcase ${type} blocks`)
   }
-  assert(initialNanoDocument.blocks.length <= 12, 'demo should stay short enough to read as a note')
+  assert(initialNanoDocument.blocks.length <= 18, 'demo should stay short enough to read as a note')
 
   const markTypes = new Set(initialNanoDocument.blocks.flatMap((block) => block.marks?.map((mark) => mark.type) ?? []))
-  for (const type of ['bold', 'italic', 'highlight', 'strike', 'code', 'tag', 'note_link']) {
+  for (const type of ['bold', 'italic', 'highlight', 'strike', 'code', 'tag', 'note_link', 'link', 'footnote_ref']) {
     assert(markTypes.has(type), `demo should keep quiet inline mark: ${type}`)
   }
-  for (const type of ['math', 'link', 'footnote_ref']) {
+  for (const type of ['math']) {
     assert.equal(markTypes.has(type), false, `demo should not showcase ${type} marks`)
   }
 
@@ -64,5 +72,5 @@ test('Demo document stays a compact note instead of a feature showcase', () => {
   assert(index.noteLinks.length > 0)
   assert.equal(index.bookmarks.length, 0)
   assert.equal(index.attachments.length, 0)
-  assert.equal(index.footnotes.length, 0)
+  assert(index.footnotes.length > 0)
 })

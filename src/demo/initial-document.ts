@@ -11,13 +11,33 @@ const initialMarkdown = `# 현장 기록
 
 ## 시장 골목
 
-\`271\`번 버스가 먼저 지나갔고, 가게 셔터는 반쯤 올라가 있었다.
+\`271\`번 버스가 먼저 지나갔고, 가게 셔터는 반쯤 올라가 있었다. [기상청 단기예보](https://www.weather.go.kr/)는 비를 낮게 잡았다.
 
 1. 버스 정류장
 2. 과일 가게
 3. 사무실 앞
 
-[[시장 골목]]과 #notes 태그로 다음 기록을 묶는다.`
+![시장 골목 가판](https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=960&q=80)
+
+| 항목 | 관찰 | 다음 |
+| --- | --- | --- |
+| 과일 상자 | 보행선 밖 | 위치 확인 |
+| 셔터 | 반쯤 열림 | 오후 재방문 |
+| 버스 | 271번 | 시간 기록 |
+
+\`\`\`js
+const note = {
+  place: '시장 골목',
+  weather: '비',
+  followUp: ['사진 정리', '시간 확인'],
+}
+\`\`\`
+
+## 정리
+
+[[시장 골목]]과 #notes 태그로 다음 기록을 묶는다. 사진은 원본과 캡션을 같이 둔다.[^photo]
+
+[^photo]: 오후에 받은 사진 묶음 기준.`
 
 export const initialNanoDocument: NanoDocument = nanoDocumentFromMarkdown(initialMarkdown)
 
