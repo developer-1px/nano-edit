@@ -1,6 +1,6 @@
 # Nano Edit
 
-Nano Edit is an embeddable editor package for assembling quiet, Markdown-native editing capabilities into host products.
+Nano Edit is an embeddable editor package for LLM-driven assembly of quiet, Markdown-native editing capabilities into host products.
 
 ## Language
 
@@ -28,14 +28,18 @@ _Avoid_: Preset, package, feature bundle
 The discoverable list of Extensions available for host products or generation systems to compose into Kits.
 _Avoid_: Part catalog, capability catalog
 
+**Generation System**:
+An LLM-based system that selects Extensions from the Extension Catalog to assemble a Kit for a host product or workflow.
+_Avoid_: Host developer, static integrator
+
 ## Relationships
 
 - The **Editor Package** can be mounted by one or more host products.
 - The **Demo Host** exists to validate the **Editor Package**, not to define product scope.
 - A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
-- An **Extension** is the smallest product-level unit a host should choose.
+- An **Extension** is the smallest product-level unit a Generation System should choose.
 - A **Kit** contains one or more **Extensions**.
-- The **Extension Catalog** helps a host or generation system choose Extensions for a Kit.
+- The **Extension Catalog** helps a **Generation System** choose Extensions for a Kit.
 
 ## Example dialogue
 
@@ -43,9 +47,10 @@ _Avoid_: Part catalog, capability catalog
 > **Domain expert:** "No — the **Demo Host** should feel like a compact note. The **Editor Package** can expose capabilities without turning the surface into a showcase."
 
 > **Dev:** "Does this host need tables, todos, and footnotes?"
-> **Domain expert:** "Choose those **Extensions** from the **Extension Catalog** and ship them as the host's note-taking **Kit**."
+> **Domain expert:** "Let the **Generation System** choose those **Extensions** from the **Extension Catalog** and ship them as the host's note-taking **Kit**."
 
 ## Flagged ambiguities
 
 - "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
 - "feature part" and "capability" were used for composable editor pieces; resolved: the domain term is **Extension**, and grouped selections are **Kits**.
+- "who chooses Extensions" was ambiguous; resolved: a **Generation System** chooses Extensions, while host products mount the resulting Kit.
