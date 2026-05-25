@@ -25,11 +25,11 @@ A named bundle of Extensions selected for a host product or editing workflow.
 _Avoid_: Preset, package, feature bundle
 
 **Extension Catalog**:
-The discoverable list of Extensions available for host products or generation systems to compose into Kits.
+The discoverable list of Extensions available for a Generation System to evaluate and compose into Kits.
 _Avoid_: Part catalog, capability catalog
 
 **Generation System**:
-An LLM-based system that selects Extensions from the Extension Catalog to assemble a Kit for a host product or workflow.
+An LLM-based system that evaluates provided Extension Catalogs and selects Extensions to assemble a Kit for a host product or workflow.
 _Avoid_: Host developer, static integrator
 
 ## Relationships
@@ -39,7 +39,7 @@ _Avoid_: Host developer, static integrator
 - A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
 - An **Extension** is the smallest product-level unit a Generation System should choose.
 - A **Kit** contains one or more **Extensions**.
-- The **Extension Catalog** helps a **Generation System** choose Extensions for a Kit.
+- A **Generation System** evaluates one or more **Extension Catalogs** before a Kit is mounted.
 
 ## Example dialogue
 
@@ -54,3 +54,4 @@ _Avoid_: Host developer, static integrator
 - "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
 - "feature part" and "capability" were used for composable editor pieces; resolved: the domain term is **Extension**, and grouped selections are **Kits**.
 - "who chooses Extensions" was ambiguous; resolved: a **Generation System** chooses Extensions, while host products mount the resulting Kit.
+- "when Extensions are chosen" was ambiguous; resolved: a **Generation System** chooses Extensions before runtime mount by evaluating provided **Extension Catalogs**.
