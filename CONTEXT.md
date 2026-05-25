@@ -25,12 +25,16 @@ A named bundle of Extensions selected for a host product or editing workflow.
 _Avoid_: Preset, package, feature bundle
 
 **Kit Manifest**:
-A declarative, validated description of which Extensions and settings make up a Kit.
-_Avoid_: Generated code, dynamic runtime patch, implicit configuration
+A declarative, validated description of which Extensions and catalog-declared Extension Options make up a Kit.
+_Avoid_: Generated code, dynamic runtime patch, implicit configuration, arbitrary settings
 
 **Extension Catalog**:
 The discoverable list of Extensions available for a Generation System to evaluate and compose into Kits.
 _Avoid_: Part catalog, capability catalog
+
+**Extension Option**:
+A limited configuration choice declared by an Extension Catalog for a specific Extension.
+_Avoid_: Free-form setting, arbitrary config, runtime patch
 
 **Generation System**:
 An LLM-based system that evaluates provided Extension Catalogs and selects Extensions to assemble a Kit for a host product or workflow.
@@ -43,7 +47,8 @@ _Avoid_: Host developer, static integrator
 - A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
 - An **Extension** is the smallest product-level unit a Generation System should choose.
 - A **Kit** contains one or more **Extensions**.
-- A **Kit Manifest** describes a Kit before the Editor Package loads it.
+- A **Kit Manifest** describes a Kit and its **Extension Options** before the Editor Package loads it.
+- An **Extension Option** must be declared by an **Extension Catalog** before it can appear in a **Kit Manifest**.
 - A **Generation System** evaluates one or more **Extension Catalogs** before a Kit is mounted.
 
 ## Example dialogue
@@ -57,6 +62,9 @@ _Avoid_: Host developer, static integrator
 > **Dev:** "Should the LLM generate editor runtime code?"
 > **Domain expert:** "No — it should produce a **Kit Manifest** that the **Editor Package** validates and loads."
 
+> **Dev:** "Can the manifest tune every internal setting?"
+> **Domain expert:** "No — it can only choose **Extension Options** that the **Extension Catalog** explicitly exposes."
+
 ## Flagged ambiguities
 
 - "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
@@ -64,3 +72,4 @@ _Avoid_: Host developer, static integrator
 - "who chooses Extensions" was ambiguous; resolved: a **Generation System** chooses Extensions, while host products mount the resulting Kit.
 - "when Extensions are chosen" was ambiguous; resolved: a **Generation System** chooses Extensions before runtime mount by evaluating provided **Extension Catalogs**.
 - "what the Generation System outputs" was ambiguous; resolved: it outputs a **Kit Manifest**, not ad hoc editor runtime code.
+- "settings" was too broad for Extension configuration; resolved: manifests may only use catalog-declared **Extension Options**.
