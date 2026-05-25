@@ -5,18 +5,18 @@ import {
   nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
 } from '../../src/index.ts'
-import { imageNodeSpec } from '../../src/prosemirror-image-node-spec.ts'
-import { linkMarkSpec } from '../../src/prosemirror-link-mark-spec.ts'
-import { nanoMarkFromProseMirrorMark } from '../../src/prosemirror-mark-codec-registry.ts'
-import { nanoMarkNames } from '../../src/prosemirror-names.ts'
-import { nanoNodeNames, nanoSchema } from '../../src/prosemirror-nano.ts'
+import { imageNodeSpec } from '../../src/adapters/prosemirror/prosemirror-image-node-spec.ts'
+import { linkMarkSpec } from '../../src/adapters/prosemirror/prosemirror-link-mark-spec.ts'
+import { nanoMarkFromProseMirrorMark } from '../../src/adapters/prosemirror/prosemirror-mark-codec-registry.ts'
+import { nanoMarkNames } from '../../src/adapters/prosemirror/prosemirror-names.ts'
+import { nanoNodeNames, nanoSchema } from '../../src/adapters/prosemirror/prosemirror-nano.ts'
 import {
   attachmentNodeSpec,
   bookmarkNodeSpec,
   noteRefNodeSpec,
   tagRefNodeSpec,
-} from '../../src/prosemirror-reference-node-specs.ts'
-import { referenceMarkSpecs } from '../../src/prosemirror-reference-mark-specs.ts'
+} from '../../src/adapters/prosemirror/prosemirror-reference-node-specs.ts'
+import { referenceMarkSpecs } from '../../src/adapters/prosemirror/prosemirror-reference-mark-specs.ts'
 import { assert, test } from './harness.mjs'
 
 test('ProseMirror to Nano conversion returns a schema-valid document', () => {

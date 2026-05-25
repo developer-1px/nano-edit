@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import { AllSelection, EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
-import { markShortcutTransaction } from '../../src/nano-mark-options.ts'
-import { nanoDocumentFromMarkdown, nanoMarkdownFromDocument } from '../../src/nano-markdown.ts'
+import { markShortcutTransaction } from '../../src/marks/nano-mark-options.ts'
+import { nanoDocumentFromMarkdown, nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import {
   nanoBlocksFromProseMirror,
   nanoMarkNames,
   nanoSchema,
   prosemirrorDocFromNano,
-} from '../../src/prosemirror-nano.ts'
+} from '../../src/adapters/prosemirror/prosemirror-nano.ts'
 
 export function textState(text) {
   const doc = prosemirrorDocFromNano({

@@ -1,5 +1,5 @@
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
-import { attrsWithSlicedSourceLineAttrs } from '../nano-source-metadata'
+import { attrsWithSlicedSourceLineAttrs } from '../core/nano-source-metadata'
 
 export function splitContinuationContent(
   block: ProseMirrorNode,

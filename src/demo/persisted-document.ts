@@ -3,7 +3,7 @@ import {
   NanoDocumentSchema,
   type NanoDocument,
   type NanoDocumentEngine,
-} from '../nano-core'
+} from '../core/nano-core'
 import { initialNanoDocument } from './initial-document'
 
 export const DEMO_DOCUMENT_STORAGE_KEY = 'nano-edit:demo-document:v7'

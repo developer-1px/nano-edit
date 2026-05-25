@@ -16,23 +16,23 @@ export {
   type NanoDocument,
   type NanoDocumentEngine,
   type NanoMark,
-} from './nano-core'
+} from './core/nano-core'
 export {
   createNanoView,
   type NanoViewHandle,
   type NanoViewOptions,
-} from './nano-view'
+} from './view/nano-view'
 export {
   nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
   nanoBlocksFromProseMirror,
-} from './prosemirror-nano'
+} from './adapters/prosemirror/prosemirror-nano'
 export {
   nanoDocumentFromMarkdown,
   nanoMarkdownBlocksFromDocument,
   nanoMarkdownFromDocument,
   type NanoMarkdownBlockEntry,
-} from './nano-markdown'
+} from './codecs/markdown/nano-markdown'
 export {
   nanoDocumentIndex,
   nanoDocumentIndexText,
@@ -45,4 +45,4 @@ export {
   type NanoDocumentSearchResult,
   type NanoSpecialSearch,
   type TableIndexEntry,
-} from './nano-document-index'
+} from './indexing/nano-document-index'

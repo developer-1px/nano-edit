@@ -1,7 +1,7 @@
 import { TextSelection, type EditorState, type Transaction } from 'prosemirror-state'
 import type { BlockKeyboardContext } from '../assembly/capability'
-import { atxSpacing } from '../prosemirror-block-attrs'
-import { nanoNodeNames } from '../prosemirror-nano'
+import { atxSpacing } from '../adapters/prosemirror/prosemirror-block-attrs'
+import { nanoNodeNames } from '../adapters/prosemirror/prosemirror-nano'
 
 export function toggleCheckedBlockTransaction(
   state: EditorState,

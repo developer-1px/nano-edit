@@ -1,9 +1,9 @@
 import type { Node as ProseMirrorNode, NodeSpec } from 'prosemirror-model'
 import { Square, SquareCheck } from 'lucide'
-import type { NanoBlock, NanoMark } from '../../nano-core'
-import { listContinuationDefaultIndent } from '../../nano-markdown-block-attrs'
-import { foldIndicatorDomSpec } from '../../nano-fold-indicator'
-import { lucideIcon } from '../../nano-icons'
+import type { NanoBlock, NanoMark } from '../../core/nano-core'
+import { listContinuationDefaultIndent } from '../../codecs/markdown/nano-markdown-block-attrs'
+import { foldIndicatorDomSpec } from '../../view/nano-fold-indicator'
+import { lucideIcon } from '../../view/nano-icons'
 import {
   bulletMarker,
   checkedMarker,

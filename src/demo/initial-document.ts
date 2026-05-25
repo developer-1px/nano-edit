@@ -1,5 +1,5 @@
-import { createNanoDocument, type NanoDocument, type NanoDocumentEngine } from '../nano-core'
-import { nanoDocumentFromMarkdown } from '../nano-markdown'
+import { createNanoDocument, type NanoDocument, type NanoDocumentEngine } from '../core/nano-core'
+import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown'
 
 const initialMarkdown = `# 현장 기록
 

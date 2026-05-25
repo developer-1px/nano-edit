@@ -3,7 +3,7 @@ import type { BlockKeyboardContext } from '../assembly/capability'
 import {
   shiftedContinuationIndents,
   shiftedRawIndent,
-} from '../nano-source-metadata'
+} from '../core/nano-source-metadata'
 import { blockIndent } from './block-behavior-values'
 import {
   convertBlockToParagraphAtStart,

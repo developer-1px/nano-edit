@@ -2,7 +2,7 @@ import { z } from 'zod'
 import {
   addArrayLengthIssue,
   continuationLineCount,
-} from '../../nano-block-schema-refinements'
+} from '../../core/schema/nano-block-schema-refinements'
 import { createTextBlockBaseSchema } from '../text-block-schema'
 
 const TodoIndentSchema = z.number().int().min(0).max(6).default(0)

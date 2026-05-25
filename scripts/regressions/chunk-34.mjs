@@ -1,4 +1,4 @@
-import { createNanoCommandPalette } from '../../src/nano-command-palette.ts'
+import { createNanoCommandPalette } from '../../src/view/nano-command-palette.ts'
 import { assert, test } from './harness.mjs'
 
 class FakeElement {

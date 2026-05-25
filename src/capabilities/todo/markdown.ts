@@ -1,4 +1,4 @@
-import type { NanoBlock, NanoMark } from '../../nano-core'
+import type { NanoBlock, NanoMark } from '../../core/nano-core'
 import type { BulletMarker, CheckedMarker } from '../../assembly/capability'
 
 type TodoBlock = Extract<NanoBlock, { type: 'todo' }>

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { createNanoInputClickHandlers } from '../../src/nano-view-input-click-events.ts'
+import { createNanoInputClickHandlers } from '../../src/view/nano-view-input-click-events.ts'
 import { assert, blockDomSpec, nanoMarkdownFromDocument, nanoBlocksFromProseMirror, test, textSelectionState } from './harness.mjs'
 
 function specText(spec) {

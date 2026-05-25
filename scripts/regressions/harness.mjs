@@ -8,16 +8,16 @@ import { todoIndexEntryFromBlock } from '../../src/capabilities/todo/index.ts'
 import { markdownTodoLine } from '../../src/capabilities/todo/markdown.ts'
 import { todoNodeAttrsFromBlock } from '../../src/capabilities/todo/prosemirror.ts'
 import { createTodoBlockSchema } from '../../src/capabilities/todo/schema.ts'
-import { nanoDocumentIndex, nanoDocumentSearch } from '../../src/nano-document-index.ts'
-import { markShortcutTransaction } from '../../src/nano-mark-options.ts'
-import { nanoDocumentFromMarkdown, nanoMarkdownFromDocument } from '../../src/nano-markdown.ts'
+import { nanoDocumentIndex, nanoDocumentSearch } from '../../src/indexing/nano-document-index.ts'
+import { markShortcutTransaction } from '../../src/marks/nano-mark-options.ts'
+import { nanoDocumentFromMarkdown, nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import {
   blockTextPointer,
   createNanoDocument,
   NanoMarkSchema,
   point,
   selectionSnap,
-} from '../../src/nano-core.ts'
+} from '../../src/core/nano-core.ts'
 import {
   blockEnterShortcutTransaction,
   blockShortcutTransaction,
@@ -42,7 +42,7 @@ import {
   selectAdjacentBlockTransaction,
   selectedAtomSourceTransaction,
   trailingReferenceMarkTransaction,
-} from '../../src/nano-view.ts'
+} from '../../src/view/nano-view.ts'
 import {
   nanoBlocksFromProseMirror,
   nanoMarkNames,
@@ -50,11 +50,11 @@ import {
   nanoSchema,
   prosemirrorDocFromNano,
   rawMarkdownInlineDomSpec,
-} from '../../src/prosemirror-nano.ts'
+} from '../../src/adapters/prosemirror/prosemirror-nano.ts'
 import {
   backspaceKeyCommand,
   deleteKeyCommand,
-} from '../../src/nano-view-keymap-backspace.ts'
+} from '../../src/view/nano-view-keymap-backspace.ts'
 
 export const bearInlineMarkdown = [
   '**bold**',

@@ -10,17 +10,17 @@ import {
   test,
   TextSelection,
 } from './harness.mjs'
-import { sourceRevealDecorations } from '../../src/nano-source-reveal-plugin.ts'
+import { sourceRevealDecorations } from '../../src/view/nano-source-reveal-plugin.ts'
 
 test('Hidden block picker chrome stays removed', () => {
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
   const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
-  const blockUi = readFileSync(new URL('../../src/nano-block-ui-decorations.ts', import.meta.url), 'utf8')
-  const slashRuntime = readFileSync(new URL('../../src/nano-view-slash-command-runtime.ts', import.meta.url), 'utf8')
-  const viewCreate = readFileSync(new URL('../../src/nano-view-create.ts', import.meta.url), 'utf8')
-  const lifecycle = readFileSync(new URL('../../src/nano-view-lifecycle.ts', import.meta.url), 'utf8')
-  const inputPlugins = readFileSync(new URL('../../src/nano-view-input-plugins.ts', import.meta.url), 'utf8')
-  const inspectorShell = readFileSync(new URL('../../src/nano-inspector-shell.ts', import.meta.url), 'utf8')
+  const blockUi = readFileSync(new URL('../../src/view/nano-block-ui-decorations.ts', import.meta.url), 'utf8')
+  const slashRuntime = readFileSync(new URL('../../src/view/nano-view-slash-command-runtime.ts', import.meta.url), 'utf8')
+  const viewCreate = readFileSync(new URL('../../src/view/nano-view-create.ts', import.meta.url), 'utf8')
+  const lifecycle = readFileSync(new URL('../../src/view/nano-view-lifecycle.ts', import.meta.url), 'utf8')
+  const inputPlugins = readFileSync(new URL('../../src/view/nano-view-input-plugins.ts', import.meta.url), 'utf8')
+  const inspectorShell = readFileSync(new URL('../../src/view/nano-inspector-shell.ts', import.meta.url), 'utf8')
   assert.equal(css.includes('block-picker-option'), false)
   assert.equal(css.includes('content: attr(data-md);'), false)
   assert.equal(css.includes('nano-block-insert'), false)
@@ -42,7 +42,7 @@ test('Inline Markdown syntax reveal is focus and selection scoped', () => {
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
   const inlineCss = readFileSync(new URL('../../src/styles/inline-tokens.css', import.meta.url), 'utf8')
   const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
-  const sourceReveal = readFileSync(new URL('../../src/nano-source-reveal-plugin.ts', import.meta.url), 'utf8')
+  const sourceReveal = readFileSync(new URL('../../src/view/nano-source-reveal-plugin.ts', import.meta.url), 'utf8')
   const quietRule = /\.nano-md-token::before,[\s\S]*?\.nano-md-token::after \{([\s\S]*?)\n\}/.exec(inlineCss)
   assert(quietRule, 'inline delimiter quiet rule should be present')
   assert(quietRule[1].includes('position: absolute;'))
@@ -175,7 +175,7 @@ test('List and todo source markers reveal as quiet active indicators', () => {
 })
 
 test('Source reveal focus transactions do not touch the zod-crud engine path', () => {
-  const dispatcher = readFileSync(new URL('../../src/nano-view-engine-dispatch.ts', import.meta.url), 'utf8')
+  const dispatcher = readFileSync(new URL('../../src/view/nano-view-engine-dispatch.ts', import.meta.url), 'utf8')
   assert(dispatcher.includes('sourceRevealPluginKey'))
   assert(dispatcher.includes('transaction.getMeta(sourceRevealPluginKey)'))
   assert(dispatcher.indexOf('transaction.getMeta(sourceRevealPluginKey)') < dispatcher.indexOf('restoreNanoSelection(ctx, selection)'))
@@ -229,8 +229,8 @@ test('Accessible chrome avoids Markdown jargon outside explicit source actions',
   assert.equal(dividerSpec[1]['aria-label'], 'Divider')
   assert.equal(dividerSpec[1]['aria-label'].includes('Markdown'), false)
 
-  const inspectorMarkdown = readFileSync(new URL('../../src/nano-view-inspector-markdown.ts', import.meta.url), 'utf8')
-  const inspectorShell = readFileSync(new URL('../../src/nano-inspector-shell.ts', import.meta.url), 'utf8')
+  const inspectorMarkdown = readFileSync(new URL('../../src/view/nano-view-inspector-markdown.ts', import.meta.url), 'utf8')
+  const inspectorShell = readFileSync(new URL('../../src/view/nano-inspector-shell.ts', import.meta.url), 'utf8')
   assert.equal(inspectorMarkdown.includes('`${entry.blockId} markdown`'), false)
   assert(inspectorMarkdown.includes('`${entry.blockId} source`'))
   assert.equal(inspectorShell.includes("labeledSection('markdown'"), false)
@@ -238,8 +238,8 @@ test('Accessible chrome avoids Markdown jargon outside explicit source actions',
 })
 
 test('Inspector chrome uses icon elements instead of text placeholders', () => {
-  const inspectorShell = readFileSync(new URL('../../src/nano-inspector-shell.ts', import.meta.url), 'utf8')
-  const inspectorEntry = readFileSync(new URL('../../src/nano-view-inspector-index-entry.ts', import.meta.url), 'utf8')
+  const inspectorShell = readFileSync(new URL('../../src/view/nano-inspector-shell.ts', import.meta.url), 'utf8')
+  const inspectorEntry = readFileSync(new URL('../../src/view/nano-view-inspector-index-entry.ts', import.meta.url), 'utf8')
   const inspectorCss = readFileSync(new URL('../../src/styles/inspector.css', import.meta.url), 'utf8')
 
   assert(inspectorShell.includes("from 'lucide'"))
@@ -258,8 +258,8 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   const main = readFileSync(new URL('../../src/main.ts', import.meta.url), 'utf8')
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
   const prosemirrorCss = readFileSync(new URL('../../src/styles/prosemirror.css', import.meta.url), 'utf8')
-  const viewCreate = readFileSync(new URL('../../src/nano-view-create.ts', import.meta.url), 'utf8')
-  const viewAttributes = readFileSync(new URL('../../src/nano-view-editor-attributes.ts', import.meta.url), 'utf8')
+  const viewCreate = readFileSync(new URL('../../src/view/nano-view-create.ts', import.meta.url), 'utf8')
+  const viewAttributes = readFileSync(new URL('../../src/view/nano-view-editor-attributes.ts', import.meta.url), 'utf8')
   const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
   const packageJson = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'))
 

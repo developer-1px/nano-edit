@@ -1,4 +1,4 @@
-import { refreshInspector } from '../../src/nano-view-engine-sync.ts'
+import { refreshInspector } from '../../src/view/nano-view-engine-sync.ts'
 import { assert, test } from './harness.mjs'
 
 function refreshDeps(calls) {

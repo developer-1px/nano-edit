@@ -1,7 +1,7 @@
 import {
   markdownTextFromClipboardData,
   writeMarkdownTextToClipboardData,
-} from '../../src/nano-view-clipboard-data.ts'
+} from '../../src/view/nano-view-clipboard-data.ts'
 import { assert, test } from './harness.mjs'
 
 function clipboardData(initial = {}) {

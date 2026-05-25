@@ -1,4 +1,4 @@
-import { footnoteNodeSpec } from '../../src/prosemirror-footnote-node-spec.ts'
+import { footnoteNodeSpec } from '../../src/adapters/prosemirror/prosemirror-footnote-node-spec.ts'
 import { assert, test } from './harness.mjs'
 
 test('ProseMirror footnote DOM parsing falls back when data-name is blank', () => {

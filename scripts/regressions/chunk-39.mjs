@@ -1,4 +1,4 @@
-import { syncFoldIndicatorStates } from '../../src/nano-fold-indicator.ts'
+import { syncFoldIndicatorStates } from '../../src/view/nano-fold-indicator.ts'
 import { assert, blockDomSpec, test } from './harness.mjs'
 
 function specText(spec) {

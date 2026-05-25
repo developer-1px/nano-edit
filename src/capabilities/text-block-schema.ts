@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { NanoBlockIdSchema } from '../nano-block-id-schema'
+import { NanoBlockIdSchema } from '../core/schema/nano-block-id-schema'
 
 export function createTextBlockBaseSchema<TMark extends z.ZodTypeAny>(markSchema: TMark) {
   return z.object({

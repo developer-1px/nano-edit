@@ -1,5 +1,5 @@
-import { createNanoInspectorShell } from '../../src/nano-inspector-shell.ts'
-import { destroyNanoView } from '../../src/nano-view-lifecycle.ts'
+import { createNanoInspectorShell } from '../../src/view/nano-inspector-shell.ts'
+import { destroyNanoView } from '../../src/view/nano-view-lifecycle.ts'
 import { assert, test } from './harness.mjs'
 
 class FakeElement {

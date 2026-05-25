@@ -1,4 +1,4 @@
-import type { NanoBlock } from '../../nano-core'
+import type { NanoBlock } from '../../core/nano-core'
 
 type TodoBlock = Extract<NanoBlock, { type: 'todo' }>
 

@@ -1,7 +1,7 @@
 import './styles/demo-host.css'
 import './style.css'
 import { createPersistedDemoNanoDocument } from './demo/persisted-document'
-import { createNanoView } from './nano-view'
+import { createNanoView } from './view/nano-view'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 

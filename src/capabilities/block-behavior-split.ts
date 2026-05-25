@@ -1,7 +1,7 @@
 import { Fragment, type NodeType } from 'prosemirror-model'
 import { TextSelection, type Transaction } from 'prosemirror-state'
 import type { BlockKeyboardContext } from '../assembly/capability'
-import { nanoNodeNames } from '../prosemirror-nano'
+import { nanoNodeNames } from '../adapters/prosemirror/prosemirror-nano'
 import { nextBlockId } from './block-behavior-id'
 import { splitContinuationContent } from './block-behavior-split-continuation'
 

@@ -1,4 +1,4 @@
-import { createNanoViewCommandRunners } from '../../src/nano-view-command-runners.ts'
+import { createNanoViewCommandRunners } from '../../src/view/nano-view-command-runners.ts'
 import { assert, test } from './harness.mjs'
 
 function commandRunnersWithDeleteResult(commandResult) {

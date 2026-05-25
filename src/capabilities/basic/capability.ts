@@ -1,5 +1,5 @@
 import type { BlockOption, EditorCapability } from '../../assembly/capability'
-import { nanoNodeNames, nanoSchema } from '../../prosemirror-nano'
+import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
 import {
   decreaseHeadingAtStartThenParagraph,
   exitEmptyThen,
