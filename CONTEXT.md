@@ -24,6 +24,10 @@ _Avoid_: Part, feature part, capability
 A named bundle of Extensions selected for a host product or editing workflow.
 _Avoid_: Preset, package, feature bundle
 
+**Kit Manifest**:
+A declarative, validated description of which Extensions and settings make up a Kit.
+_Avoid_: Generated code, dynamic runtime patch, implicit configuration
+
 **Extension Catalog**:
 The discoverable list of Extensions available for a Generation System to evaluate and compose into Kits.
 _Avoid_: Part catalog, capability catalog
@@ -39,6 +43,7 @@ _Avoid_: Host developer, static integrator
 - A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
 - An **Extension** is the smallest product-level unit a Generation System should choose.
 - A **Kit** contains one or more **Extensions**.
+- A **Kit Manifest** describes a Kit before the Editor Package loads it.
 - A **Generation System** evaluates one or more **Extension Catalogs** before a Kit is mounted.
 
 ## Example dialogue
@@ -49,9 +54,13 @@ _Avoid_: Host developer, static integrator
 > **Dev:** "Does this host need tables, todos, and footnotes?"
 > **Domain expert:** "Let the **Generation System** choose those **Extensions** from the **Extension Catalog** and ship them as the host's note-taking **Kit**."
 
+> **Dev:** "Should the LLM generate editor runtime code?"
+> **Domain expert:** "No — it should produce a **Kit Manifest** that the **Editor Package** validates and loads."
+
 ## Flagged ambiguities
 
 - "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
 - "feature part" and "capability" were used for composable editor pieces; resolved: the domain term is **Extension**, and grouped selections are **Kits**.
 - "who chooses Extensions" was ambiguous; resolved: a **Generation System** chooses Extensions, while host products mount the resulting Kit.
 - "when Extensions are chosen" was ambiguous; resolved: a **Generation System** chooses Extensions before runtime mount by evaluating provided **Extension Catalogs**.
+- "what the Generation System outputs" was ambiguous; resolved: it outputs a **Kit Manifest**, not ad hoc editor runtime code.
