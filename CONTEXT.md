@@ -1,0 +1,32 @@
+# Nano Edit
+
+Nano Edit is an embeddable editor package for assembling quiet, Markdown-native editing capabilities into host products.
+
+## Language
+
+**Editor Package**:
+An embeddable package that provides the editor engine, view, codecs, commands, and indexes without owning the host product.
+_Avoid_: App, demo app, Markdown viewer
+
+**Demo Host**:
+A minimal local host used to exercise the editor package and verify the default document experience.
+_Avoid_: Product app, showcase page, landing page
+
+**Quiet Surface**:
+An editing surface where document content stays primary and Markdown syntax or editor chrome appears only when it is directly useful for editing.
+_Avoid_: Feature showcase, toolbar-heavy editor, decorative demo
+
+## Relationships
+
+- The **Editor Package** can be mounted by one or more host products.
+- The **Demo Host** exists to validate the **Editor Package**, not to define product scope.
+- A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
+
+## Example dialogue
+
+> **Dev:** "Should the demo explain every supported Markdown feature?"
+> **Domain expert:** "No — the **Demo Host** should feel like a compact note. The **Editor Package** can expose capabilities without turning the surface into a showcase."
+
+## Flagged ambiguities
+
+- "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
