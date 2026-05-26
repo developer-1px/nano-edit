@@ -29,12 +29,16 @@ A declarative, validated description of which Extensions and catalog-declared Ex
 _Avoid_: Generated code, dynamic runtime patch, implicit configuration, arbitrary settings
 
 **Extension Catalog**:
-The discoverable list of Extensions available for a Generation System to evaluate and compose into Kits.
-_Avoid_: Part catalog, capability catalog
+The typed, human-readable list of Extensions available for a Generation System to evaluate and compose into Kits.
+_Avoid_: Part catalog, capability catalog, prompt-only catalog
 
 **Extension Option**:
 A limited configuration choice declared by an Extension Catalog for a specific Extension.
 _Avoid_: Free-form setting, arbitrary config, runtime patch
+
+**Catalog Contract**:
+A type and interface contract that makes Extension Catalog entries understandable to LLMs and reviewable by humans.
+_Avoid_: Free-form string description, prose-only documentation, hidden convention
 
 **Generation System**:
 An LLM-based system that evaluates provided Extension Catalogs and selects Extensions to assemble a Kit for a host product or workflow.
@@ -49,6 +53,7 @@ _Avoid_: Host developer, static integrator
 - A **Kit** contains one or more **Extensions**.
 - A **Kit Manifest** describes a Kit and its **Extension Options** before the Editor Package loads it.
 - An **Extension Option** must be declared by an **Extension Catalog** before it can appear in a **Kit Manifest**.
+- An **Extension Catalog** conforms to a **Catalog Contract**.
 - A **Generation System** evaluates one or more **Extension Catalogs** before a Kit is mounted.
 
 ## Example dialogue
@@ -65,6 +70,9 @@ _Avoid_: Host developer, static integrator
 > **Dev:** "Can the manifest tune every internal setting?"
 > **Domain expert:** "No — it can only choose **Extension Options** that the **Extension Catalog** explicitly exposes."
 
+> **Dev:** "Can the catalog just be a paragraph that tells the LLM what exists?"
+> **Domain expert:** "No — it needs a **Catalog Contract** so the LLM can choose reliably and humans can review the choice."
+
 ## Flagged ambiguities
 
 - "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
@@ -73,3 +81,4 @@ _Avoid_: Host developer, static integrator
 - "when Extensions are chosen" was ambiguous; resolved: a **Generation System** chooses Extensions before runtime mount by evaluating provided **Extension Catalogs**.
 - "what the Generation System outputs" was ambiguous; resolved: it outputs a **Kit Manifest**, not ad hoc editor runtime code.
 - "settings" was too broad for Extension configuration; resolved: manifests may only use catalog-declared **Extension Options**.
+- "catalog" was ambiguous between prose and API; resolved: an **Extension Catalog** is LLM-first but backed by a typed **Catalog Contract** that remains human-readable.
