@@ -32,6 +32,10 @@ _Avoid_: Hand-authored draft, canonical source file
 A generated-looking Markdown document that explains Nano Edit itself, including its purpose, usage, and structure.
 _Avoid_: Marketing page, decorative showcase, unrelated sample note
 
+**Document-Like Guidance**:
+Usage guidance written as part of the document's content instead of as surrounding application chrome.
+_Avoid_: Floating tutorial, command cheat sheet, UI tour
+
 **Local Edit**:
 A small human edit to a specific part of a generated document.
 _Avoid_: Full rewrite, source-mode editing session
@@ -56,6 +60,7 @@ _Avoid_: Decoration, visible token, escaped text
 - A **Quiet Surface** should behave as a **View-First Editing Surface**.
 - **Generated Markdown** is imported as a **Markdown-Native Document** for review and **Local Edits**.
 - A **Self-Describing Demo Document** may explain Nano Edit's capabilities through document content, while the editing affordances remain quiet and inline.
+- **Document-Like Guidance** may tell readers how to try Nano Edit when it remains part of the document rather than separate instructional chrome.
 - A **Markdown-Native Document** is represented internally as a **Nano Document**.
 - Markdown is one expression of a **Markdown-Native Document**, not the document's sole source of truth.
 - A **Source Choice** may be stored in a **Nano Document** when it affects editing expression.
@@ -75,10 +80,14 @@ _Avoid_: Decoration, visible token, escaped text
 > **Dev:** "Why hide most editor controls and Markdown syntax?"
 > **Domain expert:** "Most Markdown will be **Generated Markdown** that people only review or locally adjust. Keep the surface view-first and expose editing affordances only around the **Local Edit**."
 
+> **Dev:** "Can the demo say how to try the editor?"
+> **Domain expert:** "Yes, if the guidance reads like part of the **Self-Describing Demo Document**, not a separate UI tour."
+
 ## Flagged ambiguities
 
 - "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
 - "editor" can imply an authoring-first workspace; resolved: Nano Edit is a **View-First Editing Surface** for reviewing and locally editing generated documents.
 - "feature showcase" was too broad; resolved: demo content may introduce Nano Edit through a **Self-Describing Demo Document**, but editor chrome must stay quiet.
+- "usage guidance" was too broadly discouraged; resolved: **Document-Like Guidance** is allowed when it keeps the demo document-like.
 - "Markdown-native" was ambiguous; resolved: Markdown is an important expression and interchange format, but the **Nano Document** is the editor's structured source of truth.
 - LLM-driven extension/catalog assembly was discussed, but it is deferred future direction rather than Nano Edit's current core responsibility.
