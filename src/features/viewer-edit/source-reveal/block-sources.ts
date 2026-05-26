@@ -6,7 +6,7 @@ import {
   nodeIndent,
   nodeOrderedStart,
   nodeOrderedStartText,
-} from '../blocks/nano-block-structure'
+} from '../../../entities/block/structure/nano-block-structure'
 import {
   bulletMarker,
   calloutMarkerToken,
@@ -17,9 +17,9 @@ import {
   headingPrefixToken,
   orderedMarker,
   quotePrefixToken,
-} from '../adapters/prosemirror/prosemirror-block-attrs'
-import { nanoNodeNames } from '../adapters/prosemirror/prosemirror-nano'
-import { selectionTouchesBlock } from './nano-source-reveal-selection'
+} from '../../../adapters/prosemirror/prosemirror-block-attrs'
+import { nanoNodeNames } from '../../../adapters/prosemirror/prosemirror-nano'
+import { selectionTouchesBlock } from './selection'
 
 export interface ActiveBlockSource {
   from: number

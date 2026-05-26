@@ -1,17 +1,17 @@
 import type { Mark, Node as ProseMirrorNode } from 'prosemirror-model'
-import { footnoteLabel } from '../core/nano-footnote'
+import { footnoteLabel } from '../../../entities/reference/nano-footnote'
 import {
   boldMarker,
   codeBacktickToken,
   italicMarker,
-} from '../codecs/markdown/nano-markdown-inline-utils'
-import { tagLabel } from '../core/nano-tag'
+} from '../../../codecs/markdown/nano-markdown-inline-utils'
+import { tagLabel } from '../../../entities/reference/nano-tag'
 import {
   linkSyntax,
   markdownLinkClose,
-} from '../adapters/prosemirror/prosemirror-link-dom'
-import { nanoMarkNames } from '../adapters/prosemirror/prosemirror-nano'
-import { noteLinkTitle } from '../adapters/prosemirror/prosemirror-note-tag-dom'
+} from '../../../adapters/prosemirror/prosemirror-link-dom'
+import { nanoMarkNames } from '../../../adapters/prosemirror/prosemirror-nano'
+import { noteLinkTitle } from '../../../adapters/prosemirror/prosemirror-note-tag-dom'
 
 export interface InlineMarkRange {
   mark: Mark

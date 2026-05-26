@@ -1,12 +1,12 @@
 import { Plugin } from 'prosemirror-state'
-import { blockUiDecorations } from './nano-block-ui'
-import { syncFoldIndicatorStates } from './nano-fold-indicator'
-import { sourceRevealPlugin } from './nano-source-reveal-plugin'
+import { sourceRevealPlugin } from '../features/viewer-edit/source-reveal/plugin'
 import {
   activeTableCellBlockId,
   tableCellEditPlugin,
   type TableCellEditActions,
-} from './nano-view-table-cell-edit'
+} from '../features/viewer-edit/table-cell-edit/table-cell-edit-plugin'
+import { blockUiDecorations } from './nano-block-ui'
+import { syncFoldIndicatorStates } from './nano-fold-indicator'
 import type { NanoViewContext } from './nano-view-context'
 import type { NanoInputRuntime } from './nano-view-input-runtime'
 import type { NanoInputHandlers } from './nano-view-input-handlers'

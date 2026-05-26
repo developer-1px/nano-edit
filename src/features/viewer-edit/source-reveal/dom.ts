@@ -1,6 +1,6 @@
 import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
-import { sourceRevealPluginKey } from './nano-source-reveal-state'
+import { sourceRevealPluginKey } from './state'
 
 export function handleVisualSourceTokenMouseDown(view: EditorView, event: MouseEvent): boolean {
   const token = visualSourceTokenElement(event.target)

@@ -8,14 +8,14 @@ import {
   test,
   TextSelection,
 } from './harness.mjs'
-import { sourceRevealDecorations } from '../../src/view/nano-source-reveal-plugin.ts'
+import { sourceRevealDecorations } from '../../src/features/viewer-edit/source-reveal/plugin.ts'
 
 test('Inline Markdown syntax reveal is focus and selection scoped', () => {
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
   const inlineCss = readFileSync(new URL('../../src/styles/inline-tokens.css', import.meta.url), 'utf8')
   const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
-  const sourceReveal = readFileSync(new URL('../../src/view/nano-source-reveal-plugin.ts', import.meta.url), 'utf8')
-  const sourceRevealWidgets = readFileSync(new URL('../../src/view/nano-source-reveal-widgets.ts', import.meta.url), 'utf8')
+  const sourceReveal = readFileSync(new URL('../../src/features/viewer-edit/source-reveal/plugin.ts', import.meta.url), 'utf8')
+  const sourceRevealWidgets = readFileSync(new URL('../../src/features/viewer-edit/source-reveal/widgets.ts', import.meta.url), 'utf8')
   const quietRule = /\.nano-md-token::before,[\s\S]*?\.nano-md-token::after \{([\s\S]*?)\n\}/.exec(inlineCss)
   assert(quietRule, 'inline delimiter quiet rule should be present')
   assert(quietRule[1].includes('position: absolute;'))

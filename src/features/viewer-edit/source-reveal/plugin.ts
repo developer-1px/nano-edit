@@ -3,19 +3,19 @@ import {
   sourceRevealPluginKey,
   unfocusedSourceRevealState,
   type SourceRevealPluginState,
-} from './nano-source-reveal-state'
-import { sourceRevealDecorations } from './nano-source-reveal-decorations'
+} from './state'
+import { sourceRevealDecorations } from './decorations'
 import {
   clearActiveSourceTokenClasses,
   handleVisualSourceTokenMouseDown,
   scheduleActiveSourceTokenClassSync,
-} from './nano-source-reveal-dom'
+} from './dom'
 
-export { sourceRevealDecorations } from './nano-source-reveal-decorations'
+export { sourceRevealDecorations } from './decorations'
 export {
   sourceRevealPluginKey,
   type SourceRevealPluginState,
-} from './nano-source-reveal-state'
+} from './state'
 
 export function sourceRevealPlugin(collapsedBlockIds: ReadonlySet<string>): Plugin<SourceRevealPluginState> {
   return new Plugin<SourceRevealPluginState>({

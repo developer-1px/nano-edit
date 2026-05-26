@@ -1,9 +1,9 @@
 import { Plugin, PluginKey } from 'prosemirror-state'
 import type { EditorState } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
-import { normalizeTableRows } from '../adapters/prosemirror/prosemirror-table-normalize'
-import { nanoNodeNames } from '../adapters/prosemirror/prosemirror-names'
-import { blockPositionById } from '../blocks/nano-block-structure'
+import { normalizeTableRows } from '../../../adapters/prosemirror/prosemirror-table-normalize'
+import { nanoNodeNames } from '../../../adapters/prosemirror/prosemirror-names'
+import { blockPositionById } from '../../../entities/block/structure/nano-block-structure'
 
 export interface TableCellEditActions {
   restoreHistory: (direction: 'undo' | 'redo') => void

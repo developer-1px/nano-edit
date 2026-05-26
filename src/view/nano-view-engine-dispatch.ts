@@ -6,12 +6,12 @@ import {
   nanoSelectionFromProseMirror,
   textMergePathForDocuments,
 } from '../adapters/prosemirror/prosemirror-nano'
+import { sourceRevealPluginKey } from '../features/viewer-edit/source-reveal/plugin'
 import {
   TEXT_MERGE_MS,
   type NanoViewContext,
 } from './nano-view-context'
 import { pruneCollapsedBlocks } from './nano-view-engine-sync'
-import { sourceRevealPluginKey } from './nano-source-reveal-plugin'
 
 export function createProseMirrorTransactionDispatcher(
   ctx: NanoViewContext,

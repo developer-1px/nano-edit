@@ -1,13 +1,13 @@
 import type { EditorState } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
-import { activeBlockSources, type ActiveBlockSource } from './nano-source-reveal-block-sources'
+import { activeBlockSources, type ActiveBlockSource } from './block-sources'
 import {
   collectInlineMarkRanges,
   inlineSourceForMark,
-} from './nano-source-reveal-inline-sources'
-import { selectionTouchesInlineRange } from './nano-source-reveal-selection'
-import { sourceWidgetDecoration } from './nano-source-reveal-widgets'
-import type { SourceRevealPluginState } from './nano-source-reveal-state'
+} from './inline-sources'
+import { selectionTouchesInlineRange } from './selection'
+import { sourceWidgetDecoration } from './widgets'
+import type { SourceRevealPluginState } from './state'
 
 export function sourceRevealDecorations(
   state: EditorState,
