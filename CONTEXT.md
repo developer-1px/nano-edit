@@ -9,12 +9,12 @@ An embeddable package that provides the editor engine, view, codecs, commands, a
 _Avoid_: App, demo app, Markdown viewer
 
 **Demo Host**:
-A minimal local host used to exercise the editor package and verify the default document experience.
-_Avoid_: Product app, showcase page, landing page
+A local host used to exercise the editor package and show how generated Markdown can be reviewed and locally edited.
+_Avoid_: Product app, landing page, decorative showcase
 
 **Quiet Surface**:
 An editing surface where document content stays primary and Markdown syntax or editor chrome appears only when it is directly useful for editing.
-_Avoid_: Feature showcase, toolbar-heavy editor, decorative demo
+_Avoid_: Toolbar-heavy editor, decorative chrome, always-on source mode
 
 **View-First Editing Surface**:
 An editing surface that preserves the feel of a document viewer while allowing local, in-place edits.
@@ -27,6 +27,10 @@ _Avoid_: Plain textarea, HTML document, Notion-style page
 **Generated Markdown**:
 Markdown produced primarily by an AI system and then reviewed or locally edited by a person.
 _Avoid_: Hand-authored draft, canonical source file
+
+**Generated Demo Document**:
+A demo document that may introduce editor features, but reads like Markdown produced by an AI system rather than product UI copy.
+_Avoid_: UI manual, marketing page, handcrafted showcase
 
 **Local Edit**:
 A small human edit to a specific part of a generated document.
@@ -51,6 +55,7 @@ _Avoid_: Decoration, visible token, escaped text
 - A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
 - A **Quiet Surface** should behave as a **View-First Editing Surface**.
 - **Generated Markdown** is imported as a **Markdown-Native Document** for review and **Local Edits**.
+- A **Generated Demo Document** may explain capabilities through document content, while the editing affordances remain quiet and inline.
 - A **Markdown-Native Document** is represented internally as a **Nano Document**.
 - Markdown is one expression of a **Markdown-Native Document**, not the document's sole source of truth.
 - A **Source Choice** may be stored in a **Nano Document** when it affects editing expression.
@@ -59,7 +64,7 @@ _Avoid_: Decoration, visible token, escaped text
 ## Example dialogue
 
 > **Dev:** "Should the demo explain every supported Markdown feature?"
-> **Domain expert:** "No — the **Demo Host** should feel like a compact note. The **Editor Package** can expose capabilities without turning the surface into a showcase."
+> **Domain expert:** "It can, if it reads like a **Generated Demo Document**. The surface should still feel quiet and inline-editable."
 
 > **Dev:** "Is this just a Markdown textarea with prettier styling?"
 > **Domain expert:** "No — it is a **Quiet Surface** over a **Nano Document**, with Markdown import and export kept as a first-class contract."
@@ -74,5 +79,6 @@ _Avoid_: Decoration, visible token, escaped text
 
 - "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
 - "editor" can imply an authoring-first workspace; resolved: Nano Edit is a **View-First Editing Surface** for reviewing and locally editing generated documents.
+- "feature showcase" was too broad; resolved: demo content may introduce features when it reads like a **Generated Demo Document**, but editor chrome must stay quiet.
 - "Markdown-native" was ambiguous; resolved: Markdown is an important expression and interchange format, but the **Nano Document** is the editor's structured source of truth.
 - LLM-driven extension/catalog assembly was discussed, but it is deferred future direction rather than Nano Edit's current core responsibility.
