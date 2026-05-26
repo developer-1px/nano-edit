@@ -284,7 +284,7 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   assert.equal(baseCss.includes('markdown-body'), false)
 })
 
-test('Demo host language matches the compact Korean note', () => {
+test('Demo host language matches the Korean self-describing document', () => {
   const indexHtml = readFileSync(new URL('../../index.html', import.meta.url), 'utf8')
   assert(indexHtml.includes('<html lang="ko">'))
   assert.equal(indexHtml.includes('<html lang="en">'), false)

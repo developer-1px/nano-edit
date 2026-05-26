@@ -1,24 +1,37 @@
 import { initialNanoDocument } from '../../src/demo/initial-document.ts'
 import { assert, nanoDocumentIndex, nanoMarkdownFromDocument, test } from './harness.mjs'
 
-test('Demo document stays a compact note instead of a feature showcase', () => {
+test('Demo document describes Nano Edit as a generated-looking document', () => {
   const markdown = nanoMarkdownFromDocument(initialNanoDocument)
-  const forbiddenShowcaseCopy = [
+  const requiredSelfDescription = [
+    '# Nano Edit',
+    'embeddable editor package',
+    'AI가 만든 Markdown 문서',
+    '문서처럼 읽게 하고',
+    '필요한 부분만 조용히 고칠 수',
+    'Nano Document',
+    'Markdown codec',
+    'ProseMirror view',
+    'zod-crud',
+    '한번 고쳐보기',
+    '[[Nano Edit Demo]]',
+    '#generated-markdown',
+    '[^demo]: 데모 문서는 사용법을 설명할 수 있지만',
+  ]
+  for (const copy of requiredSelfDescription) {
+    assert(markdown.includes(copy), `demo should explain Nano Edit through document content: ${copy}`)
+  }
+
+  const forbiddenNonDocumentCopy = [
     '/todo',
     '/callout',
     'Cmd+K',
     'current block',
     'floating inspector',
-    'markdown clipboard',
-    '기능은',
-    '토큰은',
-    '편집면',
-    '기능을 설명',
+    'Command palette',
+    'toolbar',
+    'block picker',
     '기능 소개 UI',
-    'Source Model',
-    'round-trip',
-    'visual surface',
-    'portable markdown',
     'Command map',
     'https://bear.app',
     '## Appendix',
@@ -27,44 +40,40 @@ test('Demo document stays a compact note instead of a feature showcase', () => {
     'https://example.org',
     'files/field-notes.pdf',
     '[^draft]',
-    '의미와 흐름',
-    '꾸밈말',
     'Revision Log',
     'Collect',
     'Trim',
     'Send',
+    '현장 기록',
+    '시장 골목',
+    '기상청 단기예보',
     '관찰과 순서',
-    '첫 문장은 짧게',
     'draft',
   ]
-  for (const copy of forbiddenShowcaseCopy) {
-    assert.equal(markdown.includes(copy), false, `demo should not expose showcase copy: ${copy}`)
+  for (const copy of forbiddenNonDocumentCopy) {
+    assert.equal(markdown.includes(copy), false, `demo should stay document-like and avoid stale showcase/sample copy: ${copy}`)
   }
-  for (const copy of [
-    '[기상청 단기예보](https://www.weather.go.kr/)',
-    '![시장 골목 가판](https://images.unsplash.com/',
-    '| 항목 | 관찰 | 다음 |',
-    '```js',
-    '[^photo]: 오후에 받은 사진 묶음 기준.',
-  ]) {
-    assert(markdown.includes(copy), `demo should include rich note content: ${copy}`)
-  }
+
+  assert(markdown.includes('| 영역 | 역할 | 편집 중 보이는 것 |'))
+  assert(markdown.includes('```ts'))
+  assert(markdown.includes('![Nano Edit icon](/favicon.svg)'))
+  assert(markdown.includes('[Live Markdown spec](https://spec.commonmark.org/0.31.2/)'))
 
   const blockTypes = new Set(initialNanoDocument.blocks.map((block) => block.type))
   for (const type of ['heading', 'paragraph', 'todo', 'list_item', 'image', 'table', 'code', 'footnote']) {
-    assert(blockTypes.has(type), `demo should keep core note block: ${type}`)
+    assert(blockTypes.has(type), `demo should keep core self-describing document block: ${type}`)
   }
   for (const type of ['callout', 'math', 'bookmark', 'attachment', 'divider']) {
-    assert.equal(blockTypes.has(type), false, `demo should not showcase ${type} blocks`)
+    assert.equal(blockTypes.has(type), false, `demo should not add decorative ${type} blocks`)
   }
-  assert(initialNanoDocument.blocks.length <= 18, 'demo should stay short enough to read as a note')
+  assert(initialNanoDocument.blocks.length <= 28, 'demo should stay short enough to read as a generated document')
 
   const markTypes = new Set(initialNanoDocument.blocks.flatMap((block) => block.marks?.map((mark) => mark.type) ?? []))
   for (const type of ['bold', 'italic', 'highlight', 'strike', 'code', 'tag', 'note_link', 'link', 'footnote_ref']) {
-    assert(markTypes.has(type), `demo should keep quiet inline mark: ${type}`)
+    assert(markTypes.has(type), `demo should keep representative quiet inline mark: ${type}`)
   }
   for (const type of ['math']) {
-    assert.equal(markTypes.has(type), false, `demo should not showcase ${type} marks`)
+    assert.equal(markTypes.has(type), false, `demo should not add decorative ${type} marks`)
   }
 
   const index = nanoDocumentIndex(initialNanoDocument)
