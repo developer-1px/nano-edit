@@ -3,6 +3,7 @@ import { blockUiDecorations } from './nano-block-ui'
 import { syncFoldIndicatorStates } from './nano-fold-indicator'
 import { sourceRevealPlugin } from './nano-source-reveal-plugin'
 import {
+  activeTableCellBlockId,
   tableCellEditPlugin,
   type TableCellEditActions,
 } from './nano-view-table-cell-edit'
@@ -73,6 +74,7 @@ function activeBlockPlugin(ctx: NanoViewContext): Plugin {
         blockUiDecorations(
           state,
           ctx.collapsedBlockIds,
+          activeTableCellBlockId(state),
         ),
     },
   })

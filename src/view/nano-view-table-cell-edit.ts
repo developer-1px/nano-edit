@@ -1,4 +1,5 @@
-import { Plugin } from 'prosemirror-state'
+import { Plugin, PluginKey } from 'prosemirror-state'
+import type { EditorState } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { normalizeTableRows } from '../adapters/prosemirror/prosemirror-table-normalize'
 import { nanoNodeNames } from '../adapters/prosemirror/prosemirror-names'
@@ -8,11 +9,33 @@ export interface TableCellEditActions {
   restoreHistory: (direction: 'undo' | 'redo') => void
 }
 
-export function tableCellEditPlugin(actions: TableCellEditActions): Plugin {
-  return new Plugin({
+export interface TableCellEditPluginState {
+  activeTableBlockId: string | null
+}
+
+export const tableCellEditPluginKey = new PluginKey<TableCellEditPluginState>('nano-table-cell-edit')
+
+const inactiveTableCellEditState: TableCellEditPluginState = { activeTableBlockId: null }
+
+export function activeTableCellBlockId(state: EditorState): string | null {
+  return tableCellEditPluginKey.getState(state)?.activeTableBlockId ?? null
+}
+
+export function tableCellEditPlugin(actions: TableCellEditActions): Plugin<TableCellEditPluginState> {
+  return new Plugin<TableCellEditPluginState>({
+    key: tableCellEditPluginKey,
+    state: {
+      init: () => inactiveTableCellEditState,
+      apply: (transaction, value) => {
+        const next = transaction.getMeta(tableCellEditPluginKey) as TableCellEditPluginState | undefined
+        return next ?? value
+      },
+    },
     props: {
       handleDOMEvents: {
         beforeinput: (view, event) => handleTableCellBeforeInput(view, event as InputEvent, actions),
+        focusin: (view, event) => handleTableCellFocusIn(view, event as FocusEvent),
+        focusout: (view, event) => handleTableCellFocusOut(view, event as FocusEvent),
         keydown: (_view, event) => handleTableCellKeydown(event as KeyboardEvent, actions),
         input: (view, event) => handleTableCellInput(view, event),
         compositionend: (view, event) => handleTableCellCompositionEnd(view, event),
@@ -29,6 +52,7 @@ function handleTableCellBeforeInput(
 ): boolean {
   const cell = tableCellFromEventTarget(event.target)
   if (!cell) return false
+  setActiveTableCellBlock(view, cell)
 
   if (event.inputType === 'historyUndo' || event.inputType === 'historyRedo') {
     event.preventDefault()
@@ -73,6 +97,7 @@ function handleTableCellKeydown(event: KeyboardEvent, actions: TableCellEditActi
 function handleTableCellInput(view: EditorView, event: Event): boolean {
   const cell = tableCellFromEventTarget(event.target)
   if (!cell) return false
+  setActiveTableCellBlock(view, cell)
 
   if (event instanceof InputEvent && event.isComposing) {
     event.preventDefault()
@@ -85,12 +110,14 @@ function handleTableCellInput(view: EditorView, event: Event): boolean {
 
 function handleTableCellCompositionEnd(view: EditorView, event: Event): boolean {
   const cell = tableCellFromEventTarget(event.target)
+  if (cell) setActiveTableCellBlock(view, cell)
   return cell ? handleTableCellCommit(view, event, cell) : false
 }
 
 function handleTableCellPaste(view: EditorView, event: ClipboardEvent): boolean {
   const cell = tableCellFromEventTarget(event.target)
   if (!cell) return false
+  setActiveTableCellBlock(view, cell)
 
   const text = event.clipboardData?.getData('text/plain')
   if (typeof text !== 'string') return false
@@ -102,11 +129,25 @@ function handleTableCellPaste(view: EditorView, event: ClipboardEvent): boolean 
 }
 
 function handleTableCellCommit(view: EditorView, event: Event, cell: HTMLTableCellElement): boolean {
+  setActiveTableCellBlock(view, cell)
   const offset = cellSelectionOffset(cell) ?? (cell.textContent ?? '').length
   commitTableCellText(view, cell, offset)
   event.preventDefault()
   event.stopPropagation()
   return true
+}
+
+function handleTableCellFocusIn(view: EditorView, event: FocusEvent): boolean {
+  const cell = tableCellFromEventTarget(event.target)
+  if (cell) setActiveTableCellBlock(view, cell)
+  return false
+}
+
+function handleTableCellFocusOut(view: EditorView, event: FocusEvent): boolean {
+  const nextCell = tableCellFromEventTarget(event.relatedTarget)
+  if (nextCell) setActiveTableCellBlock(view, nextCell)
+  else clearActiveTableCellBlock(view)
+  return false
 }
 
 function insertTableCellText(view: EditorView, cell: HTMLTableCellElement, text: string): void {
@@ -189,6 +230,27 @@ function tableCellTarget(cell: HTMLTableCellElement): {
   if (!Number.isInteger(rowIndex) || !Number.isInteger(columnIndex)) return null
 
   return { columnIndex, id, rowIndex }
+}
+
+function setActiveTableCellBlock(view: EditorView, cell: HTMLTableCellElement): void {
+  const target = tableCellTarget(cell)
+  if (!target) return
+
+  if (activeTableCellBlockId(view.state) === target.id) return
+  dispatchActiveTableCellState(view, { activeTableBlockId: target.id })
+}
+
+function clearActiveTableCellBlock(view: EditorView): void {
+  if (!activeTableCellBlockId(view.state)) return
+  dispatchActiveTableCellState(view, inactiveTableCellEditState)
+}
+
+function dispatchActiveTableCellState(view: EditorView, state: TableCellEditPluginState): void {
+  view.dispatch(
+    view.state.tr
+      .setMeta(tableCellEditPluginKey, state)
+      .setMeta('addToHistory', false),
+  )
 }
 
 function tableCellFromEventTarget(target: EventTarget | null): HTMLTableCellElement | null {

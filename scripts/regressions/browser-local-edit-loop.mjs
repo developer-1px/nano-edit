@@ -92,6 +92,8 @@ async function runLocalEditLoop(browser, url) {
   await waitForExpression(browser, domTextIncludesExpression(tableCellSelector(targets), tableEditText))
   await waitForExpression(browser, storedTableCellIncludesExpression(targets, tableEditText))
   await waitForExpression(browser, focusedElementExpression(tableCellSelector(targets)))
+  await waitForExpression(browser, activeBlockExpression(targets.tableBlockId))
+  assertQuietSurface(await documentSnapshot(browser, targets))
 
   await pressKey(browser, 'z', 'KeyZ', 90, modifier)
   await waitForExpression(browser, `!(${domTextIncludesExpression(tableCellSelector(targets), tableEditText)})`)
@@ -350,6 +352,13 @@ function domTextIncludesExpression(selector, text) {
 
 function focusedElementExpression(selector) {
   return `document.activeElement === document.querySelector(${JSON.stringify(selector)})`
+}
+
+function activeBlockExpression(blockId) {
+  return `(() => {
+    const activeBlocks = [...document.querySelectorAll('.nano-block.nano-block-active')]
+    return activeBlocks.length === 1 && activeBlocks[0]?.dataset.id === ${JSON.stringify(blockId)}
+  })()`
 }
 
 function blockSelector(id) {

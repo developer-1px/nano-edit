@@ -213,6 +213,22 @@
   border-bottom: 1px solid var(--nano-border);
 }
 
+.nano-document th[data-editable='true'],
+.nano-document td[data-editable='true'] {
+  cursor: text;
+}
+
+.nano-document th[data-editable='true']:focus,
+.nano-document td[data-editable='true']:focus {
+  outline: none;
+  box-shadow: inset 0 -1px 0 var(--nano-accent-muted);
+}
+
+.nano-document th[data-editable='false'],
+.nano-document td[data-editable='false'] {
+  cursor: default;
+}
+
 .nano-document th {
   color: #4a484d;
   font-weight: 700;

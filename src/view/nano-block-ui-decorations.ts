@@ -7,7 +7,9 @@ import {
   blockCollapseRanges,
   blockId,
   isListLikeNode,
+  topLevelBlockRanges,
 } from '../blocks/nano-block-structure'
+import type { ActiveBlockRange } from '../blocks/nano-block-structure'
 import {
   decorateHeadingNode,
   decorateListNode,
@@ -28,6 +30,7 @@ export function blockOptionIdForBlockId(doc: ProseMirrorNode, id: string): strin
 export function blockUiDecorations(
   state: EditorState,
   collapsedBlockIds: ReadonlySet<string>,
+  activeBlockIdOverride: string | null = null,
 ): DecorationSet {
   const decorations: Decoration[] = []
   const collapseRanges = blockCollapseRanges(state.doc, collapsedBlockIds)
@@ -35,7 +38,7 @@ export function blockUiDecorations(
     .filter((range) => range.hidden)
     .map((range) => blockId(range.node))
     .filter(Boolean))
-  const block = activeBlockRange(state)
+  const block = activeBlockRangeForDecorations(state, activeBlockIdOverride)
   if (block) {
     const id = typeof block.node.attrs.id === 'string' ? block.node.attrs.id : ''
     if (!hiddenBlockIds.has(id)) {
@@ -61,4 +64,15 @@ export function blockUiDecorations(
   }
 
   return DecorationSet.create(state.doc, decorations)
+}
+
+function activeBlockRangeForDecorations(
+  state: EditorState,
+  activeBlockIdOverride: string | null,
+): ActiveBlockRange | null {
+  if (!activeBlockIdOverride) return activeBlockRange(state)
+
+  return topLevelBlockRanges(state.doc)
+    .find((range) => blockId(range.node) === activeBlockIdOverride)
+    ?? activeBlockRange(state)
 }
