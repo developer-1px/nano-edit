@@ -56,6 +56,26 @@ export function nanoPatchFromDocuments(
   return replaceBlocksPatch(previous, nanoDocumentFromProseMirror(nextDoc).blocks)
 }
 
+export function textMergePathForDocuments(previous: NanoDocument, next: NanoDocument): Pointer | null {
+  if (previous.blocks.length !== next.blocks.length) return null
+
+  const changedBlockIndexes = next.blocks
+    .map((block, index) => JSON.stringify(block) === JSON.stringify(previous.blocks[index]) ? -1 : index)
+    .filter((index) => index >= 0)
+  if (changedBlockIndexes.length !== 1) return null
+
+  const index = changedBlockIndexes[0]!
+  const current = previous.blocks[index]!
+  const candidate = next.blocks[index]!
+  if (current.id !== candidate.id || current.type !== candidate.type) return null
+
+  if (textBlockMergeable(current, candidate)) return blockTextPointer(index)
+  if (current.type === 'table' && candidate.type === 'table') {
+    return tableCellMergePath(index, current.rows, candidate.rows)
+  }
+  return null
+}
+
 export function nanoSelectionFromProseMirror(doc: ProseMirrorNode, selection: Selection): SelectionSnap | null {
   const anchor = nanoPointFromProseMirrorPosition(doc, selection.anchor)
   const focus = nanoPointFromProseMirrorPosition(doc, selection.head)
@@ -76,6 +96,41 @@ export function prosemirrorSelectionFromNano(
 
 export function textMergePathForPatch(patch: readonly JSONPatchOperation[]): Pointer | null {
   return patch.every((operation) => operation.path === blocksPointer()) ? blocksPointer() : null
+}
+
+function textBlockMergeable(current: NanoBlock, candidate: NanoBlock): boolean {
+  if (!('text' in current) || !('text' in candidate)) return false
+  if (current.text === candidate.text) return false
+
+  return JSON.stringify(withoutKeys(current, ['marks', 'text']))
+    === JSON.stringify(withoutKeys(candidate, ['marks', 'text']))
+}
+
+function tableCellMergePath(index: number, currentRows: readonly string[][], nextRows: readonly string[][]): Pointer | null {
+  if (currentRows.length !== nextRows.length) return null
+
+  const changedCells: Array<{ column: number; row: number }> = []
+  for (const [rowIndex, row] of nextRows.entries()) {
+    const currentRow = currentRows[rowIndex]
+    if (!currentRow || currentRow.length !== row.length) return null
+
+    for (const [columnIndex, value] of row.entries()) {
+      if (value !== currentRow[columnIndex]) changedCells.push({ column: columnIndex, row: rowIndex })
+    }
+  }
+
+  if (changedCells.length !== 1) return null
+
+  const cell = changedCells[0]!
+  return `/blocks/${index}/rows/${cell.row}/${cell.column}` as Pointer
+}
+
+function withoutKeys<T extends Record<string, unknown>>(value: T, keys: readonly string[]): Record<string, unknown> {
+  const copy: Record<string, unknown> = {}
+  for (const [key, item] of Object.entries(value)) {
+    if (!keys.includes(key)) copy[key] = item
+  }
+  return copy
 }
 
 function nanoPointFromProseMirrorPosition(doc: ProseMirrorNode, position: number): JSONPoint | null {

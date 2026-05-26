@@ -1,9 +1,10 @@
 import type { Transaction } from 'prosemirror-state'
 import type { Pointer, SelectionSnap } from 'zod-crud'
 import {
+  nanoDocumentFromProseMirror,
   nanoPatchFromDocuments,
   nanoSelectionFromProseMirror,
-  textMergePathForPatch,
+  textMergePathForDocuments,
 } from '../adapters/prosemirror/prosemirror-nano'
 import {
   TEXT_MERGE_MS,
@@ -34,6 +35,7 @@ export function createProseMirrorTransactionDispatcher(
       return
     }
 
+    const nextDocument = nanoDocumentFromProseMirror(nextState.doc)
     const patch = nanoPatchFromDocuments(ctx.engine.value, nextState.doc)
     if (patch.length === 0) {
       restoreNanoSelection(ctx, selection)
@@ -41,7 +43,7 @@ export function createProseMirrorTransactionDispatcher(
       return
     }
 
-    const mergePath = textMergePathForPatch(patch)
+    const mergePath = textMergePathForDocuments(ctx.engine.value, nextDocument)
     const committed = ctx.engine.commit(patch, {
       label: transactionLabel(transaction),
       origin: 'prosemirror-view',

@@ -41,6 +41,24 @@ test('Raw Markdown inline rendering catches underline inside table cells', () =>
   ])
 })
 
+test('Table local edit only opens one-line plain cells', () => {
+  const spec = blockDomSpec({
+    id: 'table',
+    type: 'table',
+    rows: [
+      ['Plain', '**Bold**', 'Multi\nline'],
+      ['Text cell', '[Link](https://example.com)', '#tag'],
+    ],
+  })
+
+  assert.equal(domSpecTableCell(spec, 'th', 0, 0)[1].contenteditable, 'true')
+  assert.equal(domSpecTableCell(spec, 'th', 0, 1)[1].contenteditable, 'false')
+  assert.equal(domSpecTableCell(spec, 'th', 0, 2)[1].contenteditable, 'false')
+  assert.equal(domSpecTableCell(spec, 'td', 1, 0)[1].contenteditable, 'true')
+  assert.equal(domSpecTableCell(spec, 'td', 1, 1)[1].contenteditable, 'false')
+  assert.equal(domSpecTableCell(spec, 'td', 1, 2)[1].contenteditable, 'false')
+})
+
 test('Markdown-visible block tokens expose source editing hooks', () => {
   const blocks = [
     { id: 'heading', type: 'heading', level: 1, text: 'Title', marks: [] },
@@ -87,4 +105,19 @@ function domSpecElementsByClass(spec, className) {
   const attrs = spec[1] && typeof spec[1] === 'object' && !Array.isArray(spec[1]) ? spec[1] : null
   const own = typeof attrs?.class === 'string' && attrs.class.split(/\s+/).includes(className) ? [spec] : []
   return own.concat(spec.flatMap((part) => domSpecElementsByClass(part, className)))
+}
+
+function domSpecTableCell(spec, tag, row, column) {
+  const cell = domSpecElementsByTag(spec, tag).find((item) =>
+    item[1]?.['data-row'] === String(row)
+    && item[1]?.['data-column'] === String(column),
+  )
+  assert(cell, `Missing ${tag} table cell ${row}:${column}`)
+  return cell
+}
+
+function domSpecElementsByTag(spec, tag) {
+  if (!Array.isArray(spec)) return []
+  const own = spec[0] === tag ? [spec] : []
+  return own.concat(spec.flatMap((part) => domSpecElementsByTag(part, tag)))
 }

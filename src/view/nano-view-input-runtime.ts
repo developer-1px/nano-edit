@@ -29,5 +29,7 @@ export function createNanoInputRuntime(
   return createNanoInputPlugins(ctx, {
     ...createNanoInputTextHandlers(ctx, actions),
     ...createNanoInputClickHandlers(inspector, actions),
+  }, {
+    restoreHistory: actions.restoreHistory,
   })
 }

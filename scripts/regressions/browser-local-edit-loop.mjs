@@ -11,6 +11,9 @@ const projectRoot = fileURLToPath(new URL('../..', import.meta.url))
 const storageKey = demoStorageKey()
 const localEditText = ' Local Edit Loop 확인'
 const tableEditText = ' / local edit'
+const compositionEditText = ' 조합 입력'
+const multilinePasteText = ' 붙여\n넣기'
+const normalizedPasteText = ' 붙여 넣기'
 const modifier = process.platform === 'darwin' ? 4 : 2
 
 const vitePort = await freePort()
@@ -67,25 +70,35 @@ async function runLocalEditLoop(browser, url) {
     return true
   })()`)
   await browser.send('Page.reload', { ignoreCache: true })
-  await waitForExpression(browser, 'Boolean(document.querySelector("[data-id=\\"md-1\\"]"))')
+  await waitForExpression(browser, 'Boolean(document.querySelector(".nano-block[data-id]"))')
 
-  const initial = await documentSnapshot(browser)
+  const targets = await resolveLocalEditTargets(browser)
+  assertResolvedTargets(targets)
+  const initial = await documentSnapshot(browser, targets)
   assert.equal(initial.title, 'Nano Edit')
-  assert.equal(initial.visibleSourceWidgets, 0)
+  assertQuietSurface(initial)
   assert.equal(initial.hasSelfDescription, true)
   assert.equal(initial.hasTableCell, true)
 
-  await appendText(browser, '[data-id="md-2"]', localEditText)
-  await waitForExpression(browser, storedTextIncludesExpression('md-2', localEditText))
+  await appendText(browser, blockSelector(targets.textBlockId), localEditText)
+  await waitForExpression(browser, domTextIncludesExpression(blockSelector(targets.textBlockId), localEditText))
+  await waitForExpression(browser, storedTextIncludesExpression(targets.textBlockId, localEditText))
 
-  await clickTarget(browser, '[data-id="md-12"] .nano-todo-box')
-  await waitForExpression(browser, storedTodoCheckedExpression('md-12', true))
+  await clickTarget(browser, `${blockSelector(targets.todoBlockId)} .nano-todo-box`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(`${blockSelector(targets.todoBlockId)} .nano-todo-box`)})?.getAttribute('aria-checked') === 'true'`)
+  await waitForExpression(browser, storedTodoCheckedExpression(targets.todoBlockId, true))
 
-  await appendText(browser, '[data-id="md-15"] td[data-row="3"][data-column="2"]', tableEditText)
-  await waitForExpression(browser, storedTableCellIncludesExpression(tableEditText))
+  await appendText(browser, tableCellSelector(targets), tableEditText)
+  await waitForExpression(browser, domTextIncludesExpression(tableCellSelector(targets), tableEditText))
+  await waitForExpression(browser, storedTableCellIncludesExpression(targets, tableEditText))
 
   await pressKey(browser, 'z', 'KeyZ', 90, modifier)
-  await waitForExpression(browser, `!(${storedTableCellIncludesExpression(tableEditText)})`)
+  await waitForExpression(browser, `!(${domTextIncludesExpression(tableCellSelector(targets), tableEditText)})`)
+  await waitForExpression(browser, `!(${storedTableCellIncludesExpression(targets, tableEditText)})`)
+  await waitForExpression(browser, domTextIncludesExpression(blockSelector(targets.textBlockId), localEditText))
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(`${blockSelector(targets.todoBlockId)} .nano-todo-box`)})?.getAttribute('aria-checked') === 'true'`)
+  await waitForExpression(browser, storedTextIncludesExpression(targets.textBlockId, localEditText))
+  await waitForExpression(browser, storedTodoCheckedExpression(targets.todoBlockId, true))
 
   await evaluate(browser, `(() => {
     const editor = document.querySelector('.ProseMirror')
@@ -93,26 +106,76 @@ async function runLocalEditLoop(browser, url) {
     return true
   })()`)
   await pressKey(browser, 'y', 'KeyY', 89, modifier)
-  await waitForExpression(browser, storedTableCellIncludesExpression(tableEditText))
+  await waitForExpression(browser, domTextIncludesExpression(tableCellSelector(targets), tableEditText))
+  await waitForExpression(browser, storedTableCellIncludesExpression(targets, tableEditText))
+
+  await composeText(browser, tableCellSelector(targets), compositionEditText)
+  await waitForExpression(browser, domTextIncludesExpression(tableCellSelector(targets), compositionEditText))
+  await waitForExpression(browser, storedTableCellIncludesExpression(targets, compositionEditText))
+
+  await pasteText(browser, tableCellSelector(targets), multilinePasteText)
+  await waitForExpression(browser, domTextIncludesExpression(tableCellSelector(targets), normalizedPasteText))
+  await waitForExpression(browser, storedTableCellIncludesExpression(targets, normalizedPasteText))
+  await waitForExpression(browser, `!(${storedTableCellIncludesExpression(targets, '\n')})`)
+
+  await blurEditor(browser)
+  assertQuietSurface(await documentSnapshot(browser, targets))
 
   await browser.send('Page.reload', { ignoreCache: true })
-  await waitForExpression(browser, `document.querySelector('[data-id="md-2"]')?.textContent.includes(${JSON.stringify(localEditText)})`)
-  const restored = await documentSnapshot(browser)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(blockSelector(targets.textBlockId))})?.textContent.includes(${JSON.stringify(localEditText)})`)
+  const restored = await documentSnapshot(browser, targets)
   assert.equal(restored.todoChecked, true)
   assert.equal(restored.tableCell.includes(tableEditText), true)
-  assert.equal(restored.visibleSourceWidgets, 0)
+  assert.equal(restored.tableCell.includes(compositionEditText), true)
+  assert.equal(restored.tableCell.includes(normalizedPasteText), true)
+  assertQuietSurface(restored)
 }
 
-async function documentSnapshot(browser) {
+async function resolveLocalEditTargets(browser) {
+  return evaluate(browser, `(() => {
+    const title = document.querySelector('.nano-heading-1[data-id] .nano-block-content')
+    const textBlock = blockContaining('.nano-paragraph[data-id]', 'AI가 만든 Markdown 문서')
+    const todoBlock = blockContaining('.nano-todo[data-id]', '이 항목의 문구를 바꿔 본다')
+    const tableBlock = blockContaining('.nano-table[data-id]', 'cursor 주변 affordance')
+    const tableCell = [...tableBlock.querySelectorAll('th[data-row][data-column], td[data-row][data-column]')]
+      .find((cell) => cell.textContent?.includes('cursor 주변 affordance'))
+
+    if (!(title instanceof HTMLElement)) throw new Error('Missing self-describing title')
+    if (!(textBlock instanceof HTMLElement)) throw new Error('Missing editable paragraph target')
+    if (!(todoBlock instanceof HTMLElement)) throw new Error('Missing editable todo target')
+    if (!(tableBlock instanceof HTMLElement)) throw new Error('Missing editable table target')
+    if (!(tableCell instanceof HTMLElement)) throw new Error('Missing editable table cell target')
+
+    return {
+      tableBlockId: tableBlock.dataset.id,
+      tableColumn: tableCell.dataset.column,
+      tableEditable: tableCell.dataset.editable,
+      tableRow: tableCell.dataset.row,
+      textBlockId: textBlock.dataset.id,
+      titleBlockId: title.closest('.nano-block[data-id]')?.dataset.id,
+      titleText: title.textContent?.trim() ?? '',
+      todoBlockId: todoBlock.dataset.id,
+    }
+
+    function blockContaining(selector, text) {
+      return [...document.querySelectorAll(selector)]
+        .find((element) => element.textContent?.includes(text))
+    }
+  })()`)
+}
+
+async function documentSnapshot(browser, targets) {
   return evaluate(browser, `(() => {
     return {
-      title: document.querySelector('[data-id="md-1"] .nano-block-content')?.textContent?.trim() ?? '',
+      title: document.querySelector(${JSON.stringify(`${blockSelector(targets.titleBlockId)} .nano-block-content`)})?.textContent?.trim() ?? '',
       hasSelfDescription: Boolean(document.body.textContent?.includes('AI가 만든 Markdown 문서')),
-      hasTableCell: Boolean([...document.querySelectorAll('[data-id="md-15"] td')].some((cell) => cell.textContent?.includes('cursor 주변 affordance'))),
-      tableCell: [...document.querySelectorAll('[data-id="md-15"] td')]
-        .find((cell) => cell.dataset.row === '3' && cell.dataset.column === '2')
+      hasTableCell: Boolean(document.querySelector(${JSON.stringify(tableCellSelector(targets))})),
+      tableCell: document.querySelector(${JSON.stringify(tableCellSelector(targets))})
         ?.textContent ?? '',
-      todoChecked: document.querySelector('[data-id="md-12"] .nano-todo-box')?.getAttribute('aria-checked') === 'true',
+      todoChecked: document.querySelector(${JSON.stringify(`${blockSelector(targets.todoBlockId)} .nano-todo-box`)})?.getAttribute('aria-checked') === 'true',
+      visibleCommandPalettes: visibleCount('.nano-command-palette:not([hidden])'),
+      visibleInspectorPanels: visibleCount('.inspector:not([hidden])'),
+      visibleSourceEditors: visibleCount('textarea.nano-markdown-block'),
       visibleSourceWidgets: visibleCount('.nano-source-widget'),
     }
 
@@ -130,9 +193,74 @@ async function documentSnapshot(browser) {
   })()`)
 }
 
+function assertQuietSurface(snapshot) {
+  assert.equal(snapshot.visibleSourceWidgets, 0)
+  assert.equal(snapshot.visibleSourceEditors, 0)
+  assert.equal(snapshot.visibleCommandPalettes, 0)
+  assert.equal(snapshot.visibleInspectorPanels, 0)
+}
+
+function assertResolvedTargets(targets) {
+  for (const [key, value] of Object.entries(targets)) {
+    assert.equal(typeof value, 'string', `resolved target ${key} must be a string`)
+    assert.notEqual(value, '', `resolved target ${key} must be non-empty`)
+  }
+  assert.equal(targets.tableEditable, 'true', 'local edit loop target table cell must be plain-editable')
+}
+
 async function appendText(browser, selector, text) {
   await focusEnd(browser, selector)
   await browser.send('Input.insertText', { text })
+}
+
+async function composeText(browser, selector, text) {
+  await focusEnd(browser, selector)
+  await evaluate(browser, `(() => {
+    const target = document.querySelector(${JSON.stringify(selector)})
+    if (!(target instanceof HTMLElement)) throw new Error('Missing composition target: ${selector}')
+    const selection = window.getSelection()
+    const range = selection?.rangeCount ? selection.getRangeAt(0) : document.createRange()
+    if (!target.contains(range.endContainer)) {
+      range.selectNodeContents(target)
+      range.collapse(false)
+    }
+    range.insertNode(document.createTextNode(${JSON.stringify(text)}))
+    range.collapse(false)
+    selection?.removeAllRanges()
+    selection?.addRange(range)
+    target.dispatchEvent(new InputEvent('input', {
+      bubbles: true,
+      data: ${JSON.stringify(text)},
+      inputType: 'insertCompositionText',
+      isComposing: true,
+    }))
+    target.dispatchEvent(new CompositionEvent('compositionend', {
+      bubbles: true,
+      data: ${JSON.stringify(text)},
+    }))
+    return true
+  })()`)
+}
+
+async function pasteText(browser, selector, text) {
+  await focusEnd(browser, selector)
+  await evaluate(browser, `(() => {
+    const target = document.querySelector(${JSON.stringify(selector)})
+    if (!(target instanceof HTMLElement)) throw new Error('Missing paste target: ${selector}')
+    let event
+    if (typeof ClipboardEvent === 'function' && typeof DataTransfer === 'function') {
+      const data = new DataTransfer()
+      data.setData('text/plain', ${JSON.stringify(text)})
+      event = new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: data })
+    } else {
+      event = new Event('paste', { bubbles: true, cancelable: true })
+      Object.defineProperty(event, 'clipboardData', {
+        value: { getData: (type) => type === 'text/plain' ? ${JSON.stringify(text)} : '' },
+      })
+    }
+    target.dispatchEvent(event)
+    return event.defaultPrevented
+  })()`)
 }
 
 async function focusEnd(browser, selector) {
@@ -151,6 +279,15 @@ async function focusEnd(browser, selector) {
     selection.addRange(range)
     return true
   })()`)
+}
+
+async function blurEditor(browser) {
+  await evaluate(browser, `(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+    window.getSelection()?.removeAllRanges()
+    return true
+  })()`)
+  await wait(120)
 }
 
 async function scrollTargetIntoView(browser, selector) {
@@ -202,8 +339,24 @@ function storedTodoCheckedExpression(blockId, checked) {
   return `JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null')?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.checked === ${checked}`
 }
 
-function storedTableCellIncludesExpression(text) {
-  return `JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null')?.blocks?.find((block) => block.id === 'md-15')?.rows?.[3]?.[2]?.includes(${JSON.stringify(text)}) === true`
+function storedTableCellIncludesExpression(targets, text) {
+  return `JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null')?.blocks?.find((block) => block.id === ${JSON.stringify(targets.tableBlockId)})?.rows?.[${Number(targets.tableRow)}]?.[${Number(targets.tableColumn)}]?.includes(${JSON.stringify(text)}) === true`
+}
+
+function domTextIncludesExpression(selector, text) {
+  return `document.querySelector(${JSON.stringify(selector)})?.textContent.includes(${JSON.stringify(text)}) === true`
+}
+
+function blockSelector(id) {
+  return `.nano-block[data-id="${cssAttributeValue(id)}"]`
+}
+
+function tableCellSelector(targets) {
+  return `${blockSelector(targets.tableBlockId)} [data-row="${cssAttributeValue(targets.tableRow)}"][data-column="${cssAttributeValue(targets.tableColumn)}"]`
+}
+
+function cssAttributeValue(value) {
+  return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 }
 
 async function waitForExpression(browser, expression) {

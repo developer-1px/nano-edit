@@ -53,8 +53,8 @@ export function tableDomSpec(
     [
       'table',
       {},
-      ['thead', {}, ['tr', {}, ...header.map((cell, index) => ['th', editableTableCellAttrs(0, index, alignments[index]), ...rawMarkdownInlineDomSpec(cell)])]],
-      ['tbody', {}, ...bodyRows.map((row, rowIndex) => ['tr', {}, ...row.map((cell, index) => ['td', editableTableCellAttrs(rowIndex + 1, index, alignments[index]), ...rawMarkdownInlineDomSpec(cell)])])],
+      ['thead', {}, ['tr', {}, ...header.map((cell, index) => tableCellDomSpec('th', 0, index, alignments[index], cell))]],
+      ['tbody', {}, ...bodyRows.map((row, rowIndex) => ['tr', {}, ...row.map((cell, index) => tableCellDomSpec('td', rowIndex + 1, index, alignments[index], cell))])],
     ],
     ['figcaption', hiddenSourceTokenAttrs('nano-table-markdown'), markdownTableToken(
       tableRows,
@@ -68,14 +68,35 @@ export function tableDomSpec(
   ]
 }
 
-function editableTableCellAttrs(rowIndex: number, columnIndex: number, align: TableAlign | undefined): Record<string, string> {
+function tableCellDomSpec(
+  tag: 'td' | 'th',
+  rowIndex: number,
+  columnIndex: number,
+  align: TableAlign | undefined,
+  cell: string,
+): DOMOutputSpec {
+  const content = rawMarkdownInlineDomSpec(cell)
+  const editable = isPlainEditableTableCell(content, cell)
+  return [
+    tag,
+    tableCellEditAttrs(rowIndex, columnIndex, align, editable),
+    ...content,
+  ]
+}
+
+function tableCellEditAttrs(rowIndex: number, columnIndex: number, align: TableAlign | undefined, editable: boolean): Record<string, string> {
   return {
     ...tableCellAttrs(align),
-    contenteditable: 'true',
+    contenteditable: String(editable),
     spellcheck: 'false',
+    'data-editable': String(editable),
     'data-row': String(rowIndex),
     'data-column': String(columnIndex),
   }
+}
+
+function isPlainEditableTableCell(content: readonly unknown[], cell: string): boolean {
+  return !/[\r\n]/.test(cell) && content.every((child) => typeof child === 'string')
 }
 
 function padTableRow(row: readonly string[], size: number): string[] {

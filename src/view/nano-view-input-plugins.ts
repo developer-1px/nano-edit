@@ -2,7 +2,10 @@ import { Plugin } from 'prosemirror-state'
 import { blockUiDecorations } from './nano-block-ui'
 import { syncFoldIndicatorStates } from './nano-fold-indicator'
 import { sourceRevealPlugin } from './nano-source-reveal-plugin'
-import { tableCellEditPlugin } from './nano-view-table-cell-edit'
+import {
+  tableCellEditPlugin,
+  type TableCellEditActions,
+} from './nano-view-table-cell-edit'
 import type { NanoViewContext } from './nano-view-context'
 import type { NanoInputRuntime } from './nano-view-input-runtime'
 import type { NanoInputHandlers } from './nano-view-input-handlers'
@@ -10,6 +13,7 @@ import type { NanoInputHandlers } from './nano-view-input-handlers'
 export function createNanoInputPlugins(
   ctx: NanoViewContext,
   handlers: NanoInputHandlers,
+  tableCellActions: TableCellEditActions,
 ): NanoInputRuntime {
   return {
     activeBlockPlugin: () => activeBlockPlugin(ctx),
@@ -17,7 +21,7 @@ export function createNanoInputPlugins(
     historyInputPlugin: () => historyInputPlugin(handlers),
     sourceRevealPlugin: () => sourceRevealPlugin(ctx.collapsedBlockIds),
     shortcutInputPlugin: () => shortcutInputPlugin(handlers),
-    tableCellEditPlugin: () => tableCellEditPlugin(),
+    tableCellEditPlugin: () => tableCellEditPlugin(tableCellActions),
   }
 }
 
