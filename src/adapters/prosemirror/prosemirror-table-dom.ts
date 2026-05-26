@@ -1,4 +1,5 @@
 import type { DOMOutputSpec } from 'prosemirror-model'
+import type { TableAlign } from './prosemirror-table-types'
 import { rawMarkdownInlineDomSpec } from './prosemirror-raw-markdown'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 import {
@@ -52,8 +53,8 @@ export function tableDomSpec(
     [
       'table',
       {},
-      ['thead', {}, ['tr', {}, ...header.map((cell, index) => ['th', tableCellAttrs(alignments[index]), ...rawMarkdownInlineDomSpec(cell)])]],
-      ['tbody', {}, ...bodyRows.map((row) => ['tr', {}, ...row.map((cell, index) => ['td', tableCellAttrs(alignments[index]), ...rawMarkdownInlineDomSpec(cell)])])],
+      ['thead', {}, ['tr', {}, ...header.map((cell, index) => ['th', editableTableCellAttrs(0, index, alignments[index]), ...rawMarkdownInlineDomSpec(cell)])]],
+      ['tbody', {}, ...bodyRows.map((row, rowIndex) => ['tr', {}, ...row.map((cell, index) => ['td', editableTableCellAttrs(rowIndex + 1, index, alignments[index]), ...rawMarkdownInlineDomSpec(cell)])])],
     ],
     ['figcaption', hiddenSourceTokenAttrs('nano-table-markdown'), markdownTableToken(
       tableRows,
@@ -65,6 +66,16 @@ export function tableDomSpec(
       tableTrailingPipes,
     )],
   ]
+}
+
+function editableTableCellAttrs(rowIndex: number, columnIndex: number, align: TableAlign | undefined): Record<string, string> {
+  return {
+    ...tableCellAttrs(align),
+    contenteditable: 'true',
+    spellcheck: 'false',
+    'data-row': String(rowIndex),
+    'data-column': String(columnIndex),
+  }
 }
 
 function padTableRow(row: readonly string[], size: number): string[] {

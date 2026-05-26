@@ -18,6 +18,7 @@ export interface NanoInputRuntime {
   historyInputPlugin: () => Plugin
   sourceRevealPlugin: () => Plugin
   shortcutInputPlugin: () => Plugin
+  tableCellEditPlugin: () => Plugin
 }
 
 export function createNanoInputRuntime(
