@@ -28,9 +28,9 @@ _Avoid_: Plain textarea, HTML document, Notion-style page
 Markdown produced primarily by an AI system and then reviewed or locally edited by a person.
 _Avoid_: Hand-authored draft, canonical source file
 
-**Generated Demo Document**:
-A demo document that may introduce editor features, but reads like Markdown produced by an AI system rather than product UI copy.
-_Avoid_: UI manual, marketing page, handcrafted showcase
+**Self-Describing Demo Document**:
+A generated-looking Markdown document that explains Nano Edit itself, including its purpose, usage, and structure.
+_Avoid_: Marketing page, decorative showcase, unrelated sample note
 
 **Local Edit**:
 A small human edit to a specific part of a generated document.
@@ -55,7 +55,7 @@ _Avoid_: Decoration, visible token, escaped text
 - A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
 - A **Quiet Surface** should behave as a **View-First Editing Surface**.
 - **Generated Markdown** is imported as a **Markdown-Native Document** for review and **Local Edits**.
-- A **Generated Demo Document** may explain capabilities through document content, while the editing affordances remain quiet and inline.
+- A **Self-Describing Demo Document** may explain Nano Edit's capabilities through document content, while the editing affordances remain quiet and inline.
 - A **Markdown-Native Document** is represented internally as a **Nano Document**.
 - Markdown is one expression of a **Markdown-Native Document**, not the document's sole source of truth.
 - A **Source Choice** may be stored in a **Nano Document** when it affects editing expression.
@@ -64,7 +64,7 @@ _Avoid_: Decoration, visible token, escaped text
 ## Example dialogue
 
 > **Dev:** "Should the demo explain every supported Markdown feature?"
-> **Domain expert:** "It can, if it reads like a **Generated Demo Document**. The surface should still feel quiet and inline-editable."
+> **Domain expert:** "It can, and it should preferably explain Nano Edit itself as a **Self-Describing Demo Document**. The surface should still feel quiet and inline-editable."
 
 > **Dev:** "Is this just a Markdown textarea with prettier styling?"
 > **Domain expert:** "No — it is a **Quiet Surface** over a **Nano Document**, with Markdown import and export kept as a first-class contract."
@@ -79,6 +79,6 @@ _Avoid_: Decoration, visible token, escaped text
 
 - "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
 - "editor" can imply an authoring-first workspace; resolved: Nano Edit is a **View-First Editing Surface** for reviewing and locally editing generated documents.
-- "feature showcase" was too broad; resolved: demo content may introduce features when it reads like a **Generated Demo Document**, but editor chrome must stay quiet.
+- "feature showcase" was too broad; resolved: demo content may introduce Nano Edit through a **Self-Describing Demo Document**, but editor chrome must stay quiet.
 - "Markdown-native" was ambiguous; resolved: Markdown is an important expression and interchange format, but the **Nano Document** is the editor's structured source of truth.
 - LLM-driven extension/catalog assembly was discussed, but it is deferred future direction rather than Nano Edit's current core responsibility.
