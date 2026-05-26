@@ -36,6 +36,10 @@ _Avoid_: Marketing page, decorative showcase, unrelated sample note
 Usage guidance written as part of the document's content instead of as surrounding application chrome.
 _Avoid_: Floating tutorial, command cheat sheet, UI tour
 
+**Integrator Reader**:
+A developer evaluating Nano Edit for a product that displays generated Markdown and needs quiet local editing.
+_Avoid_: End-user reader, library maintainer, marketing visitor
+
 **Local Edit**:
 A small human edit to a specific part of a generated document.
 _Avoid_: Full rewrite, source-mode editing session
@@ -61,6 +65,7 @@ _Avoid_: Decoration, visible token, escaped text
 - **Generated Markdown** is imported as a **Markdown-Native Document** for review and **Local Edits**.
 - A **Self-Describing Demo Document** may explain Nano Edit's capabilities through document content, while the editing affordances remain quiet and inline.
 - **Document-Like Guidance** may tell readers how to try Nano Edit when it remains part of the document rather than separate instructional chrome.
+- The primary reader of a **Self-Describing Demo Document** is an **Integrator Reader**.
 - A **Markdown-Native Document** is represented internally as a **Nano Document**.
 - Markdown is one expression of a **Markdown-Native Document**, not the document's sole source of truth.
 - A **Source Choice** may be stored in a **Nano Document** when it affects editing expression.
@@ -82,6 +87,9 @@ _Avoid_: Decoration, visible token, escaped text
 
 > **Dev:** "Can the demo say how to try the editor?"
 > **Domain expert:** "Yes, if the guidance reads like part of the **Self-Describing Demo Document**, not a separate UI tour."
+
+> **Dev:** "Who is the demo written for?"
+> **Domain expert:** "An **Integrator Reader** deciding whether Nano Edit fits a generated-Markdown product with quiet local edits."
 
 ## Flagged ambiguities
 
