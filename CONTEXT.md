@@ -16,16 +16,33 @@ _Avoid_: Product app, showcase page, landing page
 An editing surface where document content stays primary and Markdown syntax or editor chrome appears only when it is directly useful for editing.
 _Avoid_: Feature showcase, toolbar-heavy editor, decorative demo
 
+**Markdown-Native Document**:
+A document that can be edited as rich content while remaining serializable to Markdown without losing supported source choices.
+_Avoid_: Plain textarea, HTML document, Notion-style page
+
+**Nano Document**:
+The structured document state that stores blocks, inline marks, and source-preserving attributes for the editor.
+_Avoid_: ProseMirror document, Markdown string, DOM state
+
+**Source Mark**:
+An inline mark used to preserve exact Markdown gesture text when the editor cannot or should not reinterpret it as richer structure.
+_Avoid_: Decoration, visible token, escaped text
+
 ## Relationships
 
 - The **Editor Package** can be mounted by one or more host products.
 - The **Demo Host** exists to validate the **Editor Package**, not to define product scope.
 - A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
+- A **Markdown-Native Document** is represented internally as a **Nano Document**.
+- A **Source Mark** belongs to a **Nano Document** and preserves Markdown source that should round-trip literally.
 
 ## Example dialogue
 
 > **Dev:** "Should the demo explain every supported Markdown feature?"
 > **Domain expert:** "No — the **Demo Host** should feel like a compact note. The **Editor Package** can expose capabilities without turning the surface into a showcase."
+
+> **Dev:** "Is this just a Markdown textarea with prettier styling?"
+> **Domain expert:** "No — it is a **Quiet Surface** over a **Nano Document**, with Markdown import and export kept as a first-class contract."
 
 ## Flagged ambiguities
 
