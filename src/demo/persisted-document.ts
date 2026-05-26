@@ -6,7 +6,7 @@ import {
 } from '../core/nano-core'
 import { initialNanoDocument } from './initial-document'
 
-export const DEMO_DOCUMENT_STORAGE_KEY = 'nano-edit:demo-document:v8'
+export const DEMO_DOCUMENT_STORAGE_KEY = 'nano-edit:demo-document:v9'
 const STALE_DEMO_DOCUMENT_STORAGE_KEYS = [
   'nano-edit:demo-document:v1',
   'nano-edit:demo-document:v2',
@@ -15,6 +15,7 @@ const STALE_DEMO_DOCUMENT_STORAGE_KEYS = [
   'nano-edit:demo-document:v5',
   'nano-edit:demo-document:v6',
   'nano-edit:demo-document:v7',
+  'nano-edit:demo-document:v8',
 ]
 
 export type DemoDocumentStorage =

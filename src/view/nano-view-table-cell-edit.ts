@@ -206,14 +206,17 @@ function restoreCellFocus(
   target: { columnIndex: number; id: string; rowIndex: number },
   offset: number,
 ): void {
-  requestAnimationFrame(() => {
+  const restore = () => {
     const selector = `.nano-table[data-id="${cssEscape(target.id)}"] [data-row="${target.rowIndex}"][data-column="${target.columnIndex}"]`
     const cell = view.dom.querySelector<HTMLElement>(selector)
     if (!cell) return
 
     cell.focus({ preventScroll: true })
     collapseSelection(cell, offset)
-  })
+  }
+
+  restore()
+  requestAnimationFrame(restore)
 }
 
 function collapseSelection(element: HTMLElement, offset: number): void {

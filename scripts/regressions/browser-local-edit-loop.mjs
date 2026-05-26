@@ -91,6 +91,7 @@ async function runLocalEditLoop(browser, url) {
   await appendText(browser, tableCellSelector(targets), tableEditText)
   await waitForExpression(browser, domTextIncludesExpression(tableCellSelector(targets), tableEditText))
   await waitForExpression(browser, storedTableCellIncludesExpression(targets, tableEditText))
+  await waitForExpression(browser, focusedElementExpression(tableCellSelector(targets)))
 
   await pressKey(browser, 'z', 'KeyZ', 90, modifier)
   await waitForExpression(browser, `!(${domTextIncludesExpression(tableCellSelector(targets), tableEditText)})`)
@@ -135,7 +136,7 @@ async function resolveLocalEditTargets(browser) {
   return evaluate(browser, `(() => {
     const title = document.querySelector('.nano-heading-1[data-id] .nano-block-content')
     const textBlock = blockContaining('.nano-paragraph[data-id]', 'AI가 만든 Markdown 문서')
-    const todoBlock = blockContaining('.nano-todo[data-id]', '이 항목의 문구를 바꿔 본다')
+    const todoBlock = blockContaining('.nano-todo[data-id]', '필요한 문장만 조용히 고친다')
     const tableBlock = blockContaining('.nano-table[data-id]', 'cursor 주변 affordance')
     const tableCell = [...tableBlock.querySelectorAll('th[data-row][data-column], td[data-row][data-column]')]
       .find((cell) => cell.textContent?.includes('cursor 주변 affordance'))
@@ -345,6 +346,10 @@ function storedTableCellIncludesExpression(targets, text) {
 
 function domTextIncludesExpression(selector, text) {
   return `document.querySelector(${JSON.stringify(selector)})?.textContent.includes(${JSON.stringify(text)}) === true`
+}
+
+function focusedElementExpression(selector) {
+  return `document.activeElement === document.querySelector(${JSON.stringify(selector)})`
 }
 
 function blockSelector(id) {
