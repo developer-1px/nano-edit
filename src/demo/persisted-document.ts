@@ -28,10 +28,20 @@ export interface PersistedDemoNanoDocument {
   destroy(): void
 }
 
+export interface PersistedDemoNanoDocumentOptions {
+  initialDocument?: NanoDocument
+  storage?: DemoDocumentStorage | null
+  storageKey?: string
+}
+
 export function createPersistedDemoNanoDocument(
-  storage: DemoDocumentStorage | null = browserDemoDocumentStorage(),
+  options?: DemoDocumentStorage | PersistedDemoNanoDocumentOptions | null,
 ): PersistedDemoNanoDocument {
-  const engine = createNanoDocument(readStoredDemoNanoDocument(storage) ?? initialNanoDocument)
+  const config = persistedDemoNanoDocumentConfig(options)
+  const storageKey = config.storageKey ?? DEMO_DOCUMENT_STORAGE_KEY
+  const initialDocument = config.initialDocument ?? initialNanoDocument
+  const storage = config.storage
+  const engine = createNanoDocument(readStoredDemoNanoDocument(storage, storageKey) ?? initialDocument)
   removeStaleDemoNanoDocuments(storage)
 
   if (!storage) {
@@ -39,13 +49,36 @@ export function createPersistedDemoNanoDocument(
   }
 
   const unsubscribe = engine.subscribe(() => {
-    writeStoredDemoNanoDocument(storage, engine.value)
+    writeStoredDemoNanoDocument(storage, storageKey, engine.value)
   })
 
   return {
     engine,
     destroy: unsubscribe,
   }
+}
+
+function persistedDemoNanoDocumentConfig(
+  options: DemoDocumentStorage | PersistedDemoNanoDocumentOptions | null | undefined,
+): Required<Pick<PersistedDemoNanoDocumentOptions, 'storage'>> & PersistedDemoNanoDocumentOptions {
+  if (options === undefined) return { storage: browserDemoDocumentStorage() }
+  if (options === null) return { storage: null }
+  if (!isDemoDocumentStorage(options)) {
+    return {
+      ...options,
+      storage: options.storage === undefined ? browserDemoDocumentStorage() : options.storage,
+    }
+  }
+  return { storage: options }
+}
+
+function isDemoDocumentStorage(
+  value: DemoDocumentStorage | PersistedDemoNanoDocumentOptions,
+): value is DemoDocumentStorage {
+  return 'getItem' in value
+    && 'setItem' in value
+    && typeof value.getItem === 'function'
+    && typeof value.setItem === 'function'
 }
 
 function browserDemoDocumentStorage(): DemoDocumentStorage | null {
@@ -58,11 +91,11 @@ function browserDemoDocumentStorage(): DemoDocumentStorage | null {
   }
 }
 
-function readStoredDemoNanoDocument(storage: DemoDocumentStorage | null): NanoDocument | null {
+function readStoredDemoNanoDocument(storage: DemoDocumentStorage | null, storageKey: string): NanoDocument | null {
   if (!storage) return null
 
   try {
-    const stored = storage.getItem(DEMO_DOCUMENT_STORAGE_KEY)
+    const stored = storage.getItem(storageKey)
     if (!stored) return null
 
     const parsed = NanoDocumentSchema.safeParse(JSON.parse(stored))
@@ -74,10 +107,11 @@ function readStoredDemoNanoDocument(storage: DemoDocumentStorage | null): NanoDo
 
 function writeStoredDemoNanoDocument(
   storage: DemoDocumentStorage,
+  storageKey: string,
   document: NanoDocument,
 ): void {
   try {
-    storage.setItem(DEMO_DOCUMENT_STORAGE_KEY, JSON.stringify(document))
+    storage.setItem(storageKey, JSON.stringify(document))
   } catch {
     // Persistence is best-effort; editing should keep working if storage is unavailable.
   }

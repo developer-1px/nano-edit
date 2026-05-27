@@ -139,3 +139,30 @@ test('Persisted demo document saves edits and stops saving after destroy', () =>
 
   assert.equal(storage.writes.length, writeCount)
 })
+
+test('Persisted demo document can use a custom seed and storage key', () => {
+  const storage = new FakeStorage()
+  const customDocument = {
+    blocks: [{ id: 'custom-1', type: 'paragraph', text: 'Custom document seed', marks: [] }],
+  }
+  const persisted = createPersistedDemoNanoDocument({
+    initialDocument: customDocument,
+    storage,
+    storageKey: 'nano-edit:demo-document:test-custom',
+  })
+
+  assert.deepEqual(persisted.engine.value, customDocument)
+
+  const committed = persisted.engine.commit(
+    [{ op: 'replace', path: '/blocks/0/text', value: 'Custom document saved' }],
+    { label: 'persist custom demo document edit' },
+  )
+
+  assert.equal(committed.ok, true)
+  assert.equal(storage.getItem(DEMO_DOCUMENT_STORAGE_KEY), null)
+  assert.equal(
+    JSON.parse(storage.getItem('nano-edit:demo-document:test-custom')).blocks[0].text,
+    'Custom document saved',
+  )
+  persisted.destroy()
+})

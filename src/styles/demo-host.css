@@ -6,6 +6,127 @@ body {
 html,
 body,
 #app {
+  min-height: 100%;
   max-width: 100%;
   overflow-x: hidden;
+}
+
+.demo-documents {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  background: #ffffff;
+  color: #414044;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", Helvetica, Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.demo-document-nav {
+  height: 100svh;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 54px 16px 24px;
+  border-right: 1px solid #e4dfda;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.demo-document-nav-title {
+  margin: 0 0 10px;
+  padding: 0 8px;
+  color: #837d78;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.demo-document-list {
+  display: grid;
+  gap: 2px;
+}
+
+.demo-document-button {
+  width: 100%;
+  min-height: 48px;
+  padding: 7px 8px 7px 10px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: #5f5b58;
+  cursor: pointer;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  text-align: left;
+  font: inherit;
+}
+
+.demo-document-button:hover,
+.demo-document-button:focus-visible,
+.demo-document-button[data-active='true'] {
+  color: #414044;
+  border-left-color: #e8aaa6;
+}
+
+.demo-document-button:focus-visible {
+  outline: 1.5px solid #d95b56;
+  outline-offset: 2px;
+}
+
+.demo-document-title,
+.demo-document-summary {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demo-document-title {
+  font-size: 13px;
+  font-weight: 680;
+  line-height: 1.25;
+}
+
+.demo-document-summary {
+  color: #837d78;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.demo-document-main,
+.demo-editor-mount {
+  min-width: 0;
+  min-height: 100svh;
+}
+
+@media (max-width: 900px) {
+  .demo-documents {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .demo-document-nav {
+    height: auto;
+    padding: 10px 12px;
+    border-right: 0;
+    border-bottom: 1px solid #e4dfda;
+  }
+
+  .demo-document-list {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .demo-document-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .demo-document-button {
+    width: 172px;
+    min-width: 172px;
+    min-height: 44px;
+  }
 }
