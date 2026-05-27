@@ -1,5 +1,6 @@
 import * as h from './harness.mjs'
 const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { createNanoEditorKit, defaultNanoEditorKit, kitHasViewFeature, nanoCommands } = h
 
 test('Editor part catalog exposes 49 usable assembly parts', () => {
   assert.equal(editorPartCatalog.length, 49)
@@ -63,6 +64,59 @@ test('Block capabilities assemble a basic todo editor surface', () => {
     checkedMarker: 'X',
   })
 })
+
+test('Editor kit turns selected capabilities into block affordances', () => {
+  const kit = createNanoEditorKit({
+    id: 'nano.basic-only',
+    capabilities: [basicCapability],
+    viewFeatures: ['active-block-ui'],
+  })
+
+  assert.equal(kit.id, 'nano.basic-only')
+  assert.deepEqual(
+    kit.blockOptions.map((option) => option.id),
+    ['paragraph', 'heading-1', 'heading-2', 'heading-3', 'heading-4', 'heading-5', 'heading-6'],
+  )
+  assert.equal(kitHasViewFeature(kit, 'source-reveal'), false)
+  assert.equal(kitHasViewFeature(defaultNanoEditorKit, 'source-reveal'), true)
+  assert.equal(defaultNanoEditorKit.blockOptions.some((option) => option.id === 'todo'), true)
+})
+
+test('Command registry uses the active editor kit block options', () => {
+  const kit = createNanoEditorKit({ capabilities: [basicCapability] })
+  const commandIds = nanoCommands({
+    activeBlockId: 'b1',
+    actions: noopCommandActions(),
+    blockId: null,
+    blockOptions: kit.blockOptions,
+    canIndentBlock: () => false,
+    canMoveBlock: () => false,
+    hasTextSelection: false,
+    mode: 'global',
+  }).map((command) => command.id)
+
+  assert(commandIds.includes('block:paragraph'))
+  assert(commandIds.includes('block:heading-1'))
+  assert.equal(commandIds.includes('block:todo'), false)
+})
+
+function noopCommandActions() {
+  return {
+    changeBlockById: () => undefined,
+    copyMarkdown: () => undefined,
+    deleteBlock: () => undefined,
+    duplicateBlock: () => undefined,
+    focusMarkdownSource: () => undefined,
+    indentBlock: () => undefined,
+    insertBlock: () => undefined,
+    moveBlock: () => undefined,
+    redo: () => undefined,
+    runMark: () => undefined,
+    showInspector: () => undefined,
+    togglePinnedInspector: () => undefined,
+    undo: () => undefined,
+  }
+}
 
 test('zod-crud history restores Nano selection snapshots on undo and redo', () => {
   const engine = createNanoDocument({

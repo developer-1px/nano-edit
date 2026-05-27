@@ -1,7 +1,10 @@
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import type { EditorState } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
-import { blockOptions } from '../blocks/nano-block-options'
+import {
+  blockOptions,
+  type BlockOptionRegistry,
+} from '../blocks/nano-block-options'
 import {
   activeBlockRange,
   blockCollapseRanges,
@@ -15,13 +18,18 @@ import {
   decorateListNode,
 } from './nano-block-ui-decoration-nodes'
 
-export function blockOptionIdForBlockId(doc: ProseMirrorNode, id: string): string | null {
+export function blockOptionIdForBlockId(
+  doc: ProseMirrorNode,
+  id: string,
+  registry?: BlockOptionRegistry,
+): string | null {
   let optionId: string | null = null
+  const options = registry?.blockOptions ?? blockOptions
   doc.descendants((node) => {
     if (optionId) return false
     if (node.attrs.id !== id) return true
 
-    optionId = blockOptions.find((option) => option.matches(node))?.id ?? null
+    optionId = options.find((option) => option.matches(node))?.id ?? null
     return false
   })
   return optionId

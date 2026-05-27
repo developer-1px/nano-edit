@@ -4,6 +4,7 @@ import {
   blockBehaviorForNode,
   blockKeyboardContext,
   nextBlockId,
+  type BlockOptionRegistry,
 } from '../blocks/nano-block-options'
 import {
   isListLikeNode,
@@ -24,11 +25,17 @@ import { insertBlockAfterActiveTransaction } from './nano-view-block-edit-transa
 import { exitListSubtreeTransaction } from './nano-view-keyboard-list-exit'
 import { continuationMarkerBackspaceTransaction } from './nano-view-continuation-markers'
 
-export function enterBlockTransaction(state: EditorState): Transaction | null {
+export function enterBlockTransaction(
+  state: EditorState,
+  registry?: BlockOptionRegistry,
+): Transaction | null {
   const context = blockKeyboardContext(state)
   if (!context) return null
 
-  return blockBehaviorForNode(context.block)?.enter?.(context) ?? null
+  const behavior = registry
+    ? registry.blockBehaviorForNode(context.block)
+    : blockBehaviorForNode(context.block)
+  return behavior?.enter?.(context) ?? null
 }
 
 export function enterListSubtreeTransaction(state: EditorState): Transaction | null {
@@ -55,7 +62,10 @@ export function enterListParentEndTransaction(state: EditorState): Transaction |
   return transaction
 }
 
-export function enterSelectedBlockTransaction(state: EditorState): Transaction | null {
+export function enterSelectedBlockTransaction(
+  state: EditorState,
+  registry?: BlockOptionRegistry,
+): Transaction | null {
   const { selection } = state
   if (!(selection instanceof NodeSelection) || !selection.node.isBlock) return null
 
@@ -63,21 +73,30 @@ export function enterSelectedBlockTransaction(state: EditorState): Transaction |
     return state.tr.setSelection(TextSelection.create(state.doc, selection.to - 1))
   }
 
-  return insertBlockAfterActiveTransaction(state, { type: 'paragraph' })
+  return insertBlockAfterActiveTransaction(state, { type: 'paragraph' }, registry)
 }
 
-export function backspaceBlockTransaction(state: EditorState): Transaction | null {
+export function backspaceBlockTransaction(
+  state: EditorState,
+  registry?: BlockOptionRegistry,
+): Transaction | null {
   const context = blockKeyboardContext(state)
   if (!context) return null
 
   const continuationTransaction = continuationMarkerBackspaceTransaction(context)
   if (continuationTransaction) return continuationTransaction
 
-  return blockBehaviorForNode(context.block)?.backspaceAtStart?.(context) ?? null
+  const behavior = registry
+    ? registry.blockBehaviorForNode(context.block)
+    : blockBehaviorForNode(context.block)
+  return behavior?.backspaceAtStart?.(context) ?? null
 }
 
-export function deleteBlockSyntaxTransaction(state: EditorState): Transaction | null {
-  return backspaceBlockTransaction(state)
+export function deleteBlockSyntaxTransaction(
+  state: EditorState,
+  registry?: BlockOptionRegistry,
+): Transaction | null {
+  return backspaceBlockTransaction(state, registry)
 }
 
 export function backspaceListSubtreeTransaction(state: EditorState): Transaction | null {

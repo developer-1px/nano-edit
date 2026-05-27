@@ -1,6 +1,8 @@
 import type { EditorView } from 'prosemirror-view'
 import type { Pointer } from 'zod-crud'
+import type { BlockOptionRegistry } from '../blocks/nano-block-options'
 import type { NanoDocumentEngine } from '../core/nano-core'
+import type { NanoEditorKit } from '../engine/editor-kit'
 import type { NanoShell } from './nano-command-surface'
 
 export const TEXT_MERGE_MS = 600
@@ -9,6 +11,7 @@ export interface NanoViewOptions {
   mount: HTMLElement
   engine: NanoDocumentEngine
   ariaLabel?: string
+  kit?: NanoEditorKit
   spellcheck?: boolean
 }
 
@@ -18,6 +21,8 @@ export interface NanoViewHandle {
 
 export interface NanoViewContext {
   engine: NanoDocumentEngine
+  kit: NanoEditorKit
+  blockRegistry: BlockOptionRegistry
   root: HTMLElement
   editor: HTMLElement
   shell: NanoShell

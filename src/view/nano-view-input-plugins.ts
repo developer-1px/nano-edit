@@ -5,6 +5,7 @@ import {
   tableCellEditPlugin,
   type TableCellEditActions,
 } from '../features/viewer-edit/table-cell-edit/table-cell-edit-plugin'
+import { kitHasViewFeature } from '../engine/editor-kit'
 import { blockUiDecorations } from './nano-block-ui'
 import { syncFoldIndicatorStates } from './nano-fold-indicator'
 import type { NanoViewContext } from './nano-view-context'
@@ -20,10 +21,18 @@ export function createNanoInputPlugins(
     activeBlockPlugin: () => activeBlockPlugin(ctx),
     blockClickPlugin: () => blockClickPlugin(handlers),
     historyInputPlugin: () => historyInputPlugin(handlers),
-    sourceRevealPlugin: () => sourceRevealPlugin(ctx.collapsedBlockIds),
+    sourceRevealPlugin: () => kitHasViewFeature(ctx.kit, 'source-reveal')
+      ? sourceRevealPlugin(ctx.collapsedBlockIds)
+      : emptyPlugin(),
     shortcutInputPlugin: () => shortcutInputPlugin(handlers),
-    tableCellEditPlugin: () => tableCellEditPlugin(tableCellActions),
+    tableCellEditPlugin: () => kitHasViewFeature(ctx.kit, 'table-cell-edit')
+      ? tableCellEditPlugin(tableCellActions)
+      : emptyPlugin(),
   }
+}
+
+function emptyPlugin(): Plugin {
+  return new Plugin({})
 }
 
 function historyInputPlugin(handlers: NanoInputHandlers): Plugin {
@@ -71,11 +80,13 @@ function activeBlockPlugin(ctx: NanoViewContext): Plugin {
     },
     props: {
       decorations: (state) =>
-        blockUiDecorations(
-          state,
-          ctx.collapsedBlockIds,
-          activeTableCellBlockId(state),
-        ),
+        kitHasViewFeature(ctx.kit, 'active-block-ui')
+          ? blockUiDecorations(
+            state,
+            ctx.collapsedBlockIds,
+            activeTableCellBlockId(state),
+          )
+          : null,
     },
   })
 }

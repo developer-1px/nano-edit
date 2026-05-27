@@ -35,6 +35,7 @@ export function installNanoShell(
       return nanoCommands({
         activeBlockId: activeBlockId(state),
         blockId: context.blockId,
+        blockOptions: ctx.kit.blockOptions,
         canIndentBlock: (direction) => canIndentActiveBlock(state, direction, ctx.collapsedBlockIds),
         canMoveBlock: (direction) => canMoveActiveBlock(state, direction, ctx.collapsedBlockIds),
         hasTextSelection: !state.selection.empty,

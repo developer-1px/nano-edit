@@ -37,7 +37,7 @@ export function backspaceKeyCommand(ctx: NanoViewContext): Command {
       return true
     }
 
-    const transaction = backspaceBlockTransaction(state)
+    const transaction = backspaceBlockTransaction(state, ctx.blockRegistry)
     if (!transaction) return false
 
     if (dispatch) dispatch(transaction.scrollIntoView())
@@ -72,7 +72,7 @@ export function deleteKeyCommand(ctx: NanoViewContext): Command {
       return true
     }
 
-    const transaction = deleteBlockSyntaxTransaction(state)
+    const transaction = deleteBlockSyntaxTransaction(state, ctx.blockRegistry)
     if (!transaction) return false
 
     if (dispatch) dispatch(transaction.scrollIntoView())

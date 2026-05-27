@@ -1,4 +1,5 @@
 import type { Command } from 'prosemirror-state'
+import type { NanoViewContext } from './nano-view-context'
 import {
   blockEnterShortcutTransaction,
   enterBlockTransaction,
@@ -9,15 +10,15 @@ import {
   trailingReferenceMarkTransaction,
 } from './nano-view-keyboard-transactions'
 
-export function enterKeyCommand(): Command {
+export function enterKeyCommand(ctx: NanoViewContext): Command {
   return (state, dispatch, view) => {
-    const selectedBlockTransaction = enterSelectedBlockTransaction(state)
+    const selectedBlockTransaction = enterSelectedBlockTransaction(state, ctx.blockRegistry)
     if (selectedBlockTransaction) {
       if (dispatch) dispatch(selectedBlockTransaction.scrollIntoView())
       return true
     }
 
-    const shortcutTransaction = blockEnterShortcutTransaction(state)
+    const shortcutTransaction = blockEnterShortcutTransaction(state, ctx.blockRegistry)
     if (shortcutTransaction) {
       if (dispatch) dispatch(shortcutTransaction.scrollIntoView())
       return true
@@ -29,7 +30,7 @@ export function enterKeyCommand(): Command {
 
       dispatch(trailingReferenceTransaction)
       const nextState = view?.state ?? state.apply(trailingReferenceTransaction)
-      const enterTransaction = enterBlockTransaction(nextState) ?? splitTextblockTransaction(nextState)
+      const enterTransaction = enterBlockTransaction(nextState, ctx.blockRegistry) ?? splitTextblockTransaction(nextState)
       if (enterTransaction) dispatch(enterTransaction.scrollIntoView())
       return true
     }
@@ -46,7 +47,7 @@ export function enterKeyCommand(): Command {
       return true
     }
 
-    const transaction = enterBlockTransaction(state)
+    const transaction = enterBlockTransaction(state, ctx.blockRegistry)
     if (!transaction) return false
 
     if (dispatch) dispatch(transaction.scrollIntoView())

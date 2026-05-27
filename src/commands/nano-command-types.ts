@@ -1,4 +1,4 @@
-import type { BlockTemplate } from '../blocks/nano-block-options'
+import type { BlockOption, BlockTemplate } from '../blocks/nano-block-options'
 import type { MarkOption } from '../marks/nano-mark-options'
 import type {
   CommandPaletteMode,
@@ -37,6 +37,7 @@ export interface NanoCommandsOptions {
   activeBlockId: string | null
   actions: NanoCommandActions
   blockId: string | null
+  blockOptions?: readonly BlockOption[]
   canIndentBlock: (direction: IndentDirection) => boolean
   canMoveBlock: (direction: MoveDirection) => boolean
   hasTextSelection: boolean

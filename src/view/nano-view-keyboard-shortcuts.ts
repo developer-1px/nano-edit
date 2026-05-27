@@ -3,6 +3,7 @@ import {
   blockAcceptsInputHints,
   blockEnterShortcutOptions,
   blockShortcutOptions,
+  type BlockOptionRegistry,
 } from '../blocks/nano-block-options'
 import { footnoteMarkerInputTransaction } from './nano-view-footnote-marker-input'
 import {
@@ -28,12 +29,16 @@ export function blockShortcutTransaction(
   from: number,
   to: number,
   text: string,
+  registry?: BlockOptionRegistry,
 ): Transaction | null {
   if (from !== to) return null
 
   const $from = state.doc.resolve(from)
   const block = $from.parent
-  if (!block.isTextblock || !blockAcceptsInputHints(block)) return null
+  const acceptsInputHints = registry
+    ? registry.blockAcceptsInputHints(block)
+    : blockAcceptsInputHints(block)
+  if (!block.isTextblock || !acceptsInputHints) return null
 
   const continuationMarkerTransaction = continuationMarkerInputTransaction(state, $from, text)
   if (continuationMarkerTransaction) return continuationMarkerTransaction
@@ -72,29 +77,35 @@ export function blockShortcutTransaction(
   if (textBefore.length !== $from.parentOffset || block.textContent.length !== textBefore.length) return null
 
   const source = textBefore + text
-  for (const shortcut of blockShortcutOptions()) {
+  for (const shortcut of (registry ? registry.blockShortcutOptions() : blockShortcutOptions())) {
     const match = shortcut.pattern.exec(source)
-    if (match) return blockShortcutTransactionForTemplate(state, $from, shortcut.template(match))
+    if (match) return blockShortcutTransactionForTemplate(state, $from, shortcut.template(match), registry)
   }
 
   return null
 }
 
-export function blockEnterShortcutTransaction(state: EditorState): Transaction | null {
+export function blockEnterShortcutTransaction(
+  state: EditorState,
+  registry?: BlockOptionRegistry,
+): Transaction | null {
   const { selection } = state
   if (!selection.empty) return null
 
   const $from = selection.$from
   const block = $from.parent
-  if (!block.isTextblock || !blockAcceptsInputHints(block)) return null
+  const acceptsInputHints = registry
+    ? registry.blockAcceptsInputHints(block)
+    : blockAcceptsInputHints(block)
+  if (!block.isTextblock || !acceptsInputHints) return null
   if ($from.parentOffset !== block.textContent.length) return null
 
   const source = block.textBetween(0, $from.parentOffset)
   if (source.length !== $from.parentOffset) return null
 
-  for (const shortcut of blockEnterShortcutOptions()) {
+  for (const shortcut of (registry ? registry.blockEnterShortcutOptions() : blockEnterShortcutOptions())) {
     const match = shortcut.pattern.exec(source)
-    if (match) return blockShortcutTransactionForTemplate(state, $from, shortcut.template(match))
+    if (match) return blockShortcutTransactionForTemplate(state, $from, shortcut.template(match), registry)
   }
 
   return null
@@ -105,12 +116,16 @@ export function slashPickerBlockIdFromInput(
   from: number,
   to: number,
   text: string,
+  registry?: BlockOptionRegistry,
 ): string | null {
   if (text !== '/' || from !== to) return null
 
   const $from = state.doc.resolve(from)
   const block = $from.parent
-  if (!block.isTextblock || !blockAcceptsInputHints(block)) return null
+  const acceptsInputHints = registry
+    ? registry.blockAcceptsInputHints(block)
+    : blockAcceptsInputHints(block)
+  if (!block.isTextblock || !acceptsInputHints) return null
   if ($from.parentOffset !== 0 || block.textContent.length > 0) return null
 
   return typeof block.attrs.id === 'string' && block.attrs.id ? block.attrs.id : null

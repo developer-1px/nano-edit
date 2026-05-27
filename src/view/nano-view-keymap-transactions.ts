@@ -26,12 +26,12 @@ export function transactionCommand(transactionForState: (state: EditorState) => 
   }
 }
 
-export function insertBlockAfterActiveCommand(template: BlockTemplate): Command {
-  return transactionCommand((state) => insertBlockAfterActiveTransaction(state, template))
+export function insertBlockAfterActiveCommand(ctx: NanoViewContext, template: BlockTemplate): Command {
+  return transactionCommand((state) => insertBlockAfterActiveTransaction(state, template, ctx.blockRegistry))
 }
 
-export function changeActiveBlockCommand(template: BlockTemplate): Command {
-  return transactionCommand((state) => changeActiveBlockTransaction(state, template))
+export function changeActiveBlockCommand(ctx: NanoViewContext, template: BlockTemplate): Command {
+  return transactionCommand((state) => changeActiveBlockTransaction(state, template, ctx.blockRegistry))
 }
 
 export function duplicateActiveBlockCommand(): Command {

@@ -1,5 +1,8 @@
 import { TextSelection, type EditorState, type Transaction } from 'prosemirror-state'
-import { blockAcceptsInputHints } from '../blocks/nano-block-options'
+import {
+  blockAcceptsInputHints,
+  type BlockOptionRegistry,
+} from '../blocks/nano-block-options'
 import type { NanoDocument } from '../core/nano-core'
 import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown'
 import { prosemirrorDocFromNano } from '../adapters/prosemirror/prosemirror-nano'
@@ -11,6 +14,7 @@ export function markdownPasteTransaction(
   state: EditorState,
   markdown: string,
   collapsedBlockIds: ReadonlySet<string> = new Set(),
+  registry?: BlockOptionRegistry,
 ): Transaction | null {
   if (!markdown.trim()) return null
 
@@ -25,7 +29,7 @@ export function markdownPasteTransaction(
   }
 
   const document = nanoDocumentFromMarkdown(markdown)
-  const inlineTransaction = inlineMarkdownPasteTransaction(state, document)
+  const inlineTransaction = inlineMarkdownPasteTransaction(state, document, registry)
   if (inlineTransaction) return inlineTransaction
 
   if (!isStructuredBlockMarkdownPaste(document)) return null
@@ -39,7 +43,11 @@ export function markdownPasteTransaction(
   return transaction
 }
 
-function inlineMarkdownPasteTransaction(state: EditorState, document: NanoDocument): Transaction | null {
+function inlineMarkdownPasteTransaction(
+  state: EditorState,
+  document: NanoDocument,
+  registry?: BlockOptionRegistry,
+): Transaction | null {
   const block = document.blocks[0]
   if (document.blocks.length !== 1 || block?.type !== 'paragraph' || block.marks.length === 0) return null
 
@@ -47,7 +55,10 @@ function inlineMarkdownPasteTransaction(state: EditorState, document: NanoDocume
   if (!selection.$from.sameParent(selection.$to)) return null
 
   const targetBlock = selection.$from.parent
-  if (!targetBlock.isTextblock || !blockAcceptsInputHints(targetBlock)) return null
+  const acceptsInputHints = registry
+    ? registry.blockAcceptsInputHints(targetBlock)
+    : blockAcceptsInputHints(targetBlock)
+  if (!targetBlock.isTextblock || !acceptsInputHints) return null
 
   const sourceBlock = prosemirrorDocFromNano(document).firstChild
   if (!sourceBlock || sourceBlock.content.size === 0) return null

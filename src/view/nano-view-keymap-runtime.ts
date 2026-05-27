@@ -51,13 +51,13 @@ export function createNanoKeymapRuntime(
   actions: NanoKeymapActions,
 ): NanoKeymapRuntime {
   const blockCommands = {
-    changeActiveBlockCommand,
+    changeActiveBlockCommand: (template: BlockTemplate) => changeActiveBlockCommand(ctx, template),
     deleteCommand: () => deleteKeyCommand(ctx),
     deleteActiveBlockCommand: () => deleteActiveBlockCommand(ctx),
     deleteSelectedBlockCommand: () => deleteSelectedBlockCommand(ctx),
     duplicateActiveBlockCommand,
     indentActiveBlockCommand: (direction: IndentDirection) => indentActiveBlockCommand(ctx, direction),
-    insertBlockAfterActiveCommand,
+    insertBlockAfterActiveCommand: (template: BlockTemplate) => insertBlockAfterActiveCommand(ctx, template),
     moveActiveBlockCommand: (direction: MoveDirection) => moveActiveBlockCommand(ctx, direction),
     selectActiveBlockCommand,
     selectAdjacentBlockCommand: (direction: MoveDirection) => selectAdjacentBlockCommand(ctx, direction),
@@ -65,20 +65,20 @@ export function createNanoKeymapRuntime(
 
   return {
     backspaceCommand: () => backspaceKeyCommand(ctx),
-    blockKeymapCommands: () => blockKeymapCommands(blockCommands),
-    changeActiveBlockCommand,
+    blockKeymapCommands: () => blockKeymapCommands(blockCommands, ctx.blockRegistry.blockKeyBindingEntries()),
+    changeActiveBlockCommand: blockCommands.changeActiveBlockCommand,
     deleteCommand: blockCommands.deleteCommand,
     deleteActiveBlockCommand: blockCommands.deleteActiveBlockCommand,
     deleteSelectedBlockCommand: blockCommands.deleteSelectedBlockCommand,
     duplicateActiveBlockCommand,
-    enterCommand: enterKeyCommand,
+    enterCommand: () => enterKeyCommand(ctx),
     focusActiveMarkdownSourceCommand: () => () => actions.focusActiveMarkdownSource(),
     historyCommand: (direction) => () => {
       actions.restoreHistory(direction)
       return true
     },
     indentActiveBlockCommand: blockCommands.indentActiveBlockCommand,
-    insertBlockAfterActiveCommand,
+    insertBlockAfterActiveCommand: blockCommands.insertBlockAfterActiveCommand,
     markKeymapCommands,
     moveActiveBlockCommand: blockCommands.moveActiveBlockCommand,
     openCommandPaletteCommand: () => () => {

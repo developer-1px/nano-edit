@@ -1,5 +1,6 @@
 import { EditorState, type Transaction } from 'prosemirror-state'
 import {
+  type BlockOptionRegistry,
   type BlockTemplate,
 } from '../blocks/nano-block-options'
 import {
@@ -15,18 +16,20 @@ import { normalizedBlockChangeContent } from './nano-view-list-transforms'
 export function changeActiveBlockTransaction(
   state: EditorState,
   template: BlockTemplate,
+  registry?: BlockOptionRegistry,
 ): Transaction | null {
   const block = activeBlockRange(state)
-  return block ? changeBlockRangeTransaction(state, block, template, state.selection.$from.parentOffset) : null
+  return block ? changeBlockRangeTransaction(state, block, template, state.selection.$from.parentOffset, registry) : null
 }
 
 export function changeBlockByIdTransaction(
   state: EditorState,
   id: string,
   template: BlockTemplate,
+  registry?: BlockOptionRegistry,
 ): Transaction | null {
   const block = topLevelBlockRanges(state.doc).find((range) => range.node.attrs.id === id)
-  return block ? changeBlockRangeTransaction(state, block, template, 0) : null
+  return block ? changeBlockRangeTransaction(state, block, template, 0, registry) : null
 }
 
 function changeBlockRangeTransaction(
@@ -34,8 +37,9 @@ function changeBlockRangeTransaction(
   block: ActiveBlockRange,
   template: BlockTemplate,
   selectionOffset: number,
+  registry?: BlockOptionRegistry,
 ): Transaction | null {
-  const replacement = blockChangeReplacementWithContext(block.node, replacementNodeForBlockTemplate(template, block.node))
+  const replacement = blockChangeReplacementWithContext(block.node, replacementNodeForBlockTemplate(template, block.node, registry))
   if (!replacement) return null
 
   const change = normalizedBlockChangeContent(state.doc, block, replacement)

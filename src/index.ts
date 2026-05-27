@@ -23,6 +23,15 @@ export {
   type NanoViewOptions,
 } from './view/nano-view'
 export {
+  createNanoEditorKit,
+  defaultNanoEditorKit,
+  defaultNanoViewFeatures,
+  kitHasViewFeature,
+  type CreateNanoEditorKitOptions,
+  type NanoEditorKit,
+  type NanoViewFeatureId,
+} from './engine/index'
+export {
   nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
   nanoBlocksFromProseMirror,

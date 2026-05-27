@@ -44,7 +44,7 @@ export function createNanoViewCommandRunners(
 
   function runChangeBlockById(id: string, template: BlockTemplate): void {
     runEditorCommand(() => {
-      const transaction = changeBlockByIdTransaction(ctx.view.state, id, template)
+      const transaction = changeBlockByIdTransaction(ctx.view.state, id, template, ctx.blockRegistry)
       if (!transaction) return false
 
       ctx.view.dispatch(transaction.scrollIntoView())

@@ -1,6 +1,7 @@
 import type { Command } from 'prosemirror-state'
 import {
   blockKeyBindingEntries,
+  type BlockKeyBindingEntry,
   type BlockTemplate,
 } from '../blocks/nano-block-options'
 import { markCommand, markKeyBindingEntries } from '../marks/nano-mark-options'
@@ -17,8 +18,11 @@ export function markKeymapCommands(): Record<string, Command> {
   ]))
 }
 
-export function blockKeymapCommands(commands: BlockKeymapCommands): Record<string, Command> {
-  return Object.fromEntries(blockKeyBindingEntries().flatMap(({ option, keyBinding }) => {
+export function blockKeymapCommands(
+  commands: BlockKeymapCommands,
+  entries: readonly BlockKeyBindingEntry[] = blockKeyBindingEntries(),
+): Record<string, Command> {
+  return Object.fromEntries(entries.flatMap(({ option, keyBinding }) => {
     if (!option.template) return []
 
     return [[

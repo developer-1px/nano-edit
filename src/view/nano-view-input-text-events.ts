@@ -40,7 +40,7 @@ export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoI
       return true
     }
 
-    const slashPickerBlockId = slashPickerBlockIdFromInput(view.state, from, to, text)
+    const slashPickerBlockId = slashPickerBlockIdFromInput(view.state, from, to, text, ctx.blockRegistry)
     if (slashPickerBlockId) {
       ctx.shell.openCommandPalette('slash', slashPickerBlockId)
       return true
@@ -52,7 +52,7 @@ export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoI
       return true
     }
 
-    const transaction = blockShortcutTransaction(view.state, from, to, text)
+    const transaction = blockShortcutTransaction(view.state, from, to, text, ctx.blockRegistry)
     if (!transaction) return false
 
     view.dispatch(transaction.scrollIntoView())
@@ -63,7 +63,7 @@ export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoI
     if (!event.clipboardData) return false
 
     const text = markdownTextFromClipboardData(event.clipboardData)
-    const transaction = markdownPasteTransaction(view.state, text, ctx.collapsedBlockIds)
+    const transaction = markdownPasteTransaction(view.state, text, ctx.collapsedBlockIds, ctx.blockRegistry)
     if (!transaction) return false
 
     event.preventDefault()

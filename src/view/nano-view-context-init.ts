@@ -1,5 +1,7 @@
 import type { EditorView } from 'prosemirror-view'
 import type { Pointer } from 'zod-crud'
+import { createBlockOptionRegistry } from '../blocks/nano-block-options'
+import { defaultNanoEditorKit } from '../engine/default-kit'
 import type { NanoShell } from './nano-command-surface'
 import type {
   NanoViewContext,
@@ -7,8 +9,11 @@ import type {
 } from './nano-view-context'
 
 export function createNanoViewContext(options: NanoViewOptions): NanoViewContext {
+  const kit = options.kit ?? defaultNanoEditorKit
   return {
     engine: options.engine,
+    kit,
+    blockRegistry: createBlockOptionRegistry(kit.blockOptions),
     root: document.createElement('section'),
     editor: document.createElement('div'),
     shell: null as unknown as NanoShell,

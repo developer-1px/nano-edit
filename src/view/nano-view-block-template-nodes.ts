@@ -5,6 +5,7 @@ import {
   blockOptionForTemplate,
   generatedBlockId,
   nodeTypeForBlockTemplate,
+  type BlockOptionRegistry,
   type BlockTemplate,
 } from '../blocks/nano-block-options'
 import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown'
@@ -18,14 +19,20 @@ import {
 } from './nano-view-block-template-markdown'
 import { continuationNodeAfterMarkdownLine } from './nano-view-block-template-continuation'
 
-export function insertedNodeForBlockTemplate(template: BlockTemplate, id: string): Fragment | ProseMirrorNode | null {
+export function insertedNodeForBlockTemplate(
+  template: BlockTemplate,
+  id: string,
+  registry?: BlockOptionRegistry,
+): Fragment | ProseMirrorNode | null {
+  if (registry && !registry.blockOptionForTemplate(template)) return null
+
   const markdownNode = insertedMarkdownLineNodeForBlockTemplate(template, id)
   if (markdownNode) return markdownNode
 
-  const option = blockOptionForTemplate(template)
+  const option = registry ? registry.blockOptionForTemplate(template) : blockOptionForTemplate(template)
   if (option?.insertedNode) return option.insertedNode(template, id)
-  const type = nodeTypeForBlockTemplate(template)
-  const attrs = blockAttrs(template, id)
+  const type = registry ? registry.nodeTypeForBlockTemplate(template) : nodeTypeForBlockTemplate(template)
+  const attrs = registry ? registry.blockAttrs(template, id) : blockAttrs(template, id)
   return type && attrs ? type.create(attrs) : null
 }
 
@@ -39,13 +46,19 @@ export function insertedMarkdownLineNodeForBlockTemplate(template: BlockTemplate
   return node.type.create({ ...node.attrs, id }, node.content, node.marks)
 }
 
-export function replacementNodeForBlockTemplate(template: BlockTemplate, source: ProseMirrorNode): Fragment | ProseMirrorNode | null {
-  const option = blockOptionForTemplate(template)
+export function replacementNodeForBlockTemplate(
+  template: BlockTemplate,
+  source: ProseMirrorNode,
+  registry?: BlockOptionRegistry,
+): Fragment | ProseMirrorNode | null {
+  if (registry && !registry.blockOptionForTemplate(template)) return null
+
+  const option = registry ? registry.blockOptionForTemplate(template) : blockOptionForTemplate(template)
   if (option?.replacementNode) return option.replacementNode(template, source)
 
   const id = typeof source.attrs.id === 'string' && source.attrs.id ? source.attrs.id : generatedBlockId('b', 'changed')
-  const type = nodeTypeForBlockTemplate(template)
-  const attrs = blockAttrs(template, id)
+  const type = registry ? registry.nodeTypeForBlockTemplate(template) : nodeTypeForBlockTemplate(template)
+  const attrs = registry ? registry.blockAttrs(template, id) : blockAttrs(template, id)
   if (!type || !attrs) return null
 
   const content = option?.replacementContent
@@ -58,9 +71,10 @@ export function insertedContentForShortcutTemplate(
   doc: ProseMirrorNode,
   template: BlockTemplate,
   id: string,
+  registry?: BlockOptionRegistry,
 ): Fragment | ProseMirrorNode | null {
   const text = templateText(template)
-  if (text === null) return insertedNodeForBlockTemplate(template, id)
+  if (text === null) return insertedNodeForBlockTemplate(template, id, registry)
 
   const node = insertedMarkdownLineNodeForBlockTemplate(template, id)
   if (!node) return null

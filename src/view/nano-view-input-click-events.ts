@@ -1,9 +1,11 @@
 import type { EditorView } from 'prosemirror-view'
+import type { BlockOptionRegistry } from '../blocks/nano-block-options'
 import { listFoldBlockIdFromEventTarget } from './nano-view-active-block'
 import {
   blockClickActionFromEventTarget,
   blockClickTargetFromEventTarget,
 } from './nano-view-block-click-target'
+import type { NanoViewContext } from './nano-view-context'
 import type { NanoInspectorRuntime } from './nano-view-inspector-runtime'
 import type { NanoInputActions } from './nano-view-input-runtime'
 import {
@@ -16,6 +18,34 @@ import {
 } from './nano-view-references'
 
 export function createNanoInputClickHandlers(
+  ctxOrInspector: NanoViewContext | NanoInspectorRuntime,
+  inspectorOrActions: NanoInspectorRuntime | NanoInputActions,
+  actions?: NanoInputActions,
+) {
+  if (actions) {
+    return createNanoInputClickHandlersWithRegistry(
+      (ctxOrInspector as NanoViewContext).blockRegistry,
+      inspectorOrActions as NanoInspectorRuntime,
+      actions,
+    )
+  }
+
+  return createNanoInputClickHandlersWithRegistry(
+    undefined,
+    ctxOrInspector as NanoInspectorRuntime,
+    inspectorOrActions as NanoInputActions,
+  )
+}
+
+export function createDefaultNanoInputClickHandlers(
+  inspector: NanoInspectorRuntime,
+  actions: NanoInputActions,
+) {
+  return createNanoInputClickHandlersWithRegistry(undefined, inspector, actions)
+}
+
+export function createNanoInputClickHandlersWithRegistry(
+  registry: BlockOptionRegistry | undefined,
   inspector: NanoInspectorRuntime,
   actions: NanoInputActions,
 ) {
@@ -34,7 +64,7 @@ export function createNanoInputClickHandlers(
       return true
     }
 
-    const action = blockClickActionFromEventTarget(view.state.doc, event.target)
+    const action = blockClickActionFromEventTarget(view.state.doc, event.target, registry)
     if (!action) return false
 
     const transaction = action.option.click.transaction(view.state, action.position)
@@ -57,7 +87,7 @@ export function createNanoInputClickHandlers(
       return true
     }
 
-    const action = blockClickActionFromEventTarget(view.state.doc, event.target)
+    const action = blockClickActionFromEventTarget(view.state.doc, event.target, registry)
     if (!action) return false
 
     const transaction = action.option.click.transaction(view.state, action.position)
@@ -80,7 +110,7 @@ export function createNanoInputClickHandlers(
       return true
     }
 
-    if (!blockClickTargetFromEventTarget(event.target)) return false
+    if (!blockClickTargetFromEventTarget(event.target, registry)) return false
     event.preventDefault()
     return true
   }
