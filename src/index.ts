@@ -32,7 +32,10 @@ export {
   type NanoSlideRegionKind,
 } from './core/nano-core'
 export {
+  createNanoDeckView,
   createNanoView,
+  type NanoDeckViewHandle,
+  type NanoDeckViewOptions,
   type NanoViewHandle,
   type NanoViewOptions,
 } from './view/nano-view'

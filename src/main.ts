@@ -1,16 +1,22 @@
 import './styles/demo-host.css'
 import './style.css'
 import {
-  demoDocumentById,
-  demoDocuments,
+  demoArtifactById,
+  demoArtifacts,
   validDemoDocumentId,
 } from './demo/document-library'
+import {
+  createPersistedDemoNanoDeck,
+  type PersistedDemoNanoDeck,
+} from './demo/persisted-deck'
 import {
   createPersistedDemoNanoDocument,
   type PersistedDemoNanoDocument,
 } from './demo/persisted-document'
 import {
+  createNanoDeckView,
   createNanoView,
+  type NanoDeckViewHandle,
   type NanoViewHandle,
 } from './view/nano-view'
 
@@ -48,25 +54,26 @@ demoShell.append(documentNav, documentMain)
 app.replaceChildren(demoShell)
 
 let activeDocumentId: string | null = null
-let activePersistedDocument: PersistedDemoNanoDocument | null = null
-let activeNanoView: NanoViewHandle | null = null
+let activePersistedArtifact: PersistedDemoNanoDocument | PersistedDemoNanoDeck | null = null
+let activeNanoView: NanoDeckViewHandle | NanoViewHandle | null = null
 
-for (const demoDocument of demoDocuments) {
+for (const demoArtifact of demoArtifacts) {
   const button = document.createElement('button')
   button.type = 'button'
   button.className = 'demo-document-button'
-  button.dataset.documentId = demoDocument.id
+  button.dataset.documentId = demoArtifact.id
+  button.dataset.kind = demoArtifact.kind
 
   const title = document.createElement('span')
   title.className = 'demo-document-title'
-  title.textContent = demoDocument.title
+  title.textContent = demoArtifact.title
 
   const summary = document.createElement('span')
   summary.className = 'demo-document-summary'
-  summary.textContent = demoDocument.summary
+  summary.textContent = demoArtifact.summary
 
   button.append(title, summary)
-  button.addEventListener('click', () => selectDemoDocument(demoDocument.id))
+  button.addEventListener('click', () => selectDemoDocument(demoArtifact.id))
   documentList.append(button)
 }
 
@@ -75,28 +82,40 @@ selectDemoDocument(storedActiveDemoDocumentId())
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     activeNanoView?.destroy()
-    activePersistedDocument?.destroy()
+    activePersistedArtifact?.destroy()
   })
 }
 
 function selectDemoDocument(id: string): void {
-  const nextDocument = demoDocumentById(id)
-  if (activeDocumentId === nextDocument.id) return
+  const nextArtifact = demoArtifactById(id)
+  if (activeDocumentId === nextArtifact.id) return
 
   activeNanoView?.destroy()
-  activePersistedDocument?.destroy()
+  activePersistedArtifact?.destroy()
 
-  activeDocumentId = nextDocument.id
-  storeActiveDemoDocumentId(nextDocument.id)
+  activeDocumentId = nextArtifact.id
+  storeActiveDemoDocumentId(nextArtifact.id)
   syncDocumentNav()
 
-  activePersistedDocument = createPersistedDemoNanoDocument({
-    initialDocument: nextDocument.document,
-    storageKey: nextDocument.storageKey,
+  if (nextArtifact.kind === 'deck') {
+    activePersistedArtifact = createPersistedDemoNanoDeck({
+      initialDeck: nextArtifact.deck,
+      storageKey: nextArtifact.storageKey,
+    })
+    activeNanoView = createNanoDeckView({
+      mount: editorMount,
+      engine: activePersistedArtifact.engine,
+    })
+    return
+  }
+
+  activePersistedArtifact = createPersistedDemoNanoDocument({
+    initialDocument: nextArtifact.document,
+    storageKey: nextArtifact.storageKey,
   })
   activeNanoView = createNanoView({
     mount: editorMount,
-    engine: activePersistedDocument.engine,
+    engine: activePersistedArtifact.engine,
   })
 }
 

@@ -1,4 +1,5 @@
 export { createNanoView } from './nano-view-create'
+export { createNanoDeckView } from './nano-deck-view'
 export { isMarkActive } from '../marks/nano-mark-options'
 export { changeActiveBlockTransaction, changeBlockByIdTransaction, deleteActiveBlockTransaction, deleteSelectedBlockTransaction, duplicateActiveBlockTransaction, insertBlockAfterActiveTransaction, insertBlockAfterIdTransaction, insertParagraphAfterBlockTransaction, selectActiveBlockTransaction, selectAdjacentBlockTransaction, toggleBlockClickTransaction, toggleTodoTransaction } from './nano-view-block-edit-transactions'
 export { backspaceBlockTransaction, blockEnterShortcutTransaction, blockShortcutTransaction, deleteBlockSyntaxTransaction, enterBlockTransaction, enterListParentEndTransaction, enterSelectedBlockTransaction, inlineMarkBoundaryTransaction, inlineSourceTokenDeleteTransaction, inlineSourceTokenTextInputTransaction, selectedAtomSourceTransaction, slashPickerBlockIdFromInput, slashPickerBlockIdFromSelection, splitTextblockTransaction, trailingReferenceMarkTransaction } from './nano-view-keyboard-transactions'
@@ -6,3 +7,4 @@ export { canIndentActiveBlock, canMoveActiveBlock, indentActiveBlockTransaction,
 export { markdownBlockSourceTransaction, markdownCopyTextFromSelection, markdownPasteTransaction } from './nano-view-markdown-transactions'
 export { externalHrefFromMarkdownLink } from './nano-view-references'
 export type { NanoViewHandle, NanoViewOptions } from './nano-view-context'
+export type { NanoDeckViewHandle, NanoDeckViewOptions } from './nano-deck-view'

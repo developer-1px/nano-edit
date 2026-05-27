@@ -69,6 +69,12 @@ body,
   border-left-color: #e8aaa6;
 }
 
+.demo-document-button[data-kind='deck'][data-active='true'],
+.demo-document-button[data-kind='deck']:hover,
+.demo-document-button[data-kind='deck']:focus-visible {
+  border-left-color: #9ab8aa;
+}
+
 .demo-document-button:focus-visible {
   outline: 1.5px solid #d95b56;
   outline-offset: 2px;
@@ -101,6 +107,140 @@ body,
   min-height: 100svh;
 }
 
+.nano-deck {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  background: #ffffff;
+  color: #414044;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", Helvetica, Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.nano-deck-rail {
+  height: 100svh;
+  position: sticky;
+  top: 0;
+  padding: 48px 14px 24px;
+  border-right: 1px solid #e4dfda;
+  overflow-y: auto;
+}
+
+.nano-deck-slide-button {
+  width: 100%;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 7px 0;
+  border: 0;
+  background: transparent;
+  color: #837d78;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.nano-deck-slide-button:hover,
+.nano-deck-slide-button:focus-visible,
+.nano-deck-slide-button[data-active='true'] {
+  color: #414044;
+}
+
+.nano-deck-slide-button:focus-visible {
+  outline: 1.5px solid #d95b56;
+  outline-offset: 2px;
+}
+
+.nano-deck-slide-number {
+  color: #837d78;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+
+.nano-deck-slide-title {
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nano-deck-stage {
+  min-width: 0;
+  min-height: 100svh;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  padding: 44px clamp(24px, 6vw, 92px) 64px;
+}
+
+.nano-deck-frame {
+  width: min(100%, 960px);
+  aspect-ratio: 16 / 9;
+  min-height: 420px;
+  border: 1px solid #e4dfda;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.nano-deck-editor-mount,
+.nano-deck-frame .nano {
+  height: 100%;
+  min-height: 0;
+}
+
+.nano-deck-frame .nano {
+  background: transparent;
+}
+
+.nano-deck-frame .nano-editor {
+  height: 100%;
+  min-height: 0;
+  padding: clamp(32px, 5vw, 64px);
+  overflow: auto;
+}
+
+.nano-deck-frame .ProseMirror.nano-document {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  margin: 0;
+  font-size: clamp(18px, 1.55vw, 23px);
+  line-height: 1.55;
+}
+
+.nano-deck-frame .nano-document h1 {
+  margin-bottom: 0.75em;
+  font-size: 2em;
+}
+
+.nano-deck-notes {
+  width: min(100%, 960px);
+  margin-top: 14px;
+  color: #837d78;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.nano-deck-notes[hidden] {
+  display: none;
+}
+
+.nano-deck-notes-label {
+  margin-bottom: 3px;
+  font-weight: 650;
+}
+
+.nano-deck-notes-body {
+  white-space: pre-wrap;
+}
+
 @media (max-width: 900px) {
   .demo-documents {
     grid-template-columns: minmax(0, 1fr);
@@ -128,5 +268,36 @@ body,
     width: 172px;
     min-width: 172px;
     min-height: 44px;
+  }
+
+  .nano-deck {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nano-deck-rail {
+    height: auto;
+    display: flex;
+    gap: 12px;
+    padding: 10px 20px 4px;
+    border-right: 0;
+    overflow-x: auto;
+  }
+
+  .nano-deck-slide-button {
+    width: 148px;
+    min-width: 148px;
+  }
+
+  .nano-deck-stage {
+    min-height: 0;
+    padding: 22px 20px 48px;
+  }
+
+  .nano-deck-frame {
+    min-height: 360px;
+  }
+
+  .nano-deck-frame .nano-editor {
+    padding: 28px;
   }
 }

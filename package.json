@@ -13,9 +13,10 @@
   "scripts": {
     "dev": "vite",
     "test": "node --experimental-strip-types --experimental-loader ./scripts/ts-extension-loader.mjs scripts/regressions.mjs",
+    "test:deck": "node scripts/regressions/browser-deck-surface.mjs",
     "test:local-edit": "node scripts/regressions/browser-local-edit-loop.mjs",
     "test:layout": "node scripts/regressions/browser-layout-stability.mjs",
-    "test:all": "pnpm test && pnpm build && pnpm test:layout && pnpm test:local-edit",
+    "test:all": "pnpm test && pnpm build && pnpm test:layout && pnpm test:local-edit && pnpm test:deck",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

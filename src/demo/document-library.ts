@@ -1,15 +1,29 @@
-import type { NanoDocument } from '../core/nano-core'
+import type { NanoDeck, NanoDocument } from '../core/nano-core'
 import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown'
+import { initialNanoDeck } from './initial-deck'
 import { initialNanoDocument } from './initial-document'
 import { DEMO_DOCUMENT_STORAGE_KEY } from './persisted-document'
+import { DEMO_DECK_STORAGE_KEY } from './persisted-deck'
 
 export interface DemoDocumentDefinition {
   document: NanoDocument
+  kind: 'document'
   id: string
   storageKey: string
   summary: string
   title: string
 }
+
+export interface DemoDeckDefinition {
+  deck: NanoDeck
+  kind: 'deck'
+  id: string
+  storageKey: string
+  summary: string
+  title: string
+}
+
+export type DemoArtifactDefinition = DemoDocumentDefinition | DemoDeckDefinition
 
 export const defaultDemoDocumentId = 'overview'
 
@@ -113,6 +127,7 @@ Host product가 여러 문서를 다루더라도 Nano View는 선택된 한 문�
 
 export const demoDocuments: readonly DemoDocumentDefinition[] = [
   {
+    kind: 'document',
     id: defaultDemoDocumentId,
     title: 'Nano Edit',
     summary: 'engine overview',
@@ -120,6 +135,7 @@ export const demoDocuments: readonly DemoDocumentDefinition[] = [
     document: initialNanoDocument,
   },
   {
+    kind: 'document',
     id: 'catalog-contract',
     title: 'Catalog Contract',
     summary: 'part selection model',
@@ -127,11 +143,24 @@ export const demoDocuments: readonly DemoDocumentDefinition[] = [
     document: catalogContractDocument,
   },
   {
+    kind: 'document',
     id: 'local-edit-surface',
     title: 'Local Edit Surface',
     summary: 'quiet edit behavior',
     storageKey: `${DEMO_DOCUMENT_STORAGE_KEY}:local-edit-surface`,
     document: localEditSurfaceDocument,
+  },
+]
+
+export const demoArtifacts: readonly DemoArtifactDefinition[] = [
+  ...demoDocuments,
+  {
+    kind: 'deck',
+    id: 'generated-deck-review',
+    title: 'Generated Deck Review',
+    summary: 'presentation surface',
+    storageKey: DEMO_DECK_STORAGE_KEY,
+    deck: initialNanoDeck,
   },
 ]
 
@@ -141,8 +170,14 @@ export function demoDocumentById(id: string): DemoDocumentDefinition {
     ?? demoDocuments[0]!
 }
 
+export function demoArtifactById(id: string): DemoArtifactDefinition {
+  return demoArtifacts.find((artifact) => artifact.id === id)
+    ?? demoArtifacts.find((artifact) => artifact.id === defaultDemoDocumentId)
+    ?? demoArtifacts[0]!
+}
+
 export function validDemoDocumentId(id: string | null): string {
-  return demoDocuments.some((document) => document.id === id)
+  return demoArtifacts.some((artifact) => artifact.id === id)
     ? id!
     : defaultDemoDocumentId
 }
