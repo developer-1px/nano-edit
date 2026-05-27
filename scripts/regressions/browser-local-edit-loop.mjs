@@ -4,6 +4,7 @@ import {
   demoStorageKey,
   evaluate,
   pressKey,
+  scrollTargetIntoView,
   waitForExpression,
   withBrowserRegression,
 } from './browser-test-harness.mjs'
@@ -56,7 +57,9 @@ async function runLocalEditLoop(browser, url) {
   await waitForExpression(browser, domTextIncludesExpression(blockSelector(targets.textBlockId), localEditText))
   await waitForExpression(browser, storedTextIncludesExpression(targets.textBlockId, localEditText))
 
-  await clickTarget(browser, `${blockSelector(targets.todoBlockId)} .nano-todo-box`)
+  const todoBoxSelector = `${blockSelector(targets.todoBlockId)} .nano-todo-box`
+  await scrollTargetIntoView(browser, todoBoxSelector)
+  await clickTarget(browser, todoBoxSelector)
   await waitForExpression(browser, `document.querySelector(${JSON.stringify(`${blockSelector(targets.todoBlockId)} .nano-todo-box`)})?.getAttribute('aria-checked') === 'true'`)
   await waitForExpression(browser, storedTodoCheckedExpression(targets.todoBlockId, true))
 
@@ -109,11 +112,11 @@ async function runLocalEditLoop(browser, url) {
 async function resolveLocalEditTargets(browser) {
   return evaluate(browser, `(() => {
     const title = document.querySelector('.nano-heading-1[data-id] .nano-block-content')
-    const textBlock = blockContaining('.nano-paragraph[data-id]', 'AI가 만든 Markdown 문서')
-    const todoBlock = blockContaining('.nano-todo[data-id]', '필요한 문장만 조용히 고친다')
-    const tableBlock = blockContaining('.nano-table[data-id]', 'cursor 주변 affordance')
+    const textBlock = blockContaining('.nano-paragraph[data-id]', 'LLM이 생성한 Markdown')
+    const todoBlock = blockContaining('.nano-todo[data-id]', 'schema와 codec도 kit에서 조립한다')
+    const tableBlock = blockContaining('.nano-table[data-id]', 'LLM이 판단하는 제한된 option 목록')
     const tableCell = [...tableBlock.querySelectorAll('th[data-row][data-column], td[data-row][data-column]')]
-      .find((cell) => cell.textContent?.includes('cursor 주변 affordance'))
+      .find((cell) => cell.textContent?.includes('LLM이 판단하는 제한된 option 목록'))
 
     if (!(title instanceof HTMLElement)) throw new Error('Missing self-describing title')
     if (!(textBlock instanceof HTMLElement)) throw new Error('Missing editable paragraph target')
@@ -143,7 +146,7 @@ async function documentSnapshot(browser, targets) {
   return evaluate(browser, `(() => {
     return {
       title: document.querySelector(${JSON.stringify(`${blockSelector(targets.titleBlockId)} .nano-block-content`)})?.textContent?.trim() ?? '',
-      hasSelfDescription: Boolean(document.body.textContent?.includes('AI가 만든 Markdown 문서')),
+      hasSelfDescription: Boolean(document.body.textContent?.includes('LLM이 생성한 Markdown')),
       hasTableCell: Boolean(document.querySelector(${JSON.stringify(tableCellSelector(targets))})),
       tableCell: document.querySelector(${JSON.stringify(tableCellSelector(targets))})
         ?.textContent ?? '',

@@ -6,21 +6,25 @@ test('Demo document describes Nano Edit as a generated-looking document', () => 
   const requiredSelfDescription = [
     '# Nano Edit',
     'embeddable editor package',
-    'AI가 만든 Markdown 문서',
-    '문서처럼 읽게 하고',
-    '필요한 부분만 조용히 고칠 수',
+    'LLM이 생성한 Markdown',
+    '공식 기술문서처럼 읽게 하고',
+    '필요한 일부만 조용히 수정',
     'quiet local edit loop',
-    '더 많은 Markdown 표현',
+    'Editor Kit',
+    'Capability',
+    'View feature',
+    'Catalog',
     'Nano Document',
     'Markdown codec',
-    'ProseMirror view',
-    'zod-crud',
-    'Local edit loop',
-    'undo와 persistence',
-    '한번 고쳐보기',
+    'createNanoEditorKit',
+    'default preset',
+    'Catalog Model',
+    'Agent-Selected Kit',
+    'schema와 codec도 kit에서 조립',
+    'Try It In This Document',
     '[[Nano Edit Demo]]',
     '#generated-markdown',
-    '[^demo]: 데모 문서는 사용법을 설명할 수 있지만',
+    '[^surface]: 데모 문서는 사용법과 구조를 설명할 수 있지만',
   ]
   for (const copy of requiredSelfDescription) {
     assert(markdown.includes(copy), `demo should explain Nano Edit through document content: ${copy}`)
@@ -58,19 +62,20 @@ test('Demo document describes Nano Edit as a generated-looking document', () => 
     assert.equal(markdown.includes(copy), false, `demo should stay document-like and avoid stale showcase/sample copy: ${copy}`)
   }
 
-  assert(markdown.includes('| 영역 | 역할 | 편집 중 보이는 것 |'))
+  assert(markdown.includes('| Concept | 현재 역할 | 조립 엔진에서의 의미 |'))
+  assert(markdown.includes('| Part id | Surface | Status | Pairs with | Why it exists |'))
   assert(markdown.includes('```ts'))
   assert(markdown.includes('![Nano Edit icon](/favicon.svg)'))
-  assert(markdown.includes('[Live Markdown spec](https://spec.commonmark.org/0.31.2/)'))
+  assert(markdown.includes('[CommonMark](https://spec.commonmark.org/0.31.2/)'))
 
   const blockTypes = new Set(initialNanoDocument.blocks.map((block) => block.type))
-  for (const type of ['heading', 'paragraph', 'todo', 'list_item', 'image', 'table', 'code', 'footnote']) {
+  for (const type of ['heading', 'paragraph', 'callout', 'todo', 'list_item', 'image', 'table', 'code', 'footnote']) {
     assert(blockTypes.has(type), `demo should keep core self-describing document block: ${type}`)
   }
-  for (const type of ['callout', 'math', 'bookmark', 'attachment', 'divider']) {
+  for (const type of ['math', 'bookmark', 'attachment', 'divider']) {
     assert.equal(blockTypes.has(type), false, `demo should not add decorative ${type} blocks`)
   }
-  assert(initialNanoDocument.blocks.length <= 28, 'demo should stay short enough to read as a generated document')
+  assert(initialNanoDocument.blocks.length <= 80, 'demo should stay document-like without becoming a fake docs app')
 
   const markTypes = new Set(initialNanoDocument.blocks.flatMap((block) => block.marks?.map((mark) => mark.type) ?? []))
   for (const type of ['bold', 'italic', 'highlight', 'strike', 'code', 'tag', 'note_link', 'link', 'footnote_ref']) {

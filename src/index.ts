@@ -31,6 +31,8 @@ export {
   type NanoEditorKit,
   type NanoViewFeatureId,
 } from './engine/index'
+export { basicCapability } from './capabilities/basic/capability'
+export { todoCapability } from './capabilities/todo/capability'
 export {
   nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
