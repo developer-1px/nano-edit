@@ -1,4 +1,5 @@
 export * from './block'
+export * from './deck'
 export * from './document'
 export * from './mark'
 export * from './math'
