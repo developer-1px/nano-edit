@@ -1,15 +1,15 @@
-export { markOptions } from './nano-mark-option-definitions'
+export { markOptions } from './definitions'
 export {
   isMarkActive,
   isMarkOptionActive,
   markCommand,
-} from './nano-mark-commands'
+} from './commands'
 export {
   markKeyBindingEntries,
   markCommandOptions,
   markOptionForInputType,
-} from './nano-mark-option-queries'
-export { markShortcutTransaction } from './nano-mark-shortcut-transaction'
+} from './queries'
+export { markShortcutTransaction } from './shortcut-transaction'
 export type {
   MarkCommandDisplay,
   MarkCommandEntry,
@@ -18,4 +18,4 @@ export type {
   MarkOption,
   MarkShortcut,
   MarkShortcutMatch,
-} from './nano-mark-types'
+} from './types'

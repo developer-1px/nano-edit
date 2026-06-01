@@ -134,10 +134,12 @@ The weak points are specific:
 Current local dependency:
 
 ```json
-"zod-crud": "file:../zod-crud/packages/zod-crud"
+"zod-crud": "file:../zod-crud/packages/zod-crud",
+"@zod-crud/collection": "file:../zod-crud/packages/collection",
+"@zod-crud/persist-web": "file:../zod-crud/packages/persist-web"
 ```
 
-The local package reports version `0.12.0`. `npm view zod-crud` returned `E404` on 2026-05-24, so this should be treated as an unpublished local package dependency for now.
+The local `zod-crud` package reports version `1.0.0`. This repo currently consumes it and its extension packages through file dependencies, so local package state is authoritative for development until the dependency source is intentionally changed.
 
 Use only the public package entrypoint:
 
@@ -147,6 +149,11 @@ import type { JSONPatchOperation, SelectionSnap, Pointer } from 'zod-crud'
 ```
 
 Do not import `zod-crud/src/*`, `zod-crud/dist/*`, `application/*`, `domain/*`, or `foundation/*`.
+
+Use zod-crud extension packages only at adapter boundaries:
+
+- `@zod-crud/collection`: ordered array item commands for deck regions or similar collection-shaped state.
+- `@zod-crud/persist-web`: browser persistence envelopes for the demo host.
 
 `zod-crud` responsibilities in this project:
 
@@ -351,7 +358,9 @@ Benefits:
 
 ### Keep
 
-- `zod-crud`: keep as local package dependency until published. It is not on npm registry as of the registry check.
+- `zod-crud`: keep as a local file dependency until dependency sourcing is intentionally changed.
+- `@zod-crud/collection`: keep for collection-shaped adapter code such as deck region editing.
+- `@zod-crud/persist-web`: keep for demo-host browser persistence envelopes.
 - `zod`: already present and required by `zod-crud`.
 - ProseMirror packages: current editor stack is already ProseMirror-based and is the correct place for decorations/selection behavior.
 - `lucide`: already present for quiet icons. Do not add new icon systems.

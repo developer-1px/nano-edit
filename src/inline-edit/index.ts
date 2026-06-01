@@ -1,0 +1,15 @@
+export {
+  collapseInlineEditSelection,
+  inlineEditHasLineBreak,
+  inlineEditHistoryDirectionFromInputType,
+  inlineEditHistoryDirectionFromKeydown,
+  inlineEditSelectionOffset,
+  inlineEditSingleLineText,
+  inlineEditTextPositionAtOffset,
+  insertInlineEditText,
+  isInlineEditLineBreakInput,
+  replaceInlineEditText,
+  restoreInlineEditFocus,
+  type InlineEditHistoryDirection,
+  type InlineEditTextPosition,
+} from './dom'

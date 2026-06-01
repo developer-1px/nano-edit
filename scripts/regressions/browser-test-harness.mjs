@@ -116,6 +116,10 @@ export function demoStorageKey() {
   return match[1]
 }
 
+export function storedPersistenceValueExpression(storageKey) {
+  return `((stored) => stored?.kind === 'zod-crud.persistence+json' ? stored.value : stored)(JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null'))`
+}
+
 export function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

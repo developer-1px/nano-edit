@@ -1,4 +1,5 @@
 export interface MathToken {
+  from: number
   token: string
   formula: string
   to: number
@@ -23,7 +24,7 @@ export function inlineMathTokenAt(source: string, from: number): MathToken | nul
   const formula = inlineMathFormula(token)
   if (!formula) return null
 
-  return { token, formula, to: closeFrom + 1 }
+  return { from, token, formula, to: closeFrom + 1 }
 }
 
 function mathFormula(source: string, delimiter: '$' | '$$'): string {

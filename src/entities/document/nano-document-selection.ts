@@ -1,7 +1,7 @@
 import type {
   JSONPatchOperation,
-  JSONPoint,
   Pointer,
+  SelectionPoint,
   SelectionRange,
   SelectionSnap,
 } from 'zod-crud'
@@ -15,11 +15,11 @@ export function blockTextPointer(index: number): Pointer {
   return `/blocks/${index}/text` as Pointer
 }
 
-export function point(path: Pointer, offset: number): JSONPoint {
+export function point(path: Pointer, offset: number): SelectionPoint {
   return { path, offset }
 }
 
-export function selectionSnap(anchor: JSONPoint, focus: JSONPoint): SelectionSnap {
+export function selectionSnap(anchor: SelectionPoint, focus: SelectionPoint): SelectionSnap {
   const range: SelectionRange = { anchor, focus }
   return {
     selectedPointers: [pointPath(focus)],
@@ -30,11 +30,11 @@ export function selectionSnap(anchor: JSONPoint, focus: JSONPoint): SelectionSna
   }
 }
 
-export function pointPath(value: JSONPoint): Pointer {
+export function pointPath(value: SelectionPoint): Pointer {
   return typeof value === 'string' ? value : value.path
 }
 
-export function pointOffset(value: JSONPoint): number {
+export function pointOffset(value: SelectionPoint): number {
   return typeof value === 'string' ? 0 : Math.max(0, value.offset ?? 0)
 }
 

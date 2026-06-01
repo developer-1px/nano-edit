@@ -3,6 +3,43 @@ export interface NoteLinkParts {
   alias?: string
 }
 
+export interface NoteLinkToken {
+  from: number
+  to: number
+  token: string
+  target: string
+  alias?: string
+}
+
+export function noteLinkTokenAt(source: string, from: number): NoteLinkToken | null {
+  if (source[from] !== '[' || source[from + 1] !== '[') return null
+
+  const closeFrom = source.indexOf(']]', from + 2)
+  if (closeFrom < from + 2) return null
+
+  const to = closeFrom + 2
+  const token = source.slice(from, to)
+  const parts = noteLinkParts(token)
+  if (!parts) return null
+
+  return { from, to, token, target: parts.target, ...(parts.alias ? { alias: parts.alias } : {}) }
+}
+
+export function noteLinkTokensInText(source: string): NoteLinkToken[] {
+  const tokens: NoteLinkToken[] = []
+  let index = 0
+  while (index < source.length) {
+    const token = noteLinkTokenAt(source, index)
+    if (token) {
+      tokens.push(token)
+      index = token.to
+      continue
+    }
+    index += 1
+  }
+  return tokens
+}
+
 export function noteLinkTarget(source: string): string {
   return noteLinkParts(source)?.target ?? ''
 }

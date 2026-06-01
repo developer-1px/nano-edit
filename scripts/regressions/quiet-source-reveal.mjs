@@ -148,7 +148,7 @@ test('List and todo source markers reveal as quiet active indicators', () => {
 })
 
 test('Source reveal focus transactions do not touch the zod-crud engine path', () => {
-  const dispatcher = readFileSync(new URL('../../src/view/nano-view-engine-dispatch.ts', import.meta.url), 'utf8')
+  const dispatcher = readFileSync(new URL('../../src/view/engine/dispatch.ts', import.meta.url), 'utf8')
   assert(dispatcher.includes('sourceRevealPluginKey'))
   assert(dispatcher.includes('transaction.getMeta(sourceRevealPluginKey)'))
   assert(dispatcher.indexOf('transaction.getMeta(sourceRevealPluginKey)') < dispatcher.indexOf('restoreNanoSelection(ctx, selection)'))

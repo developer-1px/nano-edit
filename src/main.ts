@@ -6,6 +6,14 @@ import {
   validDemoDocumentId,
 } from './demo/document-library'
 import {
+  createInlineEditDemo,
+  type InlineEditDemoHandle,
+} from './demo/inline-edit-demo'
+import {
+  createMentionComposerDemo,
+  type MentionComposerDemoHandle,
+} from './demo/mention-composer-demo'
+import {
   createPersistedDemoNanoDeck,
   type PersistedDemoNanoDeck,
 } from './demo/persisted-deck'
@@ -55,7 +63,7 @@ app.replaceChildren(demoShell)
 
 let activeDocumentId: string | null = null
 let activePersistedArtifact: PersistedDemoNanoDocument | PersistedDemoNanoDeck | null = null
-let activeNanoView: NanoDeckViewHandle | NanoViewHandle | null = null
+let activeNanoView: InlineEditDemoHandle | MentionComposerDemoHandle | NanoDeckViewHandle | NanoViewHandle | null = null
 
 for (const demoArtifact of demoArtifacts) {
   const button = document.createElement('button')
@@ -106,6 +114,18 @@ function selectDemoDocument(id: string): void {
       mount: editorMount,
       engine: activePersistedArtifact.engine,
     })
+    return
+  }
+
+  if (nextArtifact.kind === 'inline-edit') {
+    activePersistedArtifact = null
+    activeNanoView = createInlineEditDemo(editorMount)
+    return
+  }
+
+  if (nextArtifact.kind === 'mention-composer') {
+    activePersistedArtifact = null
+    activeNanoView = createMentionComposerDemo(editorMount)
     return
   }
 

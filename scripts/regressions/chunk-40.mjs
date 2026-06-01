@@ -1,5 +1,19 @@
 import { readFileSync } from 'node:fs'
-import { createNanoInputClickHandlers } from '../../src/view/nano-view-input-click-events.ts'
+import { createNanoInputClickHandlers } from '../../src/view/input/click-events.ts'
+import {
+  inlineAutocompleteContextFromInput,
+  inlineAutocompleteContextFromMode,
+  inlineAutocompleteContextFromTrigger,
+  inlineAutocompleteInsertedText,
+  inlineAutocompleteMatchFromText,
+} from '../../src/inline-autocomplete/index.ts'
+import {
+  inlineEditHasLineBreak,
+  inlineEditHistoryDirectionFromInputType,
+  inlineEditHistoryDirectionFromKeydown,
+  inlineEditSingleLineText,
+  isInlineEditLineBreakInput,
+} from '../../src/inline-edit/index.ts'
 import { assert, blockDomSpec, nanoMarkdownFromDocument, nanoBlocksFromProseMirror, test, textSelectionState } from './harness.mjs'
 
 function specText(spec) {
@@ -14,6 +28,111 @@ function domSpecElementsByClass(spec, className) {
   const own = typeof attrs?.class === 'string' && attrs.class.split(/\s+/).includes(className) ? [spec] : []
   return own.concat(spec.flatMap((part) => domSpecElementsByClass(part, className)))
 }
+
+test('Inline edit helpers cover local single-line editing policy', () => {
+  assert.equal(inlineEditHistoryDirectionFromInputType('historyUndo'), 'undo')
+  assert.equal(inlineEditHistoryDirectionFromInputType('historyRedo'), 'redo')
+  assert.equal(inlineEditHistoryDirectionFromInputType('insertText'), null)
+  assert.equal(inlineEditHistoryDirectionFromKeydown({ key: 'z', metaKey: true, ctrlKey: false, altKey: false, shiftKey: false }), 'undo')
+  assert.equal(inlineEditHistoryDirectionFromKeydown({ key: 'z', metaKey: true, ctrlKey: false, altKey: false, shiftKey: true }), 'redo')
+  assert.equal(inlineEditHistoryDirectionFromKeydown({ key: 'y', metaKey: false, ctrlKey: true, altKey: false, shiftKey: false }), 'redo')
+  assert.equal(inlineEditHistoryDirectionFromKeydown({ key: 'z', metaKey: true, ctrlKey: false, altKey: true, shiftKey: false }), null)
+  assert.equal(isInlineEditLineBreakInput('insertLineBreak'), true)
+  assert.equal(isInlineEditLineBreakInput('insertParagraph'), true)
+  assert.equal(isInlineEditLineBreakInput('insertText'), false)
+  assert.equal(inlineEditHasLineBreak('a\nb'), true)
+  assert.equal(inlineEditHasLineBreak('a\r\nb'), true)
+  assert.equal(inlineEditHasLineBreak('ab'), false)
+  assert.equal(inlineEditSingleLineText('붙여\r\n넣기\n\n확인'), '붙여 넣기 확인')
+})
+
+test('Inline autocomplete extension maps triggers to reusable contexts', () => {
+  const triggers = [
+    { mode: 'mention', trigger: '@' },
+    { mode: 'slash', trigger: '/' },
+  ]
+
+  assert.deepEqual(
+    inlineAutocompleteContextFromInput('@', 4, triggers),
+    { mode: 'mention', offset: 4, trigger: '@' },
+  )
+  assert.deepEqual(
+    inlineAutocompleteContextFromMode('slash', 8, triggers),
+    { mode: 'slash', offset: 8, trigger: '/' },
+  )
+  assert.deepEqual(
+    inlineAutocompleteContextFromTrigger('/', 2, triggers),
+    { mode: 'slash', offset: 2, trigger: '/' },
+  )
+  assert.equal(inlineAutocompleteContextFromInput('x', 4, triggers), null)
+  assert.equal(inlineAutocompleteInsertedText('@Mina'), '@Mina ')
+  assert.equal(inlineAutocompleteInsertedText('/summary', { suffix: '' }), '/summary')
+
+  assert.deepEqual(
+    inlineAutocompleteMatchFromText('Assign @mi', 10, triggers),
+    {
+      context: { mode: 'mention', offset: 7, trigger: '@' },
+      query: 'mi',
+      replaceFrom: 7,
+      replaceTo: 10,
+    },
+  )
+  assert.deepEqual(
+    inlineAutocompleteMatchFromText('Use /sum now', 8, triggers),
+    {
+      context: { mode: 'slash', offset: 4, trigger: '/' },
+      query: 'sum',
+      replaceFrom: 4,
+      replaceTo: 8,
+    },
+  )
+  assert.equal(inlineAutocompleteMatchFromText('Assign @mi now', 14, triggers), null)
+
+  // allowSpaces keeps search-style triggers (e.g. [[wiki links]], @page) alive
+  // across spaces, while a line break still closes the query.
+  const wikiTriggers = [{ mode: 'wikilink', trigger: '[[', allowSpaces: true }]
+  assert.deepEqual(
+    inlineAutocompleteMatchFromText('See [[Release Pla', 17, wikiTriggers),
+    {
+      context: { mode: 'wikilink', offset: 4, trigger: '[[' },
+      query: 'Release Pla',
+      replaceFrom: 4,
+      replaceTo: 17,
+    },
+  )
+  assert.equal(inlineAutocompleteMatchFromText('See [[Release\nPla', 17, wikiTriggers), null)
+
+  assert.deepEqual(
+    inlineAutocompleteMatchFromText('Hello {{user', 12, [
+      { mode: 'variable', trigger: '{{' },
+      { mode: 'slash', trigger: '/' },
+    ]),
+    {
+      context: { mode: 'variable', offset: 6, trigger: '{{' },
+      query: 'user',
+      replaceFrom: 6,
+      replaceTo: 12,
+    },
+  )
+  assert.deepEqual(
+    inlineAutocompleteMatchFromText('Ask @mina /sum', 14, triggers),
+    {
+      context: { mode: 'slash', offset: 10, trigger: '/' },
+      query: 'sum',
+      replaceFrom: 10,
+      replaceTo: 14,
+    },
+  )
+  assert.deepEqual(
+    inlineAutocompleteMatchFromText('Assign @mi', 99, triggers),
+    {
+      context: { mode: 'mention', offset: 7, trigger: '@' },
+      query: 'mi',
+      replaceFrom: 7,
+      replaceTo: 10,
+    },
+  )
+})
 
 test('Decorative Markdown tokens stay out of document text', () => {
   const todoText = specText(blockDomSpec({

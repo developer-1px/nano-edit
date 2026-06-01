@@ -5,6 +5,14 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./markdown": "./src/codecs/markdown/index.ts",
+    "./document-index": "./src/indexing/index.ts",
+    "./model": "./src/model/index.ts",
+    "./inline-tokens": "./src/inline-tokens/index.ts",
+    "./autocomplete": "./src/autocomplete/index.ts",
+    "./inline-autocomplete": "./src/inline-autocomplete/index.ts",
+    "./inline-edit": "./src/inline-edit/index.ts",
+    "./suggestion": "./src/suggestion/index.ts",
     "./style.css": "./src/style.css"
   },
   "sideEffects": [
@@ -14,9 +22,13 @@
     "dev": "vite",
     "test": "node --experimental-strip-types --experimental-loader ./scripts/ts-extension-loader.mjs scripts/regressions.mjs",
     "test:deck": "node scripts/regressions/browser-deck-surface.mjs",
+    "test:command-surface": "node scripts/regressions/browser-command-surface.mjs",
+    "test:inline-edit-demo": "node scripts/regressions/browser-inline-edit-demo.mjs",
+    "test:mention-composer": "node scripts/regressions/browser-mention-composer.mjs",
     "test:local-edit": "node scripts/regressions/browser-local-edit-loop.mjs",
     "test:layout": "node scripts/regressions/browser-layout-stability.mjs",
-    "test:all": "pnpm test && pnpm build && pnpm test:layout && pnpm test:local-edit && pnpm test:deck",
+    "test:all": "pnpm test && pnpm build && pnpm test:layout && pnpm test:local-edit && pnpm test:deck && pnpm test:command-surface && pnpm test:inline-edit-demo && pnpm test:mention-composer",
+    "benchmark:consumer-blind:snapshot": "node scripts/consumer-blind-api-snapshot.mjs",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
@@ -25,6 +37,9 @@
     "vite": "^8.0.12"
   },
   "dependencies": {
+    "@interactive-os/interaction": "file:../apg-patterns/packages/interaction",
+    "@zod-crud/collection": "file:../zod-crud/packages/collection",
+    "@zod-crud/persist-web": "file:../zod-crud/packages/persist-web",
     "lucide": "^1.16.0",
     "prosemirror-commands": "^1.7.1",
     "prosemirror-keymap": "^1.2.3",

@@ -2,6 +2,7 @@ import type { NanoDeck, NanoDocument } from '../core/nano-core'
 import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown'
 import { initialNanoDeck } from './initial-deck'
 import { initialNanoDocument } from './initial-document'
+import { partCatalogDocument } from './part-catalog-document'
 import { DEMO_DOCUMENT_STORAGE_KEY } from './persisted-document'
 import { DEMO_DECK_STORAGE_KEY } from './persisted-deck'
 
@@ -23,7 +24,25 @@ export interface DemoDeckDefinition {
   title: string
 }
 
-export type DemoArtifactDefinition = DemoDocumentDefinition | DemoDeckDefinition
+export interface DemoInlineEditDefinition {
+  kind: 'inline-edit'
+  id: string
+  summary: string
+  title: string
+}
+
+export interface DemoMentionComposerDefinition {
+  kind: 'mention-composer'
+  id: string
+  summary: string
+  title: string
+}
+
+export type DemoArtifactDefinition =
+  | DemoDeckDefinition
+  | DemoDocumentDefinition
+  | DemoInlineEditDefinition
+  | DemoMentionComposerDefinition
 
 export const defaultDemoDocumentId = 'overview'
 
@@ -144,6 +163,14 @@ export const demoDocuments: readonly DemoDocumentDefinition[] = [
   },
   {
     kind: 'document',
+    id: 'part-catalog',
+    title: 'Content Catalog',
+    summary: 'rendered content parts',
+    storageKey: `${DEMO_DOCUMENT_STORAGE_KEY}:part-catalog`,
+    document: partCatalogDocument,
+  },
+  {
+    kind: 'document',
     id: 'local-edit-surface',
     title: 'Local Edit Surface',
     summary: 'quiet edit behavior',
@@ -154,6 +181,18 @@ export const demoDocuments: readonly DemoDocumentDefinition[] = [
 
 export const demoArtifacts: readonly DemoArtifactDefinition[] = [
   ...demoDocuments,
+  {
+    kind: 'inline-edit',
+    id: 'inline-edit',
+    title: 'Inline Edit',
+    summary: 'mention and slash surface',
+  },
+  {
+    kind: 'mention-composer',
+    id: 'mention-composer',
+    title: 'Mention Composer',
+    summary: 'mention, slash, wiki-link triggers',
+  },
   {
     kind: 'deck',
     id: 'generated-deck-review',

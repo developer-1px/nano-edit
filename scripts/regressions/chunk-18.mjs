@@ -1,4 +1,5 @@
-import { createNanoInputTextHandlers } from '../../src/view/nano-view-input-text-events.ts'
+import { createNanoInputTextHandlers } from '../../src/view/input/text-events.ts'
+import { createNanoSlashCommandRuntime } from '../../src/view/runtime/slash-command.ts'
 import * as h from './harness.mjs'
 const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
@@ -15,6 +16,83 @@ function typeShortcutText(initialState, text) {
 function markdownFromState(state) {
   return nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(state.doc) })
 }
+
+function keydownEvent(key) {
+  return {
+    key,
+    defaultPrevented: false,
+    propagationStopped: false,
+    preventDefault() {
+      this.defaultPrevented = true
+    },
+    stopPropagation() {
+      this.propagationStopped = true
+    },
+  }
+}
+
+test('First slash in an empty text block opens the slash command palette', () => {
+  const opened = []
+  const view = {
+    state: textState(''),
+    dispatch() {
+      throw new Error('slash palette input should not mutate the block')
+    },
+  }
+  const handlers = createNanoInputTextHandlers(
+    {
+      collapsedBlockIds: new Set(),
+      shell: {
+        openCommandPalette: (mode, blockId) => opened.push([mode, blockId]),
+      },
+    },
+    {
+      restoreHistory: () => {},
+      runMarkCommand: () => {},
+      toggleCollapsedBlock: () => {},
+    },
+  )
+
+  assert.equal(handlers.handleShortcutInput(view, view.state.selection.from, view.state.selection.from, '/'), true)
+  assert.deepEqual(opened, [['slash', 'b1']])
+  assert.equal(markdownFromState(view.state), '')
+})
+
+test('Slash keydown opens an empty text block before text input', () => {
+  const opened = []
+  const event = keydownEvent('/')
+  const runtime = createNanoSlashCommandRuntime({
+    view: { state: textState('') },
+    blockRegistry: undefined,
+    shell: {
+      openCommandPalette: (mode, blockId) => opened.push([mode, blockId]),
+    },
+  })
+
+  runtime.handleSlashKeydown(event)
+
+  assert.equal(event.defaultPrevented, true)
+  assert.equal(event.propagationStopped, true)
+  assert.deepEqual(opened, [['slash', 'b1']])
+})
+
+test('Slash keydown leaves non-empty text blocks to normal text input', () => {
+  const opened = []
+  const event = keydownEvent('/')
+  const runtime = createNanoSlashCommandRuntime({
+    view: { state: textSelectionState('Already has text', 'md-1', 'Already has text'.length) },
+    blockRegistry: undefined,
+    shell: {
+      openCommandPalette: (mode, blockId) => opened.push([mode, blockId]),
+    },
+  })
+
+  runtime.handleSlashKeydown(event)
+
+  assert.equal(event.defaultPrevented, false)
+  assert.equal(event.propagationStopped, false)
+  assert.deepEqual(opened, [])
+})
 
 test('Bear ATX heading spacing preserves imported Markdown source', () => {
   const markdown = '###  Wide title  ####'

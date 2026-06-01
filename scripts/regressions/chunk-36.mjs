@@ -1,4 +1,4 @@
-import { createNanoInspectorMarkdownRuntime } from '../../src/view/nano-view-inspector-markdown.ts'
+import { createNanoInspectorMarkdownRuntime } from '../../src/view/inspector/markdown-panel.ts'
 import { assert, test, textState } from './harness.mjs'
 
 class FakeElement {

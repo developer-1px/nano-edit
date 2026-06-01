@@ -4,6 +4,16 @@ import type { EditorView } from 'prosemirror-view'
 import { normalizeTableRows } from '../../../adapters/prosemirror/prosemirror-table-normalize'
 import { nanoNodeNames } from '../../../adapters/prosemirror/prosemirror-names'
 import { blockPositionById } from '../../../entities/block/structure/nano-block-structure'
+import {
+  inlineEditHasLineBreak,
+  inlineEditHistoryDirectionFromInputType,
+  inlineEditHistoryDirectionFromKeydown,
+  inlineEditSelectionOffset,
+  inlineEditSingleLineText,
+  insertInlineEditText,
+  isInlineEditLineBreakInput,
+  restoreInlineEditFocus,
+} from '../../../inline-edit/index'
 
 export interface TableCellEditActions {
   restoreHistory: (direction: 'undo' | 'redo') => void
@@ -54,22 +64,23 @@ function handleTableCellBeforeInput(
   if (!cell) return false
   setActiveTableCellBlock(view, cell)
 
-  if (event.inputType === 'historyUndo' || event.inputType === 'historyRedo') {
+  const historyDirection = inlineEditHistoryDirectionFromInputType(event.inputType)
+  if (historyDirection) {
     event.preventDefault()
     event.stopPropagation()
-    actions.restoreHistory(event.inputType === 'historyUndo' ? 'undo' : 'redo')
+    actions.restoreHistory(historyDirection)
     return true
   }
 
-  if (event.inputType === 'insertLineBreak' || event.inputType === 'insertParagraph') {
+  if (isInlineEditLineBreakInput(event.inputType)) {
     event.preventDefault()
     return true
   }
 
   const text = event.data
-  if (typeof text === 'string' && hasLineBreak(text)) {
+  if (typeof text === 'string' && inlineEditHasLineBreak(text)) {
     event.preventDefault()
-    insertTableCellText(view, cell, singleLineText(text))
+    insertTableCellText(view, cell, inlineEditSingleLineText(text))
     return true
   }
 
@@ -80,7 +91,7 @@ function handleTableCellKeydown(event: KeyboardEvent, actions: TableCellEditActi
   const cell = tableCellFromEventTarget(event.target)
   if (!cell) return false
 
-  const historyDirection = historyDirectionFromKeydown(event)
+  const historyDirection = inlineEditHistoryDirectionFromKeydown(event)
   if (historyDirection) {
     event.preventDefault()
     event.stopPropagation()
@@ -124,13 +135,13 @@ function handleTableCellPaste(view: EditorView, event: ClipboardEvent): boolean 
 
   event.preventDefault()
   event.stopPropagation()
-  insertTableCellText(view, cell, singleLineText(text))
+  insertTableCellText(view, cell, inlineEditSingleLineText(text))
   return true
 }
 
 function handleTableCellCommit(view: EditorView, event: Event, cell: HTMLTableCellElement): boolean {
   setActiveTableCellBlock(view, cell)
-  const offset = cellSelectionOffset(cell) ?? (cell.textContent ?? '').length
+  const offset = inlineEditSelectionOffset(cell) ?? (cell.textContent ?? '').length
   commitTableCellText(view, cell, offset)
   event.preventDefault()
   event.stopPropagation()
@@ -151,20 +162,8 @@ function handleTableCellFocusOut(view: EditorView, event: FocusEvent): boolean {
 }
 
 function insertTableCellText(view: EditorView, cell: HTMLTableCellElement, text: string): void {
-  const selection = window.getSelection()
-  if (!selection || selection.rangeCount === 0 || !cell.contains(selection.getRangeAt(0).endContainer)) {
-    collapseSelection(cell, cell.textContent?.length ?? 0)
-  }
-
-  const range = window.getSelection()?.getRangeAt(0)
-  if (!range) return
-
-  range.deleteContents()
-  range.insertNode(document.createTextNode(text))
-  range.collapse(false)
-  window.getSelection()?.removeAllRanges()
-  window.getSelection()?.addRange(range)
-  commitTableCellText(view, cell, cellSelectionOffset(cell) ?? (cell.textContent ?? '').length)
+  insertInlineEditText(cell, text)
+  commitTableCellText(view, cell, inlineEditSelectionOffset(cell) ?? (cell.textContent ?? '').length)
 }
 
 function commitTableCellText(view: EditorView, cell: HTMLTableCellElement, offset: number): boolean {
@@ -197,23 +196,6 @@ function commitTableCellText(view: EditorView, cell: HTMLTableCellElement, offse
   view.dispatch(transaction)
   restoreCellFocus(view, target, offset)
   return true
-}
-
-function hasLineBreak(text: string): boolean {
-  return /[\r\n]/.test(text)
-}
-
-function singleLineText(text: string): string {
-  return text.replace(/\r\n?/g, '\n').replace(/\n+/g, ' ')
-}
-
-function historyDirectionFromKeydown(event: KeyboardEvent): 'undo' | 'redo' | null {
-  if (!(event.metaKey || event.ctrlKey) || event.altKey) return null
-
-  const key = event.key.toLowerCase()
-  if (key === 'z') return event.shiftKey ? 'redo' : 'undo'
-  if (key === 'y') return 'redo'
-  return null
 }
 
 function tableCellTarget(cell: HTMLTableCellElement): {
@@ -268,65 +250,10 @@ function restoreCellFocus(
   target: { columnIndex: number; id: string; rowIndex: number },
   offset: number,
 ): void {
-  const restore = () => {
+  restoreInlineEditFocus(() => {
     const selector = `.nano-table[data-id="${cssEscape(target.id)}"] [data-row="${target.rowIndex}"][data-column="${target.columnIndex}"]`
-    const cell = view.dom.querySelector<HTMLElement>(selector)
-    if (!cell) return
-
-    cell.focus({ preventScroll: true })
-    collapseSelection(cell, offset)
-  }
-
-  restore()
-  requestAnimationFrame(restore)
-}
-
-function collapseSelection(element: HTMLElement, offset: number): void {
-  const selection = window.getSelection()
-  if (!selection) return
-
-  const range = document.createRange()
-  const position = textPositionAtOffset(element, offset)
-  if (position) {
-    range.setStart(position.node, position.offset)
-  } else {
-    range.selectNodeContents(element)
-  }
-  range.collapse(true)
-  selection.removeAllRanges()
-  selection.addRange(range)
-}
-
-function textPositionAtOffset(element: HTMLElement, offset: number): { node: Text; offset: number } | null {
-  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
-  let remaining = Math.max(0, offset)
-  let lastText: Text | null = null
-
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-    if (!(node instanceof Text)) continue
-    lastText = node
-    if (remaining <= node.data.length) return { node, offset: remaining }
-    remaining -= node.data.length
-  }
-
-  return lastText ? { node: lastText, offset: lastText.data.length } : null
-}
-
-function cellSelectionOffset(cell: HTMLTableCellElement): number | null {
-  const selection = window.getSelection()
-  if (!selection || selection.rangeCount === 0) return null
-
-  const range = selection.getRangeAt(0)
-  if (!cell.contains(range.endContainer)) return null
-
-  try {
-    const prefix = document.createRange()
-    prefix.selectNodeContents(cell)
-    prefix.setEnd(range.endContainer, range.endOffset)
-    return prefix.toString().length
-  } catch {
-    return null
-  }
+    return view.dom.querySelector<HTMLElement>(selector)
+  }, offset)
 }
 
 function cssEscape(value: string): string {

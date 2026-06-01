@@ -1,6 +1,6 @@
 import { type Node as ProseMirrorNode } from 'prosemirror-model'
 import { Selection, TextSelection } from 'prosemirror-state'
-import type { JSONPatchOperation, JSONPoint, Pointer, SelectionSnap } from 'zod-crud'
+import type { JSONPatchOperation, Pointer, SelectionPoint, SelectionSnap } from 'zod-crud'
 import {
   NanoDocumentSchema,
   blockTextPointer,
@@ -133,7 +133,7 @@ function withoutKeys<T extends Record<string, unknown>>(value: T, keys: readonly
   return copy
 }
 
-function nanoPointFromProseMirrorPosition(doc: ProseMirrorNode, position: number): JSONPoint | null {
+function nanoPointFromProseMirrorPosition(doc: ProseMirrorNode, position: number): SelectionPoint | null {
   if (doc.childCount === 0) return null
 
   const target = clamp(position, 0, doc.content.size)
@@ -153,7 +153,7 @@ function nanoPointFromProseMirrorPosition(doc: ProseMirrorNode, position: number
   return null
 }
 
-function prosemirrorPositionFromNanoPoint(doc: ProseMirrorNode, value: JSONPoint): number {
+function prosemirrorPositionFromNanoPoint(doc: ProseMirrorNode, value: SelectionPoint): number {
   const match = /^\/blocks\/(\d+)\/text$/.exec(pointPath(value))
   if (!match || doc.childCount === 0) return firstTextPosition(doc)
 

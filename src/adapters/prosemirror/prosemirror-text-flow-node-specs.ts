@@ -9,7 +9,7 @@ import {
   setextLength,
   setextMarker,
 } from './prosemirror-block-attrs'
-import { foldIndicatorDomSpec } from '../../view/nano-fold-indicator'
+import { foldIndicatorDomSpec } from '../../view/block-ui/fold-indicator'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const paragraphNodeSpec: NodeSpec = {

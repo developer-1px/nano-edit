@@ -28,10 +28,9 @@ import {
   nextOrderedListIndex,
 } from './nano-markdown-list'
 
-export interface NanoMarkdownBlockEntry {
-  blockId: string
-  markdown: string
-}
+import type { NanoMarkdownBlockEntry } from './types'
+
+export type { NanoMarkdownBlockEntry }
 
 export function nanoMarkdownFromDocument(document: NanoDocument): string {
   const validDocument = NanoDocumentSchema.parse(document)

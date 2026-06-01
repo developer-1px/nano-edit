@@ -2,7 +2,7 @@ import {
   destroyMountedNanoView,
   forgetMountedNanoView,
   rememberMountedNanoView,
-} from '../../src/view/nano-view-mount-registry.ts'
+} from '../../src/view/runtime/mount-registry.ts'
 import { assert, test } from './harness.mjs'
 
 function countedHandle() {

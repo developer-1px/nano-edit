@@ -4,7 +4,7 @@ import { editorPartCatalog, editorPartCatalogById, editorPartsByCategory } from 
 import { blockOptionsFromCapabilities } from '../../src/assembly/registry.ts'
 import { basicCapability } from '../../src/capabilities/basic/capability.ts'
 import { todoCapability } from '../../src/capabilities/todo/capability.ts'
-import { nanoCommands } from '../../src/commands/nano-command-registry.ts'
+import { nanoCommands } from '../../src/commands/registry.ts'
 import { createNanoEditorKit, defaultNanoEditorKit, kitHasViewFeature } from '../../src/engine/index.ts'
 import { todoIndexEntryFromBlock } from '../../src/capabilities/todo/index.ts'
 import { markdownTodoLine } from '../../src/capabilities/todo/markdown.ts'
@@ -56,7 +56,7 @@ import {
 import {
   backspaceKeyCommand,
   deleteKeyCommand,
-} from '../../src/view/nano-view-keymap-backspace.ts'
+} from '../../src/view/keyboard/backspace.ts'
 
 export const bearInlineMarkdown = [
   '**bold**',

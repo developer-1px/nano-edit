@@ -1,6 +1,6 @@
 # zod-crud update notes
 
-Date: 2026-05-22
+Date: 2026-05-30
 
 ## Current State
 
@@ -8,6 +8,8 @@ Date: 2026-05-22
 
 - It creates a document with `createJSONDocument`.
 - It uses `history`, `selection`, `commit(..., { selection })`, `lastPatch`, and `history.mergeLast`.
+- It uses `@zod-crud/collection` for deck-region array editing.
+- It uses `@zod-crud/persist-web` for browser persistence envelopes in the demo host.
 - ProseMirror selection mapping, Markdown preservation, and rich editor commands stay inside nano-edit.
 
 No immediate migration is required.
@@ -25,6 +27,8 @@ The current zod-crud public surface aligns with nano-edit:
 - `doc.commit`
 - `doc.history`
 - `doc.selection`
+- `@zod-crud/collection`
+- `@zod-crud/persist-web`
 
 Avoid adopting `doc.ops` or `doc.commands`; those are not public.
 
@@ -34,6 +38,7 @@ Avoid adopting `doc.ops` or `doc.commands`; those are not public.
    - ProseMirror selection -> zod-crud `SelectionSnap`
    - text typing history coalescing via `history.mergeLast`
    - selection restore after undo/redo
+   - extension-package pressure from `@zod-crud/collection` and `@zod-crud/persist-web`
 
 2. Consider improving patch granularity where practical.
    `replaceBlocksPatch` currently collapses broad block changes into `/blocks` replacement. That may be fine for editor transactions, but narrower patches improve history/debug readability.
@@ -57,10 +62,11 @@ Keep using the public `zod-crud` entrypoint only. Do not depend on private subpa
 - Add a short internal doc section showing the canonical `commit + selection + mergeLast` flow.
 - Add regression tests around selection restoration after `history.undo/redo`.
 - Avoid any new imports from zod-crud private subpaths.
+- Keep zod-crud extension use behind nano-edit adapters; do not leak collection or persistence package concepts into Markdown parsing or ProseMirror view code.
 
 ## Verification
 
 ```sh
-npm -C ../nano-edit test
-npm -C ../nano-edit run build
+pnpm test
+pnpm build
 ```

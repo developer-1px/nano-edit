@@ -12,7 +12,7 @@ import {
   orderedStartText,
   orderedStartTextAttrs,
 } from './prosemirror-block-attrs'
-import { foldIndicatorDomSpec } from '../../view/nano-fold-indicator'
+import { foldIndicatorDomSpec } from '../../view/block-ui/fold-indicator'
 import { sourceTokenAttrs } from './prosemirror-source-token'
 
 export const listItemNodeSpec: NodeSpec = {

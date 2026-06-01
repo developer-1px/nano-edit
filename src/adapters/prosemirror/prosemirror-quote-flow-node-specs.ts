@@ -1,7 +1,7 @@
 import type { NodeSpec } from 'prosemirror-model'
 import { AlertTriangle, Diamond, Info, Lightbulb } from 'lucide'
 import type { CalloutTone } from '../../assembly/capability'
-import { lucideIcon } from '../../view/nano-icons'
+import { lucideIcon } from '../../view/icons'
 import {
   calloutMarkerToken,
   calloutTone,

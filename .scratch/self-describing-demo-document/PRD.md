@@ -102,4 +102,4 @@ Update the demo persistence version so existing local demo state does not hide t
 
 This PRD follows the current domain glossary. The key correction from the discussion is that demo self-description is allowed and preferred. The demo should explain Nano Edit, but it must do so as a document that an Integrator Reader can read and locally edit.
 
-The current local repo has no GitHub or GitLab remote, so this PRD is published to the local markdown issue tracker convention under `.scratch/` with `Status: needs-triage`.
+This PRD was originally published to the local markdown issue tracker convention under `.scratch/` before the GitHub remote was attached. New tracking work should use `developer-1px/nano-edit` GitHub Issues; keep this file as durable planning context.

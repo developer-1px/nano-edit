@@ -1,5 +1,5 @@
-import { inspectorIndexSections } from '../../src/view/nano-view-inspector-index-sections.ts'
-import { indexEntrySymbol } from '../../src/view/nano-view-index.ts'
+import { inspectorIndexSections } from '../../src/view/inspector/index-sections.ts'
+import { indexEntrySymbol } from '../../src/view/index-view/index.ts'
 import { assert, nanoDocumentFromMarkdown, nanoDocumentIndex, test } from './harness.mjs'
 
 test('Inspector index uses visual labels instead of raw Markdown markers', () => {

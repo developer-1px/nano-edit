@@ -1,4 +1,4 @@
-import { createNanoEditorAttributes } from '../../src/view/nano-view-editor-attributes.ts'
+import { createNanoEditorAttributes } from '../../src/view/runtime/editor-attributes.ts'
 import { assert, test } from './harness.mjs'
 
 test('Nano view editor attributes stay quiet but host-configurable', () => {

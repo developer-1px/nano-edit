@@ -1,8 +1,19 @@
 # Triage Labels
 
-The skills speak in terms of five canonical triage roles. This file maps those roles to the label strings used in this repo's local markdown issue tracker.
+The skills speak in terms of canonical triage roles. This file maps those roles to GitHub labels for `developer-1px/nano-edit`.
 
-| Label in mattpocock/skills | Label in our tracker | Meaning |
+## Category Roles
+
+| Label in mattpocock/skills | GitHub label | Meaning |
+| --- | --- | --- |
+| `bug` | `bug` | Something is broken |
+| `enhancement` | `enhancement` | New feature or improvement |
+
+Use `documentation` only for docs-only maintenance that does not fit the two category roles.
+
+## State Roles
+
+| Label in mattpocock/skills | GitHub label | Meaning |
 | --- | --- | --- |
 | `needs-triage` | `needs-triage` | Maintainer needs to evaluate this issue |
 | `needs-info` | `needs-info` | Waiting on reporter for more information |
@@ -10,4 +21,4 @@ The skills speak in terms of five canonical triage roles. This file maps those r
 | `ready-for-human` | `ready-for-human` | Requires human implementation |
 | `wontfix` | `wontfix` | Will not be actioned |
 
-When a skill mentions a role, use the corresponding label string from this table.
+When a skill mentions a role, use the corresponding GitHub label string from this table.

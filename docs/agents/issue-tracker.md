@@ -1,19 +1,21 @@
-# Issue tracker: Local Markdown
+# Issue Tracker: GitHub
 
-Issues and PRDs for this repo live as markdown files in `.scratch/`.
+Issues for this repo live in GitHub Issues:
 
-## Conventions
+- Repository: `developer-1px/nano-edit`
+- URL: `https://github.com/developer-1px/nano-edit/issues`
+- CLI target: `gh issue ... --repo developer-1px/nano-edit`
 
-- One feature per directory: `.scratch/<feature-slug>/`
-- The PRD is `.scratch/<feature-slug>/PRD.md`
-- Implementation issues are `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01`
-- Triage state is recorded as a `Status:` line near the top of each issue file
-- Comments and conversation history append to the bottom of the file under a `## Comments` heading
+The local `.scratch/` directory contains historical PRDs and issue drafts created before the GitHub remote was attached. Treat them as internal planning records, not the active issue tracker.
 
 ## When a skill says "publish to the issue tracker"
 
-Create a new file under `.scratch/<feature-slug>/` after creating the directory if needed.
+Create or update a GitHub issue with `gh issue create`, `gh issue edit`, or `gh issue comment` against `developer-1px/nano-edit`.
+
+If the output is a PRD-sized document, keep the durable document in `docs/` or `.scratch/` when useful, then publish a GitHub issue that links to the local document path or summarizes the actionable slices.
 
 ## When a skill says "fetch the relevant ticket"
 
-Read the file at the referenced path. The user will normally pass the path or issue number directly.
+Use `gh issue view <number> --repo developer-1px/nano-edit --comments --json ...`.
+
+If the user references a `.scratch/` path, read that file as historical context and then check whether there is a corresponding GitHub issue before taking action.

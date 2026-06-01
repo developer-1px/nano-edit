@@ -12,7 +12,7 @@ import type {
 import { blockOptionsFromCapabilities } from '../assembly/registry'
 import { basicCapability } from '../capabilities/basic/capability'
 import { todoCapability } from '../capabilities/todo/capability'
-import { remainingBlockOptions } from './nano-remaining-block-options'
+import { remainingBlockOptions } from './definitions/remaining'
 
 export type {
   BlockBehavior,
@@ -39,7 +39,7 @@ export {
   blockKeyboardContext,
   generatedBlockId,
   nextBlockId,
-} from './nano-block-option-internals'
+} from './options/index'
 
 export interface BlockOptionRegistry {
   blockOptions: readonly BlockOption[]

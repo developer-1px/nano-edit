@@ -1,5 +1,5 @@
-import { createNanoInspectorShell } from '../../src/view/nano-inspector-shell.ts'
-import { destroyNanoView } from '../../src/view/nano-view-lifecycle.ts'
+import { createNanoInspectorShell } from '../../src/view/shell/inspector-shell.ts'
+import { destroyNanoView } from '../../src/view/runtime/lifecycle.ts'
 import { assert, test } from './harness.mjs'
 
 class FakeElement {
@@ -197,6 +197,44 @@ test('Inspector tabs expose selected tab and panel relationships', () => {
     assert.equal(markdownTab.tabIndex, 0)
     assert.equal(markdownPanel.hidden, false)
     assert.equal(markdownTab.focusCount, 1)
+
+    let preventDefaultCount = 0
+    const markdownKeydown = markdownTab.listeners.find(([eventName]) => eventName === 'keydown')[1]
+    markdownKeydown({
+      key: 'Home',
+      preventDefault: () => {
+        preventDefaultCount += 1
+      },
+    })
+
+    assert.equal(preventDefaultCount, 1)
+    assert.equal(indexTab.getAttribute('aria-selected'), 'true')
+    assert.equal(indexPanel.hidden, false)
+    assert.equal(markdownTab.getAttribute('aria-selected'), 'false')
+    assert.equal(markdownPanel.hidden, true)
+    assert.equal(indexTab.focusCount, 1)
+
+    indexKeydown({
+      key: 'End',
+      preventDefault: () => {
+        preventDefaultCount += 1
+      },
+    })
+
+    assert.equal(preventDefaultCount, 2)
+    assert.equal(indexTab.getAttribute('aria-selected'), 'false')
+    assert.equal(markdownTab.getAttribute('aria-selected'), 'true')
+    assert.equal(markdownTab.focusCount, 2)
+
+    markdownKeydown({
+      key: 'Escape',
+      preventDefault: () => {
+        preventDefaultCount += 1
+      },
+    })
+
+    assert.equal(preventDefaultCount, 2)
+    assert.equal(markdownTab.getAttribute('aria-selected'), 'true')
 
     shell.setInspectorMode('pinned')
     const [, controls] = header.children

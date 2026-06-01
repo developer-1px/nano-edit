@@ -5,6 +5,7 @@ import {
   evaluate,
   pressKey,
   scrollTargetIntoView,
+  storedPersistenceValueExpression,
   waitForExpression,
   withBrowserRegression,
 } from './browser-test-harness.mjs'
@@ -95,12 +96,14 @@ async function runLocalEditLoop(browser, url) {
   await waitForExpression(browser, domTextIncludesExpression(tableCellSelector(targets), normalizedPasteText))
   await waitForExpression(browser, storedTableCellIncludesExpression(targets, normalizedPasteText))
   await waitForExpression(browser, `!(${storedTableCellIncludesExpression(targets, '\n')})`)
+  await waitForExpression(browser, storedTodoCheckedExpression(targets.todoBlockId, true))
 
   await blurEditor(browser)
   assertQuietSurface(await documentSnapshot(browser, targets))
 
   await browser.send('Page.reload', { ignoreCache: true })
   await waitForExpression(browser, `document.querySelector(${JSON.stringify(blockSelector(targets.textBlockId))})?.textContent.includes(${JSON.stringify(localEditText)})`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(`${blockSelector(targets.todoBlockId)} .nano-todo-box`)})?.getAttribute('aria-checked') === 'true'`)
   const restored = await documentSnapshot(browser, targets)
   assert.equal(restored.todoChecked, true)
   assert.equal(restored.tableCell.includes(tableEditText), true)
@@ -187,15 +190,15 @@ function assertResolvedTargets(targets) {
 }
 
 function storedTextIncludesExpression(blockId, text) {
-  return `JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null')?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.text?.includes(${JSON.stringify(text)}) === true`
+  return `${storedPersistenceValueExpression(storageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.text?.includes(${JSON.stringify(text)}) === true`
 }
 
 function storedTodoCheckedExpression(blockId, checked) {
-  return `JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null')?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.checked === ${checked}`
+  return `${storedPersistenceValueExpression(storageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.checked === ${checked}`
 }
 
 function storedTableCellIncludesExpression(targets, text) {
-  return `JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null')?.blocks?.find((block) => block.id === ${JSON.stringify(targets.tableBlockId)})?.rows?.[${Number(targets.tableRow)}]?.[${Number(targets.tableColumn)}]?.includes(${JSON.stringify(text)}) === true`
+  return `${storedPersistenceValueExpression(storageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(targets.tableBlockId)})?.rows?.[${Number(targets.tableRow)}]?.[${Number(targets.tableColumn)}]?.includes(${JSON.stringify(text)}) === true`
 }
 
 function domTextIncludesExpression(selector, text) {

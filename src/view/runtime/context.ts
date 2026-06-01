@@ -1,0 +1,38 @@
+import type { EditorView } from 'prosemirror-view'
+import type { Pointer } from 'zod-crud'
+import type { BlockOptionRegistry } from '../../blocks/nano-block-options'
+import type { NanoDocumentEngine } from '../../core/nano-core'
+import type { NanoEditorKit } from '../../engine/editor-kit'
+import type { NanoShell } from '../shell/shell'
+
+export const TEXT_MERGE_MS = 600
+
+export interface NanoViewOptions {
+  mount: HTMLElement
+  engine: NanoDocumentEngine
+  ariaLabel?: string
+  kit?: NanoEditorKit
+  spellcheck?: boolean
+}
+
+export interface NanoViewHandle {
+  destroy(): void
+}
+
+export interface NanoViewContext {
+  engine: NanoDocumentEngine
+  kit: NanoEditorKit
+  blockRegistry: BlockOptionRegistry
+  root: HTMLElement
+  editor: HTMLElement
+  shell: NanoShell
+  indexOutput: HTMLElement
+  markdownOutput: HTMLElement
+  view: EditorView
+  destroyed: boolean
+  lastTextMergePath: Pointer | null
+  lastTextMergeAt: number
+  indexSearchQuery: string
+  collapsedBlockIds: Set<string>
+  slashKeydownListener: (event: KeyboardEvent) => void
+}

@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { blockOptions } from '../../src/blocks/nano-block-options.ts'
-import { blockActionCommands } from '../../src/commands/nano-command-actions-block.ts'
-import { documentActionCommands } from '../../src/commands/nano-command-actions-document.ts'
-import { inspectorActionCommands } from '../../src/commands/nano-command-actions-inspector.ts'
-import { blockCommands } from '../../src/commands/nano-command-blocks.ts'
-import { markCommands } from '../../src/commands/nano-command-marks.ts'
+import { blockActionCommands } from '../../src/commands/actions-block.ts'
+import { documentActionCommands } from '../../src/commands/actions-document.ts'
+import { inspectorActionCommands } from '../../src/commands/actions-inspector.ts'
+import { blockCommands } from '../../src/commands/blocks.ts'
+import { markCommands } from '../../src/commands/marks.ts'
 import { assert, test } from './harness.mjs'
 
 function commandOptions(overrides = {}) {
@@ -96,11 +96,11 @@ test('Source-only blocks do not carry demo placeholder templates', () => {
   }
 
   for (const sourcePath of [
-    '../../src/blocks/nano-image-block-option.ts',
-    '../../src/blocks/nano-bookmark-block-option.ts',
-    '../../src/blocks/nano-attachment-block-option.ts',
-    '../../src/blocks/nano-reference-block-options.ts',
-    '../../src/blocks/nano-block-option-templates.ts',
+    '../../src/blocks/definitions/image.ts',
+    '../../src/blocks/definitions/bookmark.ts',
+    '../../src/blocks/definitions/attachment.ts',
+    '../../src/blocks/definitions/reference.ts',
+    '../../src/blocks/options/templates.ts',
   ]) {
     const source = readFileSync(new URL(sourcePath, import.meta.url), 'utf8')
     for (const placeholder of ['hero.png', 'Working image', 'https://bear.app', 'files/brief.pdf', 'Project brief', 'Today', 'projects/editor']) {
@@ -117,8 +117,8 @@ test('Toolbar chrome stays removed without losing command metadata', () => {
   }
 
   const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
-  const viewCreate = readFileSync(new URL('../../src/view/nano-view-create.ts', import.meta.url), 'utf8')
-  const viewShell = readFileSync(new URL('../../src/view/nano-view-shell.ts', import.meta.url), 'utf8')
+  const viewCreate = readFileSync(new URL('../../src/view/runtime/create.ts', import.meta.url), 'utf8')
+  const viewShell = readFileSync(new URL('../../src/view/runtime/shell.ts', import.meta.url), 'utf8')
   assert.equal(baseCss.includes('.toolbar'), false)
   assert.equal(baseCss.includes('.block-picker'), false)
   assert.equal(viewCreate.includes('createNanoToolbarRuntime'), false)
@@ -131,10 +131,10 @@ test('Command metadata is not named after removed toolbar chrome', () => {
   const sourceFiles = [
     '../../src/assembly/capability.ts',
     '../../src/blocks/nano-block-options.ts',
-    '../../src/marks/nano-mark-types.ts',
-    '../../src/marks/nano-mark-option-queries.ts',
+    '../../src/marks/types.ts',
+    '../../src/marks/queries.ts',
     '../../src/marks/nano-mark-options.ts',
-    '../../src/commands/nano-command-marks.ts',
+    '../../src/commands/marks.ts',
   ]
     .map((path) => readFileSync(new URL(path, import.meta.url), 'utf8'))
     .join('\n')

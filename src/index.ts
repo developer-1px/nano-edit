@@ -48,6 +48,14 @@ export {
   type NanoEditorKit,
   type NanoViewFeatureId,
 } from './engine/index'
+export {
+  editorPartCatalog,
+  editorPartCatalogById,
+  editorPartsByCategory,
+  type EditorPartCatalogItem,
+  type EditorPartCategory,
+  type EditorPartSurface,
+} from './assembly/part-catalog'
 export { basicCapability } from './capabilities/basic/capability'
 export { todoCapability } from './capabilities/todo/capability'
 export {
@@ -76,3 +84,59 @@ export {
   type NanoSpecialSearch,
   type TableIndexEntry,
 } from './indexing/nano-document-index'
+export {
+  collapseInlineEditSelection,
+  inlineEditHasLineBreak,
+  inlineEditHistoryDirectionFromInputType,
+  inlineEditHistoryDirectionFromKeydown,
+  inlineEditSelectionOffset,
+  inlineEditSingleLineText,
+  inlineEditTextPositionAtOffset,
+  insertInlineEditText,
+  isInlineEditLineBreakInput,
+  restoreInlineEditFocus,
+  type InlineEditHistoryDirection,
+  type InlineEditTextPosition,
+} from './inline-edit/index'
+export {
+  inlineAutocompleteContextFromInput,
+  inlineAutocompleteContextFromMode,
+  inlineAutocompleteContextFromTrigger,
+  inlineAutocompleteInsertedText,
+  inlineAutocompleteMatchFromText,
+  insertInlineAutocompleteText,
+  replaceInlineAutocompleteText,
+  type InlineAutocompleteContext,
+  type InlineAutocompleteInsertOptions,
+  type InlineAutocompleteMatch,
+  type InlineAutocompleteTrigger,
+} from './inline-autocomplete/index'
+export {
+  autocompleteOptionMatches,
+  createAutocomplete,
+  createAutocompleteSurface,
+  movedAutocompleteIndex,
+  nearestEnabledAutocompleteIndex,
+  visibleAutocompleteOptions,
+  type Autocomplete,
+  type AutocompleteOption,
+  type AutocompleteOptions,
+  type AutocompleteState,
+  type AutocompleteSurface,
+  type AutocompleteSurfaceClasses,
+  type AutocompleteSurfaceElements,
+  type AutocompleteSurfaceOption,
+  type AutocompleteSurfaceOptions,
+} from './autocomplete/index'
+export {
+  createSuggestionSurface,
+  movedSuggestionIndex,
+  nearestEnabledSuggestionIndex,
+  suggestionOptionMatches,
+  visibleSuggestionOptions,
+  type SuggestionSurface,
+  type SuggestionSurfaceClasses,
+  type SuggestionSurfaceElements,
+  type SuggestionSurfaceOption,
+  type SuggestionSurfaceOptions,
+} from './suggestion/index'

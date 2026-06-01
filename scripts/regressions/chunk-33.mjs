@@ -1,4 +1,4 @@
-import { writeClipboardText } from '../../src/view/nano-view-clipboard.ts'
+import { writeClipboardText } from '../../src/view/clipboard/index.ts'
 import { assert } from './harness.mjs'
 
 async function testAsync(name, run) {

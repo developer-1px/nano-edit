@@ -46,7 +46,7 @@ async function runViewport(browser, url, viewport) {
   await browser.send('Page.navigate', { url })
   await waitForExpression(browser, 'document.readyState !== "loading"')
   await evaluate(browser, `(() => {
-    localStorage.setItem(${JSON.stringify(storageKey)}, ${JSON.stringify(JSON.stringify(layoutFixtureDocument))});
+    localStorage.setItem(${JSON.stringify(storageKey)}, ${JSON.stringify(JSON.stringify({ kind: 'zod-crud.persistence+json', version: 1, value: layoutFixtureDocument }))});
     return true
   })()`)
   await browser.send('Page.reload', { ignoreCache: true })

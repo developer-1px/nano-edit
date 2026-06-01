@@ -1,4 +1,5 @@
 export interface FootnoteToken {
+  from: number
   token: string
   name: string
   to: number
@@ -31,7 +32,7 @@ export function footnoteRefAt(source: string, from: number): FootnoteToken | nul
 
   const token = source.slice(from, closeFrom + 1)
   const name = footnoteName(token)
-  return name ? { token, name, to: closeFrom + 1 } : null
+  return name ? { from, token, name, to: closeFrom + 1 } : null
 }
 
 export function footnoteDefinition(source: string): FootnoteDefinition | null {
