@@ -1,5 +1,4 @@
-import type { NanoDeck, NanoDeckEngine } from '../core/nano-core'
-import { createNanoDeck } from '../core/nano-core'
+import type { NanoDeck } from '../core/nano-core'
 import { nanoDeckFromMarkdown } from '../codecs/markdown/nano-markdown'
 
 const initialDeckMarkdown = `---
@@ -39,7 +38,3 @@ The point is not to clone PowerPoint. The point is to make generated slides usab
 - [ ] Add export adapters`
 
 export const initialNanoDeck: NanoDeck = nanoDeckFromMarkdown(initialDeckMarkdown)
-
-export function createDemoNanoDeck(): NanoDeckEngine {
-  return createNanoDeck(initialNanoDeck)
-}

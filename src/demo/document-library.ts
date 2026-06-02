@@ -203,12 +203,6 @@ export const demoArtifacts: readonly DemoArtifactDefinition[] = [
   },
 ]
 
-export function demoDocumentById(id: string): DemoDocumentDefinition {
-  return demoDocuments.find((document) => document.id === id)
-    ?? demoDocuments.find((document) => document.id === defaultDemoDocumentId)
-    ?? demoDocuments[0]!
-}
-
 export function demoArtifactById(id: string): DemoArtifactDefinition {
   return demoArtifacts.find((artifact) => artifact.id === id)
     ?? demoArtifacts.find((artifact) => artifact.id === defaultDemoDocumentId)
