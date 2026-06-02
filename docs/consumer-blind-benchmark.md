@@ -8,15 +8,17 @@ Consumer Blind Benchmark is the repeatable quality gate for Nano Edit's small pa
 
 The benchmark protects the repo's direction:
 
-- Nano Edit is not one app surface.
+- Nano Edit's working identity is Nano Editable: a contenteditable-based editing foundation, not one app surface.
 - Reusable parts should stay small enough for LLM assembly.
 - Core API changes need evidence from repeated consumer friction, not one-off taste.
+- Native `input`, `textarea`, and `select` edit lifecycle friction is not Nano package feedback unless the host is deliberately rebuilding that interaction as a contenteditable surface.
 
 ## Benchmark Rule
 
 A benchmark run gives the agent:
 
 - `docs/package-consumer-contract.md`
+- `docs/contenteditable-foundation-gate.md`
 - `docs/consumer-blind-benchmark.md`
 - output from `pnpm benchmark:consumer-blind:snapshot`
 - optionally `docs/inline-api-consumer-example.md` for doc-aware runs
@@ -87,6 +89,7 @@ pnpm benchmark:consumer-blind:snapshot
 ```
 
 The type check verifies consumer-style imports through the package export map. The snapshot records the public signatures visible to a blind consumer.
+The foundation gate verifies that the task is contenteditable pressure rather than native form-control pressure.
 
 ## Tasks
 
@@ -153,7 +156,9 @@ Pass criteria:
 
 Requirement:
 
-A table cell can be locally edited as single-line plain text without autocomplete. Enter commits. Escape cancels. Paste normalizes to one line. Undo/redo works inside the local edit session. The host updates its table model on commit.
+A host renders a table cell as a single-line `contenteditable` surface, not as an `input` or `textarea`. The cell can be locally edited as plain text without autocomplete. Enter commits. Escape cancels. Paste normalizes to one line. Undo/redo works inside the local edit session. The host updates its table model on commit.
+
+For real host pressure, use `docs/contenteditable-cell-edit-lab.md` to separate Nano-owned contenteditable editing from host-owned grid selection, formulas, and patch routing.
 
 Expected assembly path:
 
@@ -166,6 +171,7 @@ Pass criteria:
 - The agent can assemble the feature without the full Nano editor.
 - It does not require table-specific core APIs.
 - It treats host model update as host responsibility.
+- It does not request native form-control lifecycle APIs from Nano core.
 
 ### Task 5: Markdown Round-Trip & Block Diff
 

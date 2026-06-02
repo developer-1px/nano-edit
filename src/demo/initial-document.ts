@@ -1,16 +1,16 @@
 import type { NanoDocument } from '../core/nano-core'
 import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown'
 
-const initialMarkdown = `# Nano Edit
+const initialMarkdown = `# Nano Editable
 
-Nano Edit은 LLM이 생성한 Markdown을 제품 안에서 **공식 기술문서처럼 읽게 하고**, 필요한 일부만 조용히 수정하게 하는 embeddable editor package다. 이 문서 자체가 데모이며, 별도 docs-site chrome 없이 \`README.md\` 같은 문서가 바로 편집 surface가 되는 상태를 보여준다.
+Nano Edit의 working identity는 Nano Editable이다. 즉, LLM이 생성한 Markdown을 제품 안에서 **공식 기술문서처럼 읽게 하고**, 필요한 일부만 contenteditable surface에서 조용히 수정하게 하는 editing foundation이다. 이 문서 자체가 데모이며, 별도 docs-site chrome 없이 \`README.md\` 같은 문서가 바로 편집 surface가 되는 상태를 보여준다.
 
 > [!NOTE]
 > 이 화면은 landing page가 아니다. LLM이 만든 긴 기술문서를 그대로 열었을 때, 사용자는 문서를 먼저 읽고 필요한 문장, 표 셀, 체크 항목만 local edit로 고친다.
 
 ## Overview
 
-Nano Edit의 핵심 가정은 간단하다. 앞으로 많은 제품은 AI가 만든 긴 Markdown 결과물을 보여주고, 사람은 그중 작은 부분만 검토하거나 바꾼다. 그래서 editor는 항상 보이는 command chrome보다, 문서의 흐름을 깨지 않는 **quiet local edit loop**를 우선한다.
+Nano Editable의 핵심 가정은 간단하다. 앞으로 많은 제품은 AI가 만든 긴 Markdown 결과물을 보여주고, 사람은 그중 작은 부분만 검토하거나 바꾼다. 그래서 editor는 항상 보이는 command chrome보다, contenteditable 기반의 **quiet local edit loop**를 우선한다.
 
 Markdown은 유일한 원본이 아니라 여러 표현 중 하나다. 내부에서는 Nano Document가 block, inline mark, source choice를 구조화하고, Markdown codec은 import/export 계약을 맡는다. 그래서 \`**bold**\`, *italic*, ==highlight==, ~~outdated phrase~~, \`inline code\`, [[Nano Kit]] note link, #generated-markdown 태그가 문서 흐름 안에서 조용히 보존된다.
 
@@ -20,7 +20,7 @@ Markdown은 유일한 원본이 아니라 여러 표현 중 하나다. 내부에
 pnpm add nano-edit
 \`\`\`
 
-Nano Edit은 host product가 이미 가지고 있는 저장소, 인증, 권한, 배포 구조를 소유하지 않는다. package는 editor engine, view, codec, index, command surface를 제공하고, host는 mount 위치와 persistence를 결정한다.
+Nano Edit은 host product가 이미 가지고 있는 저장소, 인증, 권한, 배포 구조를 소유하지 않는다. package는 contenteditable editor engine, view, codec, index, command surface를 제공하고, host는 mount 위치와 persistence를 결정한다.
 
 ## Quickstart
 
@@ -41,7 +41,7 @@ createNanoView({
 })
 \`\`\`
 
-기본 preset, 즉 default preset은 지금 데모와 같은 surface를 만든다. 문서는 먼저 읽히고, cursor가 들어간 곳 주변에서만 Markdown source affordance가 드러난다. table cell, todo checkbox, footnote reference, link title 같은 구조는 source text로 무너뜨리지 않고 문서처럼 다룬다.[^surface]
+기본 preset, 즉 default preset은 지금 데모와 같은 contenteditable surface를 만든다. 문서는 먼저 읽히고, cursor가 들어간 곳 주변에서만 Markdown source affordance가 드러난다. table cell, todo checkbox, footnote reference, link title 같은 구조는 source text로 무너뜨리지 않고 문서처럼 다룬다.[^surface]
 
 ## Core Concepts
 
@@ -56,7 +56,7 @@ createNanoView({
 
 ## Architecture
 
-Nano Edit은 완성형 app보다 작은 engine package를 목표로 한다. host product는 이 package를 붙이고, 필요한 part만 선택한다.
+Nano Edit은 완성형 app보다 작은 contenteditable foundation package를 목표로 한다. host product는 이 package를 붙이고, 필요한 part만 선택한다.
 
 \`\`\`text
 nano-edit
@@ -69,7 +69,7 @@ nano-edit
 └─ view            # quiet editable surface
 \`\`\`
 
-현재 runtime은 ProseMirror를 view adapter로 사용하지만, public contract의 중심은 ProseMirror document가 아니라 Nano Document다. 이 기준이 있어야 Markdown도, future renderer도, LLM-selected kit도 같은 문서 상태를 공유할 수 있다.
+현재 runtime은 ProseMirror를 contenteditable runtime provider로 사용하고, zod-crud는 document state foundation으로 둔다. public contract의 중심은 ProseMirror document나 zod-crud 내부가 아니라 Nano Document와 Nano feature seam이다. 이 기준이 있어야 Markdown도, future renderer도, LLM-selected kit도 같은 문서 상태를 공유할 수 있다.
 
 ## Kit API
 
@@ -209,7 +209,7 @@ const kit = createNanoEditorKit({
 
 ### Is this a Markdown editor?
 
-Markdown을 중요하게 다루지만, plain textarea는 아니다. Nano Edit은 Markdown-Native Document를 Nano Document로 구조화하고, Markdown은 import/export와 source choice 보존을 위한 표현으로 다룬다.
+Markdown을 중요하게 다루지만, plain textarea나 native form editor는 아니다. Nano Edit은 Markdown-Native Document를 Nano Document로 구조화하고, Markdown은 import/export와 source choice 보존을 위한 표현으로 다룬다.
 
 ### Why not show a full docs sidebar?
 

@@ -7,9 +7,15 @@ Tracking issue: `https://github.com/developer-1px/nano-edit/issues/1`
 
 ## Current Status
 
+The identity gate is now contenteditable-specific: Nano Edit's working identity
+is Nano Editable, a contenteditable-based editing foundation. Read this log with
+`docs/contenteditable-foundation-gate.md`; native `input`, `textarea`, and
+`select` lifecycle friction is not core package feedback unless the host is
+rebuilding the interaction as a contenteditable surface.
+
 The current package seam is stable enough to hold:
 
-- `inline-edit`: single-line DOM edit primitives and history intent detection
+- `inline-edit`: single-line contenteditable DOM edit primitives and history intent detection
 - `autocomplete`: headless option state and optional DOM surface
 - `inline-autocomplete`: trigger/query/replacement-range extension over inline edit
 - `suggestion`: compatibility wrapper over autocomplete naming

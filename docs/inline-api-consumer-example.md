@@ -4,10 +4,10 @@ This example shows the intended package-consumer assembly path for a small `cont
 
 ## Responsibilities
 
-- `inline-edit`: single-line DOM editing helpers, selection offsets, paste normalization, focus restore, and undo/redo intent detection.
+- `inline-edit`: single-line contenteditable DOM editing helpers, DOM Selection offsets, paste normalization, focus restore, and undo/redo intent detection.
 - `inline-autocomplete`: trigger, query, and replacement-range matching for inline suggestions.
 - `autocomplete`: headless option selection, or the DOM surface when a separate combobox input is acceptable.
-- Host app: commit/cancel policy, history snapshots, option data, and product-specific command behavior.
+- Host app: commit/cancel policy, history snapshots, option data, product-specific command behavior, and native form-control editors.
 
 ## Contenteditable With Inline Autocomplete
 
@@ -201,8 +201,9 @@ export function mountInlineMessageEditor(options: {
 
 ## Notes
 
-- Use `createAutocomplete` when the host already has a `contenteditable` input and wants to render its own anchored list.
-- Use `createAutocompleteSurface` when a separate combobox input is acceptable; use `state()` and `selectedOption()` when the host needs to inspect the current surface selection.
+- Use `createAutocomplete` when the host already has a `contenteditable` element and wants to render its own anchored list.
+- Use `createAutocompleteSurface` when a separate native combobox input is acceptable for the suggestion UI; use `state()` and `selectedOption()` when the host needs to inspect the current surface selection.
 - `position(root, context)` on `createAutocompleteSurface` is imperative: mutate `root.style` or `root.dataset` using the supplied context.
 - `inline-edit` detects undo/redo intent but does not own history. Store host snapshots when the host needs deterministic undo behavior.
 - For paired triggers like `{{`, pass the inner text to `replaceInlineAutocompleteText` and use `suffix: '}}'`.
+- Native `input`, `textarea`, and `select` edit lifecycles are outside Nano core. Use this example for contenteditable local edits.
