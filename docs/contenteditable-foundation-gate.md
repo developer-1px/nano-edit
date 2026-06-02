@@ -16,7 +16,7 @@ contenteditable foundation
 |-- included responsibilities
 |   |-- DOM Selection and offset mapping for contenteditable surfaces
 |   |-- Input Events and IME-sensitive text mutation
-|   |-- local edit commit/cancel/paste/history-intent primitives
+|   |-- local edit mount/commit/cancel/paste/history-intent lifecycle
 |   |-- inline autocomplete trigger/query/replacement behavior
 |   |-- Markdown-native document parse/serialize/index seams
 |   `-- adapter-provider paths for ProseMirror, zod-crud, React, and DOM
@@ -83,7 +83,7 @@ Examples:
 
 | Level | Owns | Does not own |
 | --- | --- | --- |
-| core | Small contenteditable algorithms and state, selection offsets, paste normalization, history intent, headless autocomplete state. | Product commands, persistence, native form-control lifecycle. |
+| core | Small contenteditable algorithms and state, scalar edit lifecycle, selection offsets, paste normalization, history intent, headless autocomplete state. | Product commands, persistence, native form-control lifecycle, grid engines. |
 | extension | Optional behavior over core, such as inline autocomplete, mentions, slash triggers, local history helpers, validation feedback. | Host-specific option data or command effects. |
 | adapter-provider | Bridges to ProseMirror, zod-crud, React, DOM, browser APIs, or host interaction ownership. | New product identity or app scope. |
 | lab | Real host pressure that proves a reusable contenteditable feature might exist. | Public contract promises. |
@@ -115,7 +115,7 @@ Before adding or promoting a public API:
 
 ## Current Baseline
 
-- `nano-edit/inline-edit`: contenteditable local edit primitives.
+- `nano-edit/inline-edit`: contenteditable scalar edit lifecycle and local edit primitives.
 - `nano-edit/autocomplete`: headless option state plus optional DOM surface.
 - `nano-edit/inline-autocomplete`: trigger, query, and replacement-range
   behavior over contenteditable inline edit.

@@ -1,4 +1,19 @@
 export {
+  createContenteditableScalarEdit,
+  type ContenteditableScalarCancel,
+  type ContenteditableScalarCancelReason,
+  type ContenteditableScalarCommit,
+  type ContenteditableScalarCommitReason,
+  type ContenteditableScalarEditHandle,
+  type ContenteditableScalarEditOptions,
+  type ContenteditableScalarEditSnapshot,
+  type ContenteditableScalarHistoryDirection,
+  type ContenteditableScalarHistoryIntent,
+  type ContenteditableScalarLineBreakPolicy,
+  type ContenteditableScalarSelection,
+} from './scalar-edit'
+
+export {
   collapseInlineEditSelection,
   inlineEditHasLineBreak,
   inlineEditHistoryDirectionFromInputType,

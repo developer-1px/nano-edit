@@ -4,7 +4,7 @@ This example shows the intended package-consumer assembly path for a small `cont
 
 ## Responsibilities
 
-- `inline-edit`: single-line contenteditable DOM editing helpers, DOM Selection offsets, paste normalization, focus restore, and undo/redo intent detection.
+- `inline-edit`: contenteditable scalar edit lifecycle, single-line DOM editing helpers, DOM Selection offsets, paste normalization, focus restore, and undo/redo intent detection.
 - `inline-autocomplete`: trigger, query, and replacement-range matching for inline suggestions.
 - `autocomplete`: headless option selection, or the DOM surface when a separate combobox input is acceptable.
 - Host app: commit/cancel policy, history snapshots, option data, product-specific command behavior, and native form-control editors.
@@ -204,6 +204,6 @@ export function mountInlineMessageEditor(options: {
 - Use `createAutocomplete` when the host already has a `contenteditable` element and wants to render its own anchored list.
 - Use `createAutocompleteSurface` when a separate native combobox input is acceptable for the suggestion UI; use `state()` and `selectedOption()` when the host needs to inspect the current surface selection.
 - `position(root, context)` on `createAutocompleteSurface` is imperative: mutate `root.style` or `root.dataset` using the supplied context.
-- `inline-edit` detects undo/redo intent but does not own history. Store host snapshots when the host needs deterministic undo behavior.
+- `inline-edit` owns the reusable contenteditable edit lifecycle and detects undo/redo intent, but it does not own durable product history. Store host snapshots when the host needs deterministic undo behavior.
 - For paired triggers like `{{`, pass the inner text to `replaceInlineAutocompleteText` and use `suffix: '}}'`.
 - Native `input`, `textarea`, and `select` edit lifecycles are outside Nano core. Use this example for contenteditable local edits.

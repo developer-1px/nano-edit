@@ -20,7 +20,7 @@ Promotion to a publish contract should replace source `.ts` export targets with 
 
 | Entry | Status | Use when | Avoid when |
 | --- | --- | --- | --- |
-| `nano-edit/inline-edit` | recommended | A host needs single-line contenteditable helpers, DOM Selection offsets, paste normalization, history intent, insertion, or focus restore. | The host needs a whole document editor or a native form-control lifecycle. |
+| `nano-edit/inline-edit` | recommended | A host needs a contenteditable scalar edit lifecycle, single-line helpers, DOM Selection offsets, paste normalization, history intent, insertion, or focus restore. | The host needs a whole document editor, spreadsheet grid engine, or native form-control lifecycle. |
 | `nano-edit/autocomplete` | recommended | A host needs headless option selection or the optional DOM autocomplete surface. | The host wants Nano document commands specifically. |
 | `nano-edit/inline-autocomplete` | recommended | A host needs trigger/query/replacement-range behavior for mentions, slash commands, tags, or variables on top of inline edit. | The host only needs a static listbox. |
 | `nano-edit/markdown` | recommended | A host needs data-only Markdown parse, serialize, round-trip, or per-block Markdown extraction. | The host needs to mount an editor view. |
@@ -39,7 +39,7 @@ ProseMirror and zod-crud are provider/foundation details behind the public conte
 
 | Seam | Package owns | Host owns |
 | --- | --- | --- |
-| `inline-edit` | Contenteditable single-line normalization, line-break detection, undo/redo intent detection, DOM Selection offset calculation, text insertion/replacement, focus restore. | Commit/cancel lifecycle, local history snapshots, persistence, product validation, rendered label state, native form-control editors. |
+| `inline-edit` | Contenteditable scalar edit mounting, single-line normalization, commit/cancel event lifecycle, line-break detection, undo/redo intent detection, DOM Selection offset calculation, text insertion/replacement, composition-aware draft updates, focus restore, listener cleanup. | Local history storage, persistence, product validation, rendered label state, native form-control editors, grid selection, formulas. |
 | `autocomplete` | Option filtering helpers, disabled-option skipping, selected-index movement, headless state, optional DOM surface with combobox/listbox semantics. | Option data, product-specific command effects, custom anchored rendering when using the headless core, host-level interaction ownership. |
 | `inline-autocomplete` | Trigger context, query extraction, replacement range detection, inserted text formatting, trigger/query replacement. | Trigger configuration, option sources, commit behavior, product-specific mention/slash/tag semantics. |
 | `markdown` | Nano document parse, Markdown serialization, deck Markdown conversion, per-block Markdown extraction. | Storage, diff presentation, merge policy, stable identity expectations across separately parsed documents. |

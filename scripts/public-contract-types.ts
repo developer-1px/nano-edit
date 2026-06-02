@@ -33,14 +33,12 @@ import {
   type InlineAutocompleteTrigger,
 } from 'nano-edit/inline-autocomplete'
 import {
-  collapseInlineEditSelection,
-  inlineEditHistoryDirectionFromInputType,
-  inlineEditHistoryDirectionFromKeydown,
+  createContenteditableScalarEdit,
   inlineEditSelectionOffset,
   inlineEditSingleLineText,
   insertInlineEditText,
-  isInlineEditLineBreakInput,
   restoreInlineEditFocus,
+  type ContenteditableScalarEditHandle,
 } from 'nano-edit/inline-edit'
 
 type InlineMode = 'mention' | 'command'
@@ -103,85 +101,37 @@ export function exerciseNanoEditPublicContract(mount: HTMLElement) {
 }
 
 export function exerciseContenteditableCellEditContract(host: ContenteditableCellEditHost) {
-  const history = [{
-    offset: host.initialText.length,
-    text: inlineEditSingleLineText(host.initialText),
-  }]
+  const history = [{ offset: host.initialText.length, text: inlineEditSingleLineText(host.initialText) }]
   let historyIndex = 0
-
-  host.cell.contentEditable = 'true'
-  host.cell.setAttribute('role', 'textbox')
-  host.cell.setAttribute('aria-multiline', 'false')
-  host.cell.textContent = history[0].text
-  collapseInlineEditSelection(host.cell, history[0].offset)
-
-  const currentText = () => inlineEditSingleLineText(host.cell.textContent ?? '')
-  const currentOffset = () => inlineEditSelectionOffset(host.cell) ?? currentText().length
   const restoreSnapshot = (snapshot: { readonly offset: number, readonly text: string }) => {
     host.cell.textContent = snapshot.text
     restoreInlineEditFocus(() => host.cell, snapshot.offset)
   }
-
-  const remember = () => {
-    const text = currentText()
-    const previous = history[historyIndex]
-    if (previous?.text === text) return
-    history.splice(historyIndex + 1)
-    history.push({ offset: currentOffset(), text })
-    historyIndex = history.length - 1
-  }
-
-  const handleBeforeInput = (event: Pick<InputEvent, 'inputType' | 'preventDefault'>) => {
-    const direction = inlineEditHistoryDirectionFromInputType(event.inputType)
-    if (direction) {
-      event.preventDefault()
-      historyIndex = direction === 'undo'
+  const editor: ContenteditableScalarEditHandle = createContenteditableScalarEdit({
+    element: host.cell,
+    initialSelection: { kind: 'end' },
+    initialText: host.initialText,
+    lineBreak: 'single-line',
+    onDraftChange: (snapshot) => {
+      const previous = history[historyIndex]
+      if (previous?.text === snapshot.text) return
+      history.splice(historyIndex + 1)
+      history.push({ offset: snapshot.offset, text: snapshot.text })
+      historyIndex = history.length - 1
+    },
+    onHistoryIntent: (intent) => {
+      historyIndex = intent.direction === 'undo'
         ? Math.max(0, historyIndex - 1)
         : Math.min(history.length - 1, historyIndex + 1)
       restoreSnapshot(history[historyIndex])
-      return
-    }
-
-    if (isInlineEditLineBreakInput(event.inputType)) {
-      event.preventDefault()
-    }
-  }
-
-  const handleKeydown = (event: Pick<KeyboardEvent, 'altKey' | 'ctrlKey' | 'key' | 'metaKey' | 'preventDefault' | 'shiftKey'>) => {
-    const direction = inlineEditHistoryDirectionFromKeydown(event)
-    if (direction) {
-      event.preventDefault()
-      historyIndex = direction === 'undo'
-        ? Math.max(0, historyIndex - 1)
-        : Math.min(history.length - 1, historyIndex + 1)
-      restoreSnapshot(history[historyIndex])
-      return
-    }
-
-    if (event.key === 'Enter') {
-      event.preventDefault()
-      host.onCommit(currentText())
-      host.restoreGridFocus()
-      return
-    }
-
-    if (event.key === 'Escape') {
-      event.preventDefault()
-      restoreSnapshot(history[0])
-      host.onCancel()
-      host.restoreGridFocus()
-    }
-  }
-
-  const pasteText = (text: string) => {
-    insertInlineEditText(host.cell, inlineEditSingleLineText(text))
-    remember()
-  }
+    },
+    onCommit: (commit) => host.onCommit(commit.text),
+    onCancel: host.onCancel,
+    restoreHostFocus: host.restoreGridFocus,
+  })
 
   return {
-    handleBeforeInput,
-    handleKeydown,
-    pasteText,
-    remember,
+    editor,
+    pasteText: editor.insertText,
   }
 }

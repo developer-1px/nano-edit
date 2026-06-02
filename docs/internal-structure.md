@@ -86,7 +86,7 @@ Keep host-facing imports stable through `indexing/nano-document-index.ts`. Inter
 ## Package Candidate Map
 
 - `autocomplete`: headless option selection plus optional DOM surface. Internal files use `core.ts`, `selection.ts`, `surface.ts`, `surface-elements.ts`, and `types.ts`.
-- `inline-edit`: local contenteditable text primitives. `dom.ts` owns selection offsets, single-line normalization, range replacement, focus restore, and history intent.
+- `inline-edit`: local contenteditable scalar edit lifecycle and text primitives. `scalar-edit.ts` owns the reusable mount/event/commit/cancel lifecycle; `dom.ts` owns selection offsets, single-line normalization, range replacement, focus restore, and history intent.
 - `inline-autocomplete`: extension behavior that maps inline triggers to autocomplete replacement ranges. `extension.ts` composes `inline-edit` primitives instead of duplicating DOM range editing.
 
 Package-candidate folders should use short local filenames from the start; the package name already carries the long context.

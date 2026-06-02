@@ -8,9 +8,9 @@ Use this with `docs/contenteditable-cell-edit-lab.md`. It is not a native
 
 ## Responsibilities
 
-- `nano-edit/inline-edit`: contenteditable text insertion, paste normalization,
-  DOM Selection offsets, history intent detection, and focus restore into the
-  editable element.
+- `nano-edit/inline-edit`: contenteditable scalar edit lifecycle, text insertion,
+  paste normalization, DOM Selection offsets, history intent detection, and
+  focus restore into the editable element.
 - Host grid: active cell identity, rectangular selection, navigation outside
   edit mode, formulas, validation, patch output, persistence, and grid focus
   restoration after commit/cancel.
@@ -19,13 +19,8 @@ Use this with `docs/contenteditable-cell-edit-lab.md`. It is not a native
 
 ```ts
 import {
-  collapseInlineEditSelection,
-  inlineEditHistoryDirectionFromInputType,
-  inlineEditHistoryDirectionFromKeydown,
-  inlineEditSelectionOffset,
+  createContenteditableScalarEdit,
   inlineEditSingleLineText,
-  insertInlineEditText,
-  isInlineEditLineBreakInput,
   restoreInlineEditFocus,
 } from 'nano-edit/inline-edit'
 
@@ -41,23 +36,6 @@ export function mountContenteditableCellEditor(host: ContenteditableCellHost) {
   let history = [{ text: inlineEditSingleLineText(host.initialText), offset: host.initialText.length }]
   let historyIndex = 0
 
-  host.cell.contentEditable = 'true'
-  host.cell.setAttribute('role', 'textbox')
-  host.cell.setAttribute('aria-multiline', 'false')
-  host.cell.textContent = history[0].text
-  collapseInlineEditSelection(host.cell, history[0].offset)
-
-  const text = () => inlineEditSingleLineText(host.cell.textContent ?? '')
-  const offset = () => inlineEditSelectionOffset(host.cell) ?? text().length
-
-  const remember = () => {
-    const next = text()
-    if (history[historyIndex]?.text === next) return
-    history = history.slice(0, historyIndex + 1)
-    history.push({ text: next, offset: offset() })
-    historyIndex = history.length - 1
-  }
-
   const restore = (index: number) => {
     historyIndex = Math.max(0, Math.min(history.length - 1, index))
     const snapshot = history[historyIndex]
@@ -65,63 +43,28 @@ export function mountContenteditableCellEditor(host: ContenteditableCellHost) {
     restoreInlineEditFocus(() => host.cell, snapshot.offset)
   }
 
-  const beforeInput = (event: InputEvent) => {
-    const direction = inlineEditHistoryDirectionFromInputType(event.inputType)
-    if (direction) {
-      event.preventDefault()
-      restore(direction === 'undo' ? historyIndex - 1 : historyIndex + 1)
-      return
-    }
-
-    if (isInlineEditLineBreakInput(event.inputType)) {
-      event.preventDefault()
-    }
-  }
-
-  const input = () => remember()
-
-  const keydown = (event: KeyboardEvent) => {
-    const direction = inlineEditHistoryDirectionFromKeydown(event)
-    if (direction) {
-      event.preventDefault()
-      restore(direction === 'undo' ? historyIndex - 1 : historyIndex + 1)
-      return
-    }
-
-    if (event.key === 'Enter') {
-      event.preventDefault()
-      host.onCommit(text())
-      host.restoreGridFocus()
-      return
-    }
-
-    if (event.key === 'Escape') {
-      event.preventDefault()
-      restore(0)
-      host.onCancel()
-      host.restoreGridFocus()
-    }
-  }
-
-  const paste = (event: ClipboardEvent) => {
-    const plainText = event.clipboardData?.getData('text/plain')
-    if (typeof plainText !== 'string') return
-    event.preventDefault()
-    insertInlineEditText(host.cell, inlineEditSingleLineText(plainText))
-    remember()
-  }
-
-  host.cell.addEventListener('beforeinput', beforeInput)
-  host.cell.addEventListener('input', input)
-  host.cell.addEventListener('keydown', keydown)
-  host.cell.addEventListener('paste', paste)
+  const editor = createContenteditableScalarEdit({
+    element: host.cell,
+    initialSelection: { kind: 'end' },
+    initialText: host.initialText,
+    lineBreak: 'single-line',
+    onDraftChange: (snapshot) => {
+      if (history[historyIndex]?.text === snapshot.text) return
+      history = history.slice(0, historyIndex + 1)
+      history.push({ text: snapshot.text, offset: snapshot.offset })
+      historyIndex = history.length - 1
+    },
+    onHistoryIntent: (intent) => {
+      restore(intent.direction === 'undo' ? historyIndex - 1 : historyIndex + 1)
+    },
+    onCommit: (commit) => host.onCommit(commit.text),
+    onCancel: host.onCancel,
+    restoreHostFocus: host.restoreGridFocus,
+  })
 
   return {
     destroy() {
-      host.cell.removeEventListener('beforeinput', beforeInput)
-      host.cell.removeEventListener('input', input)
-      host.cell.removeEventListener('keydown', keydown)
-      host.cell.removeEventListener('paste', paste)
+      editor.destroy()
     },
   }
 }

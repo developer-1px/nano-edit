@@ -61,8 +61,12 @@ A small human edit to a specific part of a generated document.
 _Avoid_: Full rewrite, source-mode editing session
 
 **Inline Edit**:
-A focused contenteditable local edit lifecycle for a small rendered text region, including commit, cancel, selection offset, paste normalization, and focus restore without requiring the host to adopt the full editor surface.
+A focused contenteditable local edit lifecycle for a small rendered text region, including scalar edit mounting, commit, cancel, selection offset, paste normalization, history intent, composition-aware input, listener cleanup, and focus restore without requiring the host to adopt the full editor surface.
 _Avoid_: Full editor session, form builder, native input lifecycle, global source mode
+
+**Contenteditable Scalar Edit**:
+A host-neutral Inline Edit module that edits one string value inside a contenteditable surface while owning the reusable event lifecycle and leaving product state to the host.
+_Avoid_: Spreadsheet cell adapter, form input helper, grid edit engine, ProseMirror session
 
 **Inline Autocomplete**:
 An optional extension that maps inline triggers such as mention and slash to autocomplete contexts and insertion behavior on top of Inline Edit.
@@ -85,7 +89,7 @@ An internal folder whose files share one reason to change and whose filenames re
 _Avoid_: Prefix-based file pile, helper-per-file SRP, folder created only because a file is large
 
 **Scalar Edit Adapter**:
-A thin host-facing helper over contenteditable Inline Edit for editing one string value, such as a chat message, component label, or JSON-pointer-backed admin preview field.
+A host-facing adapter over **Contenteditable Scalar Edit** for a concrete product surface, such as a chat message, component label, spreadsheet plain cell, or JSON-pointer-backed admin preview field.
 _Avoid_: Block composer, document surface, native input helper, host-specific form engine
 
 **Native Form Edit**:
@@ -122,6 +126,7 @@ _Avoid_: Decoration, visible token, escaped text
 - **Interaction Ownership** backs keyboard behavior for reusable surfaces; ARIA roles are considered incomplete unless the matching arrow, enter, escape, focus, and ownership behavior is covered by interaction tests.
 - The primary reader of a **Self-Describing Demo Document** is an **Integrator Reader**.
 - An **Inline Edit** can power contenteditable table cells, chat message patches, component labels, and Markdown inline tokens without requiring the full **View-First Editing Surface**.
+- A **Contenteditable Scalar Edit** is the deep **Inline Edit** module for editing one string value; a **Scalar Edit Adapter** is a host-specific adapter built on top of it.
 - **Inline Autocomplete** turns **Inline Edit** selection offsets and trigger input into **Autocomplete** contexts without forcing mention, slash, or option data into core.
 - A **Scalar Edit Adapter** may be built from **Inline Edit** and optionally **Inline Autocomplete**, but it should not pull in the full **Editor Package** or **Demo Host**.
 - The **Package Taxonomy** keeps reusable pieces small enough for LLM assembly while avoiding package over-splitting.

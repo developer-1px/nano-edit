@@ -52,11 +52,12 @@
     "test:deck": "node scripts/regressions/browser-deck-surface.mjs",
     "test:command-surface": "node scripts/regressions/browser-command-surface.mjs",
     "test:inline-edit-demo": "node scripts/regressions/browser-inline-edit-demo.mjs",
+    "test:inline-scalar-edit": "node scripts/regressions/browser-inline-scalar-edit.mjs",
     "test:mention-composer": "node scripts/regressions/browser-mention-composer.mjs",
     "test:local-edit": "node scripts/regressions/browser-local-edit-loop.mjs",
     "test:layout": "node scripts/regressions/browser-layout-stability.mjs",
     "check:public-types": "tsc -p tsconfig.public.json --noEmit",
-    "test:all": "pnpm check:public-types && pnpm test && pnpm build && pnpm test:layout && pnpm test:local-edit && pnpm test:deck && pnpm test:command-surface && pnpm test:inline-edit-demo && pnpm test:mention-composer",
+    "test:all": "pnpm check:public-types && pnpm test && pnpm build && pnpm test:layout && pnpm test:local-edit && pnpm test:deck && pnpm test:command-surface && pnpm test:inline-edit-demo && pnpm test:inline-scalar-edit && pnpm test:mention-composer",
     "benchmark:consumer-blind:snapshot": "node scripts/consumer-blind-api-snapshot.mjs",
     "build": "tsc && vite build",
     "preview": "vite preview"
