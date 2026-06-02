@@ -344,3 +344,17 @@ Both items above were implemented:
 Re-measured **Task 8: 4 / works-as-is** — extract+position for tags/urls/wiki-links, caret-in-tag detection, and tag normalization all map 1:1 onto exported pure DOM-free functions.
 
 Residual resolved: `FootnoteToken`/`MathToken` now also carry `from` (non-breaking additive field — full `pnpm test` stays green). All five `inline-tokens` token types are now uniform `{ from, to, token, ... }`, so a host can treat any entity span identically for highlighting.
+
+## Package Contract Baseline
+
+Issue: `https://github.com/developer-1px/nano-edit/issues/2`
+
+The dogfood package contract is now explicit:
+
+- Root `nano-edit` is the full editor assembly entry. It is for mounting the Nano view or using the full package facade.
+- Small host features should start from subpath entries: `inline-edit`, `autocomplete`, `inline-autocomplete`, `markdown`, `document-index`, `model`, and `inline-tokens`.
+- `docs/package-consumer-contract.md` records the entry guide, package/host responsibility boundaries, source-export status, and contract gates.
+- `package.json` now uses `types`/`default` conditions for public exports and marks the local contract as `0.1.0-dogfood.0`.
+- `pnpm check:public-types` compiles a consumer-style fixture through package self-reference imports, proving subpath type resolution without reading implementation files.
+
+The package is still private and still exports source `.ts` files. That is an intentional dogfood baseline, not a publish-ready artifact contract.

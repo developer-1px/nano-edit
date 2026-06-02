@@ -16,6 +16,7 @@ The benchmark protects the repo's direction:
 
 A benchmark run gives the agent:
 
+- `docs/package-consumer-contract.md`
 - `docs/consumer-blind-benchmark.md`
 - output from `pnpm benchmark:consumer-blind:snapshot`
 - optionally `docs/inline-api-consumer-example.md` for doc-aware runs
@@ -70,6 +71,22 @@ The snapshot is intentionally small. It prints package exports and public signat
 - `autocomplete`
 - `autocomplete-types`
 - `markdown`
+- `markdown-types`
+- `document-index`
+- `document-index-types`
+- `model`
+- `inline-tokens`
+
+## Package Contract Gate
+
+Before using a benchmark result as package feedback, run:
+
+```sh
+pnpm check:public-types
+pnpm benchmark:consumer-blind:snapshot
+```
+
+The type check verifies consumer-style imports through the package export map. The snapshot records the public signatures visible to a blind consumer.
 
 ## Tasks
 
@@ -219,4 +236,3 @@ Append benchmark outcomes to `docs/consumer-blind-dogfooding.md` when they produ
 - score
 - repeated blocker, if any
 - action taken
-

@@ -22,7 +22,7 @@ console.log('')
 
 for (const [key, value] of Object.entries(packageJson.exports)) {
   if (key === './style.css') continue
-  console.log(`- \`${exportName(key)}\` -> \`${value}\``)
+  console.log(`- \`${exportName(key)}\` -> \`${exportTarget(value)}\``)
 }
 
 for (const [label, path] of files) {
@@ -56,6 +56,15 @@ console.log('- If implementation details feel necessary, classify that as docs/e
 function exportName(key) {
   if (key === '.') return packageJson.name
   return `${packageJson.name}/${key.replace(/^\.\//, '')}`
+}
+
+function exportTarget(value) {
+  if (typeof value === 'string') return value
+  if (value && typeof value === 'object' && typeof value.default === 'string') {
+    const types = typeof value.types === 'string' ? `, types ${value.types}` : ''
+    return `${value.default}${types}`
+  }
+  return JSON.stringify(value)
 }
 
 // A barrel like `export { fn } from './x'` hides the re-exported function
