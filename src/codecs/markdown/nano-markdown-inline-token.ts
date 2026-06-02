@@ -3,7 +3,7 @@ import { inlineMathTokenAt } from '../../core/nano-math'
 import {
   markdownLinkAt,
   markdownNoteLinkAt,
-} from './nano-markdown-link'
+} from './link/index'
 import { tagTokenAt } from '../../core/nano-tag'
 import { externalUrlTokenAt, type UrlSyntax } from '../../core/nano-url'
 import { markdownCodeSpanAt } from './nano-markdown-inline-code-span'

@@ -9,7 +9,7 @@ import {
   markdownLinkAt,
   markdownLinkClose,
   unescapeMarkdownImageText,
-} from './nano-markdown-link'
+} from './link/index'
 
 type AttachmentBlock = Extract<NanoBlock, { type: 'attachment' }>
 

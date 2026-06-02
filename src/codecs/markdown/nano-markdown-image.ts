@@ -7,7 +7,7 @@ import {
   markdownLinkDestinationSource,
   markdownLinkLabelClose,
   unescapeMarkdownImageText,
-} from './nano-markdown-link'
+} from './link/index'
 
 export function markdownImage(block: Extract<NanoBlock, { type: 'image' }>): string {
   const alt = escapeMarkdownImageText(block.alt ?? '')

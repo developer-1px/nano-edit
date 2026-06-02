@@ -1,9 +1,9 @@
-import { noteLinkParts } from '../../core/nano-note-link'
+import { noteLinkParts } from '../../../core/nano-note-link'
 import {
   markdownLinkDestination,
   markdownLinkDestinationClose,
   markdownLinkLabelClose,
-} from './nano-markdown-link-destination'
+} from './destination'
 
 export function markdownLinkAt(
   source: string,

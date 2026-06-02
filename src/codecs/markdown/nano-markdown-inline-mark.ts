@@ -1,5 +1,5 @@
 import type { NanoMark } from '../../core/nano-core'
-import { markdownLinkClose } from './nano-markdown-link'
+import { markdownLinkClose } from './link/index'
 import {
   boldMarker,
   codeBacktickToken,

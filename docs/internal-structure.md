@@ -91,12 +91,17 @@ Keep host-facing imports stable through `indexing/nano-document-index.ts`. Inter
 
 Package-candidate folders should use short local filenames from the start; the package name already carries the long context.
 
+## Markdown Codec Map
+
+- `codecs/markdown/link`: link destination, escaping, parsing, serialization, and note-link token detection.
+
+Keep Markdown codec moves cluster-based. Parent codec files may import through explicit cluster facades such as `./link/index`; files inside a cluster should use short local names such as `parse.ts`, `destination.ts`, and `serialize.ts`.
+
 ## Deferred Codec Candidates
 
 `codecs/markdown` is still prefix-heavy, but it should not be moved as one broad cleanup. The safe future shape is likely:
 
 - `codecs/markdown/inline`: inline token parse, merge, output, and serialize.
-- `codecs/markdown/link`: link destination, escaping, parsing, and serialization.
 - `codecs/markdown/table`: table cells, pipes, normalization, parse, serialize, and types.
 - `codecs/markdown/list`: list attrs, line parsing, order, parse, and serialize.
 - `codecs/markdown/text-block`: paragraph, heading, quote, footnote, and list text-block parsing.

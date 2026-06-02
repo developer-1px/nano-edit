@@ -3,7 +3,7 @@ import {
   needsAngleMarkdownDestination,
   unescapeMarkdownImageTitle,
   unescapeMarkdownLinkDestination,
-} from './nano-markdown-link-escape'
+} from './escape'
 
 export function markdownLinkDestination(source: string): { href: string; destinationStyle?: 'angle'; title?: string } | null {
   const trimmed = source.trim()

@@ -7,7 +7,7 @@ import {
   escapeMarkdownImageText,
   markdownLinkAt,
   markdownLinkClose,
-} from './nano-markdown-link'
+} from './link/index'
 import { externalUrlTokenAt } from '../../core/nano-url'
 
 type BookmarkBlock = Extract<NanoBlock, { type: 'bookmark' }>

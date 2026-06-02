@@ -3,7 +3,7 @@ import {
   defineMarkdownAtomicBlockCodec,
   type WithoutId,
 } from './nano-markdown-atomic-types'
-import { markdownNoteLinkAt } from './nano-markdown-link'
+import { markdownNoteLinkAt } from './link/index'
 
 type NoteRefBlock = Extract<NanoBlock, { type: 'note_ref' }>
 

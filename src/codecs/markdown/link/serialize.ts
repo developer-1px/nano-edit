@@ -1,7 +1,7 @@
 import {
   escapeMarkdownAngleDestination,
   needsAngleMarkdownDestination,
-} from './nano-markdown-link-escape'
+} from './escape'
 
 export function markdownLinkClose(href: string, title: string | undefined, destinationStyle?: 'angle'): string {
   const destination = markdownLinkDestinationSource(href, destinationStyle)
