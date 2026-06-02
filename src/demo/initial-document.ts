@@ -3,7 +3,7 @@ import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown'
 
 const initialMarkdown = `# Nano Editable
 
-Nano Edit의 working identity는 Nano Editable이다. 즉, LLM이 생성한 Markdown을 제품 안에서 **공식 기술문서처럼 읽게 하고**, 필요한 일부만 contenteditable surface에서 조용히 수정하게 하는 editing foundation이다. 이 문서 자체가 데모이며, 별도 docs-site chrome 없이 \`README.md\` 같은 문서가 바로 편집 surface가 되는 상태를 보여준다.
+Nano Edit의 working identity는 Nano Editable이다. 즉, Nano Edit은 embeddable editor package이며, LLM이 생성한 Markdown을 제품 안에서 **공식 기술문서처럼 읽게 하고**, 필요한 일부만 조용히 수정하게 하는 contenteditable editing foundation이다. 이 문서 자체가 데모이며, 별도 docs-site chrome 없이 \`README.md\` 같은 문서가 바로 편집 surface가 되는 상태를 보여준다.
 
 > [!NOTE]
 > 이 화면은 landing page가 아니다. LLM이 만든 긴 기술문서를 그대로 열었을 때, 사용자는 문서를 먼저 읽고 필요한 문장, 표 셀, 체크 항목만 local edit로 고친다.
