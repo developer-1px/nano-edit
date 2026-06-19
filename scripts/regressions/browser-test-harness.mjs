@@ -124,7 +124,12 @@ export function demoDeckStorageKey() {
 }
 
 export function activeDemoArtifactStorageKey() {
-  return sourceStringConstant(new URL('../../src/main.ts', import.meta.url), 'ACTIVE_DEMO_ARTIFACT_STORAGE_KEY')
+  return sourceStringConstant(new URL('../../src/demo/demo-artifacts-app.ts', import.meta.url), 'ACTIVE_DEMO_ARTIFACT_STORAGE_KEY')
+}
+
+export function nano2ExampleStorageKey(exampleId) {
+  const prefix = sourceStringConstant(new URL('../../src/nano2/examples/persistence.ts', import.meta.url), 'NANO2_EXAMPLE_STORAGE_KEY_PREFIX')
+  return `${prefix}:${exampleId}`
 }
 
 export function storedPersistenceValueExpression(storageKey) {

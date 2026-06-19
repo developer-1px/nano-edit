@@ -2,7 +2,6 @@ import type { NanoDocument } from '../entities/document/nano-document-model'
 import type { NanoDeck as NanoDeckModel } from '../entities/deck/nano-deck-model'
 import { initialNanoDeck } from './initial-deck'
 import { initialNanoDocument } from './initial-document'
-import { nano2DemoDocument } from './nano2-document'
 import { partCatalogDocument } from './part-catalog-document'
 import { DEMO_DECK_STORAGE_KEY } from './persisted-deck'
 import { DEMO_DOCUMENT_STORAGE_KEY } from './persisted-document'
@@ -39,15 +38,6 @@ export interface DemoMentionComposerDefinition {
   title: string
 }
 
-export interface DemoNano2Definition {
-  document: NanoDocument
-  kind: 'nano2'
-  id: string
-  storageKey: string
-  summary: string
-  title: string
-}
-
 export type DemoReferenceKind =
   | 'team-knowledge-page-reference'
   | 'launch-forecast-grid-reference'
@@ -76,7 +66,6 @@ export type DemoArtifactDefinition =
   | DemoDocumentDefinition
   | DemoInlineEditDefinition
   | DemoMentionComposerDefinition
-  | DemoNano2Definition
   | DemoReferenceDefinition
 
 export const defaultDemoArtifactId = 'overview'
@@ -109,14 +98,6 @@ export const demoArtifacts: readonly DemoArtifactDefinition[] = [
     summary: 'deck surface',
     storageKey: DEMO_DECK_STORAGE_KEY,
     deck: initialNanoDeck,
-  },
-  {
-    kind: 'nano2',
-    id: 'nano2',
-    title: 'Nano2',
-    summary: 'ProseMirror runtime',
-    storageKey: `${DEMO_DOCUMENT_STORAGE_KEY}:nano2`,
-    document: nano2DemoDocument,
   },
   {
     kind: 'inline-edit',

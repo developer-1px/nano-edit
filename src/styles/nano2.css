@@ -1,9 +1,182 @@
+.nano2-examples {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 244px minmax(0, 1fr);
+  background: #ffffff;
+  color: #3f4145;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", Helvetica, Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.nano2-example-nav {
+  height: 100svh;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 38px 14px 22px;
+  border-right: 1px solid #e3e4e8;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.nano2-example-nav-title {
+  display: block;
+  margin: 0 0 12px;
+  padding: 0 8px;
+  color: #3f4145;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.25;
+}
+
+.nano2-example-list {
+  display: grid;
+  gap: 2px;
+}
+
+.nano2-example-link {
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-left: 2px solid transparent;
+  color: #5e6269;
+  text-decoration: none;
+}
+
+.nano2-example-link:hover,
+.nano2-example-link:focus-visible,
+.nano2-example-link[data-active='true'] {
+  color: #2f3135;
+  border-left-color: #d95b56;
+}
+
+.nano2-example-link:focus-visible {
+  outline: 1.5px solid #d95b56;
+  outline-offset: 2px;
+}
+
+.nano2-example-link[data-status='planned'] {
+  color: #747981;
+}
+
+.nano2-example-link-phase {
+  color: #8d939c;
+  font: 650 10px/1 var(--nano-mono, ui-monospace, monospace);
+}
+
+.nano2-example-link-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 620;
+  line-height: 1.2;
+}
+
+.nano2-example-main {
+  min-width: 0;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.nano2-example-header {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px clamp(20px, 7vw, 88px) 10px;
+  border-bottom: 1px solid #eceef1;
+}
+
+.nano2-example-title-group {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.nano2-example-phase,
+.nano2-example-status {
+  color: #8d939c;
+  font: 650 11px/1 var(--nano-mono, ui-monospace, monospace);
+}
+
+.nano2-example-status[data-status='ready'] {
+  color: #28745c;
+}
+
+.nano2-example-title {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #2f3135;
+  font-size: 15px;
+  font-weight: 720;
+  line-height: 1.25;
+}
+
+.nano2-example-source {
+  flex: none;
+  color: #676c74;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 620;
+}
+
+.nano2-example-source:hover,
+.nano2-example-source:focus-visible {
+  color: #d95b56;
+}
+
+.nano2-example-content {
+  min-width: 0;
+  min-height: 0;
+}
+
+.nano2-example-contract {
+  width: min(100%, 780px);
+  display: grid;
+  gap: 0;
+  padding: clamp(34px, 7vw, 88px) clamp(20px, 8vw, 112px);
+}
+
+.nano2-example-contract-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 18px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eceef1;
+}
+
+.nano2-example-contract-label {
+  color: #8d939c;
+  font-size: 12px;
+  font-weight: 680;
+  line-height: 1.45;
+}
+
+.nano2-example-contract-text {
+  margin: 0;
+  color: #3f4145;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
 .nano.nano2 {
   display: block;
 }
 
 .nano.nano2 .nano2-editor {
-  min-height: 100svh;
+  min-height: calc(100svh - 69px);
   padding: clamp(34px, 7vw, 88px) clamp(20px, 8vw, 112px);
 }
 
@@ -152,4 +325,52 @@
   line-height: 1.35;
   vertical-align: 0.03em;
   white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .nano2-examples {
+    grid-template-columns: 1fr;
+  }
+
+  .nano2-example-nav {
+    height: auto;
+    position: static;
+    padding: 14px 12px;
+    border-right: 0;
+    border-bottom: 1px solid #e3e4e8;
+  }
+
+  .nano2-example-list {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .nano2-example-link {
+    min-width: 164px;
+  }
+
+  .nano2-example-header {
+    align-items: flex-start;
+    padding: 14px 16px 10px;
+  }
+
+  .nano2-example-title-group {
+    display: grid;
+    gap: 5px;
+  }
+
+  .nano2-example-title {
+    white-space: normal;
+  }
+
+  .nano2-example-contract {
+    padding: 28px 16px 56px;
+  }
+
+  .nano2-example-contract-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 }

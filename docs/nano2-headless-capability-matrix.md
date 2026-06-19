@@ -57,10 +57,11 @@ P0 is implemented as acceptance coverage, not as a finished product surface.
   `json-document` state: mark toggles, heading block changes, schema-valid
   mention atoms, one-character atom lowering, Zod validation, and Nano history.
 - `scripts/regressions/browser-nano2-demo.mjs` proves the same P0 pressure in
-  the contenteditable runtime: mention chips render as ProseMirror atom DOM,
-  copy/paste preserve attrs, Backspace treats chips as one unit, textblock-end
-  navigation skips chips, mark and heading keymaps commit to persisted
-  NanoDocument state, and double Enter does not produce phantom spacing.
+  the Nano2-only examples surface (`/nano2/basics`, `/nano2/dinos`): mention
+  chips render as ProseMirror atom DOM, copy/paste preserve attrs, Backspace
+  treats chips as one unit, textblock-end navigation skips chips, mark and
+  heading keymaps commit to persisted NanoDocument state, and double Enter does
+  not produce phantom spacing.
 - Verification for this checkpoint:
   `CI=true pnpm test:nano2`,
   `node --experimental-strip-types --experimental-loader ./scripts/ts-extension-loader.mjs scripts/regressions/chunk-51.mjs`,

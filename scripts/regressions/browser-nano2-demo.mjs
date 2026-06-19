@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import {
   clickTarget,
-  demoDocumentStorageKey,
   evaluate,
+  nano2ExampleStorageKey,
   pressKey,
   storedPersistenceValueExpression,
   wait,
@@ -25,57 +25,21 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   })
   await browser.send('Page.navigate', { url: `${url}artifacts/nano2` })
   await waitForExpression(browser, 'document.readyState !== "loading"')
-  await waitForExpression(browser, 'Boolean(document.querySelector(".demo-artifact-button[data-artifact-id=\\"nano2\\"]"))')
-  await waitForExpression(browser, 'location.pathname === "/artifacts/nano2"')
-  await waitForExpression(browser, 'document.querySelector(".demo-artifact-button[data-artifact-id=\\"nano2\\"]")?.getAttribute("aria-current") === "page"')
-  assert.equal(await nano2Href(browser), '/artifacts/nano2')
+  await waitForExpression(browser, 'location.pathname === "/nano2/basics"')
+  await waitForExpression(browser, 'Boolean(document.querySelector(".nano2-example-link[data-example-id=\\"basics\\"]"))')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-link[data-example-id=\\"basics\\"]")?.getAttribute("aria-current") === "page"')
+  await waitForExpression(browser, '!document.querySelector(".demo-artifact-button[data-artifact-id=\\"nano2\\"]")')
+  assert.equal(await nano2ExampleHref(browser, 'basics'), '/nano2/basics')
+  assert.equal(await nano2ExampleHref(browser, 'dinos'), '/nano2/dinos')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(prosemirrorSelector)}))`)
-  await waitForExpression(browser, 'document.querySelector(".nano2 .nano-heading")?.textContent.includes("Nano2")')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Basics")')
+  await waitForExpression(browser, 'document.querySelector(".nano2 .nano-heading")?.textContent.includes("Basics")')
 
   const beforeParagraphCount = await paragraphCount(browser)
   await appendText(browser, paragraphSelector, ' PATCHED ')
   await waitForExpression(browser, `document.querySelector(${JSON.stringify(paragraphSelector)})?.textContent.includes("PATCHED")`)
-  await insertMention(browser, 'mi', '@Mina')
-  await waitForExpression(browser, `document.querySelector(${JSON.stringify(paragraphSelector)})?.textContent.includes("@Mina")`)
-  await waitForExpression(browser, `document.querySelector('.nano2 .nano-mention-chip')?.textContent === '@Mina'`)
-  assert.deepEqual(await firstMentionChipRuntimeState(browser), {
-    contenteditable: 'false',
-    draggable: true,
-    id: 'mina',
-    label: 'Mina',
-    pmViewDesc: true,
-    text: '@Mina',
-  })
-  const copiedMention = await copyFirstMentionChip(browser)
-  assert.equal(copiedMention.prevented, true)
-  assert(copiedMention.html.includes('data-mention-id="mina"'))
-  assert(copiedMention.html.includes('data-mention-label="Mina"'))
-  await setCursorAtFirstParagraphEnd(browser)
-  await insertMention(browser, 'ju', '@Jules')
-  await waitForExpression(browser, `document.querySelectorAll('.nano2 .nano-mention-chip').length === 2`)
-  await pressKey(browser, 'Backspace', 'Backspace', 8)
-  await pressKey(browser, 'Backspace', 'Backspace', 8)
-  await waitForExpression(browser, `document.querySelectorAll('.nano2 .nano-mention-chip').length === 1`)
-  await waitForExpression(browser, `!document.querySelector(${JSON.stringify(paragraphSelector)})?.textContent.includes("@Jules")`)
-  await pasteMentionChip(browser, 'avery', 'Avery')
-  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-mention-chip[data-mention-id="avery"]'))`)
-  await browser.send('Input.insertText', { text: ' AFTERCHIP' })
-  await waitForExpression(browser, `document.querySelector(${JSON.stringify(paragraphSelector)})?.textContent.endsWith("AFTERCHIP")`)
   const modifier = process.platform === 'darwin' ? 4 : 2
-  await assertTextblockEndKeySkipsMention(browser, {
-    key: 'ArrowRight',
-    code: 'ArrowRight',
-    keyCode: 39,
-    marker: ' CMDEND',
-    modifiers: modifier,
-  })
-  await assertTextblockEndKeySkipsMention(browser, {
-    key: 'End',
-    code: 'End',
-    keyCode: 35,
-    marker: ' ENDKEY',
-  })
   await pressKey(browser, 'b', 'KeyB', 66, modifier)
   await browser.send('Input.insertText', { text: ' BOLD' })
   await pressKey(browser, 'b', 'KeyB', 66, modifier)
@@ -100,14 +64,64 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   await pressKey(browser, '2', 'Digit2', 50, 10)
   await waitForExpression(browser, `Array.from(document.querySelectorAll('.nano2 .nano-heading')).some((node) => node.textContent.includes('PATCHED'))`)
 
-  await clickTarget(browser, '.demo-artifact-button[data-artifact-id="overview"]')
-  const stored = await storedNano2Document(browser)
-  assert(stored.blocks.some((block) => typeof block.text === 'string' && block.text.includes('PATCHED')))
-  assert(stored.blocks.some((block) => Array.isArray(block.marks) && block.marks.some((mark) => mark.type === 'mention' && mark.id === 'mina' && mark.to - mark.from === 1)))
-  assert(stored.blocks.some((block) => Array.isArray(block.marks) && block.marks.some((mark) => mark.type === 'mention' && mark.id === 'avery' && mark.label === 'Avery' && mark.to - mark.from === 1)))
-  assert(stored.blocks.some((block) => Array.isArray(block.marks) && block.marks.some((mark) => mark.type === 'bold' && block.text.slice(mark.from, mark.to).trim() === 'BOLD')))
-  assert(stored.blocks.some((block) => block.type === 'heading' && block.level === 2 && typeof block.text === 'string' && block.text.includes('PATCHED')))
-  assert(!stored.blocks.some((block) => Array.isArray(block.marks) && block.marks.some((mark) => mark.type === 'mention' && mark.id === 'jules')))
+  await wait(160)
+  const storedBasics = await storedNano2Document(browser, 'basics')
+  assert(storedBasics.blocks.some((block) => typeof block.text === 'string' && block.text.includes('PATCHED')))
+  assert(storedBasics.blocks.some((block) => Array.isArray(block.marks) && block.marks.some((mark) => mark.type === 'bold' && block.text.slice(mark.from, mark.to).trim() === 'BOLD')))
+  assert(storedBasics.blocks.some((block) => block.type === 'heading' && block.level === 2 && typeof block.text === 'string' && block.text.includes('PATCHED')))
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="markdown"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/markdown"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-status")?.textContent === "planned"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-contract")?.textContent.includes("Markdown is a codec")')
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="dinos"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/dinos"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-link[data-example-id=\\"dinos\\"]")?.getAttribute("aria-current") === "page"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Dinos")')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-mention-chip')?.textContent === '@Mina'`)
+  assert.deepEqual(await firstMentionChipRuntimeState(browser), {
+    contenteditable: 'false',
+    draggable: true,
+    id: 'mina',
+    label: 'Mina',
+    pmViewDesc: true,
+    text: '@Mina',
+  })
+  const copiedMention = await copyFirstMentionChip(browser)
+  assert.equal(copiedMention.prevented, true)
+  assert(copiedMention.html.includes('data-mention-id="mina"'))
+  assert(copiedMention.html.includes('data-mention-label="Mina"'))
+  await setCursorAtFirstParagraphEnd(browser)
+  await browser.send('Input.insertText', { text: ' ' })
+  await insertMention(browser, 'ju', '@Jules')
+  await waitForExpression(browser, `document.querySelectorAll('.nano2 .nano-mention-chip').length === 2`)
+  await pressKey(browser, 'Backspace', 'Backspace', 8)
+  await pressKey(browser, 'Backspace', 'Backspace', 8)
+  await waitForExpression(browser, `document.querySelectorAll('.nano2 .nano-mention-chip').length === 1`)
+  await waitForExpression(browser, `!document.querySelector(${JSON.stringify(paragraphSelector)})?.textContent.includes("@Jules")`)
+  await pasteMentionChip(browser, 'avery', 'Avery')
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-mention-chip[data-mention-id="avery"]'))`)
+  await browser.send('Input.insertText', { text: ' AFTERCHIP' })
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(paragraphSelector)})?.textContent.endsWith("AFTERCHIP")`)
+  await assertTextblockEndKeySkipsMention(browser, {
+    key: 'ArrowRight',
+    code: 'ArrowRight',
+    keyCode: 39,
+    marker: ' CMDEND',
+    modifiers: modifier,
+  })
+  await assertTextblockEndKeySkipsMention(browser, {
+    key: 'End',
+    code: 'End',
+    keyCode: 35,
+    marker: ' ENDKEY',
+  })
+  await wait(160)
+  const storedDinos = await storedNano2Document(browser, 'dinos')
+  assert(storedDinos.blocks.some((block) => Array.isArray(block.marks) && block.marks.some((mark) => mark.type === 'mention' && mark.id === 'mina' && mark.to - mark.from === 1)))
+  assert(storedDinos.blocks.some((block) => Array.isArray(block.marks) && block.marks.some((mark) => mark.type === 'mention' && mark.id === 'avery' && mark.label === 'Avery' && mark.to - mark.from === 1)))
+  assert(!storedDinos.blocks.some((block) => Array.isArray(block.marks) && block.marks.some((mark) => mark.type === 'mention' && mark.id === 'jules')))
 
   console.log('ok browser nano2 demo')
 })
@@ -274,13 +288,13 @@ async function setSelectionAroundFirstMentionChip(browser) {
   })()`)
 }
 
-async function storedNano2Document(browser) {
-  const storageKey = `${demoDocumentStorageKey()}:nano2`
+async function storedNano2Document(browser, exampleId) {
+  const storageKey = nano2ExampleStorageKey(exampleId)
   return evaluate(browser, storedPersistenceValueExpression(storageKey))
 }
 
-async function nano2Href(browser) {
-  return evaluate(browser, `new URL(document.querySelector('.demo-artifact-button[data-artifact-id="nano2"]')?.href ?? '', location.href).pathname`)
+async function nano2ExampleHref(browser, exampleId) {
+  return evaluate(browser, `new URL(document.querySelector(\`.nano2-example-link[data-example-id="${exampleId}"]\`)?.href ?? '', location.href).pathname`)
 }
 
 function withNano2ParagraphGap(expression) {

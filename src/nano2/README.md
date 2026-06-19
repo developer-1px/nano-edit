@@ -26,3 +26,12 @@ ProseMirror view source is a provenance-tracked seed, not an architecture lock
 Do not use Nano1 view/runtime/package-seam documents as authority for Nano2.
 Nano1 examples become fixture pressure only after the ProseMirror official
 example capability matrix is covered.
+
+The runnable example surface is Nano2-owned:
+
+```text
+/nano2/basics
+/nano2/dinos
+```
+
+The legacy demo artifact host does not own Nano2 examples.
