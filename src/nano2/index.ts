@@ -3,6 +3,22 @@ export {
   nano2CleverReplacementTransaction,
 } from './clever-replacements'
 export {
+  createNano2CollaborativeFieldEngines,
+  createNano2CollaborativeFieldsHub,
+  createNano2CollaborativeFieldsMessage,
+  nano2CollaborativeFieldIds,
+  Nano2CollaborativeFieldsDocumentSchema,
+  parseNano2CollaborativeFieldsMessage,
+  type Nano2CollaborativeFieldEngines,
+  type Nano2CollaborativeFieldId,
+  type Nano2CollaborativeFieldsDispatch,
+  type Nano2CollaborativeFieldsDocument,
+  type Nano2CollaborativeFieldsHub,
+  type Nano2CollaborativeFieldsMessage,
+  type Nano2CollaborativeFieldsPeer,
+  type Nano2CollaborativeFieldsPeerResult,
+} from './collaborative-fields'
+export {
   nano2DrawingBlockCleared,
   nano2DrawingBlockType,
   nano2DrawingBlockWithStroke,

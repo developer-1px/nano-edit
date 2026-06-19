@@ -1,4 +1,5 @@
 import type { NanoDocument } from '../../entities/document/nano-document-model'
+import type { Nano2CollaborativeFieldsDocument } from '../collaborative-fields'
 import type { Nano2ViewProfile } from '../types'
 import {
   isNano2ForcedStructureDocument,
@@ -9,6 +10,7 @@ import {
   nano2DinosDocument,
   nano2TiptapCleverEditorDocument,
   nano2TiptapCollaborationDocument,
+  nano2TiptapCollaborativeFieldsDocument,
   nano2TiptapDefaultEditorDocument,
   nano2TiptapDrawingDocument,
   nano2TiptapFigureDocument,
@@ -39,6 +41,7 @@ export type Nano2ExampleTrack = 'prosemirror' | 'tiptap'
 
 export interface Nano2ExampleDefinition {
   acceptance: string
+  collaborativeFieldsDocument?: Nano2CollaborativeFieldsDocument
   document?: NanoDocument
   headless: string
   id: string
@@ -48,7 +51,7 @@ export interface Nano2ExampleDefinition {
   pressure: string
   sourceHref: string
   status: Nano2ExampleStatus
-  surface?: 'collaboration' | 'react-performance'
+  surface?: 'collaboration' | 'collaborative-fields' | 'react-performance'
   title: string
   track: Nano2ExampleTrack
   view: string
@@ -341,6 +344,20 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     acceptance: 'Edit peer A and peer B, mount a late peer C, keep all engines converged, and avoid persisting transport metadata in the document.',
     document: nano2TiptapCollaborationDocument,
     surface: 'collaboration',
+  },
+  {
+    id: 'tiptap-collaborative-fields',
+    title: 'Tiptap Collaborative Fields',
+    phase: 'T3',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/experiments/collaborative-fields',
+    track: 'tiptap',
+    pressure: 'Multiple editor fields must share one collaboration document without sharing one editor DOM instance.',
+    headless: 'Nano2 routes field-scoped NanoDocumentChange envelopes through one transport while each field remains a schema-valid NanoDocument.',
+    view: 'A Nano2-only surface mounts independent editors for summary, tasks, and notes fields for each peer and publishes changes with field ids.',
+    acceptance: 'Edit summary, task, and notes fields across peers, converge through one transport, and keep field DOM identity out of persisted document data.',
+    collaborativeFieldsDocument: nano2TiptapCollaborativeFieldsDocument,
+    surface: 'collaborative-fields',
   },
   {
     id: 'tiptap-drawing',

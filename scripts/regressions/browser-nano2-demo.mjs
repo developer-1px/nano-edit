@@ -36,6 +36,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-clever-editor'), '/nano2/tiptap-clever-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-collaboration'), '/nano2/tiptap-collaboration')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-collaborative-fields'), '/nano2/tiptap-collaborative-fields')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-drawing'), '/nano2/tiptap-drawing')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-figure'), '/nano2/tiptap-figure')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-forced-content-structure'), '/nano2/tiptap-forced-content-structure')
@@ -653,6 +654,27 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   await setCursorAtPeerBlockEndById(browser, 'peer-a', 'nano2-collab-shared')
   await browser.send('Input.insertText', { text: ' after C' })
   await waitForExpression(browser, `document.querySelector('.nano2-collaboration-peer[data-peer-id="peer-c"] [data-id="nano2-collab-shared"]')?.textContent.includes('after C')`)
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-collaborative-fields"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-collaborative-fields"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Collaborative Fields")')
+  await waitForExpression(browser, `document.querySelector('.nano2-collaborative-fields')?.dataset.peers === 'peer-a,peer-b'`)
+  await waitForExpression(browser, `document.querySelector('.nano2-collaborative-fields')?.dataset.fields === 'summary,tasks,notes'`)
+  await waitForExpression(browser, `document.querySelectorAll('.nano2-collaborative-fields-peer').length === 2`)
+  await waitForExpression(browser, `document.querySelectorAll('.nano2-collaborative-field[data-field-id]').length === 6`)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2-collaborative-field[data-peer-id="peer-a"][data-field-id="tasks"] .nano-todo[data-id="nano2-fields-task-open"]'))`)
+
+  await appendText(browser, '.nano2-collaborative-field[data-peer-id="peer-a"][data-field-id="summary"] [data-id="nano2-fields-summary-body"]', ' from A')
+  await waitForExpression(browser, `document.querySelector('.nano2-collaborative-field[data-peer-id="peer-b"][data-field-id="summary"] [data-id="nano2-fields-summary-body"]')?.textContent.includes('from A')`)
+  await waitForExpression(browser, `!document.querySelector('.nano2-collaborative-field[data-peer-id="peer-b"][data-field-id="tasks"]')?.textContent.includes('from A')`)
+
+  await clickTarget(browser, '.nano2-collaborative-field[data-peer-id="peer-b"][data-field-id="tasks"] .nano-todo[data-id="nano2-fields-task-open"] .nano-todo-box')
+  await waitForExpression(browser, `document.querySelector('.nano2-collaborative-field[data-peer-id="peer-b"][data-field-id="tasks"] .nano-todo[data-id="nano2-fields-task-open"]')?.dataset.checked === 'true'`)
+  await waitForExpression(browser, `document.querySelector('.nano2-collaborative-field[data-peer-id="peer-a"][data-field-id="tasks"] .nano-todo[data-id="nano2-fields-task-open"]')?.dataset.checked === 'true'`)
+  await waitForExpression(browser, `!document.querySelector('.nano2-collaborative-field[data-peer-id="peer-a"][data-field-id="notes"]')?.textContent.includes('Open shared task')`)
+
+  await appendText(browser, '.nano2-collaborative-field[data-peer-id="peer-b"][data-field-id="notes"] [data-id="nano2-fields-notes-body"]', ' notes')
+  await waitForExpression(browser, `document.querySelector('.nano2-collaborative-field[data-peer-id="peer-a"][data-field-id="notes"] [data-id="nano2-fields-notes-body"]')?.textContent.includes('notes')`)
 
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-drawing"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-drawing"')

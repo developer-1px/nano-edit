@@ -30,6 +30,12 @@ import { blockPositionById } from '../../src/entities/block/structure/nano-block
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import { nano2CleverReplacementTransaction } from '../../src/nano2/clever-replacements.ts'
 import {
+  createNano2CollaborativeFieldEngines,
+  createNano2CollaborativeFieldsHub,
+  nano2CollaborativeFieldIds,
+  Nano2CollaborativeFieldsDocumentSchema,
+} from '../../src/nano2/collaborative-fields.ts'
+import {
   nano2DrawingBlockType,
   nano2DrawingBlockWithStroke,
 } from '../../src/nano2/drawing.ts'
@@ -59,6 +65,7 @@ import {
   nano2LongTextsWordCount,
   nano2TiptapCleverEditorDocument,
   nano2TiptapCollaborationDocument,
+  nano2TiptapCollaborativeFieldsDocument,
   nano2TiptapDefaultEditorDocument,
   nano2TiptapDrawingDocument,
   nano2TiptapFigureDocument,
@@ -1209,6 +1216,62 @@ test('Nano2 T3 Collaboration: NanoDocumentChange hub converges route peers', () 
   assert.deepEqual(peerAEngine.value, afterLateJoin)
   assert.deepEqual(peerBEngine.value, afterLateJoin)
   assert.deepEqual(peerCEngine.value, afterLateJoin)
+})
+
+test('Nano2 T3 Collaborative fields: one transport syncs separate field documents', () => {
+  const initial = nano2TiptapCollaborativeFieldsDocument
+  assert.deepEqual(Nano2CollaborativeFieldsDocumentSchema.parse(initial), initial)
+
+  const peerAEngines = createNano2CollaborativeFieldEngines(initial)
+  const peerBEngines = createNano2CollaborativeFieldEngines(initial)
+  const hub = createNano2CollaborativeFieldsHub()
+  const peerA = hub.connect({ fields: peerAEngines, peerId: 'peer-a' })
+  const peerB = hub.connect({ fields: peerBEngines, peerId: 'peer-b' })
+
+  assert.deepEqual(hub.peerIds(), ['peer-a', 'peer-b'])
+  assert.deepEqual(hub.fieldIds(), nano2CollaborativeFieldIds)
+
+  const nextSummary = nano2DocumentWithBlockText(
+    peerAEngines.summary.value,
+    'nano2-fields-summary-body',
+    'Summary changed from peer A',
+  )
+  const summaryChange = nanoDocumentChangeFromDocuments(peerAEngines.summary.value, nextSummary, {
+    label: 'nano2-collaborative-fields-summary',
+    origin: 'peer-a',
+  })
+  assert(summaryChange)
+  assert.equal(commitNanoDocumentChange(peerAEngines.summary, summaryChange).ok, true)
+  const summaryDispatch = peerA.publish('summary', summaryChange, { revision: 1 })
+
+  assert(summaryDispatch.results.every((entry) => entry.result.ok))
+  assert.deepEqual(peerAEngines.summary.value, nextSummary)
+  assert.deepEqual(peerBEngines.summary.value, nextSummary)
+  assert.deepEqual(peerAEngines.tasks.value, initial.tasks)
+  assert.deepEqual(peerBEngines.tasks.value, initial.tasks)
+  assert.equal(summaryDispatch.message.fieldId, 'summary')
+  assert.equal('dom' in summaryDispatch.message, false)
+  assert.equal('view' in summaryDispatch.message, false)
+
+  const nextTask = nano2DocumentWithBlockText(
+    peerBEngines.tasks.value,
+    'nano2-fields-task-open',
+    'Task changed from peer B',
+  )
+  const taskChange = nanoDocumentChangeFromDocuments(peerBEngines.tasks.value, nextTask, {
+    label: 'nano2-collaborative-fields-task',
+    origin: 'peer-b',
+  })
+  assert(taskChange)
+  assert.equal(commitNanoDocumentChange(peerBEngines.tasks, taskChange).ok, true)
+  const taskDispatch = peerB.publish('tasks', taskChange, { revision: 2 })
+
+  assert(taskDispatch.results.every((entry) => entry.result.ok))
+  assert.deepEqual(peerAEngines.tasks.value, nextTask)
+  assert.deepEqual(peerBEngines.tasks.value, nextTask)
+  assert.deepEqual(peerAEngines.notes.value, initial.notes)
+  assert.deepEqual(peerBEngines.notes.value, initial.notes)
+  assert.equal(taskDispatch.message.fieldId, 'tasks')
 })
 
 test('Nano2 T3 Drawing: custom block strokes stay NanoDocument JSON data', () => {

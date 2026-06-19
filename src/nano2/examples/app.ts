@@ -20,6 +20,7 @@ import {
   createNano2CollaborationExample,
   type Nano2ExampleSurfaceHandle,
 } from './collaboration'
+import { createNano2CollaborativeFieldsExample } from './collaborative-fields'
 import { createNano2ReactPerformanceExample } from './react-performance'
 
 export interface Nano2ExamplesAppHandle {
@@ -139,7 +140,20 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
     renderHeader(header, example)
     syncNav()
 
-    if (example.status === 'ready' && example.document) {
+    if (example.status === 'ready') {
+      if (example.surface === 'collaborative-fields' && example.collaborativeFieldsDocument) {
+        activeView = createNano2CollaborativeFieldsExample({
+          document: example.collaborativeFieldsDocument,
+          mount: content,
+        })
+        return
+      }
+
+      if (!example.document) {
+        content.replaceChildren(renderContract(example))
+        return
+      }
+
       if (example.surface === 'collaboration') {
         activeView = createNano2CollaborationExample({
           document: example.document,

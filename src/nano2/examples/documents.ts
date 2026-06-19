@@ -598,6 +598,68 @@ export const nano2TiptapCollaborationDocument: NanoDocument = NanoDocumentSchema
   ],
 })
 
+export const nano2TiptapCollaborativeFieldsDocument = {
+  notes: NanoDocumentSchema.parse({
+    blocks: [
+      {
+        id: 'nano2-fields-notes-title',
+        type: 'heading',
+        level: 1,
+        text: 'Notes',
+        marks: [],
+      },
+      {
+        id: 'nano2-fields-notes-body',
+        type: 'paragraph',
+        text: 'Shared notes field',
+        marks: [],
+      },
+    ],
+  }),
+  summary: NanoDocumentSchema.parse({
+    blocks: [
+      {
+        id: 'nano2-fields-summary-title',
+        type: 'heading',
+        level: 1,
+        text: 'Summary',
+        marks: [],
+      },
+      {
+        id: 'nano2-fields-summary-body',
+        type: 'paragraph',
+        text: 'Shared summary field',
+        marks: [],
+      },
+    ],
+  }),
+  tasks: NanoDocumentSchema.parse({
+    blocks: [
+      {
+        id: 'nano2-fields-tasks-title',
+        type: 'heading',
+        level: 1,
+        text: 'Tasks',
+        marks: [],
+      },
+      {
+        id: 'nano2-fields-task-open',
+        type: 'todo',
+        checked: false,
+        text: 'Open shared task',
+        marks: [],
+      },
+      {
+        id: 'nano2-fields-task-done',
+        type: 'todo',
+        checked: true,
+        text: 'Synced done task',
+        marks: [],
+      },
+    ],
+  }),
+}
+
 export const nano2TiptapDrawingDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

@@ -112,6 +112,11 @@ currently proves two independent Nano2 engines connected by
 NanoDocumentChange transport, plus late peer join convergence without
 document-stored transport metadata.
 
+`/nano2/tiptap-collaborative-fields` is the runnable T3 Collaborative fields
+surface. It currently proves summary, tasks, and notes as independent
+NanoDocument fields synced through one field-scoped transport without sharing
+editor DOM identity.
+
 `/nano2/tiptap-drawing` is the runnable T3 Drawing surface. It currently proves
 a `nano2.drawing` custom block with JSON stroke data, canvas node-view
 projection, stroke editing, and persistence without storing canvas DOM.
@@ -206,7 +211,7 @@ marks.
 | T3 | React performance | Ready: host renders and derived state reads are isolated so NanoDocument transactions do not remount the editor view tree. |
 | T3 | AI agent | Agent tools read and propose NanoDocument changes; accepted changes commit through json-document history. |
 | T3 | Syntax highlighting | Ready: lowlight token ranges render as view decorations while code text and language remain the only NanoDocument data. |
-| T3 | Collaborative fields | Multiple logical fields share one collaboration transport without sharing DOM identity. |
+| T3 | Collaborative fields | Ready: multiple logical NanoDocument fields share one field-scoped collaboration transport without sharing DOM identity. |
 | T3 | Figure / Generic figure | Ready: image/table media attrs and captions become structured `nano2.figure` custom block data. |
 | T3 | iFrame | Ready: embed attrs are schema-validated `nano2.iframe` custom block data projected as replaceable DOM. |
 | T3 | Linting | Ready: diagnostics are pure NanoDocument projections and accepted fixes become NanoDocumentChange text replacements. |
