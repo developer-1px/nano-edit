@@ -1,11 +1,11 @@
 import type { EditorState } from 'prosemirror-state'
 import {
   activeBlockRange,
-  isListLikeNode,
   listSubtreeRanges,
   topLevelBlockRanges,
-} from '../../blocks/nano-block-structure'
-import type { IndentDirection, MoveDirection } from '../shell/shell'
+} from '../../entities/block/structure/nano-block-ranges'
+import { isListLikeNode } from '../../entities/block/structure/nano-block-node-kind'
+import type { IndentDirection, MoveDirection } from '../../commands/types'
 import {
   blockMoveTargetUnit,
 } from './target'

@@ -2,14 +2,16 @@ import { Fragment } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import {
   activeBlockRange,
-  blockId,
-  isListLikeNode,
   listSubtreeRanges,
   topLevelBlockRanges,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
-import type { IndentDirection, MoveDirection } from '../shell/shell'
-import { movedBlockSelection } from '../../core/nano-selection'
+} from '../../entities/block/structure/nano-block-ranges'
+import {
+  blockId,
+  isListLikeNode,
+} from '../../entities/block/structure/nano-block-node-kind'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import type { IndentDirection, MoveDirection } from '../../commands/types'
+import { movedBlockSelection } from '../selection/placement'
 import {
   canIndentActiveListSubtree,
   canShiftListSubtree,
@@ -30,11 +32,6 @@ import {
   positionForTopLevelRangeIndex,
   reorderedBlockMoveRanges,
 } from './reorder'
-
-export {
-  canIndentActiveBlock,
-  canMoveActiveBlock,
-} from './checks'
 
 export function moveActiveBlockTransaction(
   state: EditorState,

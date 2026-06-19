@@ -1,26 +1,31 @@
-import { createCollection } from '@zod-crud/collection'
-import type { Pointer } from 'zod-crud'
-import {
-  createNanoDocument,
-  type NanoBlock,
-  type NanoDeckEngine,
-  type NanoDocument,
-  type NanoDocumentEngine,
-  type NanoSlide,
-  type NanoSlideRegion,
-} from '../../core/nano-core'
-import type { NanoEditorKit } from '../../engine/editor-kit'
+import { createCollection } from '@interactive-os/json-document-collection'
+import type { Pointer } from '@interactive-os/json-document'
+import { createNanoDocument, type NanoDocumentEngine } from '../../entities/document/nano-document'
+import type { NanoBlock, NanoDocument } from '../../entities/document/nano-document-model'
+import type { NanoDeckEngine } from '../../entities/deck/nano-deck'
+import type { NanoSlide, NanoSlideRegion } from '../../entities/deck/nano-deck-model'
+import type { NanoCapabilityProfileOptions } from '../../engine/capability-profile'
 import {
   createNanoDeckRailInteraction,
   type DeckRailReorderDirection,
 } from './deck-rail-interaction'
 import { createNanoView } from '../runtime/create'
-import type { NanoViewHandle } from '../runtime/context'
+import type { NanoViewHandle } from '../runtime/types'
 
 export interface NanoDeckViewOptions {
   engine: NanoDeckEngine
-  kit?: NanoEditorKit
+  capabilityProfile?: NanoCapabilityProfileOptions
   mount: HTMLElement
+  onActiveSlideChange?: (change: NanoDeckActiveSlideChange) => void
+}
+
+export type NanoDeckActiveSlideChangeReason = 'initial' | 'reorder' | 'select'
+
+export interface NanoDeckActiveSlideChange {
+  index: number
+  reason: NanoDeckActiveSlideChangeReason
+  slideId: string
+  title: string
 }
 
 export interface NanoDeckViewHandle {
@@ -31,6 +36,9 @@ export function createNanoDeckView(options: NanoDeckViewOptions): NanoDeckViewHa
   let activeSlideIndex = 0
   let activeDocumentEngine: NanoDocumentEngine | null = null
   let activeDocumentUnsubscribe: (() => void) | null = null
+  let activeNotesEngine: NanoDocumentEngine | null = null
+  let activeNotesUnsubscribe: (() => void) | null = null
+  let activeNotesView: NanoViewHandle | null = null
   let activeView: NanoViewHandle | null = null
   const railInteraction = createNanoDeckRailInteraction()
   const slideCollection = createCollection(options.engine)
@@ -63,6 +71,7 @@ export function createNanoDeckView(options: NanoDeckViewOptions): NanoDeckViewHa
 
   renderRail()
   renderActiveSlide()
+  notifyActiveSlideChange('initial')
 
   return {
     destroy() {
@@ -119,6 +128,7 @@ export function createNanoDeckView(options: NanoDeckViewOptions): NanoDeckViewHa
     activeSlideIndex = Math.max(0, Math.min(targetIndex, options.engine.value.slides.length - 1))
     renderRail()
     renderActiveSlide()
+    notifyActiveSlideChange('reorder')
     return activeSlideIndex
   }
 
@@ -127,6 +137,17 @@ export function createNanoDeckView(options: NanoDeckViewOptions): NanoDeckViewHa
     activeSlideIndex = index
     renderRail()
     renderActiveSlide()
+    notifyActiveSlideChange('select')
+  }
+
+  function notifyActiveSlideChange(reason: NanoDeckActiveSlideChangeReason): void {
+    const slide = activeSlide()
+    options.onActiveSlideChange?.({
+      index: activeSlideIndex,
+      reason,
+      slideId: slide.id,
+      title: slideTitle(slide),
+    })
   }
 
   function focusSlide(index: number): void {
@@ -139,14 +160,15 @@ export function createNanoDeckView(options: NanoDeckViewOptions): NanoDeckViewHa
 
     const slide = activeSlide()
     activeDocumentEngine = createNanoDocument(documentFromSlide(slide))
-    activeDocumentUnsubscribe = activeDocumentEngine.subscribe(() => {
-      syncActiveSlideFromDocument(activeDocumentEngine!.value)
+    const documentEngine = activeDocumentEngine
+    activeDocumentUnsubscribe = documentEngine.subscribe(() => {
+      syncActiveSlideFromDocument(documentEngine.value)
       renderRail()
     })
     activeView = createNanoView({
       mount: editorMount,
       engine: activeDocumentEngine,
-      kit: options.kit,
+      capabilityProfile: options.capabilityProfile,
       ariaLabel: `${slideTitle(slide)} slide`,
     })
     renderNotes(activeSlide())
@@ -158,10 +180,17 @@ export function createNanoDeckView(options: NanoDeckViewOptions): NanoDeckViewHa
     activeDocumentUnsubscribe?.()
     activeDocumentUnsubscribe = null
     activeDocumentEngine = null
+    activeNotesView?.destroy()
+    activeNotesView = null
+    activeNotesUnsubscribe?.()
+    activeNotesUnsubscribe = null
+    activeNotesEngine = null
   }
 
   function activeSlide(): NanoSlide {
-    return options.engine.value.slides[activeSlideIndex] ?? options.engine.value.slides[0]!
+    const slide = options.engine.value.slides[activeSlideIndex] ?? options.engine.value.slides[0]
+    if (!slide) throw new Error('Nano deck view requires at least one slide')
+    return slide
   }
 
   function syncActiveSlideFromDocument(document: NanoDocument): void {
@@ -177,6 +206,21 @@ export function createNanoDeckView(options: NanoDeckViewOptions): NanoDeckViewHa
     )
   }
 
+  function syncActiveSlideNotesFromDocument(document: NanoDocument): void {
+    const slide = activeSlide()
+    const notesRegionIndex = slide.regions.findIndex((region) => region.kind === 'notes')
+    if (notesRegionIndex < 0) return
+
+    options.engine.commit(
+      [{
+        op: 'replace',
+        path: `/slides/${activeSlideIndex}/regions/${notesRegionIndex}/blocks`,
+        value: document.blocks,
+      }],
+      { label: 'edit speaker notes' },
+    )
+  }
+
   function renderNotes(slide: NanoSlide): void {
     const notesRegion = slide.regions.find((region) => region.kind === 'notes')
     notes.hidden = !notesRegion
@@ -189,7 +233,18 @@ export function createNanoDeckView(options: NanoDeckViewOptions): NanoDeckViewHa
 
     const body = document.createElement('div')
     body.className = 'nano-deck-notes-body'
-    body.textContent = notesRegion.blocks.map(blockText).filter(Boolean).join('\n')
+    activeNotesEngine = createNanoDocument({ blocks: notesRegion.blocks })
+    const notesEngine = activeNotesEngine
+    activeNotesUnsubscribe = notesEngine.subscribe(() => {
+      syncActiveSlideNotesFromDocument(notesEngine.value)
+    })
+    activeNotesView = createNanoView({
+      mount: body,
+      engine: notesEngine,
+      capabilityProfile: options.capabilityProfile,
+      inspector: 'disabled',
+      ariaLabel: `${slideTitle(slide)} speaker notes`,
+    })
 
     notes.append(label, body)
   }
@@ -244,7 +299,7 @@ function slideTitle(slide: NanoSlide): string {
 }
 
 function blockText(block: NanoBlock): string {
-  if ('text' in block) return block.text
+  if ('text' in block && typeof block.text === 'string') return block.text
   if (block.type === 'table') return block.rows.flat().join(' ')
   if (block.type === 'image') return block.alt ?? block.src
   if (block.type === 'attachment') return block.label ?? block.src
@@ -255,5 +310,5 @@ function blockText(block: NanoBlock): string {
 }
 
 function slidePointer(index: number): Pointer {
-  return `/slides/${index}` as Pointer
+  return `/slides/${index}`
 }

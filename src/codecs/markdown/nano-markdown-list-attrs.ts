@@ -58,3 +58,31 @@ export function orderedStartText(start: unknown): string | undefined {
   const value = markdownOrderedStart(start)
   return value === null || start === String(value) ? undefined : start
 }
+
+export function orderedStartAttrs(start: unknown): { orderedStartText?: string; start?: number } {
+  const value = markdownOrderedStart(start)
+  const text = orderedStartText(start)
+  return {
+    ...(value === null ? {} : { start: value }),
+    ...(text ? { orderedStartText: text } : {}),
+  }
+}
+
+export function orderedStartMarkerText(start: unknown, startText: unknown): string {
+  return orderedStartText(startText) ?? String(markdownOrderedStart(start) ?? 1)
+}
+
+export function nextOrderedStartAttrs(start: unknown, startText: unknown): { orderedStartText?: string; start?: number } {
+  const value = markdownOrderedStart(start)
+  if (value === null) return {}
+
+  const next = value + 1
+  const text = orderedStartText(startText)
+  if (!text) return { start: next }
+
+  const nextText = String(next).padStart(text.length, '0')
+  return {
+    start: next,
+    ...(orderedStartText(nextText) ? { orderedStartText: nextText } : {}),
+  }
+}

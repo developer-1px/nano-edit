@@ -1,8 +1,8 @@
 import {
   createDocumentPersistence,
   defaultDocumentPersistenceCodec,
-} from '@zod-crud/persist-web'
-import type { JSONDocument } from 'zod-crud'
+} from '@interactive-os/json-document-persist-web'
+import type { JSONDocument } from '@interactive-os/json-document'
 
 export interface DemoPersistenceStorage {
   getItem(key: string): string | null | undefined
@@ -72,4 +72,14 @@ export function removeStaleDemoStorageKeys(
       // Stale demo cleanup is best-effort.
     }
   }
+}
+
+export function staleVersionedStorageKeys(currentStorageKey: string): string[] {
+  const match = /^(.*:v)(\d+)$/.exec(currentStorageKey)
+  if (!match) return []
+
+  const [, versionPrefix, currentVersion] = match
+  const version = Number(currentVersion)
+  if (version <= 1) return []
+  return Array.from({ length: version - 1 }, (_, index) => `${versionPrefix}${index + 1}`)
 }

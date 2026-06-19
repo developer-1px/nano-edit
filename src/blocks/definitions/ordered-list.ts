@@ -3,18 +3,23 @@ import {
   blockIndent,
   clampIndent,
   indentText,
+} from '../../capabilities/block-indent-values'
+import {
   markdownIndentLevel,
   markdownIndentText,
   markdownOrderedStart,
   nextOrderedStartAttrs,
-  orderedMarker,
-  orderedStartTemplateAttrs,
+  orderedStartAttrs,
   orderedStartText,
+} from '../../codecs/markdown/nano-markdown-list-attrs'
+import { orderedMarker } from '../../codecs/markdown/nano-markdown-marker-attrs'
+import {
   outdentEmptyListBlockThen,
   outdentListBlockAtStartThenParagraph,
-  splitBlockWithNextAttrs,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../../capabilities/block-behavior-list'
+import { splitBlockWithNextAttrs } from '../../capabilities/block-behavior-split'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const orderedListBlockOption = {
   id: 'ordered',
@@ -31,7 +36,7 @@ export const orderedListBlockOption = {
       kind: 'ordered',
       indent: markdownIndentLevel(match[1] ?? ''),
       indentText: markdownIndentText(match[1]),
-      ...orderedStartTemplateAttrs(match[2]),
+      ...orderedStartAttrs(match[2]),
       orderedMarker: orderedMarker(match[3]),
     }),
   }],
@@ -43,7 +48,7 @@ export const orderedListBlockOption = {
       kind: 'ordered',
       indent: markdownIndentLevel(match[1] ?? ''),
       indentText: markdownIndentText(match[1]),
-      ...orderedStartTemplateAttrs(match[2]),
+      ...orderedStartAttrs(match[2]),
       orderedMarker: orderedMarker(match[3]),
       text: match[4] ?? '',
     }),
@@ -73,7 +78,7 @@ export const orderedListBlockOption = {
         kind: 'ordered',
         indent: blockIndent(attrs),
         indentText: indentText(attrs.indentText),
-        ...nextOrderedStartAttrs(attrs),
+        ...nextOrderedStartAttrs(attrs.start, attrs.orderedStartText),
         orderedMarker: orderedMarker(attrs.orderedMarker),
       })),
     ),

@@ -1,7 +1,7 @@
 import { createNanoInputTextHandlers } from '../../src/view/input/text-events.ts'
 import { createNanoSlashCommandRuntime } from '../../src/view/runtime/slash-command.ts'
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
 function typeShortcutText(initialState, text) {
   let state = initialState
@@ -94,7 +94,7 @@ test('Slash keydown leaves non-empty text blocks to normal text input', () => {
   assert.deepEqual(opened, [])
 })
 
-test('Bear ATX heading spacing preserves imported Markdown source', () => {
+test('Markdown ATX heading spacing preserves imported Markdown source', () => {
   const markdown = '###  Wide title  ####'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -120,7 +120,7 @@ test('Bear ATX heading spacing preserves imported Markdown source', () => {
   assert.equal(markdownAfter(spacingState, backspaceBlockTransaction(spacingState)), '### Wide title')
 })
 
-test('Bear heading level changes keep Markdown marker style', () => {
+test('Markdown heading level changes keep Markdown marker style', () => {
   const atxState = selectedState('###  Wide title  ####', 'md-1')
   const atxTransaction = changeBlockByIdTransaction(atxState, 'md-1', { type: 'heading', level: 2 })
 
@@ -149,7 +149,7 @@ test('Bear heading level changes keep Markdown marker style', () => {
   )
 })
 
-test('Bear heading markers feel editable through input and backspace', () => {
+test('Markdown heading markers feel editable through input and backspace', () => {
   const h1State = textSelectionState('# Title', 'md-1', 0)
   assert.equal(
     markdownAfter(h1State, blockShortcutTransaction(h1State, h1State.selection.from, h1State.selection.from, '#')),
@@ -163,7 +163,7 @@ test('Bear heading markers feel editable through input and backspace', () => {
   assert.equal(markdownAfter(backToParagraphState, backspaceBlockTransaction(backToParagraphState)), 'Title')
 })
 
-test('Bear repeated heading marker input walks visual heading levels', () => {
+test('Markdown repeated heading marker input walks visual heading levels', () => {
   const h1State = textSelectionState('# Title', 'md-1', 0)
   const h2Transaction = blockShortcutTransaction(h1State, h1State.selection.from, h1State.selection.from, '#')
   assert.equal(markdownAfter(h1State, h2Transaction), '## Title')
@@ -179,7 +179,7 @@ test('Bear repeated heading marker input walks visual heading levels', () => {
   ])
 })
 
-test('Bear empty heading marker input reacts before Enter', () => {
+test('Markdown empty heading marker input reacts before Enter', () => {
   const paragraphState = textState('')
   const h1Transaction = blockShortcutTransaction(
     paragraphState,
@@ -217,7 +217,7 @@ test('Bear empty heading marker input reacts before Enter', () => {
   assert.equal(markdownAfter(h2State, h3Transaction), '###')
 })
 
-test('Bear empty heading marker input runs through text input before Enter', () => {
+test('Markdown empty heading marker input runs through text input before Enter', () => {
   const view = {
     state: textState(''),
     dispatch(transaction) {
@@ -246,7 +246,7 @@ test('Bear empty heading marker input runs through text input before Enter', () 
   ])
 })
 
-test('Bear heading marker input promotes existing paragraph text before Enter', () => {
+test('Markdown heading marker input promotes existing paragraph text before Enter', () => {
   const state = textSelectionState('Title', 'md-1', 0)
   const transaction = blockShortcutTransaction(state, state.selection.from, state.selection.from, '#')
 
@@ -263,7 +263,7 @@ test('Bear heading marker input promotes existing paragraph text before Enter', 
   ])
 })
 
-test('Bear heading prefix marker space does not leak into existing text', () => {
+test('Markdown heading prefix marker space does not leak into existing text', () => {
   const h1State = typeShortcutText(textSelectionState('Title', 'md-1', 0), '# ')
   assert.equal(markdownFromState(h1State), '# Title')
   assert.deepEqual(nanoBlocksFromProseMirror(h1State.doc), [
@@ -283,7 +283,7 @@ test('Bear heading prefix marker space does not leak into existing text', () => 
   ])
 })
 
-test('Bear heading marker input at h6 does not leak literal marker text', () => {
+test('Markdown heading marker input at h6 does not leak literal marker text', () => {
   const state = textSelectionState('###### Title', 'md-1', 0)
   assert.equal(
     markdownAfter(state, blockShortcutTransaction(state, state.selection.from, state.selection.from, '#')),
@@ -291,7 +291,7 @@ test('Bear heading marker input at h6 does not leak literal marker text', () => 
   )
 })
 
-test('Bear active block changes keep Markdown marker style', () => {
+test('Markdown active block changes keep Markdown marker style', () => {
   const headingState = selectedState('###  Wide title  ####', 'md-1')
   assert.equal(
     markdownAfter(headingState, changeActiveBlockTransaction(headingState, { type: 'heading', level: 1 })),

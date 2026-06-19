@@ -3,10 +3,14 @@ import { EditorState, NodeSelection, type Transaction } from 'prosemirror-state'
 import {
   activeBlockRange,
   topLevelBlockRanges,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
-import { tagMatchesReference, tagTokensInText } from '../../core/nano-tag'
-import { nanoMarkNames, nanoNodeNames } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../../entities/block/structure/nano-block-ranges'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import { tagMatchesReference, tagTokensInText } from '../../entities/reference/nano-tag'
+import {
+  nanoMarkNames,
+  nanoNodeNames,
+} from '../../adapters/prosemirror/prosemirror-names'
 import { normalizeTagReferenceTarget } from './targets'
 
 export function tagReferenceTransaction(
@@ -38,7 +42,7 @@ function nextBlockRangeForTag(
 
 function tagReferenceOriginPosition(state: EditorState, originBlockId: string | null): number {
   if (originBlockId) {
-    const range = topLevelBlockRanges(state.doc).find((block) => block.node.attrs.id === originBlockId)
+    const range = topLevelBlockRanges(state.doc).find((block) => blockId(block.node) === originBlockId)
     if (range) return range.from
   }
 

@@ -1,13 +1,10 @@
-import { footnoteName } from '../../core/nano-footnote'
-import {
-  normalizeFootnoteContinuationIndents,
-  textSpacingValue,
-} from './prosemirror-block-attrs'
+import type { NanoBlock } from '../../entities/document/nano-document-model'
+import { footnoteName } from '../../entities/reference/nano-footnote'
+import { normalizeFootnoteContinuationIndents } from './prosemirror-continuation-indent-attrs'
+import { textSpacingValue } from './prosemirror-quote-marker-attrs'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
-import {
-  inlineContentFromText,
-  nanoMarksFromProseMirrorNode,
-} from './prosemirror-mark-codecs'
+import { inlineContentFromText } from './prosemirror-inline-content'
+import { nanoMarksFromProseMirrorNode } from './prosemirror-mark-normalize'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
 
@@ -28,15 +25,16 @@ export const footnoteBlockCodec = defineNanoBlockCodec({
       node.attrs.footnoteContinuationIndents,
       node.textContent,
     )
-    return {
+    const block: Extract<NanoBlock, { type: 'footnote' }> = {
       id,
       type: 'footnote',
-      ...(footnoteContinuationIndents ? { footnoteContinuationIndents } : {}),
-      ...(textSpacingValue(node.attrs.footnoteTextSpacing) === 'none' ? { footnoteTextSpacing: 'none' as const } : {}),
       name: footnoteName(String(node.attrs.name ?? '1')) || '1',
       text: node.textContent,
       marks: nanoMarksFromProseMirrorNode(node),
     }
+    if (footnoteContinuationIndents) block.footnoteContinuationIndents = footnoteContinuationIndents
+    if (textSpacingValue(node.attrs.footnoteTextSpacing) === 'none') block.footnoteTextSpacing = 'none'
+    return block
   },
 })
 

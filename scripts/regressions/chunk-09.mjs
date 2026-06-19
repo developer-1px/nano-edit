@@ -1,34 +1,34 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 const { backspaceKeyCommand, deleteKeyCommand, inlineMarkBoundaryTransaction, selectedAtomSourceTransaction } = h
 
 test('Standalone bookmark blocks preserve explicit angle destinations', () => {
-  const markdown = '[Bear](<https://bear.app> "Bear Home")'
+  const markdown = '[Example](<https://example.org> "Example Home")'
   const document = nanoDocumentFromMarkdown(markdown)
 
   assert.deepEqual(document.blocks, [
     {
       id: 'md-1',
       type: 'bookmark',
-      href: 'https://bear.app',
-      label: 'Bear',
-      title: 'Bear Home',
+      href: 'https://example.org',
+      label: 'Example',
+      title: 'Example Home',
       destinationStyle: 'angle',
       syntax: 'markdown',
     },
   ])
   assert.equal(nanoMarkdownFromDocument(document), markdown)
   assert.equal(nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(prosemirrorDocFromNano(document)) }), markdown)
-  assert(nanoDocumentIndex(document).bookmarks.some((entry) => entry.label === 'Bear' && entry.target === 'https://bear.app'))
+  assert(nanoDocumentIndex(document).bookmarks.some((entry) => entry.label === 'Example' && entry.target === 'https://example.org'))
 
   const shortcutState = textState(markdown)
   assert.deepEqual(blocksAfter(shortcutState, blockEnterShortcutTransaction(shortcutState)), [
     {
       id: 'b1',
       type: 'bookmark',
-      href: 'https://bear.app',
-      label: 'Bear',
-      title: 'Bear Home',
+      href: 'https://example.org',
+      label: 'Example',
+      title: 'Example Home',
       destinationStyle: 'angle',
       syntax: 'markdown',
     },
@@ -40,9 +40,9 @@ test('Bookmark cards show visual destination without losing Markdown source toke
   const spec = blockDomSpec({
     id: 'bookmark',
     type: 'bookmark',
-    href: 'https://bear.app',
-    label: 'Bear',
-    title: 'Bear Home',
+    href: 'https://example.org',
+    label: 'Example',
+    title: 'Example Home',
     destinationStyle: 'angle',
     syntax: 'markdown',
   })
@@ -50,9 +50,9 @@ test('Bookmark cards show visual destination without losing Markdown source toke
   const url = domSpecElementByClass(spec, 'nano-bookmark-url')
 
   assert(link.includes(' '))
-  assert.equal(url[1]['data-source'], '[Bear](<https://bear.app> "Bear Home")')
+  assert.equal(url[1]['data-source'], '[Example](<https://example.org> "Example Home")')
   assert.equal(url[1].contenteditable, 'false')
-  assert.equal(url[2], 'https://bear.app')
+  assert.equal(url[2], 'https://example.org')
 })
 
 test('Standalone file links become attachment blocks without stealing external bookmarks', () => {
@@ -112,7 +112,7 @@ test('Reference cards keep nested source tokens non-editable', () => {
 
 test('Selected visual atom blocks unwrap to Markdown-editable paragraphs before deletion', () => {
   for (const markdown of [
-    '[Bear](<https://bear.app> "Bear Home")',
+    '[Example](<https://example.org> "Example Home")',
     '[Project brief](files/brief.pdf "PDF")',
     '[[Target Note#Heading|display alias]]',
     '#projects/editor',
@@ -217,7 +217,7 @@ test('Raw source marks do not unwrap into escaped Markdown at text boundaries', 
 })
 
 test('Backspace and Delete on selected visual atom blocks reveal editable Markdown shape first', () => {
-  const markdown = '[Bear](<https://bear.app> "Bear Home")'
+  const markdown = '[Example](<https://example.org> "Example Home")'
   const context = { collapsedBlockIds: new Set() }
 
   const backspaceState = selectedState(markdown, 'md-1')

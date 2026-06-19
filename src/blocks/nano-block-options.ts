@@ -9,37 +9,21 @@ import type {
   BlockShortcut,
   EditorCapability,
 } from '../assembly/capability'
-import { blockOptionsFromCapabilities } from '../assembly/registry'
+import { blockOptionsFromCapabilities } from '../assembly/capability'
 import { basicCapability } from '../capabilities/basic/capability'
 import { todoCapability } from '../capabilities/todo/capability'
-import { remainingBlockOptions } from './definitions/remaining'
-
-export type {
-  BlockBehavior,
-  BlockClickAction,
-  BlockClickEntry,
-  BlockTemplate,
-  BlockEnterShortcut,
-  BlockKeyBinding,
-  BlockKeyBindingEntry,
-  BlockKeyboardContext,
-  BlockNodeContent,
-  BlockOption,
-  BlockShortcut,
-  BulletMarker,
-  CalloutTone,
-  CheckedMarker,
-  CodeFenceMarker,
-  DividerMarker,
-  ListKind,
-  OrderedMarker,
-  QuoteMarkerSpacing,
-} from '../assembly/capability'
-export {
-  blockKeyboardContext,
-  generatedBlockId,
-  nextBlockId,
-} from './options/index'
+import { attachmentBlockOption } from './definitions/attachment'
+import { bookmarkBlockOption } from './definitions/bookmark'
+import { bulletListBlockOption } from './definitions/bullet-list'
+import { calloutBlockOptions } from './definitions/callout'
+import { codeBlockOption } from './definitions/code'
+import { dividerBlockOption } from './definitions/divider'
+import { imageBlockOption } from './definitions/image'
+import { mathBlockOption } from './definitions/math'
+import { orderedListBlockOption } from './definitions/ordered-list'
+import { quoteBlockOption } from './definitions/quote'
+import { referenceBlockOptions } from './definitions/reference'
+import { tableBlockOption } from './definitions/table'
 
 export interface BlockOptionRegistry {
   blockOptions: readonly BlockOption[]
@@ -56,11 +40,27 @@ export interface BlockOptionRegistry {
   blockAttrs: (template: BlockTemplate, id: unknown) => Record<string, unknown> | null
 }
 
-export const defaultBlockCapabilities = [
+export const defaultBlockCapabilities: readonly EditorCapability[] = [
   basicCapability,
   todoCapability,
-  { id: 'nano.remaining-blocks', blockOptions: remainingBlockOptions },
-] satisfies readonly EditorCapability[]
+  {
+    id: 'nano.document-blocks',
+    blockOptions: [
+      bulletListBlockOption,
+      orderedListBlockOption,
+      ...referenceBlockOptions,
+      quoteBlockOption,
+      ...calloutBlockOptions,
+      codeBlockOption,
+      mathBlockOption,
+      dividerBlockOption,
+      bookmarkBlockOption,
+      attachmentBlockOption,
+      imageBlockOption,
+      tableBlockOption,
+    ],
+  },
+]
 
 export const blockOptions: readonly BlockOption[] = blockOptionsFromCapabilities(defaultBlockCapabilities)
 
@@ -77,7 +77,7 @@ export function createBlockOptionRegistry(
 
   const blockClickOptionForNode = (node: ProseMirrorNode): BlockClickEntry | null => {
     const option = blockOptionForNode(node)
-    return option?.click ? option as BlockClickEntry : null
+    return blockOptionHasClick(option) ? option : null
   }
 
   return {
@@ -92,18 +92,18 @@ export function createBlockOptionRegistry(
     blockKeyBindingEntries: () => options.flatMap((option) =>
       (option.keyBindings ?? []).map((keyBinding) => ({ option, keyBinding })),
     ),
-    blockClickOptions: () => options.filter((option): option is BlockClickEntry => option.click !== undefined),
+    blockClickOptions: () => options.filter(blockOptionHasClick),
     nodeTypeForBlockTemplate: (template) => blockOptionForTemplate(template)?.nodeType(template) ?? null,
     blockAttrs: (template, id) => blockOptionForTemplate(template)?.attrs(template, id) ?? null,
   }
 }
 
-export function blockOptionForTemplate(template: BlockTemplate): BlockOption | null {
-  return defaultBlockOptionRegistry.blockOptionForTemplate(template)
+function blockOptionHasClick(option: BlockOption | null): option is BlockClickEntry {
+  return option?.click !== undefined
 }
 
-export function blockOptionForNode(node: ProseMirrorNode): BlockOption | null {
-  return defaultBlockOptionRegistry.blockOptionForNode(node)
+export function blockOptionForTemplate(template: BlockTemplate): BlockOption | null {
+  return defaultBlockOptionRegistry.blockOptionForTemplate(template)
 }
 
 export function blockClickOptionForNode(node: ProseMirrorNode): BlockClickEntry | null {

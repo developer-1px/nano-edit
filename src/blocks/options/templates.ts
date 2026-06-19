@@ -1,8 +1,9 @@
 import type { BlockTemplate } from '../../assembly/capability'
-import { footnoteDefinition, footnoteName } from '../../core/nano-footnote'
-import { noteLinkParts } from '../../core/nano-note-link'
-import { tagNameFromToken } from '../../core/nano-tag'
-import { externalUrlTokenAt } from '../../core/nano-url'
+import { footnoteDefinition } from '../../entities/reference/nano-footnote'
+import { noteLinkParts } from '../../entities/reference/nano-note-link'
+import { tagNameFromToken } from '../../entities/reference/nano-tag'
+import { externalUrlTokenAt } from '../../entities/reference/nano-url'
+import { needsAngleMarkdownDestination } from '../../codecs/markdown/link/escape'
 
 export function footnoteTemplate(source: string): BlockTemplate {
   const footnote = footnoteDefinition(source)
@@ -73,16 +74,13 @@ export function markdownImageTemplate(match: RegExpExecArray): BlockTemplate {
   }
 }
 
-export { footnoteName }
-
 function markdownTemplateDestination(source: string): { href: string; destinationStyle?: 'angle' } {
   const trimmed = source.trim()
   if (trimmed.startsWith('<') && trimmed.endsWith('>')) {
     const href = unescapeMarkdownLinkDestination(trimmed.slice(1, -1))
-    return {
-      href,
-      ...(!needsAngleMarkdownDestination(href) ? { destinationStyle: 'angle' as const } : {}),
-    }
+    const destination: { href: string; destinationStyle?: 'angle' } = { href }
+    if (!needsAngleMarkdownDestination(href)) destination.destinationStyle = 'angle'
+    return destination
   }
 
   return { href: unescapeMarkdownLinkDestination(trimmed) }
@@ -90,20 +88,6 @@ function markdownTemplateDestination(source: string): { href: string; destinatio
 
 function unescapeMarkdownLinkDestination(source: string): string {
   return source.replace(/\\([\\>])/g, '$1')
-}
-
-function needsAngleMarkdownDestination(href: string): boolean {
-  return href === '' || /[\s<>]/.test(href) || !hasBalancedParentheses(href)
-}
-
-function hasBalancedParentheses(source: string): boolean {
-  let depth = 0
-  for (const char of source) {
-    if (char === '(') depth += 1
-    if (char === ')') depth -= 1
-    if (depth < 0) return false
-  }
-  return depth === 0
 }
 
 function unescapeMarkdownLinkText(source: string): string {

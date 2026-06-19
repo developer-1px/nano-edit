@@ -1,7 +1,8 @@
 import type { ResolvedPos } from 'prosemirror-model'
 import { EditorState, TextSelection, type Transaction } from 'prosemirror-state'
-import { atxSpacing } from '../../adapters/prosemirror/prosemirror-block-attrs'
+import { atxSpacing } from '../../adapters/prosemirror/prosemirror-heading-attrs'
 import { blockShortcutTransactionForTemplate } from '../block-template/shortcut'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
 import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
 
 export function headingMarkerInputTransaction(
@@ -68,7 +69,7 @@ export function headingPrefixInputTransaction(
 
     const blockPosition = $from.before()
     const transaction = state.tr.setNodeMarkup(blockPosition, headingType, {
-      id: block.attrs.id,
+      id: blockId(block) || null,
       level: 1,
       headingStyle: 'atx',
     })

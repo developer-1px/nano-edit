@@ -1,4 +1,4 @@
-import { noteLinkParts } from '../../../core/nano-note-link'
+import { noteLinkParts } from '../../../entities/reference/nano-note-link'
 import {
   markdownLinkDestination,
   markdownLinkDestinationClose,

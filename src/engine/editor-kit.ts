@@ -1,11 +1,13 @@
-import type { EditorCapability } from '../assembly/capability'
-import { blockOptionsFromCapabilities } from '../assembly/registry'
-import type { BlockOption } from '../blocks/nano-block-options'
-
-export type NanoViewFeatureId =
-  | 'active-block-ui'
-  | 'source-reveal'
-  | 'table-cell-edit'
+import {
+  blockOptionsFromCapabilities,
+  type BlockOption,
+  type EditorCapability,
+} from '../assembly/capability'
+import {
+  defaultNanoViewFeatures,
+  type NanoViewFeatureId,
+} from './view-features'
+export type { NanoViewFeatureId } from './view-features'
 
 export interface NanoEditorKit {
   id: string
@@ -20,11 +22,7 @@ export interface CreateNanoEditorKitOptions {
   viewFeatures?: readonly NanoViewFeatureId[]
 }
 
-export const defaultNanoViewFeatures = [
-  'active-block-ui',
-  'source-reveal',
-  'table-cell-edit',
-] as const satisfies readonly NanoViewFeatureId[]
+export { defaultNanoViewFeatures } from './view-features'
 
 export function createNanoEditorKit(options: CreateNanoEditorKitOptions = {}): NanoEditorKit {
   return {

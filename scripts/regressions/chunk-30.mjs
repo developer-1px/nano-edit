@@ -1,7 +1,7 @@
 import * as h from './harness.mjs'
 const { assert, nanoDocumentFromMarkdown, nanoDocumentSearch, test } = h
 
-test('Bear search operators combine tags and exclusions', () => {
+test('Document search operators combine tags and exclusions', () => {
   const markdown = [
     '- [ ] Ship #work',
     '',
@@ -26,4 +26,24 @@ test('Bear search operators combine tags and exclusions', () => {
   assert.deepEqual(nanoDocumentSearch(document, 'Ship or Personal')?.blockIds, ['md-1', 'md-3'])
   assert.deepEqual(nanoDocumentSearch(document, '#home or !#work')?.blockIds, ['md-1', 'md-3'])
   assert.deepEqual(nanoDocumentSearch(document, '#work or #home -@todo')?.blockIds, ['md-2', 'md-3', 'md-4'])
+})
+
+test('Document search keeps quoted or as a literal term', () => {
+  const document = nanoDocumentFromMarkdown([
+    'Ship or revise',
+    '',
+    'Ship only',
+  ].join('\n'))
+
+  assert.deepEqual(nanoDocumentSearch(document, '"or"')?.blockIds, ['md-1'])
+})
+
+test('Document search keeps quoted special searches as literal terms', () => {
+  const document = nanoDocumentFromMarkdown([
+    'Literal @todo mention',
+    '',
+    '- [ ] Task',
+  ].join('\n'))
+
+  assert.deepEqual(nanoDocumentSearch(document, '"@todo"')?.blockIds, ['md-1'])
 })

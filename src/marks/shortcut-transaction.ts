@@ -1,7 +1,7 @@
 import { TextSelection, type EditorState, type Transaction } from 'prosemirror-state'
 import { markOptions } from './definitions'
-import { markShortcutMatch } from './shortcuts'
-import { markTypeForName } from './type'
+import { markShortcutMatch } from './delimited-shortcuts'
+import { markTypeForName } from './mark-type'
 
 export function markShortcutTransaction(
   state: EditorState,

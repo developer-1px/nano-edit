@@ -2,7 +2,7 @@ export function needsAngleMarkdownDestination(href: string): boolean {
   return href === '' || /[\s<>]/.test(href) || !hasBalancedParentheses(href)
 }
 
-export function hasBalancedParentheses(source: string): boolean {
+function hasBalancedParentheses(source: string): boolean {
   let depth = 0
   for (const char of source) {
     if (char === '(') depth += 1

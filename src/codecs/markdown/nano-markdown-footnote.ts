@@ -1,9 +1,9 @@
-import type { NanoBlock } from '../../core/nano-core'
-import { footnoteDefinition } from '../../core/nano-footnote'
+import type { NanoBlock } from '../../entities/document/nano-document-model'
+import { footnoteDefinition } from '../../entities/reference/nano-footnote'
 import {
   footnoteContinuationIndent,
   footnoteContinuationIndentAttrs,
-} from './nano-markdown-block-attrs'
+} from './nano-markdown-footnote-attrs'
 import { inlineMarkdown } from './nano-markdown-inline-serialize'
 import { textBlock } from './nano-markdown-text-block'
 import type {
@@ -24,7 +24,7 @@ export function parseFootnoteBlock(
   let nextIndex = index + 1
 
   while (nextIndex < lines.length) {
-    const continuation = footnoteContinuationLine(lines[nextIndex]!)
+    const continuation = footnoteContinuationLine(lines[nextIndex] ?? '')
     if (!continuation) break
 
     continuationIndents.push(continuation.indent)
@@ -63,7 +63,7 @@ export function markdownFootnote(block: Extract<NanoBlock, { type: 'footnote' }>
 
 function footnoteContinuationLine(line: string): { indent: FootnoteContinuationIndent; text: string } | null {
   const match = /^((?: {4,})|\t)(.*)$/.exec(line)
-  return match ? { indent: match[1]!, text: match[2] ?? '' } : null
+  return match ? { indent: match[1] ?? '', text: match[2] ?? '' } : null
 }
 
 function footnoteTextSpacing(spacing: unknown): ' ' | '' {

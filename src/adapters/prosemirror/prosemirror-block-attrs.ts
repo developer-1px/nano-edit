@@ -1,5 +1,0 @@
-export * from './prosemirror-code-divider-attrs'
-export * from './prosemirror-continuation-indent-attrs'
-export * from './prosemirror-heading-attrs'
-export * from './prosemirror-list-attrs'
-export * from './prosemirror-quote-marker-attrs'

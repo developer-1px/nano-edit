@@ -1,13 +1,15 @@
-import type { NanoBlock } from '../../core/nano-core'
+import type { NanoBlock } from '../../entities/document/nano-document-model'
+import {
+  markdownLinkDestination,
+  markdownLinkDestinationClose,
+  markdownLinkLabelClose,
+} from './link/destination'
 import {
   escapeMarkdownImageText,
   escapeMarkdownImageTitle,
-  markdownLinkDestination,
-  markdownLinkDestinationClose,
   markdownLinkDestinationSource,
-  markdownLinkLabelClose,
   unescapeMarkdownImageText,
-} from './link/index'
+} from './link/serialize'
 
 export function markdownImage(block: Extract<NanoBlock, { type: 'image' }>): string {
   const alt = escapeMarkdownImageText(block.alt ?? '')

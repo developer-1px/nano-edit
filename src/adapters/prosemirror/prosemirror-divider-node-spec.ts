@@ -3,7 +3,8 @@ import {
   dividerMarkdown,
   dividerMarker,
   dividerMarkerLength,
-} from './prosemirror-block-attrs'
+} from './prosemirror-code-divider-attrs'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const dividerNodeSpec: NodeSpec = {
@@ -15,7 +16,9 @@ export const dividerNodeSpec: NodeSpec = {
     {
       tag: 'div.nano-divider',
       getAttrs: (dom) => {
-        const element = dom as HTMLElement
+        const element = prosemirrorParseDomElement(dom)
+        if (!element) return false
+
         const token = element.dataset.marker ?? element.querySelector('.nano-divider-token')?.textContent
         return { marker: dividerMarker(token), markerLength: dividerMarkerLength(element.dataset.markerLength ?? token?.length) }
       },

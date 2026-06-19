@@ -1,8 +1,7 @@
-import {
-  markdownTextFromClipboardData,
-  writeMarkdownTextToClipboardData,
-} from '../../src/view/clipboard/data.ts'
-import { assert, test } from './harness.mjs'
+import { createNanoInputTextHandlers } from '../../src/view/input/text-events.ts'
+import * as h from './harness.mjs'
+
+const { assert, nanoBlocksFromProseMirror, nanoMarkdownFromDocument, selectedState, test, textState } = h
 
 function clipboardData(initial = {}) {
   const values = new Map(Object.entries(initial))
@@ -13,20 +12,76 @@ function clipboardData(initial = {}) {
   }
 }
 
-test('Markdown clipboard data prefers text/markdown and writes plain fallback', () => {
-  const markdownClipboard = clipboardData({
+function clipboardEvent(initial = {}) {
+  return {
+    clipboardData: clipboardData(initial),
+    defaultPrevented: false,
+    preventDefault() {
+      this.defaultPrevented = true
+    },
+  }
+}
+
+function inputTextHandlers() {
+  return createNanoInputTextHandlers(
+    {
+      collapsedBlockIds: new Set(),
+      shell: {
+        openCommandPalette: () => {
+          throw new Error('clipboard handlers should not open command palette')
+        },
+      },
+    },
+    {
+      restoreHistory: () => {},
+      runMarkCommand: () => {},
+      toggleCollapsedBlock: () => {},
+    },
+  )
+}
+
+function dispatchedView(state) {
+  return {
+    state,
+    dispatch(transaction) {
+      this.state = this.state.apply(transaction)
+    },
+  }
+}
+
+function markdownFromView(view) {
+  return nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(view.state.doc) })
+}
+
+test('Markdown clipboard paste prefers text/markdown over plain fallback', () => {
+  const view = dispatchedView(textState(''))
+  const event = clipboardEvent({
     'text/markdown': '# Title',
     'text/plain': 'Title',
   })
-  assert.equal(markdownTextFromClipboardData(markdownClipboard), '# Title')
 
-  const plainClipboard = clipboardData({
-    'text/plain': 'Plain note',
+  assert.equal(inputTextHandlers().handlePaste(view, event), true)
+  assert.equal(event.defaultPrevented, true)
+  assert.equal(markdownFromView(view), '# Title')
+})
+
+test('Markdown clipboard paste falls back to plain text', () => {
+  const view = dispatchedView(textState(''))
+  const event = clipboardEvent({
+    'text/plain': '- [x] Done',
   })
-  assert.equal(markdownTextFromClipboardData(plainClipboard), 'Plain note')
 
-  const targetClipboard = clipboardData()
-  writeMarkdownTextToClipboardData(targetClipboard, '- [x] Done')
-  assert.equal(targetClipboard.values.get('text/plain'), '- [x] Done')
-  assert.equal(targetClipboard.values.get('text/markdown'), '- [x] Done')
+  assert.equal(inputTextHandlers().handlePaste(view, event), true)
+  assert.equal(event.defaultPrevented, true)
+  assert.equal(markdownFromView(view), '- [x] Done')
+})
+
+test('Markdown clipboard copy writes plain fallback', () => {
+  const view = dispatchedView(selectedState('# Copied', 'md-1'))
+  const event = clipboardEvent()
+
+  assert.equal(inputTextHandlers().handleCopy(view, event), true)
+  assert.equal(event.defaultPrevented, true)
+  assert.equal(event.clipboardData.values.get('text/plain'), '# Copied')
+  assert.equal(event.clipboardData.values.get('text/markdown'), '# Copied')
 })

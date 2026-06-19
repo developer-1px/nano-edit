@@ -1,4 +1,4 @@
-import { markCommandOptions } from '../marks/nano-mark-options'
+import { markCommandOptions } from '../marks/queries'
 import type {
   NanoCommand,
   NanoCommandsOptions,

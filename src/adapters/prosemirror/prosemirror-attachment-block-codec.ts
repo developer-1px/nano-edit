@@ -1,5 +1,5 @@
-import { nonBlankStringValue } from '../../core/schema/nano-block-schema-refinements'
-import { destinationStyle } from './prosemirror-atom-dom'
+import { nonBlankStringValue } from '../../entities/block/schema/nano-block-schema-refinements'
+import { destinationStyle } from './prosemirror-link-dom'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'

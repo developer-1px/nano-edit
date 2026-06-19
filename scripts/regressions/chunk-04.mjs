@@ -1,7 +1,7 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
-test('Bear footnote definition spacing preserves imported Markdown source', () => {
+test('Markdown footnote definition spacing preserves imported Markdown source', () => {
   const markdown = '[^tight]:body\n\n[^loose]: body'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -27,7 +27,7 @@ test('Bear footnote definition spacing preserves imported Markdown source', () =
   ])
 })
 
-test('Bear typed footnote definition marker inside a footnote edits source marker', () => {
+test('Markdown typed footnote definition marker inside a footnote edits source marker', () => {
   const looseState = textSelectionState('[^1]: [^note]:body', 'md-1', '[^note]:'.length)
   assert.equal(
     markdownAfter(looseState, blockShortcutTransaction(looseState, looseState.selection.from, looseState.selection.from, ' ')),
@@ -41,7 +41,7 @@ test('Bear typed footnote definition marker inside a footnote edits source marke
   )
 })
 
-test('Bear footnote marker backspace removes hidden definition syntax', () => {
+test('Markdown footnote marker backspace removes hidden definition syntax', () => {
   const looseState = textSelectionState('[^note]: body', 'md-1', 0)
   assert.equal(markdownAfter(looseState, backspaceBlockTransaction(looseState)), 'body')
   assert.deepEqual(blocksAfter(looseState, backspaceBlockTransaction(looseState)), [
@@ -55,7 +55,7 @@ test('Bear footnote marker backspace removes hidden definition syntax', () => {
   ])
 })
 
-test('Bear multiline footnote definitions stay one Markdown-visible block', () => {
+test('Markdown multiline footnote definitions stay one Markdown-visible block', () => {
   const markdown = 'Footnote ref[^1]\n\n[^1]: first\n    continued\n\tTabbed'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -71,7 +71,7 @@ test('Bear multiline footnote definitions stay one Markdown-visible block', () =
   assert.equal(nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(prosemirrorDocFromNano(document)) }), markdown)
 })
 
-test('Bear footnote continuation indentation feels editable through input and backspace', () => {
+test('Markdown footnote continuation indentation feels editable through input and backspace', () => {
   const continuationState = textSelectionState('[^1]: first\n    continued', 'md-1', 'first\n'.length)
   assert.equal(
     markdownAfter(continuationState, blockShortcutTransaction(continuationState, continuationState.selection.from, continuationState.selection.from, ' ')),
@@ -82,7 +82,7 @@ test('Bear footnote continuation indentation feels editable through input and ba
   assert.equal(markdownAfter(wideContinuationState, backspaceBlockTransaction(wideContinuationState)), '[^1]: first\n    continued')
 })
 
-test('Bear enter trims footnote continuation attrs to remaining source lines', () => {
+test('Markdown enter trims footnote continuation attrs to remaining source lines', () => {
   const firstLineState = textSelectionState('[^1]: first\n    continued\n\tTabbed', 'md-1', 'first'.length)
   const firstLineTransaction = enterBlockTransaction(firstLineState)
 

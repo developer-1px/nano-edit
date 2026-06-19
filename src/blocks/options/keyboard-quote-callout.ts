@@ -1,15 +1,16 @@
 import { TextSelection, type Transaction } from 'prosemirror-state'
 import type { BlockKeyboardContext } from '../../assembly/capability'
-import { setParagraphTransaction } from './keyboard-paragraph'
-import { quoteMarkerDepthsOrNull, quoteMarkerSpacingOrNull, quoteMarkerSpacingValueOrNull } from '../../core/nano-source-metadata'
-import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-nano'
+import { setParagraphTransaction } from '../../capabilities/block-behavior-paragraph'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import { quoteMarkerDepthsOrNull, quoteMarkerSpacingOrNull, quoteMarkerSpacingValueOrNull } from '../../entities/source/nano-source-metadata'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
 
 export function decreaseQuoteAtStartThenParagraph(context: BlockKeyboardContext): Transaction | null {
   if (context.$from.parentOffset !== 0) return null
 
   const depths = quoteDepths(context.block.attrs.quoteMarkerDepths, context.block.textContent)
   if (!depths.some((depth) => depth > 1)) {
-    return setParagraphTransaction(context.state, context.blockPosition, context.block.attrs.id)
+    return setParagraphTransaction(context.state, context.blockPosition, blockId(context.block) || null)
   }
 
   const transaction = context.state.tr.setNodeMarkup(context.blockPosition, context.block.type, {
@@ -37,7 +38,7 @@ export function decreaseCalloutAtStartThenQuote(context: BlockKeyboardContext): 
   if (!quoteType) return null
 
   const quote = quoteType.create({
-    id: context.block.attrs.id,
+    id: blockId(context.block) || null,
     quoteMarkerDepths: quoteMarkerDepthsOrNull(context.block.attrs.calloutMarkerDepths),
     quoteMarkerSpacing: quoteSpacingAfterCalloutMarkerRemoval(context.block.attrs, context.block.textContent),
   }, context.block.content)

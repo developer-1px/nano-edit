@@ -1,20 +1,28 @@
 import type { Node as ProseMirrorNode, NodeSpec } from 'prosemirror-model'
 import { Square, SquareCheck } from 'lucide'
-import type { NanoBlock, NanoMark } from '../../core/nano-core'
-import { listContinuationDefaultIndent } from '../../codecs/markdown/nano-markdown-block-attrs'
+import type { NanoBlock, NanoMark } from '../../entities/document/nano-document-model'
+import { listContinuationDefaultIndent } from '../../codecs/markdown/nano-markdown-list-attrs'
 import { foldIndicatorDomSpec } from '../../view/block-ui/fold-indicator'
 import { lucideIcon } from '../../view/icons'
 import {
-  bulletMarker,
-  checkedMarker,
   clampIndent,
   indentText,
-} from '../prosemirror-block-behavior'
+} from '../block-indent-values'
+import {
+  bulletMarker,
+  checkedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
 import {
   continuationIndentDataAttrs,
   decodeContinuationIndents,
   normalizeContinuationIndents,
-} from './prosemirror-continuation-indents'
+  normalizeContinuationIndentsForText,
+} from '../../adapters/prosemirror/prosemirror-continuation-indent-attrs'
+import {
+  blockIndentAttrs,
+  indentTextAttrs,
+} from '../../adapters/prosemirror/prosemirror-list-attrs'
+import { prosemirrorParseDomElement } from '../../adapters/prosemirror/prosemirror-parse-dom'
 
 type TodoBlock = Extract<NanoBlock, { type: 'todo' }>
 
@@ -33,7 +41,9 @@ export const todoNodeSpec: NodeSpec = {
   parseDOM: [{
     tag: 'div.nano-todo',
     getAttrs: (dom) => {
-      const element = dom as HTMLElement
+      const element = prosemirrorParseDomElement(dom)
+      if (!element) return false
+
       return {
         checked: element.dataset.checked === 'true',
         continuationIndents: decodeContinuationIndents(element.dataset.continuationIndents),
@@ -110,30 +120,4 @@ export function todoBlockFromProseMirrorNode(
     text: node.textContent,
     marks,
   }
-}
-
-function normalizeContinuationIndentsForText(
-  indents: unknown,
-  text: string,
-  defaultIndent: string,
-): string[] | null {
-  const normalized = normalizeContinuationIndents(indents)
-  const continuationCount = Math.max(0, text.split('\n').length - 1)
-  if (!normalized || continuationCount === 0) return null
-
-  const values = Array.from({ length: continuationCount }, (_value, index) => normalized[index] ?? defaultIndent)
-  return values.some((indent) => indent !== defaultIndent) ? values : null
-}
-
-function blockIndentAttrs(indent: unknown): Record<string, string> {
-  const value = clampIndent(typeof indent === 'number' ? indent : Number(indent))
-  return {
-    'data-indent': String(value),
-    style: `--nano-indent: ${value};`,
-  }
-}
-
-function indentTextAttrs(indent: unknown): Record<string, string> {
-  const value = indentText(indent)
-  return value ? { 'data-indent-text': value } : {}
 }

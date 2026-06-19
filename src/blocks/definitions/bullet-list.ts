@@ -1,16 +1,21 @@
 import type { BlockOption } from '../../assembly/capability'
 import {
   blockIndent,
-  bulletMarker,
   clampIndent,
   indentText,
+} from '../../capabilities/block-indent-values'
+import {
   markdownIndentLevel,
   markdownIndentText,
+} from '../../codecs/markdown/nano-markdown-list-attrs'
+import { bulletMarker } from '../../codecs/markdown/nano-markdown-marker-attrs'
+import {
   outdentEmptyListBlockThen,
   outdentListBlockAtStartThenParagraph,
-  splitBlockWithNextAttrs,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../../capabilities/block-behavior-list'
+import { splitBlockWithNextAttrs } from '../../capabilities/block-behavior-split'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const bulletListBlockOption = {
   id: 'bullet',

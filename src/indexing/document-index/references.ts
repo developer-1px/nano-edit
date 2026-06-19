@@ -1,18 +1,5 @@
-import type { NanoBlock, NanoMark } from '../../core/nano-core'
-import { noteLinkLabel, noteLinkParts } from '../../core/nano-note-link'
-import { markedText } from './labels'
+import { noteLinkParts } from '../../entities/reference/nano-note-link'
 import type { IndexEntry } from './types'
-
-export function pushNoteLinkIndexEntry(
-  entries: IndexEntry[],
-  block: NanoBlock,
-  mark: Extract<NanoMark, { type: 'note_link' }>,
-): void {
-  const raw = markedText(block, mark)
-  const label = noteLinkDisplayLabel(raw, mark.target)
-  const target = noteLinkLabel(mark.target)
-  if (label && target) entries.push({ blockId: block.id, label, target })
-}
 
 export function noteLinkDisplayLabel(source: string, fallbackTarget = ''): string | null {
   const raw = source.trim()

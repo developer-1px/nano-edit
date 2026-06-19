@@ -1,24 +1,7 @@
 import { EditorState, NodeSelection, type Transaction } from 'prosemirror-state'
-import {
-  blockClickOptionForNode,
-} from '../../blocks/nano-block-options'
-import {
-  activeBlockRange,
-  visibleTopLevelBlockRanges,
-} from '../../blocks/nano-block-structure'
-import type { MoveDirection } from '../shell/shell'
-
-export function toggleBlockClickTransaction(state: EditorState, position: number): Transaction | null {
-  const node = state.doc.nodeAt(position)
-  const option = node ? blockClickOptionForNode(node) : null
-  if (!option) return null
-
-  return option.click.transaction(state, position)
-}
-
-export function toggleTodoTransaction(state: EditorState, position: number): Transaction | null {
-  return toggleBlockClickTransaction(state, position)
-}
+import { activeBlockRange } from '../../entities/block/structure/nano-block-ranges'
+import { visibleTopLevelBlockRanges } from '../../entities/block/structure/nano-block-collapse'
+import type { MoveDirection } from '../../commands/types'
 
 export function selectActiveBlockTransaction(state: EditorState): Transaction | null {
   if (state.selection instanceof NodeSelection) return null

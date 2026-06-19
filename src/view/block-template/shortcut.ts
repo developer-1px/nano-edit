@@ -1,11 +1,10 @@
 import type { ResolvedPos } from 'prosemirror-model'
 import { EditorState, type Transaction } from 'prosemirror-state'
-import {
-  generatedBlockId,
-  type BlockOptionRegistry,
-  type BlockTemplate,
-} from '../../blocks/nano-block-options'
-import { selectionAfterInsertedContent } from '../../core/nano-selection'
+import type { BlockTemplate } from '../../assembly/capability'
+import type { BlockOptionRegistry } from '../../blocks/nano-block-options'
+import { generatedBlockId } from '../../capabilities/block-behavior-id'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import { selectionAfterInsertedContent } from '../selection/placement'
 import {
   insertedContentForShortcutTemplate,
   selectionAfterMarkdownLineEnter,
@@ -20,7 +19,7 @@ export function blockShortcutTransactionForTemplate(
 ): Transaction | null {
   const block = $from.parent
   const blockPosition = $from.before()
-  const id = typeof block.attrs.id === 'string' && block.attrs.id ? block.attrs.id : generatedBlockId('b', 'shortcut')
+  const id = blockId(block) || generatedBlockId(null, 'shortcut')
   const inserted = insertedContentForShortcutTemplate(state.doc, template, id, registry)
   if (!inserted) return null
 

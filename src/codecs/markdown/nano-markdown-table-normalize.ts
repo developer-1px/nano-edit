@@ -1,5 +1,9 @@
-import { tableSeparatorCellAlignment } from './nano-markdown-table-cells'
-import type { TableAlign } from './nano-markdown-table-types'
+import {
+  markdownTableSeparatorCell,
+  tableAlignment,
+  tableSeparatorCellAlignment,
+  type TableAlign,
+} from './nano-markdown-table-align'
 
 export function normalizeTableRows(rows: readonly string[][]): string[][] {
   const normalized = rows.filter((row) => row.length > 0)
@@ -22,7 +26,8 @@ export function normalizeTableSeparatorCells(
 
   return Array.from({ length: size }, (_value, index) => {
     const fallback = markdownTableSeparatorCell(tableAlignment(align[index]))
-    const cell = typeof cells[index] === 'string' ? cells[index]!.trim() : ''
+    const value = cells[index]
+    const cell = typeof value === 'string' ? value.trim() : ''
     return tableSeparatorCellAlignment(cell) === tableAlignment(align[index]) ? cell : fallback
   })
 }
@@ -32,24 +37,10 @@ export function normalizeTableLinePipes(
   size: number,
   fallback: boolean,
 ): boolean[] {
-  return Array.from({ length: size }, (_value, index) => typeof pipes?.[index] === 'boolean' ? pipes[index]! : fallback)
-}
-
-export function tableAlignment(align: unknown): TableAlign {
-  return align === 'left' || align === 'center' || align === 'right' ? align : null
-}
-
-export function markdownTableSeparatorCell(align: TableAlign): string {
-  switch (align) {
-    case 'left':
-      return ':---'
-    case 'center':
-      return ':---:'
-    case 'right':
-      return '---:'
-    default:
-      return '---'
-  }
+  return Array.from({ length: size }, (_value, index) => {
+    const pipe = pipes?.[index]
+    return typeof pipe === 'boolean' ? pipe : fallback
+  })
 }
 
 export function padTableRow(row: readonly string[], size: number): string[] {

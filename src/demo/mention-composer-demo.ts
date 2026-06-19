@@ -121,6 +121,7 @@ export function createMentionComposerDemo(mount: HTMLElement): MentionComposerDe
 
   const handleEditorKeydown = (event: KeyboardEvent): void => {
     if (inlineEditHistoryDirectionFromKeydown(event)) return
+    if (isCompositionKeydown(event)) return
     if (event.key === 'Escape' && suggestion.context()) {
       event.preventDefault()
       suggestion.close()
@@ -130,10 +131,15 @@ export function createMentionComposerDemo(mount: HTMLElement): MentionComposerDe
 
   const handleSuggestionKeydown = (event: KeyboardEvent): void => {
     if (!suggestion.context()) return
+    if (isCompositionKeydown(event)) return
     if (event.key === 'ArrowDown') { event.preventDefault(); suggestion.move(1); return }
     if (event.key === 'ArrowUp') { event.preventDefault(); suggestion.move(-1); return }
     if (event.key === 'Enter' || event.key === 'Tab') { event.preventDefault(); suggestion.runSelected(); return }
-    if (event.key === 'Escape') { event.preventDefault(); suggestion.close() }
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      suggestion.close()
+      restoreInlineEditFocus(() => editor, lastOffset)
+    }
   }
 
   const handleDocumentPointerDown = (event: MouseEvent): void => {
@@ -157,4 +163,8 @@ export function createMentionComposerDemo(mount: HTMLElement): MentionComposerDe
       mount.replaceChildren()
     },
   }
+}
+
+function isCompositionKeydown(event: KeyboardEvent): boolean {
+  return event.isComposing || event.key === 'Process' || event.keyCode === 229
 }

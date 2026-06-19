@@ -1,5 +1,0 @@
-export * from './external'
-export * from './index-entry'
-export * from './note'
-export * from './targets'
-export * from './tag'

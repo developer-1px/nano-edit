@@ -3,5 +3,7 @@
   "compilerOptions": {
     "strict": true
   },
-  "include": ["scripts/public-contract-types.ts"]
+  "include": [
+    "scripts/public-contract-types.ts"
+  ]
 }

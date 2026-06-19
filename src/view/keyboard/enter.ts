@@ -1,28 +1,33 @@
 import { Fragment, type Node as ProseMirrorNode } from 'prosemirror-model'
 import { EditorState, NodeSelection, TextSelection, type Transaction } from 'prosemirror-state'
+import { blockBehaviorForNode, type BlockOptionRegistry } from '../../blocks/nano-block-options'
+import { nextBlockId } from '../../capabilities/block-behavior-id'
+import { blockKeyboardContext } from '../../blocks/options/keyboard-context'
 import {
-  blockBehaviorForNode,
-  blockKeyboardContext,
-  nextBlockId,
-  type BlockOptionRegistry,
-} from '../../blocks/nano-block-options'
-import {
+  blockId,
   isListLikeNode,
-  listSubtreeEndPosition,
   nodeIndent,
   nodeOrderedStart,
   nodeOrderedStartText,
-} from '../../blocks/nano-block-structure'
-import { continuationTodoNodeAfterParentEnd } from '../../capabilities/todo/view'
-import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../../entities/block/structure/nano-block-node-kind'
 import {
-  indentText,
-  markdownBulletMarker,
-  markdownOrderedListMarker,
+  listSubtreeEndPosition,
+  listSubtreeRanges,
+} from '../../entities/block/structure/nano-block-ranges'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import { continuationTodoNodeAfterParentEnd } from '../../capabilities/todo/view'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { indentText } from '../../capabilities/block-indent-values'
+import {
   nextOrderedStartAttrs,
-} from '../block-template/markdown'
-import { insertBlockAfterActiveTransaction } from '../block-edit/index'
-import { exitListSubtreeTransaction } from './list-exit'
+} from '../../codecs/markdown/nano-markdown-list-attrs'
+import {
+  bulletMarker,
+  orderedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
+import { insertBlockAfterActiveTransaction } from '../block-edit/insert'
+import { indentActiveBlockTransaction } from '../block-move/transactions'
+import { liftedListSubtreeNodes } from '../list/transforms'
 import { continuationMarkerBackspaceTransaction } from './continuation-marker'
 
 export function enterBlockTransaction(
@@ -110,7 +115,7 @@ export function splitTextblockTransaction(state: EditorState): Transaction | nul
   const context = blockKeyboardContext(state)
   if (!context) return null
 
-  const id = nextBlockId(state.doc, context.block.attrs.id)
+  const id = nextBlockId(state.doc, blockId(context.block))
   const splitOffset = context.$from.parentOffset
   const before = context.block.type.create(context.block.attrs, context.block.content.cut(0, splitOffset))
   const after = context.block.type.create({ ...context.block.attrs, id }, context.block.content.cut(splitOffset))
@@ -123,11 +128,39 @@ export function splitTextblockTransaction(state: EditorState): Transaction | nul
   return transaction
 }
 
+function exitListSubtreeTransaction(
+  state: EditorState,
+  blockPosition: number,
+  blockNode: ProseMirrorNode,
+): Transaction | null {
+  const block = { from: blockPosition, to: blockPosition + blockNode.nodeSize, node: blockNode }
+  if (nodeIndent(blockNode) > 0) return indentActiveBlockTransaction(state, 'out')
+
+  return convertListRootToParagraphTransaction(state, block)
+}
+
+function convertListRootToParagraphTransaction(
+  state: EditorState,
+  block: ActiveBlockRange,
+): Transaction | null {
+  const paragraphType = state.schema.nodes[nanoNodeNames.paragraph]
+  if (!paragraphType) return null
+
+  const subtree = listSubtreeRanges(state.doc, block)
+  const paragraph = paragraphType.create({ id: blockId(block.node) || null }, block.node.content, block.node.marks)
+  const liftedChildren = liftedListSubtreeNodes(subtree.slice(1), nodeIndent(block.node) + 1)
+  const content = Fragment.fromArray([paragraph, ...liftedChildren])
+  const to = subtree[subtree.length - 1]?.to ?? block.to
+  const transaction = state.tr.replaceWith(block.from, to, content)
+  transaction.setSelection(TextSelection.create(transaction.doc, block.from + 1))
+  return transaction
+}
+
 function continuationListNodeAfterParentEnd(
   doc: ProseMirrorNode,
   source: ProseMirrorNode,
 ): ProseMirrorNode | null {
-  const id = nextBlockId(doc, source.attrs.id)
+  const id = nextBlockId(doc, blockId(source))
   const indent = nodeIndent(source)
   if (source.type.name === nanoNodeNames.todo) {
     return continuationTodoNodeAfterParentEnd(source, id, indent)
@@ -140,8 +173,8 @@ function continuationListNodeAfterParentEnd(
     kind,
     indent,
     indentText: indentText(source.attrs.indentText),
-    marker: kind === 'bullet' ? markdownBulletMarker(source.attrs.marker) : '-',
-    orderedMarker: kind === 'ordered' ? markdownOrderedListMarker(source.attrs.orderedMarker) : '.',
+    marker: kind === 'bullet' ? bulletMarker(source.attrs.marker) : '-',
+    orderedMarker: kind === 'ordered' ? orderedMarker(source.attrs.orderedMarker) : '.',
     ...(kind === 'ordered' ? nextOrderedNodeStartAttrs(source) : {}),
   })
 }

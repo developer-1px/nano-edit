@@ -3,45 +3,50 @@
   "private": true,
   "version": "0.1.0-dogfood.0",
   "type": "module",
-  "types": "./src/index.ts",
+  "files": [
+    "dist/package",
+    "dist/types",
+    "README.md"
+  ],
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/package/index.js"
     },
     "./markdown": {
-      "types": "./src/codecs/markdown/index.ts",
-      "default": "./src/codecs/markdown/index.ts"
+      "types": "./dist/types/codecs/markdown/nano-markdown.d.ts",
+      "default": "./dist/package/codecs/markdown/nano-markdown.js"
     },
     "./document-index": {
-      "types": "./src/indexing/index.ts",
-      "default": "./src/indexing/index.ts"
+      "types": "./dist/types/indexing/nano-document-index.d.ts",
+      "default": "./dist/package/indexing/nano-document-index.js"
     },
     "./model": {
-      "types": "./src/model/index.ts",
-      "default": "./src/model/index.ts"
+      "types": "./dist/types/model/index.d.ts",
+      "default": "./dist/package/model/index.js"
     },
     "./inline-tokens": {
-      "types": "./src/inline-tokens/index.ts",
-      "default": "./src/inline-tokens/index.ts"
+      "types": "./dist/types/inline-tokens/index.d.ts",
+      "default": "./dist/package/inline-tokens/index.js"
     },
     "./autocomplete": {
-      "types": "./src/autocomplete/index.ts",
-      "default": "./src/autocomplete/index.ts"
+      "types": "./dist/types/autocomplete/index.d.ts",
+      "default": "./dist/package/autocomplete/index.js"
     },
     "./inline-autocomplete": {
-      "types": "./src/inline-autocomplete/index.ts",
-      "default": "./src/inline-autocomplete/index.ts"
+      "types": "./dist/types/inline-autocomplete/index.d.ts",
+      "default": "./dist/package/inline-autocomplete/index.js"
     },
     "./inline-edit": {
-      "types": "./src/inline-edit/index.ts",
-      "default": "./src/inline-edit/index.ts"
+      "types": "./dist/types/inline-edit/index.d.ts",
+      "default": "./dist/package/inline-edit/index.js"
     },
     "./suggestion": {
-      "types": "./src/suggestion/index.ts",
-      "default": "./src/suggestion/index.ts"
+      "types": "./dist/types/suggestion/index.d.ts",
+      "default": "./dist/package/suggestion/index.js"
     },
-    "./style.css": "./src/style.css"
+    "./style.css": "./dist/package/style.css"
   },
   "sideEffects": [
     "**/*.css"
@@ -54,29 +59,116 @@
     "test:inline-edit-demo": "node scripts/regressions/browser-inline-edit-demo.mjs",
     "test:inline-scalar-edit": "node scripts/regressions/browser-inline-scalar-edit.mjs",
     "test:mention-composer": "node scripts/regressions/browser-mention-composer.mjs",
+    "test:mention-command-dropdown": "node scripts/regressions/browser-mention-command-dropdown.mjs",
+    "test:nano2": "node scripts/regressions/browser-nano2-demo.mjs",
+    "test:team-knowledge-page": "node scripts/regressions/browser-team-knowledge-page-reference.mjs",
+    "test:launch-forecast-grid": "node scripts/regressions/browser-launch-forecast-grid-reference.mjs",
+    "test:issue-triage-desk": "node scripts/regressions/browser-issue-triage-desk-reference.mjs",
+    "test:mention-command-inbox": "node scripts/regressions/browser-mention-command-inbox-reference.mjs",
+    "test:board-deck-review": "node scripts/regressions/browser-board-deck-review-reference.mjs",
+    "test:custom-block-audit-report": "node scripts/regressions/browser-custom-block-audit-report-reference.mjs",
+    "test:custom-block-renewal-pack": "node scripts/regressions/browser-custom-block-renewal-pack-reference.mjs",
+    "test:review-collaboration-room": "node scripts/regressions/browser-review-collaboration-room-reference.mjs",
+    "test:review-backend-session": "node scripts/regressions/browser-review-backend-session-reference.mjs",
+    "test:research-report-editor": "node scripts/regressions/browser-research-report-editor-reference.mjs",
+    "test:structured-table-review": "node scripts/regressions/browser-structured-table-review-reference.mjs",
+    "test:review-workspace": "node scripts/regressions/browser-review-workspace-reference.mjs",
+    "test:nested-list-keyboard": "node scripts/regressions/browser-nested-list-keyboard.mjs",
+    "test:slash-command-commit": "node scripts/regressions/browser-slash-command-commit.mjs",
+    "test:todo-checkbox": "node scripts/regressions/browser-todo-checkbox-toggle.mjs",
+    "test:table-cell-edit": "node scripts/regressions/browser-table-cell-edit.mjs",
+    "test:code-block-edit": "node scripts/regressions/browser-code-block-edit.mjs",
+    "test:source-panel-edit": "node scripts/regressions/browser-source-panel-edit.mjs",
+    "test:structured-paste": "node scripts/regressions/browser-structured-markdown-paste.mjs",
+    "test:composition-shortcut": "node scripts/regressions/browser-composition-structured-shortcut.mjs",
+    "test:local-change": "node scripts/regressions/browser-local-change-callback.mjs",
+    "test:structure-change": "node scripts/regressions/browser-structure-change-boundary.mjs",
+    "test:engine-history": "node scripts/regressions/browser-engine-history-boundary.mjs",
+    "test:composition-boundary": "node scripts/regressions/browser-composition-boundary.mjs",
+    "test:collaboration-receive": "node scripts/regressions/browser-collaboration-receive.mjs",
+    "test:collaboration-cross-host": "node scripts/regressions/browser-collaboration-cross-host.mjs",
+    "test:collaboration-structure": "node scripts/regressions/browser-collaboration-structure-cross-host.mjs",
+    "test:collaboration-ordered-transport": "node scripts/regressions/browser-collaboration-ordered-transport.mjs",
+    "test:collaboration-late-join": "node scripts/regressions/browser-collaboration-late-join.mjs",
+    "test:collaboration-conflict-policy": "node scripts/regressions/browser-collaboration-conflict-policy.mjs",
+    "test:capability-profile": "node scripts/regressions/browser-capability-profile.mjs",
+    "test:custom-block-readiness": "node scripts/regressions/browser-custom-block-readiness.mjs",
+    "test:custom-block-labs": "node scripts/regressions/browser-custom-block-labs.mjs",
     "test:local-edit": "node scripts/regressions/browser-local-edit-loop.mjs",
     "test:layout": "node scripts/regressions/browser-layout-stability.mjs",
-    "check:public-types": "tsc -p tsconfig.public.json --noEmit",
-    "test:all": "pnpm check:public-types && pnpm test && pnpm build && pnpm test:layout && pnpm test:local-edit && pnpm test:deck && pnpm test:command-surface && pnpm test:inline-edit-demo && pnpm test:inline-scalar-edit && pnpm test:mention-composer",
-    "benchmark:consumer-blind:snapshot": "node scripts/consumer-blind-api-snapshot.mjs",
+    "check:public-types": "pnpm build:package && tsc -p tsconfig.public.json --noEmit",
+    "build:package-js": "node scripts/clean-package-artifacts.mjs dist/package && tsc -p tsconfig.package-js.json",
+    "build:package-css": "node scripts/build-package-css.mjs",
+    "build:types": "node scripts/clean-package-artifacts.mjs dist/types && tsc -p tsconfig.package.json",
+    "finalize:package-artifacts": "node scripts/finalize-package-artifacts.mjs",
+    "build:package": "pnpm build:package-js && pnpm build:package-css && pnpm build:types && pnpm finalize:package-artifacts",
+    "check:package-artifacts": "node scripts/check-package-artifacts.mjs",
+    "check:package-pack": "node scripts/check-package-pack.mjs",
+    "check:package-publish-candidate": "node scripts/check-package-publish-candidate.mjs",
+    "check:inline-edit-footprint": "pnpm build:package && node scripts/check-inline-edit-install-footprint.mjs",
+    "check:package-consumer": "pnpm build:package && node scripts/check-package-consumer-smoke.mjs",
+    "test:all": "pnpm check:public-types && pnpm test && pnpm build && pnpm build:package && pnpm check:package-artifacts && pnpm check:package-pack && pnpm check:package-publish-candidate && pnpm check:inline-edit-footprint && pnpm check:package-consumer && pnpm test:layout && pnpm test:local-edit && pnpm test:local-change && pnpm test:structure-change && pnpm test:engine-history && pnpm test:composition-boundary && pnpm test:composition-shortcut && pnpm test:collaboration-receive && pnpm test:collaboration-cross-host && pnpm test:collaboration-structure && pnpm test:collaboration-ordered-transport && pnpm test:collaboration-late-join && pnpm test:collaboration-conflict-policy && pnpm test:capability-profile && pnpm test:custom-block-readiness && pnpm test:custom-block-labs && pnpm test:deck && pnpm test:command-surface && pnpm test:slash-command-commit && pnpm test:inline-edit-demo && pnpm test:inline-scalar-edit && pnpm test:mention-composer && pnpm test:mention-command-dropdown && pnpm test:team-knowledge-page && pnpm test:launch-forecast-grid && pnpm test:issue-triage-desk && pnpm test:mention-command-inbox && pnpm test:board-deck-review && pnpm test:custom-block-audit-report && pnpm test:custom-block-renewal-pack && pnpm test:review-collaboration-room && pnpm test:review-backend-session && pnpm test:research-report-editor && pnpm test:structured-table-review && pnpm test:review-workspace && pnpm test:nested-list-keyboard && pnpm test:todo-checkbox && pnpm test:table-cell-edit && pnpm test:code-block-edit && pnpm test:source-panel-edit && pnpm test:structured-paste",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "typescript": "~6.0.2",
-    "vite": "^8.0.12"
-  },
-  "dependencies": {
     "@interactive-os/interaction": "file:../apg-patterns/packages/interaction",
-    "@zod-crud/collection": "file:../zod-crud/packages/collection",
-    "@zod-crud/persist-web": "file:../zod-crud/packages/persist-web",
+    "@interactive-os/json-document": "file:../json-document/packages/json-document",
+    "@interactive-os/json-document-collection": "file:../json-document/packages/collection",
+    "@interactive-os/json-document-persist-web": "file:../json-document/packages/persist-web",
+    "@tanstack/router-core": "1.171.13",
     "lucide": "^1.16.0",
     "prosemirror-commands": "^1.7.1",
     "prosemirror-keymap": "^1.2.3",
     "prosemirror-model": "^1.25.7",
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "^1.41.8",
-    "zod": "^4.4.3",
-    "zod-crud": "file:../zod-crud/packages/zod-crud"
+    "typescript": "~6.0.2",
+    "vite": "^8.0.12",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "@interactive-os/interaction": "^0.1.0",
+    "@interactive-os/json-document": "^1.0.0",
+    "@interactive-os/json-document-collection": "^0.1.0",
+    "lucide": "^1.16.0",
+    "prosemirror-commands": "^1.7.1",
+    "prosemirror-keymap": "^1.2.3",
+    "prosemirror-model": "^1.25.7",
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.41.8",
+    "zod": "^4.4.3"
+  },
+  "peerDependenciesMeta": {
+    "@interactive-os/interaction": {
+      "optional": true
+    },
+    "@interactive-os/json-document": {
+      "optional": true
+    },
+    "@interactive-os/json-document-collection": {
+      "optional": true
+    },
+    "lucide": {
+      "optional": true
+    },
+    "prosemirror-commands": {
+      "optional": true
+    },
+    "prosemirror-keymap": {
+      "optional": true
+    },
+    "prosemirror-model": {
+      "optional": true
+    },
+    "prosemirror-state": {
+      "optional": true
+    },
+    "prosemirror-view": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    }
   }
 }

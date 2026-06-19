@@ -1,5 +1,5 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
 function paragraphSelectionState(text, offset = 0) {
   const doc = prosemirrorDocFromNano({
@@ -26,7 +26,7 @@ function markdownFromState(state) {
   return nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(state.doc) })
 }
 
-test('Bear marker-only callouts keep the marker line clean', () => {
+test('Markdown marker-only callouts keep the marker line clean', () => {
   const markdown = '> [!TIP]\n> This is callout content'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -36,7 +36,7 @@ test('Bear marker-only callouts keep the marker line clean', () => {
   assert.equal(nanoMarkdownFromDocument(document), markdown)
 })
 
-test('Bear callout marker spacing preserves imported Markdown source', () => {
+test('Markdown callout marker spacing preserves imported Markdown source', () => {
   const markdown = '>[!TIP]dense\n> spaced\n>bare'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -76,7 +76,7 @@ test('Bear callout marker spacing preserves imported Markdown source', () => {
   )
 })
 
-test('Bear callout continuation quote depth preserves imported Markdown source', () => {
+test('Markdown callout continuation quote depth preserves imported Markdown source', () => {
   const markdown = '> [!TIP] head\n>> nested'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -114,7 +114,7 @@ test('Bear callout continuation quote depth preserves imported Markdown source',
   )
 })
 
-test('Bear callout markers feel editable through input and backspace', () => {
+test('Markdown callout markers feel editable through input and backspace', () => {
   const calloutState = textSelectionState('> [!TIP] nested', 'md-1', 0)
   assert.equal(
     markdownAfter(calloutState, blockShortcutTransaction(calloutState, calloutState.selection.from, calloutState.selection.from, '>')),
@@ -128,7 +128,7 @@ test('Bear callout markers feel editable through input and backspace', () => {
   assert.equal(markdownAfter(markerState, backspaceBlockTransaction(markerState)), '> nested')
 })
 
-test('Bear continuation callout markers feel editable through input and backspace', () => {
+test('Markdown continuation callout markers feel editable through input and backspace', () => {
   const nestedSecondLineState = textSelectionState('> [!TIP] one\n>> two', 'md-1', 'one\n'.length)
   assert.equal(
     markdownAfter(nestedSecondLineState, blockShortcutTransaction(nestedSecondLineState, nestedSecondLineState.selection.from, nestedSecondLineState.selection.from, '>')),
@@ -140,7 +140,7 @@ test('Bear continuation callout markers feel editable through input and backspac
   assert.equal(markdownAfter(plainSecondLineState, backspaceBlockTransaction(plainSecondLineState)), '> [!TIP] one\n\ntwo')
 })
 
-test('Bear typed callout marker inside a quote becomes callout structure', () => {
+test('Markdown typed callout marker inside a quote becomes callout structure', () => {
   const doc = prosemirrorDocFromNano({
     blocks: [{ id: 'b1', type: 'quote', quoteMarkerSpacing: ['space'], text: '[!TIP]draft', marks: [] }],
   })
@@ -156,7 +156,7 @@ test('Bear typed callout marker inside a quote becomes callout structure', () =>
   )
 })
 
-test('Bear callout prefix promotes existing paragraph through real typed input order', () => {
+test('Markdown callout prefix promotes existing paragraph through real typed input order', () => {
   const spacedState = typeShortcutText(paragraphSelectionState('Body'), '> [!TIP] ')
   assert.equal(markdownFromState(spacedState), '> [!TIP] Body')
   assert.deepEqual(nanoBlocksFromProseMirror(spacedState.doc), [

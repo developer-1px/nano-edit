@@ -1,18 +1,19 @@
 import {
+  normalizeContinuationIndents,
+  normalizeContinuationIndentsForText,
+} from './prosemirror-continuation-indent-attrs'
+import {
   bulletMarker,
   clampIndent,
   indentText,
-  normalizeContinuationIndents,
   orderedMarker,
   orderedStart,
   orderedStartText,
-} from './prosemirror-block-attrs'
-import { listContinuationDefaultIndent } from '../../codecs/markdown/nano-markdown-block-attrs'
+} from './prosemirror-list-attrs'
+import { listContinuationDefaultIndent } from '../../codecs/markdown/nano-markdown-list-attrs'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
-import {
-  inlineContentFromText,
-  nanoMarksFromProseMirrorNode,
-} from './prosemirror-mark-codecs'
+import { inlineContentFromText } from './prosemirror-inline-content'
+import { nanoMarksFromProseMirrorNode } from './prosemirror-mark-normalize'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
 
@@ -75,17 +76,4 @@ function listMarkerText(
     ? `${startText ?? String(start ?? 1)}${orderedMarker(attrs.orderedMarker)}`
     : bulletMarker(attrs.marker)
   return `${indentTextValue}${marker}`
-}
-
-function normalizeContinuationIndentsForText(
-  indents: unknown,
-  text: string,
-  defaultIndent: string,
-): string[] | null {
-  const normalized = normalizeContinuationIndents(indents)
-  const continuationCount = Math.max(0, text.split('\n').length - 1)
-  if (!normalized || continuationCount === 0) return null
-
-  const values = Array.from({ length: continuationCount }, (_value, index) => normalized[index] ?? defaultIndent)
-  return values.some((indent) => indent !== defaultIndent) ? values : null
 }

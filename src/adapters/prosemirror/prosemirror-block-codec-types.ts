@@ -1,10 +1,10 @@
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
-import type { NanoBlock } from '../../core/nano-core'
+import type { NanoBlock } from '../../entities/document/nano-document-model'
 
-export type NanoBlockType = NanoBlock['type']
-export type NanoBlockFor<TType extends NanoBlockType> = Extract<NanoBlock, { type: TType }>
+type NanoBlockType = NanoBlock['type']
+type NanoBlockFor<TType extends NanoBlockType> = Extract<NanoBlock, { type: TType }>
 
-export interface NanoBlockCodec<TType extends NanoBlockType> {
+interface NanoBlockCodec<TType extends NanoBlockType> {
   nanoType: TType
   nodeName: string
   fromNano: (block: NanoBlockFor<TType>) => ProseMirrorNode
@@ -24,9 +24,16 @@ export function defineNanoBlockCodec<TType extends NanoBlockType>(
   return {
     nanoType: codec.nanoType,
     nodeName: codec.nodeName,
-    fromNano: (block) => block.type === codec.nanoType
-      ? codec.fromNano(block as NanoBlockFor<TType>)
+    fromNano: (block) => isNanoBlockFor(block, codec.nanoType)
+      ? codec.fromNano(block)
       : null,
-    toNano: codec.toNano as (node: ProseMirrorNode, id: string) => NanoBlock,
+    toNano: codec.toNano,
   }
+}
+
+function isNanoBlockFor<TType extends NanoBlockType>(
+  block: NanoBlock,
+  type: TType,
+): block is NanoBlockFor<TType> {
+  return block.type === type
 }

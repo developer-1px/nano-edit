@@ -1,11 +1,14 @@
 import type { BlockOption, EditorCapability } from '../../assembly/capability'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
+import { headingLevel } from '../../entities/block/structure/nano-block-node-kind'
 import {
   decreaseHeadingAtStartThenParagraph,
   exitEmptyThen,
-  headingLevel,
+} from '../block-behavior-paragraph'
+import {
   splitBlockToParagraph,
-} from '../prosemirror-block-behavior'
+} from '../block-behavior-split'
 
 const headingLevels = [1, 2, 3, 4, 5, 6] as const
 

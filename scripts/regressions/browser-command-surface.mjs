@@ -1,18 +1,21 @@
 import assert from 'node:assert/strict'
 import {
+  activeDemoArtifactStorageKey,
   clickTarget,
-  demoStorageKey,
+  demoDocumentStorageKey,
   evaluate,
+  persistenceSnapshotText,
   pressKey,
   waitForExpression,
   withBrowserRegression,
 } from './browser-test-harness.mjs'
 
-const activeArtifactStorageKey = 'nano-edit:active-demo-document:v1'
-const storageKey = demoStorageKey()
+const activeArtifactStorageKey = activeDemoArtifactStorageKey()
+const documentStorageKey = demoDocumentStorageKey()
 const emptyDocument = {
   blocks: [{ id: 'slash-empty', type: 'paragraph', text: '', marks: [] }],
 }
+const emptyDocumentSnapshotText = persistenceSnapshotText(emptyDocument)
 
 await withBrowserRegression('nano-edit-command-surface-', async ({ browser, url }) => {
   await browser.send('Emulation.setDeviceMetricsOverride', {
@@ -31,7 +34,7 @@ async function runCommandSurfaceLoop(browser, url) {
   await waitForExpression(browser, 'document.readyState !== "loading"')
   await evaluate(browser, `(() => {
     localStorage.removeItem(${JSON.stringify(activeArtifactStorageKey)})
-    localStorage.setItem(${JSON.stringify(storageKey)}, ${JSON.stringify(JSON.stringify(emptyDocument))})
+    localStorage.setItem(${JSON.stringify(documentStorageKey)}, ${JSON.stringify(emptyDocumentSnapshotText)})
     return true
   })()`)
   await browser.send('Page.reload', { ignoreCache: true })
@@ -53,6 +56,7 @@ async function runCommandSurfaceLoop(browser, url) {
     nativeVirtualKeyCode: 191,
   })
   await waitForExpression(browser, 'Boolean(document.querySelector(".nano-command-palette:not([hidden])"))')
+  await waitForExpression(browser, 'document.activeElement?.classList.contains("nano-command-input") === true')
   const slash = await slashSnapshot(browser)
   assert.equal(slash.blockText, '')
   assert.equal(slash.focusedInput, true)
@@ -96,7 +100,7 @@ async function runCommandSurfaceLoop(browser, url) {
   })
   await waitForExpression(browser, '!Boolean(document.querySelector(".nano-command-palette:not([hidden])"))')
 
-  await clickTarget(browser, '.demo-document-button[data-document-id="part-catalog"]')
+  await clickTarget(browser, '.demo-artifact-button[data-artifact-id="part-catalog"]')
   await waitForExpression(browser, 'document.querySelector(".nano-heading-1")?.textContent.includes("Content Catalog")')
   const catalog = await catalogSnapshot(browser)
   assert(catalog.activeTitle.includes('Content Catalog'))

@@ -1,12 +1,15 @@
+import { Fragment, type Node as ProseMirrorNode } from 'prosemirror-model'
 import type { BlockOption } from '../../assembly/capability'
+import type { DividerMarker } from '../../assembly/capability'
 import {
   dividerMarker,
   dividerMarkerLength,
-  dividerNode,
-  dividerWithTrailingParagraph,
-  generatedBlockId,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
+import { generatedBlockId } from '../../capabilities/block-behavior-id'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import { blockWithTrailingParagraph } from '../options/node-helpers'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const dividerBlockOption = {
   id: 'divider',
@@ -38,9 +41,7 @@ export const dividerBlockOption = {
     template.type === 'divider' ? template.markerLength : undefined,
   ),
   replacementNode: (template, source) => {
-    const id = typeof source.attrs.id === 'string' && source.attrs.id
-      ? source.attrs.id
-      : generatedBlockId('b', 'changed')
+    const id = blockId(source) || generatedBlockId(null, 'changed')
     const sourceMarker = source.type.name === nanoNodeNames.divider ? dividerMarker(source.attrs.marker) : undefined
     const sourceMarkerLength = source.type.name === nanoNodeNames.divider ? dividerMarkerLength(source.attrs.markerLength) : undefined
     const marker = template.type === 'divider' ? template.marker ?? sourceMarker : undefined
@@ -51,3 +52,15 @@ export const dividerBlockOption = {
     return dividerWithTrailingParagraph(id, marker, markerLength)
   },
 } satisfies BlockOption
+
+function dividerWithTrailingParagraph(id: string, marker?: DividerMarker, markerLength?: number): Fragment {
+  return blockWithTrailingParagraph(dividerNode(id, marker, markerLength), id)
+}
+
+function dividerNode(id: string, marker?: DividerMarker, markerLength?: number): ProseMirrorNode {
+  return nanoSchema.nodes[nanoNodeNames.divider].create({
+    id,
+    marker: dividerMarker(marker),
+    markerLength: dividerMarkerLength(markerLength),
+  })
+}

@@ -1,10 +1,10 @@
 import type { Mark, Node as ProseMirrorNode } from 'prosemirror-model'
 import { TextSelection, type EditorState, type Transaction } from 'prosemirror-state'
-import { footnoteName } from '../../core/nano-footnote'
-import { normalizeTagName, tagDisplayLabel } from '../../core/nano-tag'
+import { footnoteName } from '../../entities/reference/nano-footnote'
+import { normalizeTagName, tagDisplayLabel } from '../../entities/reference/nano-tag'
 import { nanoMarkNames } from '../../adapters/prosemirror/prosemirror-names'
 
-export type InlineBoundaryDirection = 'backward' | 'forward'
+type InlineBoundaryDirection = 'backward' | 'forward'
 
 interface MarkRange {
   from: number

@@ -1,13 +1,10 @@
 import { editorPartCatalog } from '../assembly/part-catalog'
-import type { NanoBlock, NanoDocument, NanoMark } from '../core/nano-core'
-
-type MarkSeed<TMark extends NanoMark = NanoMark> = TMark extends NanoMark
-  ? Omit<TMark, 'from' | 'to'>
-  : never
+import type { NanoBlock, NanoDocument, NanoMark } from '../entities/document/nano-document-model'
+import { nanoMarkWithRange, type NanoMarkWithoutRange } from '../entities/mark/nano-mark-range'
 
 type TextSegment = string | {
   text: string
-  marks: readonly MarkSeed[]
+  marks: readonly NanoMarkWithoutRange[]
 }
 
 const sampleImageSvg = [
@@ -220,7 +217,7 @@ function markedParagraph(id: string, segments: readonly TextSegment[]): NanoBloc
     if (typeof segment === 'string') continue
 
     for (const mark of segment.marks) {
-      marks.push({ ...mark, from, to } as NanoMark)
+      marks.push(nanoMarkWithRange(mark, from, to))
     }
   }
 

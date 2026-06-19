@@ -1,14 +1,14 @@
 import type { Command } from 'prosemirror-state'
 import type { NanoViewContext } from '../runtime/context'
+import { blockEnterShortcutTransaction } from './shortcuts'
 import {
-  blockEnterShortcutTransaction,
   enterBlockTransaction,
   enterListParentEndTransaction,
   enterListSubtreeTransaction,
   enterSelectedBlockTransaction,
   splitTextblockTransaction,
-  trailingReferenceMarkTransaction,
-} from './transactions'
+} from './enter'
+import { trailingReferenceMarkTransaction } from './trailing-reference'
 
 export function enterKeyCommand(ctx: NanoViewContext): Command {
   return (state, dispatch, view) => {

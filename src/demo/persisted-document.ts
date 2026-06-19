@@ -1,47 +1,31 @@
-import {
-  createNanoDocument,
-  NanoDocumentSchema,
-  type NanoDocument,
-  type NanoDocumentEngine,
-} from '../core/nano-core'
+import { createNanoDocument, type NanoDocumentEngine } from '../entities/document/nano-document'
+import { NanoDocumentSchema, type NanoDocument } from '../entities/document/nano-document-model'
 import {
   browserDemoPersistenceStorage,
   persistDemoEngine,
   readStoredDemoValue,
   removeStaleDemoStorageKeys,
+  staleVersionedStorageKeys,
   type DemoPersistenceStorage,
 } from './demo-persistence'
 import { initialNanoDocument } from './initial-document'
 
 export const DEMO_DOCUMENT_STORAGE_KEY = 'nano-edit:demo-document:v11'
-const STALE_DEMO_DOCUMENT_STORAGE_KEYS = [
-  'nano-edit:demo-document:v1',
-  'nano-edit:demo-document:v2',
-  'nano-edit:demo-document:v3',
-  'nano-edit:demo-document:v4',
-  'nano-edit:demo-document:v5',
-  'nano-edit:demo-document:v6',
-  'nano-edit:demo-document:v7',
-  'nano-edit:demo-document:v8',
-  'nano-edit:demo-document:v9',
-  'nano-edit:demo-document:v10',
-]
-
-export type DemoDocumentStorage = DemoPersistenceStorage
+const STALE_DEMO_DOCUMENT_STORAGE_KEYS = staleVersionedStorageKeys(DEMO_DOCUMENT_STORAGE_KEY)
 
 export interface PersistedDemoNanoDocument {
   engine: NanoDocumentEngine
   destroy(): void
 }
 
-export interface PersistedDemoNanoDocumentOptions {
+interface PersistedDemoNanoDocumentOptions {
   initialDocument?: NanoDocument
-  storage?: DemoDocumentStorage | null
+  storage?: DemoPersistenceStorage | null
   storageKey?: string
 }
 
 export function createPersistedDemoNanoDocument(
-  options?: DemoDocumentStorage | PersistedDemoNanoDocumentOptions | null,
+  options?: DemoPersistenceStorage | PersistedDemoNanoDocumentOptions | null,
 ): PersistedDemoNanoDocument {
   const config = persistedDemoNanoDocumentConfig(options)
   const storageKey = config.storageKey ?? DEMO_DOCUMENT_STORAGE_KEY
@@ -57,11 +41,11 @@ export function createPersistedDemoNanoDocument(
 }
 
 function persistedDemoNanoDocumentConfig(
-  options: DemoDocumentStorage | PersistedDemoNanoDocumentOptions | null | undefined,
+  options: DemoPersistenceStorage | PersistedDemoNanoDocumentOptions | null | undefined,
 ): Required<Pick<PersistedDemoNanoDocumentOptions, 'storage'>> & PersistedDemoNanoDocumentOptions {
   if (options === undefined) return { storage: browserDemoPersistenceStorage() }
   if (options === null) return { storage: null }
-  if (!isDemoDocumentStorage(options)) {
+  if (!isDemoPersistenceStorage(options)) {
     return {
       ...options,
       storage: options.storage === undefined ? browserDemoPersistenceStorage() : options.storage,
@@ -70,15 +54,15 @@ function persistedDemoNanoDocumentConfig(
   return { storage: options }
 }
 
-function isDemoDocumentStorage(
-  value: DemoDocumentStorage | PersistedDemoNanoDocumentOptions,
-): value is DemoDocumentStorage {
+function isDemoPersistenceStorage(
+  value: DemoPersistenceStorage | PersistedDemoNanoDocumentOptions,
+): value is DemoPersistenceStorage {
   return 'getItem' in value
     && 'setItem' in value
     && typeof value.getItem === 'function'
     && typeof value.setItem === 'function'
 }
 
-function removeStaleDemoNanoDocuments(storage: DemoDocumentStorage | null): void {
+function removeStaleDemoNanoDocuments(storage: DemoPersistenceStorage | null): void {
   removeStaleDemoStorageKeys(storage, STALE_DEMO_DOCUMENT_STORAGE_KEYS)
 }

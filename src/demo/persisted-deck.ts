@@ -1,14 +1,10 @@
-import {
-  NanoDeckSchema,
-  createNanoDeck,
-  type NanoDeck,
-  type NanoDeckEngine,
-} from '../core/nano-core'
-import type { DemoDocumentStorage } from './persisted-document'
+import { createNanoDeck, type NanoDeckEngine } from '../entities/deck/nano-deck'
+import { NanoDeckSchema, type NanoDeck } from '../entities/deck/nano-deck-model'
 import {
   browserDemoPersistenceStorage,
   persistDemoEngine,
   readStoredDemoValue,
+  type DemoPersistenceStorage,
 } from './demo-persistence'
 import { initialNanoDeck } from './initial-deck'
 
@@ -19,9 +15,9 @@ export interface PersistedDemoNanoDeck {
   destroy(): void
 }
 
-export interface PersistedDemoNanoDeckOptions {
+interface PersistedDemoNanoDeckOptions {
   initialDeck?: NanoDeck
-  storage?: DemoDocumentStorage | null
+  storage?: DemoPersistenceStorage | null
   storageKey?: string
 }
 

@@ -3,15 +3,13 @@ import {
   normalizeQuoteMarkerDepths,
   normalizeQuoteMarkerSpacing,
   quoteMarkerSpacingValue,
-} from './prosemirror-block-attrs'
+} from './prosemirror-quote-marker-attrs'
 import {
   defineNanoBlockCodec,
   type AnyNanoBlockCodec,
 } from './prosemirror-block-codec-types'
-import {
-  inlineContentFromText,
-  nanoMarksFromProseMirrorNode,
-} from './prosemirror-mark-codecs'
+import { inlineContentFromText } from './prosemirror-inline-content'
+import { nanoMarksFromProseMirrorNode } from './prosemirror-mark-normalize'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
 
@@ -67,6 +65,7 @@ export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
         text,
         (line, index) => index === 0 ? 'none' : line ? 'space' : 'none',
       )
+      const calloutTextSpacing = quoteMarkerSpacingValue(node.attrs.calloutTextSpacing)
 
       return {
         id,
@@ -74,9 +73,7 @@ export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
         tone: calloutTone(node.attrs.tone),
         ...(calloutMarkerDepths ? { calloutMarkerDepths } : {}),
         ...(calloutMarkerSpacing ? { calloutMarkerSpacing } : {}),
-        ...(quoteMarkerSpacingValue(node.attrs.calloutTextSpacing)
-          ? { calloutTextSpacing: quoteMarkerSpacingValue(node.attrs.calloutTextSpacing)! }
-          : {}),
+        ...(calloutTextSpacing ? { calloutTextSpacing } : {}),
         text,
         marks: nanoMarksFromProseMirrorNode(node),
       }

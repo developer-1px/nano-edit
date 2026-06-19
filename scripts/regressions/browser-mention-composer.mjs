@@ -21,8 +21,8 @@ await withBrowserRegression('nano-edit-mention-composer-chrome-', async ({ brows
 
   await browser.send('Page.navigate', { url })
   await waitForExpression(browser, 'document.readyState !== "loading"')
-  await waitForExpression(browser, 'Boolean(document.querySelector(".demo-document-button[data-document-id=\\"mention-composer\\"]"))')
-  await clickTarget(browser, '.demo-document-button[data-document-id="mention-composer"]')
+  await waitForExpression(browser, 'Boolean(document.querySelector(".demo-artifact-button[data-artifact-id=\\"mention-composer\\"]"))')
+  await clickTarget(browser, '.demo-artifact-button[data-artifact-id="mention-composer"]')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
 
   // allowSpaces: a "[[" wiki-link trigger keeps a multi-word query alive, so

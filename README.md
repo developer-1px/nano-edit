@@ -1,19 +1,28 @@
 # Nano Edit
 
-Nano Edit's working identity is Nano Editable: a contenteditable-based editing foundation for quiet, Markdown-native local editing features.
+Nano Edit is a `json-document` headless contenteditable document engine for
+quiet, Markdown-native local editing features.
 
-For package consumers, start with `docs/package-consumer-contract.md`.
-For scope decisions, use `docs/contenteditable-foundation-gate.md`.
+For Nano2 architecture, start with `docs/nano2-headless-design-policy.md` and
+`docs/nano2-headless-capability-matrix.md`.
 
-Recommended feature entries:
+Legacy Nano1 package-consumer documents are discarded as architecture
+authority. They remain only as tombstones that point back to the Nano2 policy.
+
+Feature entries:
 
 - `nano-edit/inline-edit`
 - `nano-edit/autocomplete`
 - `nano-edit/inline-autocomplete`
+- `nano-edit/inline-tokens`
 - `nano-edit/markdown`
 - `nano-edit/document-index`
-- `nano-edit/model`
+- `nano-edit/model` (experimental validation, inferred types, empty values)
+- `nano-edit/suggestion` (compatibility alias for autocomplete naming)
 
-The root `nano-edit` entry is the full editor assembly surface. Use it when mounting the Nano view. Prefer subpath entries when a host only needs a small editing feature.
+The root `nano-edit` entry is the current dogfood assembly surface. Do not use
+the old package seam map as the design authority for Nano2.
 
-Nano core does not own native `input`, `textarea`, or `select` edit lifecycles. Rebuild that interaction as a contenteditable surface before treating it as Nano package pressure.
+Nano2 first proves the official ProseMirror example capability set with
+`json-document` as canonical headless state. Nano1 examples and Bear-like
+product polish come after that capability proof.

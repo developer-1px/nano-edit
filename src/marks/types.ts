@@ -1,8 +1,8 @@
-import { nanoMarkNames } from '../adapters/prosemirror/prosemirror-nano'
+import { nanoMarkNames } from '../adapters/prosemirror/prosemirror-names'
 
 export type MarkName = (typeof nanoMarkNames)[keyof typeof nanoMarkNames]
 
-export interface MarkCommandDisplay {
+interface MarkCommandDisplay {
   label: string
   title: string
 }

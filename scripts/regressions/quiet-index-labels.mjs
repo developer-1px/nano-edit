@@ -1,5 +1,5 @@
 import { inspectorIndexSections } from '../../src/view/inspector/index-sections.ts'
-import { indexEntrySymbol } from '../../src/view/index-view/index.ts'
+import { indexEntrySymbol } from '../../src/view/index-entry-view.ts'
 import { assert, nanoDocumentFromMarkdown, nanoDocumentIndex, test } from './harness.mjs'
 
 test('Inspector index uses visual labels instead of raw Markdown markers', () => {
@@ -11,7 +11,7 @@ test('Inspector index uses visual labels instead of raw Markdown markers', () =>
     '#projects/editor',
     '> [!TIP] dense',
     '',
-    'Inline $E=mc^2$ and ref[^1] with [Bear](https://bear.app "Bear Home").',
+    'Inline $E=mc^2$ and ref[^1] with [Example](https://example.org "Example Home").',
     '',
     '[^1]: detail',
   ].join('\n')))
@@ -26,7 +26,7 @@ test('Inspector index uses visual labels instead of raw Markdown markers', () =>
   assert(index.callouts.some((entry) => entry.label === 'Tip: dense'))
   assert(index.math.some((entry) => entry.label === 'E=mc^2'))
   assert(index.footnotes.some((entry) => entry.label.startsWith('1') && entry.target === '[^1]'))
-  assert(index.externalLinks.some((entry) => entry.label === 'Bear' && entry.target === 'https://bear.app'))
+  assert(index.externalLinks.some((entry) => entry.label === 'Example' && entry.target === 'https://example.org'))
   assert.equal(index.tags.some((entry) => entry.label.startsWith('#')), false)
   for (const entry of [
     ...index.outline,

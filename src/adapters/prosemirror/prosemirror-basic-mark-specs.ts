@@ -4,16 +4,29 @@ import {
   codeBacktickLength,
   codeBacktickToken,
   italicMarker,
-} from './prosemirror-mark-attrs'
+} from '../../codecs/markdown/nano-markdown-inline-utils'
 import { nanoMarkNames } from './prosemirror-names'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { sourceTokenAttrs } from './prosemirror-source-token'
 
 export const basicMarkSpecs: Record<string, MarkSpec> = {
   [nanoMarkNames.bold]: {
     attrs: { marker: { default: '**' } },
     parseDOM: [
-      { tag: 'strong', getAttrs: (dom) => ({ marker: boldMarker((dom as HTMLElement).dataset.mdOpen) }) },
-      { tag: 'b', getAttrs: (dom) => ({ marker: boldMarker((dom as HTMLElement).dataset.mdOpen) }) },
+      {
+        tag: 'strong',
+        getAttrs: (dom) => {
+          const element = prosemirrorParseDomElement(dom)
+          return element ? { marker: boldMarker(element.dataset.mdOpen) } : false
+        },
+      },
+      {
+        tag: 'b',
+        getAttrs: (dom) => {
+          const element = prosemirrorParseDomElement(dom)
+          return element ? { marker: boldMarker(element.dataset.mdOpen) } : false
+        },
+      },
     ],
     toDOM: (mark) => {
       const marker = boldMarker(mark.attrs.marker)
@@ -23,8 +36,20 @@ export const basicMarkSpecs: Record<string, MarkSpec> = {
   [nanoMarkNames.italic]: {
     attrs: { marker: { default: '*' } },
     parseDOM: [
-      { tag: 'em', getAttrs: (dom) => ({ marker: italicMarker((dom as HTMLElement).dataset.mdOpen) }) },
-      { tag: 'i', getAttrs: (dom) => ({ marker: italicMarker((dom as HTMLElement).dataset.mdOpen) }) },
+      {
+        tag: 'em',
+        getAttrs: (dom) => {
+          const element = prosemirrorParseDomElement(dom)
+          return element ? { marker: italicMarker(element.dataset.mdOpen) } : false
+        },
+      },
+      {
+        tag: 'i',
+        getAttrs: (dom) => {
+          const element = prosemirrorParseDomElement(dom)
+          return element ? { marker: italicMarker(element.dataset.mdOpen) } : false
+        },
+      },
     ],
     toDOM: (mark) => {
       const marker = italicMarker(mark.attrs.marker)
@@ -47,7 +72,10 @@ export const basicMarkSpecs: Record<string, MarkSpec> = {
     attrs: { backtickLength: { default: null } },
     parseDOM: [{
       tag: 'code',
-      getAttrs: (dom) => ({ backtickLength: codeBacktickLength((dom as HTMLElement).dataset.backtickLength) }),
+      getAttrs: (dom) => {
+        const element = prosemirrorParseDomElement(dom)
+        return element ? { backtickLength: codeBacktickLength(element.dataset.backtickLength) } : false
+      },
     }],
     toDOM: (mark) => {
       const token = codeBacktickToken(mark.attrs.backtickLength)

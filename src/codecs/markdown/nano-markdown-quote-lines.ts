@@ -1,7 +1,7 @@
 import {
   calloutTone,
   quoteMarkerDepth,
-} from './nano-markdown-block-attrs'
+} from './nano-markdown-quote-attrs'
 import type {
   CalloutTone,
   QuoteMarkerDepth,

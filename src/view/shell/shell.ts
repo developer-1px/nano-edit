@@ -1,17 +1,11 @@
-import type { NanoCommand } from '../../commands/registry'
+import type {
+  CommandPaletteMode,
+  InspectorTab,
+  NanoCommand,
+  NanoCommandContext,
+} from '../../commands/types'
 import { createNanoCommandPalette } from './command-palette'
-import { createNanoInspectorShell } from './inspector-shell'
-
-export type IndentDirection = 'in' | 'out'
-export type MoveDirection = 'down' | 'up'
-export type InspectorMode = 'floating' | 'hidden' | 'pinned'
-export type InspectorTab = 'index' | 'markdown'
-export type CommandPaletteMode = 'global' | 'slash'
-
-export interface NanoCommandContext {
-  blockId: string | null
-  mode: CommandPaletteMode
-}
+import { createNanoInspectorShell, type InspectorMode } from './inspector-shell'
 
 export interface NanoShell {
   inspectorElement: HTMLElement
@@ -27,9 +21,10 @@ export interface NanoShell {
   destroy: () => void
 }
 
-export interface NanoShellOptions {
+interface NanoShellOptions {
   commandAnchorRect: () => DOMRect | null
   commands: (context: NanoCommandContext) => readonly NanoCommand[]
+  inspector?: 'disabled' | 'enabled'
   onCommandClose: () => void
   onIndexSearch: (query: string) => void
   root: HTMLElement
@@ -37,6 +32,7 @@ export interface NanoShellOptions {
 
 export function createNanoShell(options: NanoShellOptions): NanoShell {
   const inspector = createNanoInspectorShell({
+    disabled: options.inspector === 'disabled',
     onIndexSearch: options.onIndexSearch,
     root: options.root,
   })

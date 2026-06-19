@@ -109,6 +109,37 @@ test('Markdown slide syntax imports to Nano Deck title body and notes regions', 
   assert.equal(deck.slides[1].regions[1].blocks[0].type, 'table')
 })
 
+test('Nano Deck frontmatter quoted strings preserve escaped quotes', () => {
+  const deck = nanoDeckFromMarkdown([
+    '---',
+    'title: "Generated \\"Pitch\\""',
+    'speaker: "Mina Lee"',
+    '---',
+    '',
+    '# One',
+  ].join('\n'))
+
+  assert.equal(deck.title, 'Generated "Pitch"')
+  assert.equal(deck.metadata.title, 'Generated "Pitch"')
+  assert.equal(deck.metadata.speaker, 'Mina Lee')
+  assert.equal(nanoDeckFromMarkdown(nanoMarkdownFromDeck(deck)).title, 'Generated "Pitch"')
+})
+
+test('Nano Deck frontmatter preserves string metadata that looks scalar', () => {
+  const deck = nanoDeckFromMarkdown('# One')
+  deck.title = 'true'
+  deck.metadata = {
+    revision: '42',
+    theme: 'false',
+  }
+
+  const roundTrip = nanoDeckFromMarkdown(nanoMarkdownFromDeck(deck))
+
+  assert.equal(roundTrip.title, 'true')
+  assert.equal(roundTrip.metadata.revision, '42')
+  assert.equal(roundTrip.metadata.theme, 'false')
+})
+
 test('Nano Deck serializes back to LLM-friendly Markdown slide syntax', () => {
   const deck = nanoDeckFromMarkdown([
     '# One',

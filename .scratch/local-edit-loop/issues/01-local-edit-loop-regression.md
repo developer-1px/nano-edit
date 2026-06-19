@@ -27,6 +27,6 @@ Nano Edit has an executable product contract for the core loop: read the generat
 
 ## Acceptance Criteria
 
-- Running the new regression proves the Local Edit Loop against the actual demo app.
+- Running the new regression proves the Local Edit Loop against the actual Demo Host.
 - `pnpm test`, `pnpm build`, `pnpm test:layout`, and the new regression pass.
 - No decorative or instructional demo chrome is added.

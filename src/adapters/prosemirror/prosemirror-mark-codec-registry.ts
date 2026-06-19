@@ -1,5 +1,5 @@
 import type { Mark } from 'prosemirror-model'
-import type { NanoMark } from '../../core/nano-core'
+import type { NanoMark } from '../../entities/document/nano-document-model'
 import { basicNanoMarkCodecs } from './prosemirror-basic-mark-codecs'
 import type { AnyNanoMarkCodec, NanoMarkType } from './prosemirror-mark-codec-types'
 import { referenceNanoMarkCodecs } from './prosemirror-reference-mark-codecs'

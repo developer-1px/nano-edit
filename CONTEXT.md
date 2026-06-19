@@ -1,16 +1,54 @@
 # Nano Edit
 
-Nano Edit's working identity is Nano Editable: a contenteditable-based editing foundation for quiet, Markdown-native local editing features.
+Nano Edit is a json-document-grade contenteditable document engine for quiet,
+Markdown-native local editing features.
 
 ## Language
 
-**Nano Editable**:
-A contenteditable-based editing foundation that provides reusable feature seams for rendered text and document surfaces.
+**Nano2 Headless Engine**:
+The next Nano editor engine that proves ProseMirror-level editor capabilities
+with `json-document` as canonical document, schema, change, history,
+persistence, and collaboration-ready state.
+_Avoid_: ProseMirror wrapper, Nano1 refactor, demo feature pile
+
+**ProseMirror View Seed**:
+A provenance-tracked copy of ProseMirror view code used to retain browser
+contenteditable, DOM selection, input, clipboard, DOM observer, and browser
+quirk knowledge while Nano2 replaces canonical document responsibilities with
+`json-document`.
+_Avoid_: Upstream compatibility layer, ProseMirror public identity, immutable fork
+
+**Headless Capability Matrix**:
+The Nano2 acceptance map that translates each official ProseMirror example into
+an editor capability, its `json-document` headless expression, the view-runtime
+responsibility, and the failure signals.
+_Avoid_: Demo checklist, feature showcase, UI roadmap
+
+**Nano1 Example Corpus**:
+Existing Nano examples that may become fixture pressure after Nano2 proves the
+official ProseMirror example capability set.
+_Avoid_: Nano2 architecture source, first-phase implementation target
+
+**Bear Experience Reference**:
+The product-experience reference for quiet Markdown-native note editing, used
+after Nano2 capability proof to judge surface restraint and document feel.
+_Avoid_: Bear clone, phase-one implementation target
+
+**Contenteditable Engine Surface**:
+A contenteditable engine boundary that provides reusable feature seams for scalar text, rendered text, and document surfaces.
 _Avoid_: Native input lifecycle, textarea helper, select/form package, app
+
+**Nano Document Engine**:
+The canonical engine layer where Nano Document state, schema-safe changes,
+history, persistence pressure, selection snapshots, and future collaboration
+boundaries are owned independently of ProseMirror documents, DOM, or Markdown
+strings.
+_Avoid_: ProseMirror plugin identity, DOM state as source of truth, Markdown as
+the only document state
 
 **Editor Package**:
 An embeddable package that provides the contenteditable editor engine, view, codecs, commands, and indexes without owning the host product.
-_Avoid_: App, demo app, Markdown viewer, native form-control toolkit
+_Avoid_: App, Demo Host as product, Markdown viewer, native form-control toolkit
 
 **Contenteditable Surface**:
 A browser editing surface backed by `contenteditable` behavior, DOM Selection, Input Events, and IME-sensitive text mutation.
@@ -18,7 +56,7 @@ _Avoid_: Native input, textarea, select, form field
 
 **Demo Host**:
 A local host used to exercise the editor package and show how generated Markdown can be reviewed and locally edited.
-_Avoid_: Product app, landing page, decorative showcase
+_Avoid_: Product surface, landing page, decorative showcase
 
 **Quiet Surface**:
 An editing surface where document content stays primary and Markdown syntax or editor chrome appears only when it is directly useful for editing.
@@ -30,7 +68,7 @@ _Avoid_: Authoring-first editor, source editor, block app
 
 **Markdown-Native Document**:
 A document that can be edited as rich content while treating Markdown as one supported expression of the document.
-_Avoid_: Plain textarea, HTML document, Notion-style page
+_Avoid_: Plain textarea, HTML document, product-owned block page
 
 **Generated Markdown**:
 Markdown produced primarily by an AI system and then reviewed or locally edited by a person.
@@ -41,7 +79,7 @@ A generated-looking Markdown document that explains Nano Edit itself, including 
 _Avoid_: Marketing page, decorative showcase, unrelated sample note
 
 **Document-Like Guidance**:
-Usage guidance written as part of the document's content instead of as surrounding application chrome.
+Usage guidance written as part of the document's content instead of as surrounding host chrome.
 _Avoid_: Floating tutorial, command cheat sheet, UI tour
 
 **Autocomplete**:
@@ -61,11 +99,11 @@ A small human edit to a specific part of a generated document.
 _Avoid_: Full rewrite, source-mode editing session
 
 **Inline Edit**:
-A focused contenteditable local edit lifecycle for a small rendered text region, including scalar edit mounting, commit, cancel, selection offset, paste normalization, history intent, composition-aware input, listener cleanup, and focus restore without requiring the host to adopt the full editor surface.
+A focused contenteditable local edit lifecycle for a small rendered text region, including scalar edit mounting, external text sync, blur commit, optional local scalar history, inline decorations, optional atomic decoration deletion, commit, cancel, selection offset, paste normalization, history intent, composition-aware input, listener cleanup, and focus restore without requiring the host to adopt the full editor surface.
 _Avoid_: Full editor session, form builder, native input lifecycle, global source mode
 
 **Contenteditable Scalar Edit**:
-A host-neutral Inline Edit module that edits one string value inside a contenteditable surface while owning the reusable event lifecycle and leaving product state to the host.
+A host-neutral Inline Edit module that edits one string value inside a contenteditable surface while owning the reusable event lifecycle, plain-text offset mapping, text-preserving decoration projection, and optional atomic deletion for decoration ranges, leaving product state and token semantics to the host.
 _Avoid_: Spreadsheet cell adapter, form input helper, grid edit engine, ProseMirror session
 
 **Inline Autocomplete**:
@@ -77,11 +115,13 @@ The decomposition rule for Nano Edit parts: **core** owns small state, lifecycle
 _Avoid_: Large app boundary, package per helper, runtime-agnostic abstraction for its own sake
 
 **ProseMirror Runtime Provider**:
-An internal adapter-provider for reliable contenteditable document editing, selection mapping, input handling, and DOM synchronization.
-_Avoid_: Public identity, required consumer mental model, private implementation import
+Legacy name for the provider-style view boundary. Nano2 should prefer
+**ProseMirror View Seed** when discussing copied view code, because the copied
+view may diverge and is not the canonical document engine.
+_Avoid_: Public identity, required consumer mental model, canonical Nano2 model
 
-**zod-crud Document Foundation**:
-The internal document-state foundation used for schema-safe state, patches, history, persistence pressure, and JSON-boundary discipline.
+**json-document Document Store**:
+The internal document-state support used for schema-safe state, patches, history, persistence pressure, and JSON-boundary discipline.
 _Avoid_: Public identity, app state manager, private subpath dependency
 
 **Self-Contained Internal Module**:
@@ -96,10 +136,6 @@ _Avoid_: Block composer, document surface, native input helper, host-specific fo
 An edit lifecycle based on `input`, `textarea`, or `select` elements.
 _Avoid_: Nano core responsibility, contenteditable feature seam
 
-**Consumer Blind Dogfooding**:
-A package API diagnostic where agents receive only exports, public signatures, and a host requirement, then classify assembly failures before the result is treated as API feedback.
-_Avoid_: Demo copying, implementation spelunking, pass/fail contest
-
 **Source Choice**:
 A Markdown authoring choice that affects the editing expression enough to preserve in structured state.
 _Avoid_: Byte-perfect source, incidental whitespace, parser trivia
@@ -108,13 +144,24 @@ _Avoid_: Byte-perfect source, incidental whitespace, parser trivia
 The structured document state that stores blocks, inline marks, and source-preserving attributes for the editor.
 _Avoid_: ProseMirror document, Markdown string, DOM state
 
+**Collaboration Adapter**:
+A future adapter-provider that maps deterministic Nano Document changes to a
+remote collaboration protocol without making that protocol the canonical
+document identity.
+_Avoid_: Current core contract, product presence UI, comments, conflict UX,
+ProseMirror collab as public identity
+
 **Source Mark**:
 An inline mark used to preserve exact Markdown gesture text when the editor cannot or should not reinterpret it as richer structure.
 _Avoid_: Decoration, visible token, escaped text
 
 ## Relationships
 
-- **Nano Editable** is the working identity for Nano Edit as a **Contenteditable Surface** foundation.
+- **Nano Edit** is the public identity for a **Nano Document Engine** exposed through **Contenteditable Engine Surface** seams.
+- **Nano2 Headless Engine** proves editor capability through a **Headless Capability Matrix** before Nano1 examples or product polish drive implementation.
+- **ProseMirror View Seed** preserves browser editing knowledge for Nano2, while `json-document` owns canonical document state.
+- **Nano1 Example Corpus** is fixture pressure for a later phase; it is not an architecture source for Nano2.
+- **Bear Experience Reference** informs quiet Markdown-native product feel after the Nano2 capability proof.
 - The **Editor Package** can be mounted by one or more host products.
 - The **Demo Host** exists to validate the **Editor Package**, not to define product scope.
 - A **Quiet Surface** is the default user-facing expression of the **Editor Package**.
@@ -125,21 +172,23 @@ _Avoid_: Decoration, visible token, escaped text
 - **Autocomplete** can be reused by the **Editor Package** and by host-product inline affordances such as mention, slash, tag, and reference pickers.
 - **Interaction Ownership** backs keyboard behavior for reusable surfaces; ARIA roles are considered incomplete unless the matching arrow, enter, escape, focus, and ownership behavior is covered by interaction tests.
 - The primary reader of a **Self-Describing Demo Document** is an **Integrator Reader**.
-- An **Inline Edit** can power contenteditable table cells, chat message patches, component labels, and Markdown inline tokens without requiring the full **View-First Editing Surface**.
+- An **Inline Edit** can power contenteditable table cells, chat message patches, component labels, reference-token decorations, and Markdown inline tokens without requiring the full **View-First Editing Surface**.
 - A **Contenteditable Scalar Edit** is the deep **Inline Edit** module for editing one string value; a **Scalar Edit Adapter** is a host-specific adapter built on top of it.
 - **Inline Autocomplete** turns **Inline Edit** selection offsets and trigger input into **Autocomplete** contexts without forcing mention, slash, or option data into core.
 - A **Scalar Edit Adapter** may be built from **Inline Edit** and optionally **Inline Autocomplete**, but it should not pull in the full **Editor Package** or **Demo Host**.
 - The **Package Taxonomy** keeps reusable pieces small enough for LLM assembly while avoiding package over-splitting.
-- **Inline Edit** and **Autocomplete** are **core** candidates; **Inline Autocomplete** composes them as an **extension**; mention and slash behavior are extension configuration; React, zod-crud, ProseMirror, DOM, and interaction bridges are **adapter-provider** candidates; the current demo host is an **assembly**.
-- **ProseMirror Runtime Provider** and **zod-crud Document Foundation** are natural internal supports for the contenteditable foundation, not the public identity a feature consumer must learn first.
+- **Inline Edit** and **Autocomplete** are **core** candidates; **Inline Autocomplete** composes them as an **extension**; mention and slash behavior are extension configuration; React, json-document, ProseMirror, DOM, and interaction bridges are **adapter-provider** candidates; the current demo host is an **assembly**.
+- **Nano Document Engine** owns the canonical document/change direction; **ProseMirror Runtime Provider** and **json-document Document Store** are natural internal supports for the contenteditable engine, not the public identity a feature consumer must learn first.
 - **Native Form Edit** is outside Nano core. It can remain host-owned, live in another package, or become pressure for a lab only when the surface is rebuilt as a **Contenteditable Surface**.
-- **Consumer Blind Dogfooding** is the preferred evidence check before promoting an internal boundary or changing a core API for LLM assembly.
 - A part should usually stay as an internal package boundary until a second real host or second runtime pressure justifies external package promotion.
 - A **Self-Contained Internal Module** is the preferred internal shape before package promotion: folder names carry context, public facades stay stable, and implementation files use local responsibility names.
 - A **Markdown-Native Document** is represented internally as a **Nano Document**.
 - Markdown is one expression of a **Markdown-Native Document**, not the document's sole source of truth.
 - A **Source Choice** may be stored in a **Nano Document** when it affects editing expression.
 - A **Source Mark** belongs to a **Nano Document** and preserves Markdown source that should round-trip literally.
+- A **Collaboration Adapter** is deferred until **Nano Document Engine** changes,
+  history, selection snapshots, and provider boundaries are deterministic enough
+  to carry remote change pressure.
 
 ## Example dialogue
 
@@ -162,21 +211,21 @@ _Avoid_: Decoration, visible token, escaped text
 > **Domain expert:** "An **Integrator Reader** deciding whether Nano Edit fits a generated-Markdown product with quiet local edits."
 
 > **Dev:** "Is this a wrapper around ProseMirror?"
-> **Domain expert:** "No - ProseMirror is a **Runtime Provider**. The public identity is a contenteditable editing foundation."
+> **Domain expert:** "No - ProseMirror is a **Runtime Provider**. The public identity is a **Nano Document Engine** exposed through contenteditable engine seams."
 
 > **Dev:** "Can I replace a spreadsheet input cell editor with Inline Edit?"
 > **Domain expert:** "Only if that cell editor is rebuilt as a **Contenteditable Surface**. Native form-control edit lifecycles are outside Nano core."
 
 ## Flagged ambiguities
 
-- "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local app is a **Demo Host**.
+- "app" was used loosely for the local demo; resolved: Nano Edit is primarily an **Editor Package**, and the local demo is a **Demo Host**.
 - "editor" can imply an authoring-first workspace; resolved: Nano Edit is a **View-First Editing Surface** for reviewing and locally editing generated documents.
-- "feature showcase" was too broad; resolved: demo content may introduce Nano Edit through a **Self-Describing Demo Document**, but editor chrome must stay quiet.
+- "feature inventory" was too broad; resolved: demo content may introduce Nano Edit through a **Self-Describing Demo Document**, but editor chrome must stay quiet.
 - "usage guidance" was too broadly discouraged; resolved: **Document-Like Guidance** is allowed when it keeps the demo document-like.
 - "Markdown-native" was ambiguous; resolved: Markdown is an important expression and interchange format, but the **Nano Document** is the editor's structured source of truth.
-- LLM-driven extension/catalog assembly is no longer treated as app scope; resolved: use the **Package Taxonomy** to make Nano Edit easier for LLMs to assemble without repeatedly rebuilding obvious editing primitives.
+- LLM-driven extension/catalog assembly is no longer treated as product scope; resolved: use the **Package Taxonomy** to make Nano Edit easier for LLMs to assemble without repeatedly rebuilding obvious editing primitives.
 - "ARIA is present" was too weak as evidence of keyboard support; resolved: verify **Interaction Ownership** with behavior tests for the surface that owns focus.
 - "inline edit package" can be too broad; resolved: keep **Inline Edit** as contenteditable primitive lifecycle/helpers and put reusable one-value host hooks under **Scalar Edit Adapter**.
 - "text input" can imply native form controls; resolved: Nano core owns **Contenteditable Surface** features, while **Native Form Edit** stays outside core.
-- "ProseMirror" and "zod-crud" can sound like the product identity; resolved: they are provider/foundation roles behind the contenteditable public identity.
+- "ProseMirror" and "@interactive-os/json-document" can sound like the product identity; resolved: Nano is a **Nano Document Engine**, while they are provider/data roles behind the contenteditable public identity.
 - "SRP refactor" can over-fragment the codebase; resolved: prefer **Self-Contained Internal Modules** grouped by shared change reason over prefix-heavy helper files.

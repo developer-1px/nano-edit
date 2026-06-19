@@ -1,12 +1,12 @@
-import { noteLinkTarget } from '../../core/nano-note-link'
-import { normalizeTagName } from '../../core/nano-tag'
+import { noteLinkTarget } from '../../entities/reference/nano-note-link'
+import { normalizeTagName } from '../../entities/reference/nano-tag'
 
-export interface TagReferenceTarget {
+interface TagReferenceTarget {
   tag: string
   originBlockId: string | null
 }
 
-export interface NoteReferenceTarget {
+interface NoteReferenceTarget {
   target: string
   originBlockId: string | null
 }
@@ -27,7 +27,7 @@ export function noteReferenceTargetFromEventTarget(target: EventTarget | null): 
 
   return {
     target: resolvedTarget,
-    originBlockId: element.closest<HTMLElement>('.nano-block[data-id]')?.dataset.id ?? null,
+    originBlockId: referenceOriginBlockId(element),
   }
 }
 
@@ -46,10 +46,14 @@ export function tagReferenceTargetFromEventTarget(target: EventTarget | null): T
 
   return {
     tag,
-    originBlockId: element.closest<HTMLElement>('.nano-block[data-id]')?.dataset.id ?? null,
+    originBlockId: referenceOriginBlockId(element),
   }
 }
 
 export function normalizeTagReferenceTarget(tag: string): string {
   return normalizeTagName(tag)
+}
+
+function referenceOriginBlockId(element: Element): string | null {
+  return element.closest<HTMLElement>('.nano-block[data-id]')?.dataset.id ?? null
 }

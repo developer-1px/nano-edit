@@ -1,22 +1,24 @@
 import { layoutFixtureDocument } from './layout-fixture-document.mjs'
 import {
   clickTarget,
-  demoStorageKey,
+  demoDocumentStorageKey,
   evaluate as evaluateInBrowser,
+  persistenceSnapshotText,
   scrollTargetIntoView,
   wait,
   waitForExpression,
   withBrowserRegression,
 } from './browser-test-harness.mjs'
 
-const storageKey = demoStorageKey()
+const documentStorageKey = demoDocumentStorageKey()
+const layoutFixtureSnapshotText = persistenceSnapshotText(layoutFixtureDocument)
 const viewports = [
   { name: 'desktop', width: 1280, height: 900, mobile: false },
   { name: 'mobile-390', width: 390, height: 844, mobile: true },
   { name: 'mobile-360', width: 360, height: 740, mobile: true },
 ]
 const focusTargets = [
-  ['heading', '[data-id="layout-title"]'],
+  ['heading', '[data-id="layout-title"] .nano-block-content'],
   ['long link', '[data-id="layout-link"] a.nano-md-link'],
   ['bold', '[data-id="layout-link"] strong.nano-md-bold'],
   ['italic', '[data-id="layout-link"] em.nano-md-italic'],
@@ -46,11 +48,13 @@ async function runViewport(browser, url, viewport) {
   await browser.send('Page.navigate', { url })
   await waitForExpression(browser, 'document.readyState !== "loading"')
   await evaluate(browser, `(() => {
-    localStorage.setItem(${JSON.stringify(storageKey)}, ${JSON.stringify(JSON.stringify({ kind: 'zod-crud.persistence+json', version: 1, value: layoutFixtureDocument }))});
+    localStorage.setItem(${JSON.stringify(documentStorageKey)}, ${JSON.stringify(layoutFixtureSnapshotText)});
     return true
   })()`)
   await browser.send('Page.reload', { ignoreCache: true })
   await waitForExpression(browser, 'Boolean(document.querySelector("[data-id=\\"layout-link\\"] a.nano-md-link"))')
+  await waitForExpression(browser, `(${JSON.stringify(focusTargets.map(([, selector]) => selector))})
+    .every((selector) => Boolean(document.querySelector(selector)))`)
   await evaluate(browser, `(() => {
     document.addEventListener('click', (event) => {
       const target = event.target instanceof Element

@@ -4,15 +4,16 @@ import type {
   SelectionPoint,
   SelectionRange,
   SelectionSnap,
-} from 'zod-crud'
-import type { NanoBlock, NanoDocument } from './nano-document'
+} from '@interactive-os/json-document'
+import { nanoBlocksEqual } from './nano-document-equality'
+import type { NanoBlock, NanoDocument } from './nano-document-model'
 
 export function blocksPointer(): Pointer {
-  return '/blocks' as Pointer
+  return '/blocks'
 }
 
 export function blockTextPointer(index: number): Pointer {
-  return `/blocks/${index}/text` as Pointer
+  return `/blocks/${index}/text`
 }
 
 export function point(path: Pointer, offset: number): SelectionPoint {
@@ -42,7 +43,7 @@ export function replaceBlocksPatch(
   current: NanoDocument,
   nextBlocks: NanoBlock[],
 ): JSONPatchOperation[] {
-  return JSON.stringify(current.blocks) === JSON.stringify(nextBlocks)
+  return nanoBlocksEqual(current.blocks, nextBlocks)
     ? []
     : [{ op: 'replace', path: blocksPointer(), value: nextBlocks }]
 }

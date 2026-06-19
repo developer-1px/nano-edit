@@ -1,26 +1,32 @@
 import type { EditorView } from 'prosemirror-view'
 import type { NanoViewContext } from '../runtime/context'
-import type { NanoInputActions } from './runtime'
-import {
-  markOptionForInputType,
-  markShortcutTransaction,
-} from '../../marks/nano-mark-options'
+import { COMPOSITION_SHORTCUT_SUPPRESSION_MS } from '../runtime/context'
+import type { MarkOption } from '../../marks/types'
+import { markOptionForInputType } from '../../marks/queries'
+import { markShortcutTransaction } from '../../marks/shortcut-transaction'
 import {
   markdownCopyTextFromSelection,
-  markdownPasteTransaction,
-} from '../markdown-source/index'
-import {
-  markdownTextFromClipboardData,
-  writeMarkdownTextToClipboardData,
-} from '../clipboard/data'
+} from '../markdown-source/copy'
+import { markdownPasteTransaction } from '../markdown-source/paste'
 import {
   blockShortcutTransaction,
-  inlineSourceTokenTextInputTransaction,
   slashPickerBlockIdFromInput,
-  trailingReferenceMarkTransaction,
-} from '../keyboard/transactions'
+} from '../keyboard/shortcuts'
+import { inlineSourceTokenTextInputTransaction } from '../keyboard/inline-boundary'
+import { trailingReferenceMarkTransaction } from '../keyboard/trailing-reference'
 
-export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoInputActions) {
+type ClipboardDataReader = Pick<DataTransfer, 'getData'>
+type ClipboardDataWriter = Pick<DataTransfer, 'setData'>
+
+const MARKDOWN_MIME_TYPE = 'text/markdown'
+const PLAIN_TEXT_MIME_TYPE = 'text/plain'
+
+interface NanoInputTextActions {
+  restoreHistory: (direction: 'undo' | 'redo') => void
+  runMarkCommand: (option: MarkOption) => void
+}
+
+export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoInputTextActions) {
   const handleBeforeInput = (event: InputEvent): boolean => {
     if (event.inputType === 'historyUndo') return preventAndRestore(event, actions, 'undo')
     if (event.inputType === 'historyRedo') return preventAndRestore(event, actions, 'redo')
@@ -34,6 +40,8 @@ export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoI
   }
 
   const handleShortcutInput = (view: EditorView, from: number, to: number, text: string): boolean => {
+    if (shouldSuppressShortcutInput(ctx, view)) return false
+
     const sourceTokenTransaction = inlineSourceTokenTextInputTransaction(view.state, from, to, text)
     if (sourceTokenTransaction) {
       view.dispatch(sourceTokenTransaction.scrollIntoView())
@@ -86,15 +94,50 @@ export function createNanoInputTextHandlers(ctx: NanoViewContext, actions: NanoI
     return false
   }
 
-  return { handleBeforeInput, handleShortcutInput, handlePaste, handleCopy, handleEditorBlur }
+  const handleCompositionStart = (): boolean => {
+    ctx.composing = true
+    return false
+  }
+
+  const handleCompositionEnd = (): boolean => {
+    ctx.composing = false
+    ctx.lastCompositionAt = Date.now()
+    return false
+  }
+
+  return {
+    handleBeforeInput,
+    handleCompositionEnd,
+    handleCompositionStart,
+    handleShortcutInput,
+    handlePaste,
+    handleCopy,
+    handleEditorBlur,
+  }
+}
+
+function shouldSuppressShortcutInput(ctx: NanoViewContext, view: EditorView): boolean {
+  const viewComposition = (view as unknown as { composing?: boolean }).composing === true
+  return ctx.composing
+    || viewComposition
+    || Date.now() - ctx.lastCompositionAt < COMPOSITION_SHORTCUT_SUPPRESSION_MS
 }
 
 function preventAndRestore(
   event: InputEvent,
-  actions: NanoInputActions,
+  actions: NanoInputTextActions,
   direction: 'undo' | 'redo',
 ): boolean {
   event.preventDefault()
   actions.restoreHistory(direction)
   return true
+}
+
+function markdownTextFromClipboardData(data: ClipboardDataReader): string {
+  return data.getData(MARKDOWN_MIME_TYPE) || data.getData(PLAIN_TEXT_MIME_TYPE)
+}
+
+function writeMarkdownTextToClipboardData(data: ClipboardDataWriter, markdown: string): void {
+  data.setData(PLAIN_TEXT_MIME_TYPE, markdown)
+  data.setData(MARKDOWN_MIME_TYPE, markdown)
 }

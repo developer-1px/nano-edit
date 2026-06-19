@@ -1,4 +1,4 @@
-import { nonBlankStringValue } from '../../core/schema/nano-block-schema-refinements'
+import { nonBlankStringValue } from '../../entities/block/schema/nano-block-schema-refinements'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'

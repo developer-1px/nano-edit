@@ -5,15 +5,21 @@ import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { defaultDocumentPersistenceCodec } from '@interactive-os/json-document-persist-web'
 
 export const projectRoot = fileURLToPath(new URL('../..', import.meta.url))
+const CDP_RESPONSE_TIMEOUT_MS = 45_000
 
 export async function withBrowserRegression(userDataPrefix, run) {
+  await withViteBrowser(userDataPrefix, projectRoot, run)
+}
+
+export async function withViteBrowser(userDataPrefix, viteRoot, run) {
   const vitePort = await freePort()
   const chromePort = await freePort()
   const userDataDir = await mkdtemp(join(tmpdir(), userDataPrefix))
-  const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', String(vitePort), '--strictPort'], {
-    cwd: projectRoot,
+  const vite = spawn(process.execPath, [join(projectRoot, 'node_modules/vite/bin/vite.js'), '--host', '127.0.0.1', '--port', String(vitePort), '--strictPort'], {
+    cwd: viteRoot,
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   const viteOutput = pipeProcessOutput(vite)
@@ -39,11 +45,9 @@ export async function withBrowserRegression(userDataPrefix, run) {
     await run({ browser, url: `http://127.0.0.1:${vitePort}/` })
   } finally {
     try { browser?.close() } catch {}
-    if (chrome && !chrome.killed) chrome.kill('SIGTERM')
-    if (!vite.killed) vite.kill('SIGTERM')
     await Promise.allSettled([
-      chrome ? onceExit(chrome) : Promise.resolve(),
-      onceExit(vite),
+      chrome ? stopProcess(chrome) : Promise.resolve(),
+      stopProcess(vite),
       rm(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }),
     ])
   }
@@ -82,9 +86,11 @@ export async function clickTarget(browser, selector) {
   const center = await evaluate(browser, `(() => {
     const target = document.querySelector(${JSON.stringify(selector)})
     if (!target) throw new Error('Missing target: ${selector}')
+    target.scrollIntoView({ block: 'center', inline: 'nearest' })
     const box = target.getBoundingClientRect()
     return { x: box.left + box.width / 2, y: box.top + box.height / 2 }
   })()`)
+  await wait(60)
   await browser.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: center.x, y: center.y })
   await browser.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: center.x, y: center.y, button: 'left', clickCount: 1 })
   await browser.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: center.x, y: center.y, button: 'left', clickCount: 1 })
@@ -109,15 +115,31 @@ export async function pressKey(browser, key, code, keyCode, modifiers) {
   })
 }
 
-export function demoStorageKey() {
-  const source = readFileSync(new URL('../../src/demo/persisted-document.ts', import.meta.url), 'utf8')
-  const match = /DEMO_DOCUMENT_STORAGE_KEY\s*=\s*'([^']+)'/.exec(source)
-  if (!match) throw new Error('Could not find DEMO_DOCUMENT_STORAGE_KEY')
-  return match[1]
+export function demoDocumentStorageKey() {
+  return sourceStringConstant(new URL('../../src/demo/persisted-document.ts', import.meta.url), 'DEMO_DOCUMENT_STORAGE_KEY')
+}
+
+export function demoDeckStorageKey() {
+  return sourceStringConstant(new URL('../../src/demo/persisted-deck.ts', import.meta.url), 'DEMO_DECK_STORAGE_KEY')
+}
+
+export function activeDemoArtifactStorageKey() {
+  return sourceStringConstant(new URL('../../src/main.ts', import.meta.url), 'ACTIVE_DEMO_ARTIFACT_STORAGE_KEY')
 }
 
 export function storedPersistenceValueExpression(storageKey) {
-  return `((stored) => stored?.kind === 'zod-crud.persistence+json' ? stored.value : stored)(JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null'))`
+  return `((stored) => stored && typeof stored === 'object' && 'value' in stored ? stored.value : stored)(JSON.parse(localStorage.getItem(${JSON.stringify(storageKey)}) || 'null'))`
+}
+
+export function persistenceSnapshotText(value) {
+  return defaultDocumentPersistenceCodec.encode({ value, selection: null, savedAt: null })
+}
+
+function sourceStringConstant(sourceUrl, constantName) {
+  const source = readFileSync(sourceUrl, 'utf8')
+  const match = new RegExp(`${constantName}\\s*=\\s*'([^']+)'`).exec(source)
+  if (!match) throw new Error(`Could not find ${constantName}`)
+  return match[1]
 }
 
 export function wait(ms) {
@@ -146,8 +168,9 @@ async function cdpSession(webSocketDebuggerUrl) {
   socket.addEventListener('message', (event) => {
     const message = JSON.parse(event.data)
     if (message.id && pending.has(message.id)) {
-      pending.get(message.id)(message)
+      const callback = pending.get(message.id)
       pending.delete(message.id)
+      callback(message)
     }
   })
   await new Promise((resolve, reject) => {
@@ -161,7 +184,12 @@ async function cdpSession(webSocketDebuggerUrl) {
       nextId += 1
       socket.send(JSON.stringify({ id, method, params }))
       return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          pending.delete(id)
+          reject(new Error(`Timed out waiting for Chrome response: ${method}`))
+        }, CDP_RESPONSE_TIMEOUT_MS)
         pending.set(id, (message) => {
+          clearTimeout(timeoutId)
           if (message.error) reject(new Error(`${method}: ${message.error.message}`))
           else resolve(message.result)
         })
@@ -222,6 +250,21 @@ function pipeProcessOutput(child) {
 function onceExit(child) {
   if (!child || child.exitCode !== null || child.signalCode !== null) return Promise.resolve()
   return new Promise((resolve) => child.once('exit', resolve))
+}
+
+async function stopProcess(child) {
+  if (!child || child.exitCode !== null || child.signalCode !== null) return
+  if (!child.killed) child.kill('SIGTERM')
+  const exited = await Promise.race([
+    onceExit(child).then(() => true),
+    wait(2000).then(() => false),
+  ])
+  if (exited || child.exitCode !== null || child.signalCode !== null) return
+  child.kill('SIGKILL')
+  await Promise.race([
+    onceExit(child),
+    wait(2000),
+  ])
 }
 
 function identityExpression(expression) {

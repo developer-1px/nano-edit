@@ -1,8 +1,8 @@
-import { footnoteLabel, footnoteRefAt } from '../../core/nano-footnote'
-import { inlineMathTokenAt } from '../../core/nano-math'
-import { noteLinkLabel } from '../../core/nano-note-link'
-import { tagHierarchyDisplayLabels, tagHierarchyLabels, tagTokensInText } from '../../core/nano-tag'
-import { externalUrlTokensInText } from '../../core/nano-url'
+import { footnoteLabel, footnoteRefAt } from '../../entities/reference/nano-footnote'
+import { inlineMathTokenAt } from '../../entities/math/nano-math'
+import { noteLinkLabel } from '../../entities/reference/nano-note-link'
+import { tagHierarchyDisplayLabels, tagHierarchyLabels, tagTokensInText } from '../../entities/reference/nano-tag'
+import { externalUrlTokensInText } from '../../entities/reference/nano-url'
 import { noteLinkDisplayLabel } from './references'
 import type { IndexEntry } from './types'
 

@@ -2,14 +2,16 @@ import { Fragment, type Node as ProseMirrorNode } from 'prosemirror-model'
 import type { EditorState } from 'prosemirror-state'
 import {
   isListLikeNode,
-  listSubtreeRanges,
   nodeIndent,
-  selectedWholeBlockRanges,
+} from '../../entities/block/structure/nano-block-node-kind'
+import {
+  listSubtreeRanges,
   topLevelBlockRanges,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
-import { shiftedContinuationIndents, shiftedRawIndent } from '../../core/nano-source-metadata'
-import type { IndentDirection } from '../shell/shell'
+} from '../../entities/block/structure/nano-block-ranges'
+import { selectedWholeBlockRanges } from '../../entities/block/structure/nano-block-selection-ranges'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import { shiftedContinuationIndents, shiftedRawIndent } from '../../entities/source/nano-source-metadata'
+import type { IndentDirection } from '../../commands/types'
 
 export function normalizedBlockChangeContent(
   doc: ProseMirrorNode,
@@ -22,8 +24,10 @@ export function normalizedBlockChangeContent(
   }
 
   const liftedChildren = liftedListSubtreeNodes(subtree.slice(1), nodeIndent(block.node) + 1)
+  const lastSubtreeRange = subtree.at(-1)
+  if (!lastSubtreeRange) return { to: block.to, content: replacement }
   return {
-    to: subtree[subtree.length - 1]!.to,
+    to: lastSubtreeRange.to,
     content: Fragment.fromArray([...contentNodes(replacement), ...liftedChildren]),
   }
 }
@@ -96,7 +100,8 @@ function hasPreviousListSiblingAtIndent(doc: ProseMirrorNode, from: number, inde
   if (index <= 0) return false
 
   for (let rangeIndex = index - 1; rangeIndex >= 0; rangeIndex -= 1) {
-    const range = ranges[rangeIndex]!
+    const range = ranges[rangeIndex]
+    if (!range) return false
     if (!isListLikeNode(range.node)) return false
 
     const candidateIndent = nodeIndent(range.node)

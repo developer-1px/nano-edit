@@ -1,9 +1,7 @@
 import { todoBlockFromProseMirrorNode, todoNodeAttrsFromBlock } from '../../capabilities/todo/prosemirror'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
-import {
-  inlineContentFromText,
-  nanoMarksFromProseMirrorNode,
-} from './prosemirror-mark-codecs'
+import { inlineContentFromText } from './prosemirror-inline-content'
+import { nanoMarksFromProseMirrorNode } from './prosemirror-mark-normalize'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
 

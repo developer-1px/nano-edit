@@ -1,29 +1,39 @@
-import type { Command } from 'prosemirror-state'
-import type { BlockTemplate } from '../../blocks/nano-block-options'
-import type { IndentDirection, MoveDirection } from '../shell/shell'
+import type { Command, EditorState, Transaction } from 'prosemirror-state'
+import { blockKeyBindingEntries } from '../../blocks/nano-block-options'
+import type { BlockKeyBindingEntry, BlockTemplate } from '../../assembly/capability'
+import { markCommand } from '../../marks/commands'
+import { markKeyBindingEntries } from '../../marks/queries'
+import type { IndentDirection, MoveDirection } from '../../commands/types'
 import { activeBlockId } from '../selection/active-block'
+import { changeActiveBlockTransaction } from '../block-edit/change'
+import {
+  deleteActiveBlockTransaction,
+  deleteSelectedBlockTransaction,
+  duplicateActiveBlockTransaction,
+} from '../block-edit/duplicate-delete'
+import {
+  insertBlockAfterActiveTransaction,
+} from '../block-edit/insert'
+import {
+  selectActiveBlockTransaction,
+  selectAdjacentBlockTransaction,
+} from '../block-edit/selection'
+import {
+  indentActiveBlockTransaction,
+  moveActiveBlockTransaction,
+} from '../block-move/transactions'
 import { backspaceKeyCommand, deleteKeyCommand } from './backspace'
 import { enterKeyCommand } from './enter-command'
-import {
-  blockKeymapCommands,
-  markKeymapCommands,
-} from './bindings'
-import {
-  changeActiveBlockCommand,
-  deleteActiveBlockCommand,
-  deleteSelectedBlockCommand,
-  duplicateActiveBlockCommand,
-  indentActiveBlockCommand,
-  insertBlockAfterActiveCommand,
-  moveActiveBlockCommand,
-  selectActiveBlockCommand,
-  selectAdjacentBlockCommand,
-} from './command-transactions'
 import type { NanoViewContext } from '../runtime/context'
 
-export interface NanoKeymapActions {
+interface NanoKeymapActions {
   focusActiveMarkdownSource: () => boolean
   restoreHistory: (direction: 'undo' | 'redo') => void
+}
+
+interface BlockKeymapCommands {
+  changeActiveBlockCommand: (template: BlockTemplate) => Command
+  insertBlockAfterActiveCommand: (template: BlockTemplate) => Command
 }
 
 export interface NanoKeymapRuntime {
@@ -88,4 +98,73 @@ export function createNanoKeymapRuntime(
     selectActiveBlockCommand,
     selectAdjacentBlockCommand: blockCommands.selectAdjacentBlockCommand,
   }
+}
+
+function markKeymapCommands(): Record<string, Command> {
+  return Object.fromEntries(markKeyBindingEntries().map(({ option, keyBinding }) => [
+    keyBinding,
+    markCommand(option),
+  ]))
+}
+
+function blockKeymapCommands(
+  commands: BlockKeymapCommands,
+  entries: readonly BlockKeyBindingEntry[] = blockKeyBindingEntries(),
+): Record<string, Command> {
+  return Object.fromEntries(entries.flatMap(({ option, keyBinding }) => {
+    if (!option.template) return []
+
+    return [[
+      keyBinding.key,
+      keyBinding.action === 'insertAfterActive'
+        ? commands.insertBlockAfterActiveCommand(option.template)
+        : commands.changeActiveBlockCommand(option.template),
+    ]]
+  }))
+}
+
+function transactionCommand(transactionForState: (state: EditorState) => Transaction | null): Command {
+  return (state, dispatch) => {
+    const transaction = transactionForState(state)
+    if (!transaction) return false
+
+    if (dispatch) dispatch(transaction.scrollIntoView())
+    return true
+  }
+}
+
+function insertBlockAfterActiveCommand(ctx: NanoViewContext, template: BlockTemplate): Command {
+  return transactionCommand((state) => insertBlockAfterActiveTransaction(state, template, ctx.blockRegistry))
+}
+
+function changeActiveBlockCommand(ctx: NanoViewContext, template: BlockTemplate): Command {
+  return transactionCommand((state) => changeActiveBlockTransaction(state, template, ctx.blockRegistry))
+}
+
+function duplicateActiveBlockCommand(): Command {
+  return transactionCommand(duplicateActiveBlockTransaction)
+}
+
+function deleteActiveBlockCommand(ctx: NanoViewContext): Command {
+  return transactionCommand((state) => deleteActiveBlockTransaction(state, ctx.collapsedBlockIds))
+}
+
+function deleteSelectedBlockCommand(ctx: NanoViewContext): Command {
+  return transactionCommand((state) => deleteSelectedBlockTransaction(state, ctx.collapsedBlockIds))
+}
+
+function selectActiveBlockCommand(): Command {
+  return transactionCommand(selectActiveBlockTransaction)
+}
+
+function selectAdjacentBlockCommand(ctx: NanoViewContext, direction: MoveDirection): Command {
+  return transactionCommand((state) => selectAdjacentBlockTransaction(state, direction, ctx.collapsedBlockIds))
+}
+
+function moveActiveBlockCommand(ctx: NanoViewContext, direction: MoveDirection): Command {
+  return transactionCommand((state) => moveActiveBlockTransaction(state, direction, ctx.collapsedBlockIds))
+}
+
+function indentActiveBlockCommand(ctx: NanoViewContext, direction: IndentDirection): Command {
+  return transactionCommand((state) => indentActiveBlockTransaction(state, direction, ctx.collapsedBlockIds))
 }

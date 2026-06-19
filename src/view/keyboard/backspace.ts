@@ -1,14 +1,16 @@
 import type { Command } from 'prosemirror-state'
 import type { NanoViewContext } from '../runtime/context'
-import { deleteSelectedBlockTransaction } from '../block-edit/index'
+import { deleteSelectedBlockTransaction } from '../block-edit/duplicate-delete'
 import {
   backspaceBlockTransaction,
   backspaceListSubtreeTransaction,
   deleteBlockSyntaxTransaction,
+} from './enter'
+import {
   inlineMarkBoundaryTransaction,
   inlineSourceTokenDeleteTransaction,
-  selectedAtomSourceTransaction,
-} from './transactions'
+} from './inline-boundary'
+import { selectedAtomSourceTransaction } from '../markdown-source/selected-atom'
 
 export function backspaceKeyCommand(ctx: NanoViewContext): Command {
   return (state, dispatch) => {

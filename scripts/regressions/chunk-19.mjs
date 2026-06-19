@@ -1,7 +1,7 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
-test('Bear setext headings stay heading blocks without stealing separated dividers', () => {
+test('Markdown setext headings stay heading blocks without stealing separated dividers', () => {
   const markdown = 'Title\n=====\n\nSubtitle\n---\n\nBody\n\n---'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -29,7 +29,7 @@ test('Bear setext headings stay heading blocks without stealing separated divide
   assert.deepEqual(nanoDocumentSearch(document, '=====')?.blockIds, ['md-1'])
 })
 
-test('Bear setext heading marker backspace removes hidden underline syntax', () => {
+test('Markdown setext heading marker backspace removes hidden underline syntax', () => {
   const h1State = textSelectionState('Title\n=====', 'md-1', 0)
   assert.equal(markdownAfter(h1State, backspaceBlockTransaction(h1State)), 'Title')
   assert.deepEqual(blocksAfter(h1State, backspaceBlockTransaction(h1State)), [
@@ -43,7 +43,7 @@ test('Bear setext heading marker backspace removes hidden underline syntax', () 
   ])
 })
 
-test('Bear code fences preserve info strings and content-looking fences', () => {
+test('Markdown code fences preserve info strings and content-looking fences', () => {
   const markdown = '```ts title="nano"\n``` not close\n```'
   const canonical = '````ts title="nano"\n``` not close\n````'
   const document = nanoDocumentFromMarkdown(markdown)
@@ -59,7 +59,7 @@ test('Bear code fences preserve info strings and content-looking fences', () => 
   )
 })
 
-test('Bear code and math fence backspace removes hidden fence syntax', () => {
+test('Markdown code and math fence backspace removes hidden fence syntax', () => {
   const codeState = textSelectionState('```ts\nconst value is one\n```', 'md-1', 0)
   assert.equal(markdownAfter(codeState, backspaceBlockTransaction(codeState)), 'const value is one')
   assert.deepEqual(blocksAfter(codeState, backspaceBlockTransaction(codeState)), [
@@ -73,7 +73,7 @@ test('Bear code and math fence backspace removes hidden fence syntax', () => {
   ])
 })
 
-test('Bear code fence markers preserve imported Markdown source', () => {
+test('Markdown code fence markers preserve imported Markdown source', () => {
   const markdown = '~~~~js\nconst ticks = "```"\n~~~~'
   const document = nanoDocumentFromMarkdown(markdown)
 

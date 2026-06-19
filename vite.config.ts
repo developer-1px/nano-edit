@@ -17,7 +17,7 @@ function isSchemaModule(id: string): boolean {
   return (
     moduleId.includes('/node_modules/zod') ||
     moduleId.includes('/node_modules/.pnpm/zod') ||
-    moduleId.includes('zod-crud')
+    moduleId.includes('@interactive-os/json-document')
   )
 }
 
@@ -28,6 +28,7 @@ function isIconModule(id: string): boolean {
 
 export default defineConfig({
   build: {
+    outDir: 'dist/demo',
     rolldownOptions: {
       output: {
         codeSplitting: {

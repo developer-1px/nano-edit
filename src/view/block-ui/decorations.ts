@@ -1,39 +1,22 @@
-import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import type { EditorState } from 'prosemirror-state'
+import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import {
-  blockOptions,
-  type BlockOptionRegistry,
-} from '../../blocks/nano-block-options'
-import {
   activeBlockRange,
-  blockCollapseRanges,
-  blockId,
-  isListLikeNode,
   topLevelBlockRanges,
-} from '../../blocks/nano-block-structure'
-import type { ActiveBlockRange } from '../../blocks/nano-block-structure'
+} from '../../entities/block/structure/nano-block-ranges'
+import { blockCollapseRanges } from '../../entities/block/structure/nano-block-collapse'
 import {
-  decorateHeadingNode,
-  decorateListNode,
-} from './decoration-nodes'
-
-export function blockOptionIdForBlockId(
-  doc: ProseMirrorNode,
-  id: string,
-  registry?: BlockOptionRegistry,
-): string | null {
-  let optionId: string | null = null
-  const options = registry?.blockOptions ?? blockOptions
-  doc.descendants((node) => {
-    if (optionId) return false
-    if (node.attrs.id !== id) return true
-
-    optionId = options.find((option) => option.matches(node))?.id ?? null
-    return false
-  })
-  return optionId
-}
+  blockId,
+  isHeadingNode,
+  isListLikeNode,
+  nodeIndent,
+  nodeOrderedStart,
+  nodeOrderedStartText,
+} from '../../entities/block/structure/nano-block-node-kind'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { orderedMarker } from '../../codecs/markdown/nano-markdown-marker-attrs'
 
 export function blockUiDecorations(
   state: EditorState,
@@ -48,7 +31,7 @@ export function blockUiDecorations(
     .filter(Boolean))
   const block = activeBlockRangeForDecorations(state, activeBlockIdOverride)
   if (block) {
-    const id = typeof block.node.attrs.id === 'string' ? block.node.attrs.id : ''
+    const id = blockId(block.node)
     if (!hiddenBlockIds.has(id)) {
       decorations.push(
         Decoration.node(block.from, block.to, { class: 'nano-block-active' }),
@@ -83,4 +66,45 @@ function activeBlockRangeForDecorations(
   return topLevelBlockRanges(state.doc)
     .find((range) => blockId(range.node) === activeBlockIdOverride)
     ?? activeBlockRange(state)
+}
+
+function decorateListNode(
+  decorations: Decoration[],
+  orderedListIndexes: number[],
+  node: ProseMirrorNode,
+  offset: number,
+  collapsible: boolean,
+  collapsed: boolean,
+): void {
+  const indent = nodeIndent(node)
+  const style = [`--nano-indent: ${indent};`]
+  const classes: string[] = []
+  if (node.type.name === nanoNodeNames.listItem && node.attrs.kind === 'ordered') {
+    orderedListIndexes[indent] = nodeOrderedStart(node) ?? ((orderedListIndexes[indent] ?? 0) + 1)
+    orderedListIndexes.length = indent + 1
+    style.push(`--nano-list-index: "${nodeOrderedStartText(node) ?? String(orderedListIndexes[indent])}${orderedMarker(node.attrs.orderedMarker)}";`)
+  } else {
+    orderedListIndexes[indent] = 0
+    orderedListIndexes.length = indent + 1
+  }
+  if (collapsible) classes.push('nano-list-collapsible')
+  if (collapsed) classes.push('nano-list-collapsed')
+  decorations.push(Decoration.node(offset, offset + node.nodeSize, {
+    class: classes.join(' '),
+    style: style.join(' '),
+  }))
+}
+
+function decorateHeadingNode(
+  decorations: Decoration[],
+  node: ProseMirrorNode,
+  offset: number,
+  collapsible: boolean,
+  collapsed: boolean,
+): void {
+  if (!isHeadingNode(node)) return
+  const classes: string[] = []
+  if (collapsible) classes.push('nano-heading-collapsible')
+  if (collapsed) classes.push('nano-heading-collapsed')
+  if (classes.length > 0) decorations.push(Decoration.node(offset, offset + node.nodeSize, { class: classes.join(' ') }))
 }

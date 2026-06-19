@@ -1,14 +1,13 @@
 import { EditorState, type Transaction } from 'prosemirror-state'
-import {
-  type BlockOptionRegistry,
-  type BlockTemplate,
-} from '../../blocks/nano-block-options'
+import type { BlockTemplate } from '../../assembly/capability'
+import type { BlockOptionRegistry } from '../../blocks/nano-block-options'
 import {
   activeBlockRange,
   topLevelBlockRanges,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
-import { selectionAfterReplacementContent } from '../../core/nano-selection'
+} from '../../entities/block/structure/nano-block-ranges'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import { selectionAfterReplacementContent } from '../selection/placement'
 import { blockChangeReplacementWithContext } from './change-context'
 import { replacementNodeForBlockTemplate } from '../block-template/nodes'
 import { normalizedBlockChangeContent } from '../list/transforms'
@@ -28,7 +27,7 @@ export function changeBlockByIdTransaction(
   template: BlockTemplate,
   registry?: BlockOptionRegistry,
 ): Transaction | null {
-  const block = topLevelBlockRanges(state.doc).find((range) => range.node.attrs.id === id)
+  const block = topLevelBlockRanges(state.doc).find((range) => blockId(range.node) === id)
   return block ? changeBlockRangeTransaction(state, block, template, 0, registry) : null
 }
 

@@ -8,8 +8,8 @@ import {
   nanoDocumentFromMarkdown,
   nanoMarkdownBlocksFromDocument,
   nanoMarkdownFromDocument,
-  prosemirrorDocFromNano,
 } from '../../src/index.ts'
+import { prosemirrorDocFromNano } from '../../src/adapters/prosemirror/prosemirror-document.ts'
 import { assert, test } from './harness.mjs'
 
 test('Default Nano documents are fresh and isolated from exported empty state', () => {
@@ -38,6 +38,23 @@ test('Nano document schema rejects empty and duplicate block collections', () =>
       { id: 'same', type: 'paragraph', text: 'One', marks: [] },
       { id: 'same', type: 'paragraph', text: 'Two', marks: [] },
     ],
+  }).success, false)
+})
+
+test('Nano schema accepts dotted custom block candidates and rejects undotted custom types', () => {
+  const customBlockCandidate = {
+    id: 'custom-block',
+    data: { tone: 'info' },
+    text: 'Generated risk summary',
+    type: 'acme.callout-summary',
+  }
+
+  assert.equal(NanoBlockSchema.safeParse(customBlockCandidate).success, true)
+  assert.equal(NanoDocumentSchema.safeParse({ blocks: [customBlockCandidate] }).success, true)
+  assert.equal(NanoBlockSchema.safeParse({
+    id: 'custom-block',
+    text: 'Generated risk summary',
+    type: 'callout-summary',
   }).success, false)
 })
 

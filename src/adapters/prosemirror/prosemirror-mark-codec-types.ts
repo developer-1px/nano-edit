@@ -1,10 +1,10 @@
 import type { Mark } from 'prosemirror-model'
-import type { NanoMark } from '../../core/nano-core'
+import type { NanoMark } from '../../entities/document/nano-document-model'
 
 export type NanoMarkType = NanoMark['type']
-export type NanoMarkFor<TType extends NanoMarkType> = Extract<NanoMark, { type: TType }>
+type NanoMarkFor<TType extends NanoMarkType> = Extract<NanoMark, { type: TType }>
 
-export interface NanoMarkCodec<TType extends NanoMarkType> {
+interface NanoMarkCodec<TType extends NanoMarkType> {
   nanoType: TType
   markName: string
   fromNano: (mark: NanoMarkFor<TType>) => Mark
@@ -26,12 +26,19 @@ export function defineNanoMarkCodec<TType extends NanoMarkType>(
   return {
     nanoType: codec.nanoType,
     markName: codec.markName,
-    fromNano: (mark) => mark.type === codec.nanoType
-      ? codec.fromNano(mark as NanoMarkFor<TType>)
+    fromNano: (mark) => isNanoMarkFor(mark, codec.nanoType)
+      ? codec.fromNano(mark)
       : null,
-    toNano: codec.toNano as (mark: Mark, from: number, to: number) => NanoMark | null,
-    key: (mark) => mark.type === codec.nanoType
-      ? codec.key?.(mark as NanoMarkFor<TType>) ?? mark.type
+    toNano: codec.toNano,
+    key: (mark) => isNanoMarkFor(mark, codec.nanoType)
+      ? codec.key?.(mark) ?? mark.type
       : null,
   }
+}
+
+function isNanoMarkFor<TType extends NanoMarkType>(
+  mark: NanoMark,
+  type: TType,
+): mark is NanoMarkFor<TType> {
+  return mark.type === type
 }

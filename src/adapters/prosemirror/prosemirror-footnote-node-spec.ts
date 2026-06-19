@@ -1,11 +1,12 @@
 import type { NodeSpec } from 'prosemirror-model'
-import { firstNonBlankStringValue } from '../../core/schema/nano-block-schema-refinements'
-import { footnoteName } from '../../core/nano-footnote'
+import { firstNonBlankStringValue } from '../../entities/block/schema/nano-block-schema-refinements'
+import { footnoteName } from '../../entities/reference/nano-footnote'
 import {
   decodeFootnoteContinuationIndents,
   footnoteContinuationIndentDataAttrs,
-  textSpacingValue,
-} from './prosemirror-block-attrs'
+} from './prosemirror-continuation-indent-attrs'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
+import { textSpacingValue } from './prosemirror-quote-marker-attrs'
 import { sourceTokenAttrs } from './prosemirror-source-token'
 
 export const footnoteNodeSpec: NodeSpec = {
@@ -21,8 +22,10 @@ export const footnoteNodeSpec: NodeSpec = {
   parseDOM: [{
     tag: 'div.nano-footnote',
     getAttrs: (dom) => {
-      const element = dom as HTMLElement
-      const marker = element.querySelector('.nano-footnote-marker') as HTMLElement | null
+      const element = prosemirrorParseDomElement(dom)
+      if (!element) return false
+
+      const marker = element.querySelector<HTMLElement>('.nano-footnote-marker')
       return {
         footnoteContinuationIndents: decodeFootnoteContinuationIndents(element.dataset.footnoteContinuationIndents),
         footnoteTextSpacing: textSpacingValue(element.dataset.footnoteTextSpacing),

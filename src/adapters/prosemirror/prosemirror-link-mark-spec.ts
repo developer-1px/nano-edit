@@ -1,10 +1,11 @@
 import type { MarkSpec } from 'prosemirror-model'
-import { firstNonBlankStringValue } from '../../core/schema/nano-block-schema-refinements'
+import { firstNonBlankStringValue } from '../../entities/block/schema/nano-block-schema-refinements'
 import {
   destinationStyle,
   linkSyntax,
   markdownLinkClose,
-} from './prosemirror-atom-dom'
+} from './prosemirror-link-dom'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import {
   labelledSourceTokenDomSpec,
   sourceTokenAttrs,
@@ -23,7 +24,9 @@ export const linkMarkSpec: MarkSpec = {
   parseDOM: [{
     tag: 'a[href]',
     getAttrs: (dom) => {
-      const element = dom as HTMLElement
+      const element = prosemirrorParseDomElement(dom)
+      if (!element) return false
+
       const href = firstNonBlankStringValue(element.getAttribute('href'), element.dataset.href)
       if (!href) return false
 

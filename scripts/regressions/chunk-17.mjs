@@ -1,7 +1,7 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
-test('Bear nested quote markers stay structural block syntax', () => {
+test('Markdown nested quote markers stay structural block syntax', () => {
   const markdown = '>> nested\n>>> deep\n>>'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -29,7 +29,7 @@ test('Bear nested quote markers stay structural block syntax', () => {
   )
 })
 
-test('Bear quote markers feel editable through input and backspace', () => {
+test('Markdown quote markers feel editable through input and backspace', () => {
   const quoteState = textSelectionState('> nested', 'md-1', 0)
   assert.equal(
     markdownAfter(quoteState, blockShortcutTransaction(quoteState, quoteState.selection.from, quoteState.selection.from, '>')),
@@ -43,7 +43,7 @@ test('Bear quote markers feel editable through input and backspace', () => {
   assert.equal(markdownAfter(plainQuoteState, backspaceBlockTransaction(plainQuoteState)), 'nested')
 })
 
-test('Bear continuation quote markers feel editable through input and backspace', () => {
+test('Markdown continuation quote markers feel editable through input and backspace', () => {
   const nestedSecondLineState = textSelectionState('> one\n>> two', 'md-1', 'one\n'.length)
   assert.equal(
     markdownAfter(nestedSecondLineState, blockShortcutTransaction(nestedSecondLineState, nestedSecondLineState.selection.from, nestedSecondLineState.selection.from, '>')),
@@ -55,7 +55,7 @@ test('Bear continuation quote markers feel editable through input and backspace'
   assert.equal(markdownAfter(plainSecondLineState, backspaceBlockTransaction(plainSecondLineState)), '> one\n\ntwo')
 })
 
-test('Bear enter splits multiline quote marker attrs by source line', () => {
+test('Markdown enter splits multiline quote marker attrs by source line', () => {
   const state = textSelectionState('>one\n> two\n>>three', 'md-1', 'one'.length)
   const transaction = enterBlockTransaction(state)
 
@@ -66,7 +66,7 @@ test('Bear enter splits multiline quote marker attrs by source line', () => {
   ])
 })
 
-test('Bear ATX heading closing markers stay structural syntax', () => {
+test('Markdown ATX heading closing markers stay structural syntax', () => {
   const markdown = '## Closed title ###\n\n# Plain'
   const document = nanoDocumentFromMarkdown(markdown)
 

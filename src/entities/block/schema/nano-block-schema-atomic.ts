@@ -18,7 +18,7 @@ const TableBlockSchema = z.object({
   separatorCells: z.array(TableSeparatorCellSchema).optional(),
   trailingPipe: z.boolean().optional(),
   trailingPipes: z.array(z.boolean()).optional(),
-}).superRefine((block, ctx) => {
+}).strict().superRefine((block, ctx) => {
   const columnCount = block.rows[0]?.length ?? 0
   const lineCount = block.rows.length + 1
 
@@ -47,13 +47,13 @@ export const atomicBlockSchemas = [
     fenceInfoSpacing: z.string().regex(/^[\t ]+$/).optional(),
     fenceMarker: z.enum(['`', '~']).optional(),
     fenceLength: z.number().int().min(3).optional(),
-  }),
+  }).strict(),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('math'),
     text: z.string(),
     mathStyle: z.enum(['single']).optional(),
-  }),
+  }).strict(),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('bookmark'),
@@ -62,18 +62,18 @@ export const atomicBlockSchemas = [
     title: z.string().optional(),
     destinationStyle: z.enum(['angle']).optional(),
     syntax: z.enum(['autolink', 'bare', 'markdown']).optional(),
-  }),
+  }).strict(),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('note_ref'),
     target: NonBlankStringSchema,
     alias: z.string().optional(),
-  }),
+  }).strict(),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('tag_ref'),
     name: NonBlankStringSchema,
-  }),
+  }).strict(),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('attachment'),
@@ -81,13 +81,13 @@ export const atomicBlockSchemas = [
     label: z.string().optional(),
     title: z.string().optional(),
     destinationStyle: z.enum(['angle']).optional(),
-  }),
+  }).strict(),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('divider'),
     marker: z.enum(['---', '***', '___']).optional(),
     markerLength: z.number().int().min(3).optional(),
-  }),
+  }).strict(),
   z.object({
     id: NanoBlockIdSchema,
     type: z.literal('image'),
@@ -95,6 +95,6 @@ export const atomicBlockSchemas = [
     alt: z.string().optional(),
     destinationStyle: z.enum(['angle']).optional(),
     title: z.string().optional(),
-  }),
+  }).strict(),
   TableBlockSchema,
 ]

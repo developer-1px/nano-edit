@@ -3,21 +3,40 @@ import { NodeSelection, Selection, TextSelection } from 'prosemirror-state'
 import {
   blockAttrs,
   blockOptionForTemplate,
-  generatedBlockId,
   nodeTypeForBlockTemplate,
   type BlockOptionRegistry,
-  type BlockTemplate,
 } from '../../blocks/nano-block-options'
-import { nanoDocumentFromMarkdown } from '../../codecs/markdown/nano-markdown'
+import type { BlockTemplate } from '../../assembly/capability'
 import {
-  prosemirrorDocFromNano,
-} from '../../adapters/prosemirror/prosemirror-nano'
-import { selectionAfterInsertedContent } from '../../core/nano-selection'
+  quoteMarkerDepths,
+  quoteMarkerSpacing,
+} from '../../blocks/options/quote-values'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import {
+  bulletMarker,
+  orderedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
+import { nanoDocumentFromMarkdown } from '../../codecs/markdown/nano-markdown-parse'
+import { prosemirrorDocFromNano } from '../../adapters/prosemirror/prosemirror-document'
+import {
+  generatedBlockId,
+  nextBlockId,
+} from '../../capabilities/block-behavior-id'
+import {
+  clampIndent,
+  indentText,
+} from '../../capabilities/block-indent-values'
+import { todoNodeForBlockTemplate } from '../../capabilities/todo/view'
+import { selectionAfterInsertedContent } from '../selection/placement'
 import {
   templateText,
   markdownLineForTextBlockTemplate,
 } from './markdown'
-import { continuationNodeAfterMarkdownLine } from './continuation'
+import {
+  nextOrderedTemplateStartAttrs,
+} from './markdown-values'
 
 export function insertedNodeForBlockTemplate(
   template: BlockTemplate,
@@ -36,7 +55,7 @@ export function insertedNodeForBlockTemplate(
   return type && attrs ? type.create(attrs) : null
 }
 
-export function insertedMarkdownLineNodeForBlockTemplate(template: BlockTemplate, id: string): ProseMirrorNode | null {
+function insertedMarkdownLineNodeForBlockTemplate(template: BlockTemplate, id: string): ProseMirrorNode | null {
   const markdown = markdownLineForTextBlockTemplate(template)
   if (markdown === null) return null
 
@@ -56,7 +75,7 @@ export function replacementNodeForBlockTemplate(
   const option = registry ? registry.blockOptionForTemplate(template) : blockOptionForTemplate(template)
   if (option?.replacementNode) return option.replacementNode(template, source)
 
-  const id = typeof source.attrs.id === 'string' && source.attrs.id ? source.attrs.id : generatedBlockId('b', 'changed')
+  const id = blockId(source) || generatedBlockId(null, 'changed')
   const type = registry ? registry.nodeTypeForBlockTemplate(template) : nodeTypeForBlockTemplate(template)
   const attrs = registry ? registry.blockAttrs(template, id) : blockAttrs(template, id)
   if (!type || !attrs) return null
@@ -81,6 +100,40 @@ export function insertedContentForShortcutTemplate(
 
   const continuation = text.length > 0 ? continuationNodeAfterMarkdownLine(doc, template, id) : null
   return continuation ? Fragment.fromArray([node, continuation]) : node
+}
+
+function continuationNodeAfterMarkdownLine(
+  doc: ProseMirrorNode,
+  template: BlockTemplate,
+  id: string,
+): ProseMirrorNode | null {
+  const nextId = nextBlockId(doc, id)
+  switch (template.type) {
+    case 'heading':
+    case 'callout':
+    case 'footnote':
+      return nanoSchema.nodes[nanoNodeNames.paragraph].create({ id: nextId })
+    case 'quote':
+      return nanoSchema.nodes[nanoNodeNames.quote].create({
+        id: nextId,
+        quoteMarkerSpacing: template.type === 'quote' ? quoteMarkerSpacing(template.quoteMarkerSpacing) : null,
+        quoteMarkerDepths: template.type === 'quote' ? quoteMarkerDepths(template.quoteMarkerDepths) : null,
+      })
+    case 'todo':
+      return todoNodeForBlockTemplate(template, nextId, nanoSchema.nodes[nanoNodeNames.todo])
+    case 'list_item':
+      return nanoSchema.nodes[nanoNodeNames.listItem].create({
+        id: nextId,
+        kind: template.kind,
+        indent: clampIndent(template.indent),
+        indentText: indentText(template.indentText),
+        marker: template.kind === 'bullet' ? bulletMarker(template.marker) : '-',
+        orderedMarker: template.kind === 'ordered' ? orderedMarker(template.orderedMarker) : '.',
+        ...(template.kind === 'ordered' ? nextOrderedTemplateStartAttrs(template) : { start: null }),
+      })
+    default:
+      return null
+  }
 }
 
 export function selectionAfterMarkdownLineEnter(

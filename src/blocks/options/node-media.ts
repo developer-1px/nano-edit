@@ -4,7 +4,8 @@ import {
   blockWithTrailingParagraph,
   sourceBlockId,
 } from './node-helpers'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export function imageNodeForBlockTemplate(template: BlockTemplate, source: string | ProseMirrorNode): Fragment | null {
   if (template.type !== 'image') return null

@@ -17,7 +17,7 @@ test('Hidden block picker chrome stays removed', () => {
   const slashRuntime = readFileSync(new URL('../../src/view/runtime/slash-command.ts', import.meta.url), 'utf8')
   const viewCreate = readFileSync(new URL('../../src/view/runtime/create.ts', import.meta.url), 'utf8')
   const lifecycle = readFileSync(new URL('../../src/view/runtime/lifecycle.ts', import.meta.url), 'utf8')
-  const inputPlugins = readFileSync(new URL('../../src/view/input/plugins.ts', import.meta.url), 'utf8')
+  const inputRuntime = readFileSync(new URL('../../src/view/input/runtime.ts', import.meta.url), 'utf8')
   const inspectorShell = readFileSync(new URL('../../src/view/shell/inspector-shell.ts', import.meta.url), 'utf8')
   assert.equal(css.includes('block-picker-option'), false)
   assert.equal(css.includes('content: attr(data-md);'), false)
@@ -28,7 +28,7 @@ test('Hidden block picker chrome stays removed', () => {
   assert.equal(viewCreate.includes('Gutter'), false)
   assert.equal(lifecycle.includes('Gutter'), false)
   for (const dragSurface of ['dragstart', 'dragover', 'dragend', 'drop:', 'clearBlockDragState', 'nano-drop-before', 'nano-block-drag-source']) {
-    assert.equal(inputPlugins.includes(dragSurface), false)
+    assert.equal(inputRuntime.includes(dragSurface), false)
     assert.equal(editorCss.includes(dragSurface), false)
   }
   assert.equal(css.includes('content: "/" attr(data-query);'), false)
@@ -67,14 +67,14 @@ test('Accessible chrome avoids Markdown jargon outside explicit source actions',
 
 test('Inspector chrome uses icon elements instead of text placeholders', () => {
   const inspectorShell = readFileSync(new URL('../../src/view/shell/inspector-shell.ts', import.meta.url), 'utf8')
-  const inspectorEntry = readFileSync(new URL('../../src/view/inspector/index-entry.ts', import.meta.url), 'utf8')
+  const inspectorIndexPanel = readFileSync(new URL('../../src/view/inspector/index-panel.ts', import.meta.url), 'utf8')
   const inspectorCss = readFileSync(new URL('../../src/styles/inspector.css', import.meta.url), 'utf8')
 
   assert(inspectorShell.includes("from 'lucide'"))
   assert(inspectorShell.includes("shellButton('', 'Index', ListTree)"))
   assert(inspectorShell.includes("shellButton('', 'Source', FileCode2)"))
   assert(inspectorShell.includes("lucideIconElement(PanelRightOpen"))
-  assert(inspectorEntry.includes("lucideIconElement(indexEntryIcon(action), 'nano-index-icon')"))
+  assert(inspectorIndexPanel.includes("lucideIconElement(indexEntryIcon(action), 'nano-index-icon')"))
   assert.equal(inspectorCss.includes("content: 'i';"), false)
   assert.equal(inspectorCss.includes("content: 's';"), false)
   assert.equal(inspectorCss.includes("content: 'p';"), false)
@@ -94,8 +94,6 @@ test('Document surface does not depend on GitHub markdown viewer CSS', () => {
   assert.equal(main.includes('github-markdown-css'), false)
   assert.equal(main.includes('prosemirror-view/style/prosemirror.css'), false)
   assert.equal(JSON.stringify(packageJson).includes('github-markdown-css'), false)
-  assert.equal(packageJson.exports['./style.css'], './src/style.css')
-  assert(packageJson.sideEffects.includes('**/*.css'))
   assert(css.includes("@import './styles/prosemirror.css';"))
   assert(prosemirrorCss.includes('.nano .ProseMirror {'))
   assert(prosemirrorCss.includes('white-space: break-spaces;'))

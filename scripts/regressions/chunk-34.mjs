@@ -1,4 +1,5 @@
 import { createNanoCommandPalette } from '../../src/view/shell/command-palette.ts'
+import { createNanoDeckRailInteraction } from '../../src/view/deck/deck-rail-interaction.ts'
 import {
   createAutocomplete,
   createAutocompleteSurface,
@@ -50,6 +51,11 @@ class FakeElement {
 
   contains(target) {
     return target === this || this.children.includes(target)
+  }
+
+  closest(selector) {
+    if (selector === '[data-slide-index]' && this.dataset.slideIndex !== undefined) return this
+    return null
   }
 
   focus() {
@@ -268,6 +274,55 @@ test('Command palette routes global shortcut through interaction ownership', () 
   }
 })
 
+test('Deck rail select falls back when target slide index is out of range', () => {
+  const originalElement = globalThis.Element
+  const originalNode = globalThis.Node
+
+  globalThis.Element = FakeElement
+  globalThis.Node = FakeElement
+
+  try {
+    const interaction = createNanoDeckRailInteraction()
+    const target = new FakeElement('button')
+    const selected = []
+    target.dataset.slideIndex = '99'
+
+    try {
+      interaction.handleSlideKeydown({
+        key: 'Enter',
+        target,
+        preventDefault: () => {},
+        stopPropagation: () => {},
+      }, {
+        activeIndex: 1,
+        focusSlide: () => {
+          throw new Error('select should not move focus')
+        },
+        reorderSlide: () => {
+          throw new Error('select should not reorder slides')
+        },
+        selectSlide: (index) => selected.push(index),
+        slideCount: 2,
+      })
+    } finally {
+      interaction.destroy()
+    }
+
+    assert.deepEqual(selected, [1])
+  } finally {
+    if (originalElement === undefined) {
+      delete globalThis.Element
+    } else {
+      globalThis.Element = originalElement
+    }
+    if (originalNode === undefined) {
+      delete globalThis.Node
+    } else {
+      globalThis.Node = originalNode
+    }
+  }
+})
+
 test('Autocomplete core owns query selection without DOM', () => {
   const autocomplete = createAutocomplete({
     options: (_context, query) => visibleAutocompleteOptions([
@@ -331,6 +386,7 @@ test('Autocomplete surface works without Nano command objects', () => {
     assert.equal(input.getAttribute('aria-expanded'), 'true')
     assert.equal(input.getAttribute('aria-activedescendant'), list.children[0].id)
     assert.equal(input.ariaLabel, 'Mention')
+    assert.equal(input.type, 'text')
     assert.equal(input.placeholder, '@')
     assert.equal(input.value, 'engine')
     assert.equal(surface.state().query, 'engine')
@@ -352,6 +408,14 @@ test('Autocomplete surface works without Nano command objects', () => {
     assert.deepEqual(runs, [['alan', '@']])
     assert.equal(surface.root.hidden, true)
     assert.equal(input.getAttribute('aria-expanded'), 'false')
+
+    const searchSurface = createAutocompleteSurface({
+      inputType: 'search',
+      options: () => [],
+      run: () => {},
+    })
+    assert.equal(searchSurface.input.type, 'search')
+    searchSurface.destroy()
 
     surface.destroy()
   } finally {

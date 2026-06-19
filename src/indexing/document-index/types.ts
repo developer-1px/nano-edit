@@ -1,4 +1,4 @@
-import type { TodoIndexEntry } from '../../capabilities/todo/index'
+import type { TodoIndexEntry } from '../../capabilities/todo/indexing'
 
 export interface NanoDocumentIndex {
   outline: readonly IndexEntry[]

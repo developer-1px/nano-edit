@@ -1,5 +1,5 @@
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
-import { nanoNodeNames } from '../../../adapters/prosemirror/prosemirror-nano'
+import { nanoNodeNames } from '../../../adapters/prosemirror/prosemirror-names'
 
 export function blockId(node: ProseMirrorNode): string {
   return typeof node.attrs.id === 'string' ? node.attrs.id : ''
@@ -40,7 +40,7 @@ export function blockPositionById(doc: ProseMirrorNode, id: string): number | nu
   let position: number | null = null
   doc.forEach((node, offset) => {
     if (position !== null) return
-    if (node.attrs.id === id) position = offset
+    if (blockId(node) === id) position = offset
   })
   return position
 }

@@ -1,24 +1,29 @@
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import type { EditorState } from 'prosemirror-state'
+import { blockCollapseRanges } from '../../../entities/block/structure/nano-block-collapse'
 import {
-  blockCollapseRanges,
   headingLevel,
   nodeIndent,
   nodeOrderedStart,
   nodeOrderedStartText,
-} from '../../../entities/block/structure/nano-block-structure'
+} from '../../../entities/block/structure/nano-block-node-kind'
+import { checkedMarker } from '../../../codecs/markdown/nano-markdown-marker-attrs'
 import {
   bulletMarker,
+  orderedMarker,
+} from '../../../adapters/prosemirror/prosemirror-list-attrs'
+import {
   calloutMarkerToken,
   calloutTone,
+  quotePrefixToken,
+} from '../../../adapters/prosemirror/prosemirror-quote-marker-attrs'
+import {
   codeFenceCloseToken,
   codeFenceOpenToken,
   dividerMarkdown,
-  headingPrefixToken,
-  orderedMarker,
-  quotePrefixToken,
-} from '../../../adapters/prosemirror/prosemirror-block-attrs'
-import { nanoNodeNames } from '../../../adapters/prosemirror/prosemirror-nano'
+} from '../../../adapters/prosemirror/prosemirror-code-divider-attrs'
+import { headingPrefixToken } from '../../../adapters/prosemirror/prosemirror-heading-attrs'
+import { nanoNodeNames } from '../../../adapters/prosemirror/prosemirror-names'
 import { selectionTouchesBlock } from './selection'
 
 export interface ActiveBlockSource {
@@ -109,10 +114,6 @@ function todoMarker(node: ProseMirrorNode, orderedListIndexes: number[]): string
   const indent = nodeIndent(node)
   orderedListIndexes[indent] = 0
   orderedListIndexes.length = indent + 1
-  const checked = node.attrs.checked === true ? checkedMarkerText(node.attrs.checkedMarker) : ' '
+  const checked = node.attrs.checked === true ? checkedMarker(node.attrs.checkedMarker) : ' '
   return `${bulletMarker(node.attrs.marker)} [${checked}] `
-}
-
-function checkedMarkerText(marker: unknown): 'x' | 'X' {
-  return marker === 'X' ? 'X' : 'x'
 }

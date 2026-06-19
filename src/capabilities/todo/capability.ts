@@ -1,21 +1,32 @@
 import { TextSelection, type Transaction } from 'prosemirror-state'
 import type { BlockKeyboardContext } from '../../assembly/capability'
 import type { BlockOption, EditorCapability } from '../../assembly/capability'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
 import {
   blockIndent,
-  bulletMarker,
-  checkedMarker,
   clampIndent,
   indentText,
+} from '../block-indent-values'
+import {
   markdownIndentLevel,
   markdownIndentText,
+} from '../../codecs/markdown/nano-markdown-list-attrs'
+import {
+  bulletMarker,
+  checkedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
+import {
   outdentEmptyListBlockThen,
   outdentListBlockAtStartThenParagraph,
+} from '../block-behavior-list'
+import {
   splitBlockWithNextAttrs,
-  todoBoxTarget,
+} from '../block-behavior-split'
+import {
   toggleCheckedBlockTransaction,
-} from '../prosemirror-block-behavior'
+} from '../block-behavior-paragraph'
 
 const todoBlockOption: BlockOption = {
   id: 'todo',
@@ -96,6 +107,11 @@ export const todoCapability: EditorCapability = {
   blockOptions: [todoBlockOption],
 }
 
+function todoBoxTarget(target: EventTarget | null): Element | null {
+  const element = target instanceof Element ? target : null
+  return element?.closest('.nano-todo-box') ?? null
+}
+
 function degradeTodoAtStartThenOutdent(context: BlockKeyboardContext): Transaction | null {
   if (context.$from.parentOffset !== 0) return null
 
@@ -107,7 +123,7 @@ function degradeTodoAtStartThenOutdent(context: BlockKeyboardContext): Transacti
   if (!listItemType) return null
 
   const listItem = listItemType.create({
-    id: context.block.attrs.id,
+    id: blockId(context.block) || null,
     kind: 'bullet',
     continuationIndents: context.block.attrs.continuationIndents,
     indent: 0,

@@ -3,7 +3,12 @@ import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export function clampHeadingLevel(level: unknown): 1 | 2 | 3 | 4 | 5 | 6 {
   const value = typeof level === 'number' ? Math.trunc(level) : 1
-  return clamp(value, 1, 6) as 1 | 2 | 3 | 4 | 5 | 6
+  if (value <= 1) return 1
+  if (value >= 6) return 6
+  if (value === 2) return 2
+  if (value === 3) return 3
+  if (value === 4) return 4
+  return 5
 }
 
 export function headingStyle(style: unknown, level: unknown): 'atx' | 'setext' {
@@ -88,8 +93,4 @@ export function headingAtxAttrs(
     ...(closingSpacing ? { atxClosingSpacing: closingSpacing } : {}),
     ...(textSpacing ? { atxTextSpacing: textSpacing } : {}),
   }
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value))
 }

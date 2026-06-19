@@ -1,12 +1,14 @@
 import { Fragment, type Node as ProseMirrorNode } from 'prosemirror-model'
 import { EditorState, NodeSelection, TextSelection, type Transaction } from 'prosemirror-state'
-import { generatedBlockId, nextBlockId } from '../../blocks/nano-block-options'
 import {
-  topLevelBlockRanges,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
-import { noteLinkNavigationTarget, noteLinkTarget } from '../../core/nano-note-link'
-import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-nano'
+  generatedBlockId,
+  nextBlockId,
+} from '../../capabilities/block-behavior-id'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import { topLevelBlockRanges } from '../../entities/block/structure/nano-block-ranges'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import { noteLinkNavigationTarget, noteLinkTarget } from '../../entities/reference/nano-note-link'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
 
 export function noteReferenceTransaction(
   state: EditorState,
@@ -54,7 +56,7 @@ function headingBlockRangeForText(doc: ProseMirrorNode, rawTarget: string): Acti
 function noteReferenceInsertPosition(doc: ProseMirrorNode, originBlockId: string | null): number {
   if (!originBlockId) return doc.content.size
 
-  const origin = topLevelBlockRanges(doc).find((range) => range.node.attrs.id === originBlockId)
+  const origin = topLevelBlockRanges(doc).find((range) => blockId(range.node) === originBlockId)
   return origin?.to ?? doc.content.size
 }
 

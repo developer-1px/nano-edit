@@ -1,9 +1,9 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
-test('Bear inline Markdown round-trips through the block model', () => {
-  const document = nanoDocumentFromMarkdown(bearInlineMarkdown)
-  assert.equal(nanoMarkdownFromDocument(document), bearInlineMarkdown)
+test('Inline Markdown round-trips through the block model', () => {
+  const document = nanoDocumentFromMarkdown(inlineMarkdownFixture)
+  assert.equal(nanoMarkdownFromDocument(document), inlineMarkdownFixture)
 
   const block = document.blocks[0]
   assert.equal(block.type, 'paragraph')
@@ -25,7 +25,7 @@ test('Bear inline Markdown round-trips through the block model', () => {
   assert(nanoDocumentIndex(document).tags.some((entry) => entry.label === 'multi word tag' && entry.target === '#multi word tag#'))
 })
 
-test('Bear note links preserve aliases as structured mark data', () => {
+test('Wiki note links preserve aliases as structured mark data', () => {
   const markdown = 'Open [[Target Note#Heading|display alias]]'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -52,7 +52,7 @@ test('Bear note links preserve aliases as structured mark data', () => {
   ])
 })
 
-test('Standalone Bear note links can become note reference blocks', () => {
+test('Standalone wiki note links can become note reference blocks', () => {
   const markdown = '[[Target Note#Heading|display alias]]'
   const document = nanoDocumentFromMarkdown(markdown)
 

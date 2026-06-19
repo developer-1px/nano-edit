@@ -1,53 +1,78 @@
+import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import type { EditorView } from 'prosemirror-view'
-import type { BlockOptionRegistry } from '../../blocks/nano-block-options'
-import { listFoldBlockIdFromEventTarget } from '../selection/active-block'
+import type { BlockClickEntry } from '../../assembly/capability'
 import {
-  blockClickActionFromEventTarget,
-  blockClickTargetFromEventTarget,
-} from '../block-edit/click-target'
+  blockClickOptionForNode,
+  blockClickOptions,
+  type BlockOptionRegistry,
+} from '../../blocks/nano-block-options'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
 import type { NanoViewContext } from '../runtime/context'
 import type { NanoInspectorRuntime } from '../inspector/runtime'
-import type { NanoInputActions } from './runtime'
 import {
   externalLinkHrefFromEventTarget,
-  noteReferenceTargetFromEventTarget,
-  noteReferenceTransaction,
   openExternalLink,
-  tagReferenceTargetFromEventTarget,
+} from '../references/external'
+import {
+  noteReferenceTransaction,
+} from '../references/note'
+import {
   tagReferenceTransaction,
-} from '../references/index'
+} from '../references/tag'
+import {
+  noteReferenceTargetFromEventTarget,
+  tagReferenceTargetFromEventTarget,
+} from '../references/targets'
+
+interface NanoInputClickActions {
+  toggleCollapsedBlock: (id: string) => void
+}
 
 export function createNanoInputClickHandlers(
+  ctx: NanoViewContext,
+  inspector: NanoInspectorRuntime,
+  actions: NanoInputClickActions,
+): ReturnType<typeof createNanoInputClickHandlersWithRegistry>
+export function createNanoInputClickHandlers(
+  inspector: NanoInspectorRuntime,
+  actions: NanoInputClickActions,
+): ReturnType<typeof createNanoInputClickHandlersWithRegistry>
+export function createNanoInputClickHandlers(
   ctxOrInspector: NanoViewContext | NanoInspectorRuntime,
-  inspectorOrActions: NanoInspectorRuntime | NanoInputActions,
-  actions?: NanoInputActions,
+  inspectorOrActions: NanoInspectorRuntime | NanoInputClickActions,
+  actions?: NanoInputClickActions,
 ) {
-  if (actions) {
+  if (actions && hasBlockRegistry(ctxOrInspector) && isNanoInspectorRuntime(inspectorOrActions)) {
     return createNanoInputClickHandlersWithRegistry(
-      (ctxOrInspector as NanoViewContext).blockRegistry,
-      inspectorOrActions as NanoInspectorRuntime,
+      ctxOrInspector.blockRegistry,
+      inspectorOrActions,
       actions,
     )
   }
 
-  return createNanoInputClickHandlersWithRegistry(
-    undefined,
-    ctxOrInspector as NanoInspectorRuntime,
-    inspectorOrActions as NanoInputActions,
-  )
+  if (isNanoInspectorRuntime(ctxOrInspector) && isNanoInputClickActions(inspectorOrActions)) {
+    return createNanoInputClickHandlersWithRegistry(undefined, ctxOrInspector, inspectorOrActions)
+  }
+
+  throw new TypeError('Invalid Nano input click handler dependencies')
 }
 
-export function createDefaultNanoInputClickHandlers(
-  inspector: NanoInspectorRuntime,
-  actions: NanoInputActions,
-) {
-  return createNanoInputClickHandlersWithRegistry(undefined, inspector, actions)
+function hasBlockRegistry(value: NanoViewContext | NanoInspectorRuntime): value is NanoViewContext {
+  return 'blockRegistry' in value
 }
 
-export function createNanoInputClickHandlersWithRegistry(
+function isNanoInspectorRuntime(value: NanoViewContext | NanoInspectorRuntime | NanoInputClickActions): value is NanoInspectorRuntime {
+  return 'dispatchAndReveal' in value
+}
+
+function isNanoInputClickActions(value: NanoInspectorRuntime | NanoInputClickActions): value is NanoInputClickActions {
+  return 'toggleCollapsedBlock' in value
+}
+
+function createNanoInputClickHandlersWithRegistry(
   registry: BlockOptionRegistry | undefined,
   inspector: NanoInspectorRuntime,
-  actions: NanoInputActions,
+  actions: NanoInputClickActions,
 ) {
   const handleEditorClick = (view: EditorView, event: MouseEvent): boolean => {
     const externalHref = externalLinkHrefFromEventTarget(event.target)
@@ -151,4 +176,49 @@ function handleReferenceClick(
   inspector.dispatchAndReveal(transaction)
   view.focus()
   return true
+}
+
+function listFoldBlockIdFromEventTarget(target: EventTarget | null): string | null {
+  const element = target instanceof Element
+    ? target.closest<HTMLElement>('.nano-list-fold, .nano-heading-fold')
+    : null
+  const block = element?.closest<HTMLElement>('.nano-block[data-id]')
+  const collapsible = block?.classList.contains('nano-heading-collapsible') === true
+    || block?.classList.contains('nano-list-collapsible') === true
+  return collapsible ? block?.dataset.id ?? null : null
+}
+
+function blockClickActionFromEventTarget(
+  doc: ProseMirrorNode,
+  target: EventTarget | null,
+  registry?: BlockOptionRegistry,
+): { option: BlockClickEntry; position: number } | null {
+  const targetElement = blockClickTargetFromEventTarget(target, registry)
+  const id = targetElement?.closest<HTMLElement>('.nano-block[data-id]')?.dataset.id
+  if (!id) return null
+
+  let action: { option: BlockClickEntry; position: number } | null = null
+  doc.descendants((node, nodePosition) => {
+    if (action) return false
+    const option = registry
+      ? registry.blockClickOptionForNode(node)
+      : blockClickOptionForNode(node)
+    if (option && blockId(node) === id) {
+      action = { option, position: nodePosition }
+      return false
+    }
+    return true
+  })
+  return action
+}
+
+function blockClickTargetFromEventTarget(
+  target: EventTarget | null,
+  registry?: BlockOptionRegistry,
+): Element | null {
+  for (const option of (registry ? registry.blockClickOptions() : blockClickOptions())) {
+    const element = option.click.target(target)
+    if (element) return element
+  }
+  return null
 }

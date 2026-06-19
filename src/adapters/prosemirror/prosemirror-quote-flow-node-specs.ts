@@ -11,7 +11,8 @@ import {
   encodeQuoteMarkerSpacing,
   quoteMarkerSpacingValue,
   quotePrefixToken,
-} from './prosemirror-block-attrs'
+} from './prosemirror-quote-marker-attrs'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const quoteNodeSpec: NodeSpec = {
@@ -21,7 +22,9 @@ export const quoteNodeSpec: NodeSpec = {
   parseDOM: [{
     tag: 'blockquote.nano-quote',
     getAttrs: (dom) => {
-      const element = dom as HTMLElement
+      const element = prosemirrorParseDomElement(dom)
+      if (!element) return false
+
       return {
         quoteMarkerSpacing: decodeQuoteMarkerSpacing(element.dataset.quoteMarkerSpacing),
         quoteMarkerDepths: decodeQuoteMarkerDepths(element.dataset.quoteMarkerDepths),
@@ -59,7 +62,9 @@ export const calloutNodeSpec: NodeSpec = {
   parseDOM: [{
     tag: 'aside.nano-callout',
     getAttrs: (dom) => {
-      const element = dom as HTMLElement
+      const element = prosemirrorParseDomElement(dom)
+      if (!element) return false
+
       return {
         tone: calloutTone(element.dataset.tone),
         calloutMarkerDepths: decodeQuoteMarkerDepths(element.dataset.calloutMarkerDepths),
@@ -106,15 +111,12 @@ function calloutIcon(tone: CalloutTone) {
 }
 
 function calloutDataAttrs(attrs: Record<string, unknown>): Record<string, string> {
+  const markerDepths = encodeQuoteMarkerDepths(attrs.calloutMarkerDepths)
+  const markerSpacing = encodeQuoteMarkerSpacing(attrs.calloutMarkerSpacing)
+  const textSpacing = quoteMarkerSpacingValue(attrs.calloutTextSpacing)
   return {
-    ...(encodeQuoteMarkerDepths(attrs.calloutMarkerDepths)
-      ? { 'data-callout-marker-depths': encodeQuoteMarkerDepths(attrs.calloutMarkerDepths)! }
-      : {}),
-    ...(encodeQuoteMarkerSpacing(attrs.calloutMarkerSpacing)
-      ? { 'data-callout-marker-spacing': encodeQuoteMarkerSpacing(attrs.calloutMarkerSpacing)! }
-      : {}),
-    ...(quoteMarkerSpacingValue(attrs.calloutTextSpacing)
-      ? { 'data-callout-text-spacing': quoteMarkerSpacingValue(attrs.calloutTextSpacing)! }
-      : {}),
+    ...(markerDepths ? { 'data-callout-marker-depths': markerDepths } : {}),
+    ...(markerSpacing ? { 'data-callout-marker-spacing': markerSpacing } : {}),
+    ...(textSpacing ? { 'data-callout-text-spacing': textSpacing } : {}),
   }
 }
