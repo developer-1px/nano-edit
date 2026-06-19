@@ -33,6 +33,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'dinos'), '/nano2/dinos')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-default-editor'), '/nano2/tiptap-default-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-clever-editor'), '/nano2/tiptap-clever-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-long-texts'), '/nano2/tiptap-long-texts')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
@@ -271,6 +272,33 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedDirection.blocks.some((block) => block.id === 'nano2-direction-ltr-target' && block.textDirection === 'ltr'))
   assert(storedDirection.blocks.some((block) => block.id === 'nano2-direction-auto-target' && block.textDirection === 'auto'))
   assert(storedDirection.blocks.some((block) => block.id === 'nano2-direction-list' && block.textDirection === 'rtl'))
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-clever-editor"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-clever-editor"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Clever Editor")')
+  await waitForExpression(browser, `document.querySelector('.nano2')?.dataset.profile === 'clever'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-clever-emoji')
+  await typeCharacters(browser, ':)')
+  await waitForExpression(browser, `document.querySelector('.nano2 [data-id="nano2-clever-emoji"]')?.textContent === '🙂'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-clever-typography')
+  await typeCharacters(browser, '-> (c)')
+  await waitForExpression(browser, `document.querySelector('.nano2 [data-id="nano2-clever-typography"]')?.textContent === '→ ©'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-clever-highlight')
+  await typeCharacters(browser, '==bright==')
+  await waitForExpression(browser, `document.querySelector('.nano2 [data-id="nano2-clever-highlight"]')?.textContent === 'bright'`)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 [data-id="nano2-clever-highlight"] mark.nano-highlight'))`)
+
+  await wait(160)
+  const storedClever = await storedNano2Document(browser, 'tiptap-clever-editor')
+  assert(storedClever.blocks.some((block) => block.id === 'nano2-clever-emoji' && block.text === '🙂'))
+  assert(storedClever.blocks.some((block) => block.id === 'nano2-clever-typography' && block.text === '→ ©'))
+  const cleverHighlightBlock = storedClever.blocks.find((block) => block.id === 'nano2-clever-highlight')
+  assert(cleverHighlightBlock)
+  assert.equal(cleverHighlightBlock.text, 'bright')
+  assert(cleverHighlightBlock.marks.some((mark) => mark.type === 'highlight' && cleverHighlightBlock.text.slice(mark.from, mark.to) === 'bright'))
 
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-images"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-images"')

@@ -1,5 +1,8 @@
 export { createNano2View } from './create'
 export {
+  nano2CleverReplacementTransaction,
+} from './clever-replacements'
+export {
   nano2SetTextDirectionTransaction,
   type Nano2TextDirection,
 } from './text-direction'

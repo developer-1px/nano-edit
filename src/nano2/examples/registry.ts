@@ -3,6 +3,7 @@ import type { Nano2ViewProfile } from '../types'
 import {
   nano2BasicsDocument,
   nano2DinosDocument,
+  nano2TiptapCleverEditorDocument,
   nano2TiptapDefaultEditorDocument,
   nano2TiptapFormattingDocument,
   nano2TiptapImagesDocument,
@@ -117,6 +118,20 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     view: 'Nano2 projects block direction to DOM dir/data attrs and exposes direction keymaps through the ProseMirror view seed.',
     acceptance: 'Render existing RTL blocks, switch blocks between LTR/RTL/AUTO, reload, and compare persisted NanoDocument textDirection attrs.',
     document: nano2TiptapTextDirectionDocument,
+  },
+  {
+    id: 'tiptap-clever-editor',
+    title: 'Tiptap Clever Editor',
+    phase: 'T2',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/advanced/clever-editor',
+    track: 'tiptap',
+    pressure: 'Customized extensions replace typed emoji, typography, and highlight syntax while editing.',
+    headless: 'Nano2 expresses replacements as schema-valid NanoDocument text and highlight mark changes committed through json-document.',
+    view: 'A Nano2-only clever profile installs replacement input rules over the ProseMirror view seed without importing Tiptap extension runtime.',
+    acceptance: 'Type emoji, typography, and highlight triggers, render the replacements, reload, and compare persisted NanoDocument text and marks.',
+    document: nano2TiptapCleverEditorDocument,
+    viewProfile: 'clever',
   },
   {
     id: 'tiptap-images',

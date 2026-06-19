@@ -31,6 +31,7 @@ import {
 import type { NanoDocument } from '../entities/document/nano-document-model'
 import { splitTextblockTransaction } from '../view/keyboard/enter'
 import { TEXT_MERGE_MS } from '../view/runtime/context'
+import { nano2CleverReplacementPlugin } from './clever-replacements'
 import { nano2ImagePlugin } from './images'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { nano2MenuPlugin } from './menus'
@@ -135,6 +136,7 @@ class Nano2View {
   private createDefaultPlugins(): Plugin[] {
     return [
       ...(this.mention ? [this.mention.plugin()] : []),
+      ...(this.profile === 'clever' ? [nano2CleverReplacementPlugin()] : []),
       ...(this.profile === 'menus' ? [nano2MenuPlugin(this.root)] : []),
       nano2MarkdownShortcutPlugin(),
       nano2ImagePlugin(),

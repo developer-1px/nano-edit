@@ -455,3 +455,33 @@ export const nano2TiptapMenusDocument: NanoDocument = NanoDocumentSchema.parse({
     },
   ],
 })
+
+export const nano2TiptapCleverEditorDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-clever-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Clever Editor',
+      marks: [],
+    },
+    {
+      id: 'nano2-clever-emoji',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-clever-typography',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-clever-highlight',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+  ],
+})

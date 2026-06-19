@@ -19,9 +19,11 @@ import { createNanoDocument } from '../../src/entities/document/nano-document.ts
 import { NanoDocumentSchema } from '../../src/entities/document/nano-document-model.ts'
 import { blockPositionById } from '../../src/entities/block/structure/nano-block-node-kind.ts'
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
+import { nano2CleverReplacementTransaction } from '../../src/nano2/clever-replacements.ts'
 import {
   nano2LongTextsTargetBlockId,
   nano2LongTextsWordCount,
+  nano2TiptapCleverEditorDocument,
   nano2TiptapDefaultEditorDocument,
   nano2TiptapLongTextsDocument,
 } from '../../src/nano2/examples/documents.ts'
@@ -825,6 +827,58 @@ test('Nano2 T1 Markdown shortcuts: delimiters lower to Nano mark ranges', () => 
   })
 })
 
+test('Nano2 T2 Clever editor: custom replacements lower to NanoDocument changes', () => {
+  const initial = nano2TiptapCleverEditorDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const engine = createNanoDocument(initial)
+
+  const emojiOperations = typeTextWithNano2CleverReplacement(engine, 'nano2-clever-emoji', ':)')
+  assert(emojiOperations.some((operation) =>
+    operation.inputType === 'nano2CleverReplacement:emoji-smile'
+    && JSON.stringify(operation.operations) === JSON.stringify([{ op: 'replace', path: '/blocks/1/text', value: '🙂' }]),
+  ))
+  assert.deepEqual(engine.value.blocks.find((block) => block.id === 'nano2-clever-emoji'), {
+    id: 'nano2-clever-emoji',
+    type: 'paragraph',
+    text: '🙂',
+    marks: [],
+  })
+
+  const typographyOperations = typeTextWithNano2CleverReplacement(engine, 'nano2-clever-typography', '-> (c)')
+  assert(typographyOperations.some((operation) =>
+    operation.inputType === 'nano2CleverReplacement:arrow-right'
+    && JSON.stringify(operation.operations) === JSON.stringify([{ op: 'replace', path: '/blocks/2/text', value: '→' }]),
+  ))
+  assert(typographyOperations.some((operation) =>
+    operation.inputType === 'nano2CleverReplacement:copyright'
+    && JSON.stringify(operation.operations) === JSON.stringify([{ op: 'replace', path: '/blocks/2/text', value: '→ ©' }]),
+  ))
+  assert.deepEqual(engine.value.blocks.find((block) => block.id === 'nano2-clever-typography'), {
+    id: 'nano2-clever-typography',
+    type: 'paragraph',
+    text: '→ ©',
+    marks: [],
+  })
+
+  const highlightOperations = typeTextWithNano2CleverReplacement(engine, 'nano2-clever-highlight', '==bright==')
+  const highlightOperation = highlightOperations.find((operation) => operation.inputType === 'nano2CleverReplacement:highlight')
+  assert(highlightOperation)
+  assert(highlightOperation.operations.some((operation) =>
+    operation.path === '/blocks/3'
+    && operation.value?.id === 'nano2-clever-highlight'
+    && operation.value?.text === 'bright'
+    && operation.value?.marks?.some((mark) => mark.type === 'highlight' && mark.from === 0 && mark.to === 6),
+  ))
+  assert.deepEqual(engine.value.blocks.find((block) => block.id === 'nano2-clever-highlight'), {
+    id: 'nano2-clever-highlight',
+    type: 'paragraph',
+    text: 'bright',
+    marks: [{ type: 'highlight', from: 0, to: 6 }],
+  })
+  assert.equal(prosemirrorDocFromNano(engine.value).child(3).child(0).marks[0]?.type.name, nanoMarkNames.highlight)
+})
+
 function typeTextWithNano2Shortcut(text) {
   const doc = prosemirrorDocFromNano({
     blocks: [{ id: 'b1', type: 'paragraph', text: '', marks: [] }],
@@ -843,4 +897,36 @@ function typeTextWithNano2Shortcut(text) {
   }
 
   return nanoDocumentFromProseMirror(state.doc)
+}
+
+function typeTextWithNano2CleverReplacement(engine, blockId, text) {
+  const doc = prosemirrorDocFromNano(engine.value)
+  const position = blockPositionById(doc, blockId)
+  assert.notEqual(position, null)
+
+  const block = doc.nodeAt(position)
+  assert(block)
+  let state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, position + 1 + block.content.size),
+  })
+  const operations = []
+
+  for (const character of text) {
+    const { from, to } = state.selection
+    const transaction = nano2CleverReplacementTransaction(state, from, to, character)
+      ?? state.tr.insertText(character, from, to)
+    const inputType = transaction.getMeta('inputType')
+    const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+      label: typeof inputType === 'string' ? inputType : 'nano2-clever-text',
+      origin: 'nano2-tiptap-clever-editor',
+    })
+    assert(change)
+    assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+    operations.push({ inputType, operations: change.operations })
+    state = state.apply(transaction)
+  }
+
+  return operations
 }
