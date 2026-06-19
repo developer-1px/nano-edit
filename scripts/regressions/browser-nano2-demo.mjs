@@ -33,6 +33,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'dinos'), '/nano2/dinos')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-default-editor'), '/nano2/tiptap-default-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-minimal-setup'), '/nano2/tiptap-minimal-setup')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(prosemirrorSelector)}))`)
@@ -425,6 +426,25 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-checked' && block.type === 'todo' && block.checked === false && block.text === 'Review checked task'))
   assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-shortcut-open' && block.type === 'todo' && block.checked === false && block.text === 'Open task'))
   assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-shortcut-done' && block.type === 'todo' && block.checked === true && block.checkedMarker === 'X' && block.text === 'Done task'))
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-mentions"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-mentions"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Mentions")')
+  await waitForExpression(browser, `document.querySelector('.nano2 [data-id="nano2-mentions-existing"] .nano-mention-chip')?.textContent === '@Mina'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-mentions-target')
+  await browser.send('Input.insertText', { text: ' ' })
+  await insertMention(browser, 'av', '@Avery')
+  await waitForExpression(browser, `document.querySelector('.nano2 [data-id="nano2-mentions-target"] .nano-mention-chip[data-mention-id="avery"]')?.textContent === '@Avery'`)
+
+  await wait(160)
+  const storedMentions = await storedNano2Document(browser, 'tiptap-mentions')
+  const existingMentionBlock = storedMentions.blocks.find((block) => block.id === 'nano2-mentions-existing')
+  const targetMentionBlock = storedMentions.blocks.find((block) => block.id === 'nano2-mentions-target')
+  assert(existingMentionBlock)
+  assert(targetMentionBlock)
+  assert(existingMentionBlock.marks.some((mark) => mark.type === 'mention' && mark.id === 'mina' && mark.label === 'Mina' && mark.to - mark.from === 1))
+  assert(targetMentionBlock.marks.some((mark) => mark.type === 'mention' && mark.id === 'avery' && mark.label === 'Avery' && mark.to - mark.from === 1))
 
   console.log('ok browser nano2 demo')
 })

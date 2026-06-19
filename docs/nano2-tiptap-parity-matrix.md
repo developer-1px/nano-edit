@@ -17,6 +17,8 @@ Sources:
 - <https://tiptap.dev/docs/examples/basics/tables>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-list>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-item>
+- <https://tiptap.dev/docs/examples/advanced/mentions>
+- <https://tiptap.dev/docs/editor/extensions/nodes/mention>
 - <https://tiptap.dev/docs/examples>
 
 ## Policy
@@ -103,6 +105,10 @@ divider, bold, italic, strike, and inline code shortcuts.
 bare `[ ] ` / `[x] ` task shortcuts, Markdown task shortcuts, checkbox click
 toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
 
+`/nano2/tiptap-mentions` is the runnable T2 Mentions surface. It currently
+proves an existing mention, `@` suggestion insertion, DOM chip rendering, and
+persisted one-character NanoDocument mention marks.
+
 ## Official Example Map
 
 | Phase | Tiptap example | Nano2 acceptance contract |
@@ -117,7 +123,7 @@ toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
 | T1 | Text direction & RTL | Ready: store direction as NanoDocument text block attrs, project DOM `dir`, switch LTR/RTL/AUTO, and persist attrs. |
 | T2 | Long texts | Measure large document mount/edit latency and avoid full-DOM churn where possible. |
 | T2 | Menus | Bubble/floating menus reflect command state and emit Nano changes. |
-| T2 | Mentions | Suggestion menu inserts inline atoms as one-character Nano marks. |
+| T2 | Mentions | Ready: suggestion menu inserts inline atoms as one-character Nano marks and persists stable mention attrs. |
 | T2 | Clever editor | Custom replacement extensions become Nano shortcut/change rules. |
 | T2 | Forced content structure | Headless schema rules enforce required block order before DOM mount. |
 | T3 | Collaborative editing | NanoDocumentChange transport converges multiple engines. |

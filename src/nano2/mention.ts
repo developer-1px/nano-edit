@@ -1,4 +1,3 @@
-import { Fragment } from 'prosemirror-model'
 import type { EditorState, PluginView } from 'prosemirror-state'
 import { Plugin, TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
@@ -9,6 +8,7 @@ import {
   type AutocompleteSurface,
 } from '../autocomplete'
 import { nanoNodeNames } from '../adapters/prosemirror/prosemirror-names'
+import { nano2InsertMentionTransaction } from './mentions'
 
 interface Nano2MentionOption extends AutocompleteOption {
   insertText: string
@@ -104,16 +104,15 @@ export class Nano2MentionRuntime {
     const view = this.view
     if (!view) return
 
-    const mentionNode = view.state.schema.nodes[nanoNodeNames.mention]?.create({
+    const transaction = nano2InsertMentionTransaction(view.state, {
       id: option.id,
       label: option.title,
+    }, {
+      from: context.from,
+      to: context.to,
     })
-    if (!mentionNode) return
+    if (!transaction) return
 
-    const space = view.state.schema.text(' ')
-    const inserted = Fragment.fromArray([mentionNode, space])
-    const transaction = view.state.tr.replaceWith(context.from, context.to, inserted)
-    transaction.setSelection(TextSelection.create(transaction.doc, context.from + mentionNode.nodeSize + space.nodeSize))
     view.dispatch(transaction.scrollIntoView())
     view.focus()
   }

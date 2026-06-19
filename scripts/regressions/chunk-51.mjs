@@ -22,6 +22,7 @@ import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdow
 import { nano2TiptapDefaultEditorDocument } from '../../src/nano2/examples/documents.ts'
 import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
+import { nano2InsertMentionTransaction } from '../../src/nano2/mentions.ts'
 import { nano2SetTextDirectionTransaction } from '../../src/nano2/text-direction.ts'
 import {
   isNano2MinimalDocument,
@@ -141,6 +142,47 @@ test('Nano2 P0 dinos: inserted inline atom lowers to one-character json-document
   })
   assert.equal(next.blocks[0].marks[0].to - next.blocks[0].marks[0].from, 1)
   assert.equal(next.blocks[0].text.codePointAt(next.blocks[0].marks[0].from), 0xfffc)
+})
+
+test('Nano2 T2 Mentions: suggestion insertion lowers to a one-character Nano mark', () => {
+  const initial = {
+    blocks: [{ id: 'b1', type: 'paragraph', text: 'Hi @mi', marks: [] }],
+  }
+  const engine = createNanoDocument(initial)
+  const doc = prosemirrorDocFromNano(engine.value)
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 7),
+  })
+  const transaction = nano2InsertMentionTransaction(state, {
+    id: 'mina',
+    label: 'Mina',
+  }, {
+    from: 4,
+    to: 7,
+  })
+
+  assert(transaction)
+  const next = nanoDocumentFromProseMirror(transaction.doc)
+  assert.deepEqual(next.blocks[0], {
+    id: 'b1',
+    type: 'paragraph',
+    text: 'Hi \ufffc ',
+    marks: [{ type: 'mention', from: 3, to: 4, id: 'mina', label: 'Mina' }],
+  })
+  assert.equal(next.blocks[0].marks[0].to - next.blocks[0].marks[0].from, 1)
+  assert.equal(prosemirrorDocFromNano(next).firstChild.child(1).type.name, nanoNodeNames.mention)
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-insert-mention',
+    origin: 'nano2-tiptap-mentions',
+  })
+  assert(change)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
+  assert.equal(Boolean(engine.history.undo()), true)
+  assert.deepEqual(engine.value, initial)
 })
 
 test('Nano2 T0 StarterKit: hard break round-trips as NanoDocument newline', () => {

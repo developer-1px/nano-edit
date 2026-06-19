@@ -381,3 +381,29 @@ export const nano2TiptapTasksDocument: NanoDocument = NanoDocumentSchema.parse({
     },
   ],
 })
+
+export const nano2TiptapMentionsDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-mentions-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Mentions',
+      marks: [],
+    },
+    {
+      id: 'nano2-mentions-existing',
+      type: 'paragraph',
+      text: 'Review \ufffc before shipping',
+      marks: [
+        { type: 'mention', from: 7, to: 8, id: 'mina', label: 'Mina' },
+      ],
+    },
+    {
+      id: 'nano2-mentions-target',
+      type: 'paragraph',
+      text: 'Mention target',
+      marks: [],
+    },
+  ],
+})
