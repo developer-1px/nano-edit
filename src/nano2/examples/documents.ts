@@ -485,3 +485,27 @@ export const nano2TiptapCleverEditorDocument: NanoDocument = NanoDocumentSchema.
     },
   ],
 })
+
+export const nano2TiptapForcedContentStructureDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-forced-title',
+      type: 'heading',
+      level: 1,
+      text: 'Forced content structure',
+      marks: [],
+    },
+    {
+      id: 'nano2-forced-summary',
+      type: 'paragraph',
+      text: 'This document must keep exactly one title slot before body content.',
+      marks: [],
+    },
+    {
+      id: 'nano2-forced-body',
+      type: 'paragraph',
+      text: 'Body target',
+      marks: [],
+    },
+  ],
+})

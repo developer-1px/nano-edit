@@ -19,6 +19,7 @@ Sources:
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-list>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-item>
 - <https://tiptap.dev/docs/examples/advanced/clever-editor>
+- <https://tiptap.dev/docs/examples/advanced/forced-content-structure>
 - <https://tiptap.dev/docs/examples/advanced/menus>
 - <https://tiptap.dev/docs/editor/extensions/functionality/bubble-menu>
 - <https://tiptap.dev/docs/editor/extensions/functionality/floatingmenu>
@@ -94,6 +95,11 @@ currently proves per-block LTR, RTL, and AUTO direction attrs projected to DOM
 currently proves emoji replacement, typography replacement, highlight delimiter
 replacement, and persisted NanoDocument text/mark state.
 
+`/nano2/tiptap-forced-content-structure` is the runnable T2 Forced content
+structure surface. It currently proves pre-mount stored document validation,
+title-slot enforcement, transaction rejection for invalid title demotion, and
+persisted schema-valid body edits.
+
 `/nano2/tiptap-images` is the runnable T1 Images surface. It currently proves
 existing image rendering, Markdown image paste, HTML img paste, and persisted
 NanoDocument image attrs.
@@ -142,7 +148,7 @@ focus return, and persisted NanoDocument mark/block changes.
 | T2 | Menus | Ready: bubble/floating menus reflect command state, dispatch Nano2 commands, and persist mark/block changes. |
 | T2 | Mentions | Ready: suggestion menu inserts inline atoms as one-character Nano marks and persists stable mention attrs. |
 | T2 | Clever editor | Ready: custom replacement extensions become Nano2 input rules that persist emoji, typography, and highlight NanoDocument changes. |
-| T2 | Forced content structure | Headless schema rules enforce required block order before DOM mount. |
+| T2 | Forced content structure | Ready: Zod document profile enforces heading-first structure before mount and rejects invalid view transactions before persistence. |
 | T3 | Collaborative editing | NanoDocumentChange transport converges multiple engines. |
 | T3 | Drawing | Custom node view stores drawing payload as Nano custom block data. |
 | T3 | Interactive React & Vue views | Framework node views become replaceable view projections over Nano paths. |

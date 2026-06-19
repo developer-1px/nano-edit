@@ -3,6 +3,7 @@ import {
   clickTarget,
   evaluate,
   nano2ExampleStorageKey,
+  persistenceSnapshotText,
   pressKey,
   storedPersistenceValueExpression,
   wait,
@@ -34,6 +35,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'tiptap-default-editor'), '/nano2/tiptap-default-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-clever-editor'), '/nano2/tiptap-clever-editor')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-forced-content-structure'), '/nano2/tiptap-forced-content-structure')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-long-texts'), '/nano2/tiptap-long-texts')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
@@ -299,6 +301,32 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(cleverHighlightBlock)
   assert.equal(cleverHighlightBlock.text, 'bright')
   assert(cleverHighlightBlock.marks.some((mark) => mark.type === 'highlight' && cleverHighlightBlock.text.slice(mark.from, mark.to) === 'bright'))
+
+  await storeNano2Document(browser, 'tiptap-forced-content-structure', {
+    blocks: [{ id: 'bad-forced-root', type: 'paragraph', text: 'Invalid stored structure', marks: [] }],
+  })
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-forced-content-structure"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-forced-content-structure"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Forced Content Structure")')
+  await waitForExpression(browser, `document.querySelector('.nano2')?.dataset.profile === 'forced'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-heading-1[data-id="nano2-forced-title"]')?.textContent.includes('Forced content structure')`)
+  await waitForExpression(browser, `!document.querySelector('.nano2 [data-id="bad-forced-root"]')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-forced-title')
+  await pressKey(browser, '0', 'Digit0', 48, 10)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-heading-1[data-id="nano2-forced-title"]'))`)
+  await waitForExpression(browser, `!document.querySelector('.nano2 .nano-paragraph[data-id="nano2-forced-title"]')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-forced-body')
+  await browser.send('Input.insertText', { text: ' edited' })
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-paragraph[data-id="nano2-forced-body"]')?.textContent === 'Body target edited'`)
+
+  await wait(160)
+  const storedForced = await storedNano2Document(browser, 'tiptap-forced-content-structure')
+  assert.deepEqual(storedForced.blocks.map((block) => block.id), ['nano2-forced-title', 'nano2-forced-summary', 'nano2-forced-body'])
+  assert(storedForced.blocks.some((block) => block.id === 'nano2-forced-title' && block.type === 'heading' && block.level === 1))
+  assert(storedForced.blocks.some((block) => block.id === 'nano2-forced-body' && block.type === 'paragraph' && block.text === 'Body target edited'))
+  assert(!storedForced.blocks.slice(1).some((block) => block.type === 'heading'))
 
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-images"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-images"')
@@ -865,6 +893,12 @@ async function typeCharacters(browser, text) {
 async function storedNano2Document(browser, exampleId) {
   const storageKey = nano2ExampleStorageKey(exampleId)
   return evaluate(browser, storedPersistenceValueExpression(storageKey))
+}
+
+async function storeNano2Document(browser, exampleId, document) {
+  const storageKey = nano2ExampleStorageKey(exampleId)
+  const payload = persistenceSnapshotText(document)
+  return evaluate(browser, `localStorage.setItem(${JSON.stringify(storageKey)}, ${JSON.stringify(payload)})`)
 }
 
 async function nano2ExampleHref(browser, exampleId) {

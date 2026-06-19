@@ -3,6 +3,10 @@ export {
   nano2CleverReplacementTransaction,
 } from './clever-replacements'
 export {
+  isNano2ForcedStructureDocument,
+  parseNano2ForcedStructureDocument,
+} from './forced-structure'
+export {
   nano2SetTextDirectionTransaction,
   type Nano2TextDirection,
 } from './text-direction'

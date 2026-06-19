@@ -18,10 +18,16 @@ export function nano2ExampleStorageKey(exampleId: string): string {
 
 export function createPersistedNano2ExampleDocument(options: {
   initialDocument: NanoDocument
+  parseDocument?: (document: unknown) => NanoDocument
   storageKey: string
 }): PersistedNano2ExampleDocument {
   const storage = browserStorage()
-  const engine = createNanoDocument(readStoredNano2Document(storage, options.storageKey) ?? options.initialDocument)
+  const initialDocument = options.parseDocument
+    ? options.parseDocument(options.initialDocument)
+    : options.initialDocument
+  const engine = createNanoDocument(
+    readStoredNano2Document(storage, options.storageKey, options.parseDocument) ?? initialDocument,
+  )
 
   if (!storage) {
     return {
@@ -54,7 +60,11 @@ function browserStorage(): Storage | null {
   }
 }
 
-function readStoredNano2Document(storage: Storage | null, storageKey: string): NanoDocument | null {
+function readStoredNano2Document(
+  storage: Storage | null,
+  storageKey: string,
+  parseDocument: ((document: unknown) => NanoDocument) | undefined,
+): NanoDocument | null {
   if (!storage) return null
 
   try {
@@ -62,6 +72,8 @@ function readStoredNano2Document(storage: Storage | null, storageKey: string): N
     if (!stored) return null
 
     const payload = defaultDocumentPersistenceCodec.decode(stored)
+    if (parseDocument) return parseDocument(payload.value)
+
     const parsed = NanoDocumentSchema.safeParse(payload.value)
     return parsed.success ? parsed.data : null
   } catch {

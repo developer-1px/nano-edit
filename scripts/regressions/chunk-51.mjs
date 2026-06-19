@@ -25,8 +25,13 @@ import {
   nano2LongTextsWordCount,
   nano2TiptapCleverEditorDocument,
   nano2TiptapDefaultEditorDocument,
+  nano2TiptapForcedContentStructureDocument,
   nano2TiptapLongTextsDocument,
 } from '../../src/nano2/examples/documents.ts'
+import {
+  isNano2ForcedStructureDocument,
+  parseNano2ForcedStructureDocument,
+} from '../../src/nano2/forced-structure.ts'
 import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
 import {
@@ -877,6 +882,62 @@ test('Nano2 T2 Clever editor: custom replacements lower to NanoDocument changes'
     marks: [{ type: 'highlight', from: 0, to: 6 }],
   })
   assert.equal(prosemirrorDocFromNano(engine.value).child(3).child(0).marks[0]?.type.name, nanoMarkNames.highlight)
+})
+
+test('Nano2 T2 Forced content structure: Zod profile guards document shape', () => {
+  const initial = nano2TiptapForcedContentStructureDocument
+  assert.deepEqual(parseNano2ForcedStructureDocument(initial), initial)
+  assert.equal(isNano2ForcedStructureDocument(initial), true)
+  assert.equal(isNano2ForcedStructureDocument({
+    blocks: [{ id: 'bad', type: 'paragraph', text: 'No title', marks: [] }],
+  }), false)
+  assert.equal(isNano2ForcedStructureDocument({
+    blocks: [{ id: 'title', type: 'heading', level: 1, text: 'Only title', marks: [] }],
+  }), false)
+  assert.equal(isNano2ForcedStructureDocument({
+    blocks: [
+      { id: 'title', type: 'heading', level: 1, text: 'Title', marks: [] },
+      { id: 'nested-heading', type: 'heading', level: 2, text: 'Nested', marks: [] },
+    ],
+  }), false)
+
+  const engine = createNanoDocument(initial)
+  let doc = prosemirrorDocFromNano(engine.value)
+  const titlePosition = blockPositionById(doc, 'nano2-forced-title')
+  assert.notEqual(titlePosition, null)
+  let state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, titlePosition + 1),
+  })
+  let transaction = null
+  assert.equal(setBlockType(nanoSchema.nodes[nanoNodeNames.paragraph])(state, (tr) => { transaction = tr }), true)
+  assert(transaction)
+  const invalidTitleDocument = nanoDocumentFromProseMirror(transaction.doc)
+  assert.equal(isNano2ForcedStructureDocument(invalidTitleDocument), false)
+
+  doc = prosemirrorDocFromNano(engine.value)
+  const bodyPosition = blockPositionById(doc, 'nano2-forced-body')
+  assert.notEqual(bodyPosition, null)
+  const body = doc.nodeAt(bodyPosition)
+  assert(body)
+  state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, bodyPosition + 1 + body.content.size),
+  })
+  transaction = state.tr.insertText(' edited')
+  const next = nanoDocumentFromProseMirror(transaction.doc)
+  assert.equal(isNano2ForcedStructureDocument(next), true)
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-forced-body-edit',
+    origin: 'nano2-tiptap-forced-content-structure',
+  })
+  assert(change)
+  assert.deepEqual(change.operations, [{ op: 'replace', path: '/blocks/2/text', value: 'Body target edited' }])
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(parseNano2ForcedStructureDocument(engine.value), next)
 })
 
 function typeTextWithNano2Shortcut(text) {

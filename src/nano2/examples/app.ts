@@ -137,6 +137,7 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
     if (example.status === 'ready' && example.document) {
       activeDocument = createPersistedNano2ExampleDocument({
         initialDocument: example.document,
+        parseDocument: example.parseDocument,
         storageKey: nano2ExampleStorageKey(example.id),
       })
       activeView = createNano2View({
@@ -144,6 +145,7 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
         engine: activeDocument.engine,
         ariaLabel: `Nano2 ${example.title} example`,
         profile: example.viewProfile,
+        validateDocument: example.isDocument,
       })
       return
     }

@@ -1,10 +1,15 @@
 import type { NanoDocument } from '../../entities/document/nano-document-model'
 import type { Nano2ViewProfile } from '../types'
 import {
+  isNano2ForcedStructureDocument,
+  parseNano2ForcedStructureDocument,
+} from '../forced-structure'
+import {
   nano2BasicsDocument,
   nano2DinosDocument,
   nano2TiptapCleverEditorDocument,
   nano2TiptapDefaultEditorDocument,
+  nano2TiptapForcedContentStructureDocument,
   nano2TiptapFormattingDocument,
   nano2TiptapImagesDocument,
   nano2TiptapLongTextsDocument,
@@ -28,6 +33,8 @@ export interface Nano2ExampleDefinition {
   document?: NanoDocument
   headless: string
   id: string
+  isDocument?: (document: unknown) => document is NanoDocument
+  parseDocument?: (document: unknown) => NanoDocument
   phase: Nano2ExamplePhase
   pressure: string
   sourceHref: string
@@ -132,6 +139,22 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     acceptance: 'Type emoji, typography, and highlight triggers, render the replacements, reload, and compare persisted NanoDocument text and marks.',
     document: nano2TiptapCleverEditorDocument,
     viewProfile: 'clever',
+  },
+  {
+    id: 'tiptap-forced-content-structure',
+    title: 'Tiptap Forced Content Structure',
+    phase: 'T2',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/advanced/forced-content-structure',
+    track: 'tiptap',
+    pressure: 'Custom document schemas require content in a specific structure instead of accepting arbitrary root children.',
+    headless: 'Nano2 validates the document with a Zod profile that requires a level-one title block followed by non-heading body blocks.',
+    view: 'The route parses stored content before DOM mount and rejects view transactions that would break the forced NanoDocument structure.',
+    acceptance: 'Invalid stored documents fall back before mount, title demotion is rejected, body edits persist, and the saved NanoDocument remains schema-valid.',
+    document: nano2TiptapForcedContentStructureDocument,
+    isDocument: isNano2ForcedStructureDocument,
+    parseDocument: parseNano2ForcedStructureDocument,
+    viewProfile: 'forced',
   },
   {
     id: 'tiptap-images',

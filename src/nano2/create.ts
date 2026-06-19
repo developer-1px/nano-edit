@@ -12,7 +12,7 @@ import { EditorState, TextSelection, type Command, type Plugin, type Transaction
 import { EditorView } from 'prosemirror-view'
 import type { Pointer, SelectionSnap } from '@interactive-os/json-document'
 import {
-  nanoDocumentChangeFromProseMirrorDoc,
+  nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
 } from '../adapters/prosemirror/prosemirror-document'
 import {
@@ -26,6 +26,7 @@ import {
 } from '../adapters/prosemirror/prosemirror-names'
 import {
   commitNanoDocumentChange,
+  nanoDocumentChangeFromDocuments,
   type NanoDocumentChange,
 } from '../entities/document/nano-document-change'
 import type { NanoDocument } from '../entities/document/nano-document-model'
@@ -189,7 +190,13 @@ class Nano2View {
       return
     }
 
-    const change = nanoDocumentChangeFromProseMirrorDoc(this.options.engine.value, nextState.doc, {
+    const nextDocument = nanoDocumentFromProseMirror(nextState.doc)
+    if (this.options.validateDocument && !this.options.validateDocument(nextDocument)) {
+      this.syncEditorFromEngine()
+      return
+    }
+
+    const change = nanoDocumentChangeFromDocuments(this.options.engine.value, nextDocument, {
       label: transactionLabel(transaction),
       origin: 'nano2-prosemirror-view',
       selection,
