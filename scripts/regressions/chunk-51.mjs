@@ -19,7 +19,12 @@ import { createNanoDocument } from '../../src/entities/document/nano-document.ts
 import { NanoDocumentSchema } from '../../src/entities/document/nano-document-model.ts'
 import { blockPositionById } from '../../src/entities/block/structure/nano-block-node-kind.ts'
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
-import { nano2TiptapDefaultEditorDocument } from '../../src/nano2/examples/documents.ts'
+import {
+  nano2LongTextsTargetBlockId,
+  nano2LongTextsWordCount,
+  nano2TiptapDefaultEditorDocument,
+  nano2TiptapLongTextsDocument,
+} from '../../src/nano2/examples/documents.ts'
 import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
 import {
@@ -539,6 +544,49 @@ test('Nano2 T1 Images: setImage lowers to Nano image block and Markdown export',
   assert.deepEqual(engine.value, next)
   assert.equal(Boolean(engine.history.undo()), true)
   assert.deepEqual(engine.value, initial)
+})
+
+test('Nano2 T2 Long texts: large document edits stay narrow', () => {
+  const initial = nano2TiptapLongTextsDocument
+  assert(nano2LongTextsWordCount >= 200_000)
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const actualWordCount = initial.blocks
+    .filter((block) => block.type === 'paragraph')
+    .reduce((count, block) => count + block.text.split(/\s+/).filter(Boolean).length, 0)
+  assert.equal(actualWordCount, nano2LongTextsWordCount)
+
+  const engine = createNanoDocument(initial)
+  const doc = prosemirrorDocFromNano(engine.value)
+  const targetPosition = blockPositionById(doc, nano2LongTextsTargetBlockId)
+  assert.notEqual(targetPosition, null)
+  const targetNode = doc.nodeAt(targetPosition)
+  assert(targetNode)
+
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, targetPosition + 1 + targetNode.content.size),
+  })
+  const transaction = state.tr.insertText(' PATCHED-LONG')
+  const next = nanoDocumentFromProseMirror(transaction.doc)
+  const targetIndex = next.blocks.findIndex((block) => block.id === nano2LongTextsTargetBlockId)
+  assert(targetIndex > 0)
+  assert.equal(next.blocks[targetIndex].type, 'paragraph')
+  assert(next.blocks[targetIndex].text.endsWith(' PATCHED-LONG'))
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-long-text-edit',
+    origin: 'nano2-tiptap-long-texts',
+  })
+  assert(change)
+  assert.deepEqual(change.operations, [{
+    op: 'replace',
+    path: `/blocks/${targetIndex}/text`,
+    value: next.blocks[targetIndex].text,
+  }])
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.equal(engine.value.blocks[targetIndex].text, next.blocks[targetIndex].text)
 })
 
 test('Nano2 T1 Default editor: common commands lower to NanoDocument state', () => {

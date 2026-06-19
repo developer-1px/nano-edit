@@ -33,6 +33,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'dinos'), '/nano2/dinos')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-default-editor'), '/nano2/tiptap-default-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-long-texts'), '/nano2/tiptap-long-texts')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-minimal-setup'), '/nano2/tiptap-minimal-setup')
@@ -294,6 +295,22 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedImages.blocks.some((block) => block.id === 'nano2-image-existing' && block.type === 'image' && block.src === '/favicon.svg' && block.alt === 'Nano Edit icon' && block.title === 'Existing image'))
   assert(storedImages.blocks.some((block) => block.id === 'nano2-image-markdown-target' && block.type === 'image' && block.src === 'https://cdn.example.com/nano.png' && block.alt === 'Pasted image' && block.title === 'Pasted title'))
   assert(storedImages.blocks.some((block) => block.id === 'nano2-image-html-target' && block.type === 'image' && block.src === 'https://cdn.example.com/html.png' && block.alt === 'HTML image' && block.title === 'HTML title'))
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-long-texts"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-long-texts"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Long Texts")')
+  await waitForExpression(browser, `document.querySelectorAll('.nano2 .nano-paragraph').length >= 260`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-paragraph[data-id="nano2-long-120"]')?.textContent.includes('nano2-120-800')`)
+  await rememberLongTextNeighbors(browser)
+  await setCursorAtBlockEndById(browser, 'nano2-long-120')
+  await browser.send('Input.insertText', { text: ' PATCHED-LONG' })
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-paragraph[data-id="nano2-long-120"]')?.textContent.endsWith('PATCHED-LONG')`)
+  assert.deepEqual(await longTextNeighborsStable(browser), { next: true, previous: true })
+
+  await wait(160)
+  const storedLongTexts = await storedNano2Document(browser, 'tiptap-long-texts')
+  assert(storedLongTexts.blocks.length >= 261)
+  assert(storedLongTexts.blocks.some((block) => block.id === 'nano2-long-120' && block.type === 'paragraph' && block.text.endsWith('PATCHED-LONG')))
 
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-minimal-setup"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-minimal-setup"')
@@ -760,6 +777,23 @@ async function setCursorAtBlockEndById(browser, id) {
     document.dispatchEvent(new Event('selectionchange'))
     return true
   })()`)
+}
+
+async function rememberLongTextNeighbors(browser) {
+  return evaluate(browser, `(() => {
+    window.__nano2LongTextNeighbors = {
+      previous: document.querySelector('.nano2 .nano-paragraph[data-id="nano2-long-119"]'),
+      next: document.querySelector('.nano2 .nano-paragraph[data-id="nano2-long-121"]'),
+    }
+    return Boolean(window.__nano2LongTextNeighbors.previous && window.__nano2LongTextNeighbors.next)
+  })()`)
+}
+
+async function longTextNeighborsStable(browser) {
+  return evaluate(browser, `(() => ({
+    previous: window.__nano2LongTextNeighbors?.previous === document.querySelector('.nano2 .nano-paragraph[data-id="nano2-long-119"]'),
+    next: window.__nano2LongTextNeighbors?.next === document.querySelector('.nano2 .nano-paragraph[data-id="nano2-long-121"]'),
+  }))()`)
 }
 
 async function setSelectionInBlockById(browser, id, fromOffset, toOffset) {

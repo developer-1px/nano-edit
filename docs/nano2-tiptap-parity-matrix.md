@@ -12,6 +12,7 @@ Sources:
 - <https://tiptap.dev/docs/examples/basics/text-direction>
 - <https://tiptap.dev/docs/editor/extensions/nodes/image>
 - <https://tiptap.dev/docs/examples/basics/images>
+- <https://tiptap.dev/docs/examples/basics/long-texts>
 - <https://tiptap.dev/docs/examples/basics/minimal-setup>
 - <https://tiptap.dev/docs/editor/extensions/nodes/table>
 - <https://tiptap.dev/docs/examples/basics/tables>
@@ -92,6 +93,10 @@ currently proves per-block LTR, RTL, and AUTO direction attrs projected to DOM
 existing image rendering, Markdown image paste, HTML img paste, and persisted
 NanoDocument image attrs.
 
+`/nano2/tiptap-long-texts` is the runnable T2 Long texts surface. It currently
+proves a generated 200k+ word NanoDocument, a middle-block edit, stable neighbor
+DOM nodes during that edit, and persisted NanoDocument text.
+
 `/nano2/tiptap-minimal-setup` is the runnable T1 Minimal setup surface. It
 currently proves paragraph-only Zod validation, literal Markdown-looking text,
 plain paragraph splitting, and persisted paragraph-only NanoDocument state.
@@ -128,7 +133,7 @@ focus return, and persisted NanoDocument mark/block changes.
 | T1 | Tables | Ready: edit cells, paste tabular text across rows, preserve table schema, and persist row changes. |
 | T1 | Tasks | Ready: type task shortcuts, toggle task items through Nano todo blocks, and persist checked state. |
 | T1 | Text direction & RTL | Ready: store direction as NanoDocument text block attrs, project DOM `dir`, switch LTR/RTL/AUTO, and persist attrs. |
-| T2 | Long texts | Measure large document mount/edit latency and avoid full-DOM churn where possible. |
+| T2 | Long texts | Ready: mount 200k+ words, edit a middle block, keep neighbor DOM nodes stable, and persist the text change. |
 | T2 | Menus | Ready: bubble/floating menus reflect command state, dispatch Nano2 commands, and persist mark/block changes. |
 | T2 | Mentions | Ready: suggestion menu inserts inline atoms as one-character Nano marks and persists stable mention attrs. |
 | T2 | Clever editor | Custom replacement extensions become Nano shortcut/change rules. |

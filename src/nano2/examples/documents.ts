@@ -251,6 +251,30 @@ export const nano2TiptapImagesDocument: NanoDocument = NanoDocumentSchema.parse(
   ],
 })
 
+export const nano2LongTextsParagraphCount = 260
+export const nano2LongTextsWordsPerBlock = 800
+export const nano2LongTextsWordCount = nano2LongTextsParagraphCount * nano2LongTextsWordsPerBlock
+
+export const nano2TiptapLongTextsDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: Array.from({ length: nano2LongTextsParagraphCount + 1 }, (_, index) => ({
+    id: `nano2-long-${String(index).padStart(3, '0')}`,
+    type: index === 0 ? 'heading' : 'paragraph',
+    ...(index === 0 ? { level: 1 } : {}),
+    text: index === 0 ? 'Tiptap Long Texts' : longTextBlock(index),
+    marks: [],
+  })),
+})
+
+function longTextBlock(index: number): string {
+  const blockNumber = String(index).padStart(3, '0')
+  return Array.from(
+    { length: nano2LongTextsWordsPerBlock },
+    (_, wordIndex) => `nano2-${blockNumber}-${String(wordIndex + 1).padStart(3, '0')}`,
+  ).join(' ')
+}
+
+export const nano2LongTextsTargetBlockId = 'nano2-long-120'
+
 export const nano2TiptapMinimalSetupDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {
