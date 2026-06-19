@@ -1,5 +1,14 @@
 export { createNano2View } from './create'
 export {
+  nano2AgentAcceptProposal,
+  nano2AgentReadDocument,
+  nano2AgentRewriteBlockProposal,
+  parseNano2AgentProposal,
+  type Nano2AgentDocumentRead,
+  type Nano2AgentProposal,
+  type Nano2AgentRewriteOptions,
+} from './ai-agent'
+export {
   nano2CleverReplacementTransaction,
 } from './clever-replacements'
 export {

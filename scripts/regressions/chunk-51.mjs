@@ -28,6 +28,12 @@ import {
 } from '../../src/entities/document/nano-document-selection.ts'
 import { blockPositionById } from '../../src/entities/block/structure/nano-block-node-kind.ts'
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
+import {
+  nano2AgentAcceptProposal,
+  nano2AgentReadDocument,
+  nano2AgentRewriteBlockProposal,
+  parseNano2AgentProposal,
+} from '../../src/nano2/ai-agent.ts'
 import { nano2CleverReplacementTransaction } from '../../src/nano2/clever-replacements.ts'
 import {
   createNano2CollaborativeFieldEngines,
@@ -64,6 +70,7 @@ import {
   nano2LongTextsTargetBlockId,
   nano2LongTextsWordCount,
   nano2TiptapCleverEditorDocument,
+  nano2TiptapAIAgentDocument,
   nano2TiptapCollaborationDocument,
   nano2TiptapCollaborativeFieldsDocument,
   nano2TiptapDefaultEditorDocument,
@@ -679,6 +686,35 @@ test('Nano2 T3 React performance: derived snapshots read NanoDocument without vi
   assert.notEqual(after.wordCount, before.wordCount)
   assert.equal('view' in after, false)
   assert.equal('dom' in after, false)
+})
+
+test('Nano2 T3 AI agent: read and accepted rewrite stay NanoDocument changes', () => {
+  const initial = nano2TiptapAIAgentDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const read = nano2AgentReadDocument(initial)
+  assert.equal(read.blockCount, 3)
+  assert.equal(read.textBlockCount, 3)
+  assert(read.text.includes('reviewed rewrite'))
+
+  const proposal = nano2AgentRewriteBlockProposal(initial, {
+    blockId: 'nano2-agent-target',
+    prompt: 'Tighten target paragraph',
+    text: 'Agent rewrite accepted through NanoDocumentChange.',
+  })
+  assert(proposal)
+  assert.deepEqual(parseNano2AgentProposal(proposal), proposal)
+  assert.equal(proposal.kind, 'nano2.agent.proposal')
+  assert.equal(proposal.change.origin, 'nano2-ai-agent')
+  assert.deepEqual(proposal.change.operations.map((operation) => operation.path), ['/blocks/1/text'])
+  assert.equal('dom' in proposal, false)
+  assert.equal('editor' in proposal, false)
+
+  const engine = createNanoDocument(initial)
+  assert.equal(nano2AgentAcceptProposal(engine, proposal).ok, true)
+  assert.equal(engine.value.blocks[1].text, 'Agent rewrite accepted through NanoDocumentChange.')
+  assert.equal(Boolean(engine.history.undo()), true)
+  assert.deepEqual(engine.value, initial)
 })
 
 test('Nano2 T1 Default editor: common commands lower to NanoDocument state', () => {

@@ -486,6 +486,30 @@ export const nano2TiptapCleverEditorDocument: NanoDocument = NanoDocumentSchema.
   ],
 })
 
+export const nano2TiptapAIAgentDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-agent-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap AI Agent',
+      marks: [],
+    },
+    {
+      id: 'nano2-agent-target',
+      type: 'paragraph',
+      text: 'The agent can read this document and propose a reviewed rewrite.',
+      marks: [],
+    },
+    {
+      id: 'nano2-agent-context',
+      type: 'paragraph',
+      text: 'Accepted changes commit through json-document history.',
+      marks: [],
+    },
+  ],
+})
+
 export const nano2TiptapForcedContentStructureDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

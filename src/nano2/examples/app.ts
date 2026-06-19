@@ -22,6 +22,7 @@ import {
 } from './collaboration'
 import { createNano2CollaborativeFieldsExample } from './collaborative-fields'
 import { createNano2ReactPerformanceExample } from './react-performance'
+import { createNano2AIAgentExample } from './ai-agent'
 
 export interface Nano2ExamplesAppHandle {
   destroy(): void
@@ -151,6 +152,15 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
 
       if (!example.document) {
         content.replaceChildren(renderContract(example))
+        return
+      }
+
+      if (example.surface === 'ai-agent') {
+        activeView = createNano2AIAgentExample({
+          document: example.document,
+          mount: content,
+          storageKey: nano2ExampleStorageKey(example.id),
+        })
         return
       }
 

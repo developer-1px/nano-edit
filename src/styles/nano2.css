@@ -586,6 +586,69 @@
   font-size: 22px;
 }
 
+.nano2-ai-agent {
+  min-height: calc(100svh - 69px);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.nano2-ai-agent-controls {
+  width: min(100%, 780px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 22px clamp(20px, 8vw, 112px) 0;
+}
+
+.nano2-ai-agent-status {
+  min-width: 0;
+  margin-right: auto;
+  overflow: hidden;
+  color: #747981;
+  font: 650 12px/1.2 var(--nano-mono, ui-monospace, monospace);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nano2-ai-agent-button {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #5e6269;
+}
+
+.nano2-ai-agent-button:hover,
+.nano2-ai-agent-button:focus-visible {
+  background: #f6f2ef;
+  color: #2f3135;
+}
+
+.nano2-ai-agent-button:disabled {
+  color: #b8bcc3;
+}
+
+.nano2-ai-agent-button-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.nano2-ai-agent-preview {
+  min-height: 24px;
+  width: min(100%, 780px);
+  padding: 4px clamp(20px, 8vw, 112px) 0;
+  color: #747981;
+  font: 650 12px/1.3 var(--nano-mono, ui-monospace, monospace);
+}
+
+.nano2-ai-agent-editor .nano.nano2 .nano2-editor {
+  min-height: calc(100svh - 125px);
+  padding-top: 22px;
+}
+
 .nano2-collaborative-fields {
   min-height: calc(100svh - 69px);
   display: grid;

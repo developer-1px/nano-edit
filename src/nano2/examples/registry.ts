@@ -9,6 +9,7 @@ import {
   nano2BasicsDocument,
   nano2DinosDocument,
   nano2TiptapCleverEditorDocument,
+  nano2TiptapAIAgentDocument,
   nano2TiptapCollaborationDocument,
   nano2TiptapCollaborativeFieldsDocument,
   nano2TiptapDefaultEditorDocument,
@@ -51,7 +52,7 @@ export interface Nano2ExampleDefinition {
   pressure: string
   sourceHref: string
   status: Nano2ExampleStatus
-  surface?: 'collaboration' | 'collaborative-fields' | 'react-performance'
+  surface?: 'ai-agent' | 'collaboration' | 'collaborative-fields' | 'react-performance'
   title: string
   track: Nano2ExampleTrack
   view: string
@@ -316,6 +317,20 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     acceptance: 'Trigger host renders, edit the document, observe derived state, and verify the same editor view DOM remains mounted.',
     document: nano2TiptapReactPerformanceDocument,
     surface: 'react-performance',
+  },
+  {
+    id: 'tiptap-ai-agent',
+    title: 'Tiptap AI Agent',
+    phase: 'T3',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/experiments/ai-agent',
+    track: 'tiptap',
+    pressure: 'Agent tools must read and edit rich-text documents while users review generated changes before applying them.',
+    headless: 'Nano2 exposes document read and rewrite proposal tools that produce NanoDocumentChange payloads instead of editor mutations.',
+    view: 'A Nano2-only review surface drafts a deterministic proposal and accepts it through json-document commit/history.',
+    acceptance: 'Read the document, draft an agent proposal, accept it, reload, and verify only NanoDocument text changed.',
+    document: nano2TiptapAIAgentDocument,
+    surface: 'ai-agent',
   },
   {
     id: 'tiptap-interactive-views',

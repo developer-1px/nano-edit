@@ -174,6 +174,11 @@ focus return, and persisted NanoDocument mark/block changes.
 It currently proves host render/state reads update surrounding metrics while
 the Nano2 editor view stays mounted once and NanoDocument remains canonical.
 
+`/nano2/tiptap-ai-agent` is the runnable T3 AI agent surface. It currently
+proves document-read and rewrite-proposal tools that return
+NanoDocumentChange payloads, plus review/accept commit through json-document
+history.
+
 `/nano2/tiptap-interactive-views` is the runnable T3 Interactive React & Vue
 views surface. It currently proves framework-style component node views as
 replaceable `nano2.interactive-view` projections over NanoDocument custom block
@@ -209,7 +214,7 @@ marks.
 | T3 | Drawing | Ready: custom node view projects canvas strokes while NanoDocument stores only `nano2.drawing` JSON data. |
 | T3 | Interactive React & Vue views | Ready: framework-style node views become replaceable `nano2.interactive-view` projections over NanoDocument data paths. |
 | T3 | React performance | Ready: host renders and derived state reads are isolated so NanoDocument transactions do not remount the editor view tree. |
-| T3 | AI agent | Agent tools read and propose NanoDocument changes; accepted changes commit through json-document history. |
+| T3 | AI agent | Ready: agent tools read documents and propose NanoDocumentChange payloads that users accept through json-document history. |
 | T3 | Syntax highlighting | Ready: lowlight token ranges render as view decorations while code text and language remain the only NanoDocument data. |
 | T3 | Collaborative fields | Ready: multiple logical NanoDocument fields share one field-scoped collaboration transport without sharing DOM identity. |
 | T3 | Figure / Generic figure | Ready: image/table media attrs and captions become structured `nano2.figure` custom block data. |

@@ -46,6 +46,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'tiptap-linting'), '/nano2/tiptap-linting')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-ai-agent'), '/nano2/tiptap-ai-agent')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-react-performance'), '/nano2/tiptap-react-performance')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-slash-commands'), '/nano2/tiptap-slash-commands')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-syntax-highlighting'), '/nano2/tiptap-syntax-highlighting')
@@ -364,6 +365,27 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
     block.id === 'nano2-react-performance-target'
     && block.text.includes('PATCHED'),
   ))
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-ai-agent"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-ai-agent"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap AI Agent")')
+  await waitForExpression(browser, `document.querySelector('.nano2-ai-agent')?.dataset.status === 'idle'`)
+  await waitForExpression(browser, `document.querySelector('.nano2-ai-agent [data-id="nano2-agent-target"]')?.textContent.includes('reviewed rewrite')`)
+
+  await clickTarget(browser, '.nano2-ai-agent-button[data-action="draft-proposal"]')
+  await waitForExpression(browser, `document.querySelector('.nano2-ai-agent')?.dataset.status === 'proposal-ready'`)
+  await waitForExpression(browser, `document.querySelector('.nano2-ai-agent-preview')?.textContent.includes('Rewrite nano2-agent-target')`)
+  await clickTarget(browser, '.nano2-ai-agent-button[data-action="accept-proposal"]')
+  await waitForExpression(browser, `document.querySelector('.nano2-ai-agent')?.dataset.status === 'applied'`)
+  await waitForExpression(browser, `document.querySelector('.nano2-ai-agent [data-id="nano2-agent-target"]')?.textContent === 'Agent rewrite accepted through NanoDocumentChange.'`)
+
+  await wait(160)
+  const storedAIAgent = await storedNano2Document(browser, 'tiptap-ai-agent')
+  const storedAIAgentTarget = storedAIAgent.blocks.find((block) => block.id === 'nano2-agent-target')
+  assert(storedAIAgentTarget)
+  assert.equal(storedAIAgentTarget.text, 'Agent rewrite accepted through NanoDocumentChange.')
+  assert.equal('toolCall' in storedAIAgentTarget, false)
+  assert.equal('dom' in storedAIAgentTarget, false)
 
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-images"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-images"')
