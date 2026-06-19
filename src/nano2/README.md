@@ -39,6 +39,7 @@ The runnable example surface is Nano2-owned and mounted by
 /nano2/tiptap-formatting
 /nano2/tiptap-text-direction
 /nano2/tiptap-clever-editor
+/nano2/tiptap-collaboration
 /nano2/tiptap-forced-content-structure
 /nano2/tiptap-images
 /nano2/tiptap-long-texts

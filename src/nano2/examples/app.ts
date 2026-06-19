@@ -16,6 +16,10 @@ import {
   nano2ExampleStorageKey,
   type PersistedNano2ExampleDocument,
 } from './persistence'
+import {
+  createNano2CollaborationExample,
+  type Nano2ExampleSurfaceHandle,
+} from './collaboration'
 
 export interface Nano2ExamplesAppHandle {
   destroy(): void
@@ -52,7 +56,7 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
   root.replaceChildren(shell)
 
   let activeExampleId: string | null = null
-  let activeView: Nano2ViewHandle | null = null
+  let activeView: Nano2ViewHandle | Nano2ExampleSurfaceHandle | null = null
   let activeDocument: PersistedNano2ExampleDocument | null = null
 
   for (const track of nano2ExampleTracks) {
@@ -135,6 +139,14 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
     syncNav()
 
     if (example.status === 'ready' && example.document) {
+      if (example.surface === 'collaboration') {
+        activeView = createNano2CollaborationExample({
+          document: example.document,
+          mount: content,
+        })
+        return
+      }
+
       activeDocument = createPersistedNano2ExampleDocument({
         initialDocument: example.document,
         parseDocument: example.parseDocument,

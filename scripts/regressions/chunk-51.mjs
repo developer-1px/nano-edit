@@ -8,15 +8,24 @@ import {
   nanoDocumentFromProseMirror,
   prosemirrorDocFromNano,
 } from '../../src/adapters/prosemirror/prosemirror-document.ts'
+import { createNanoDocumentInMemoryCollaborationHub } from '../../src/adapters/collaboration/nano-document-in-memory-collaboration.ts'
 import {
   nanoMarkNames,
   nanoNodeNames,
 } from '../../src/adapters/prosemirror/prosemirror-names.ts'
 import { mentionNodeSpec } from '../../src/adapters/prosemirror/prosemirror-reference-node-specs.ts'
 import { nanoSchema } from '../../src/adapters/prosemirror/prosemirror-schema.ts'
-import { commitNanoDocumentChange } from '../../src/entities/document/nano-document-change.ts'
+import {
+  commitNanoDocumentChange,
+  nanoDocumentChangeFromDocuments,
+} from '../../src/entities/document/nano-document-change.ts'
 import { createNanoDocument } from '../../src/entities/document/nano-document.ts'
 import { NanoDocumentSchema } from '../../src/entities/document/nano-document-model.ts'
+import {
+  blockTextPointer,
+  point,
+  selectionSnap,
+} from '../../src/entities/document/nano-document-selection.ts'
 import { blockPositionById } from '../../src/entities/block/structure/nano-block-node-kind.ts'
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import { nano2CleverReplacementTransaction } from '../../src/nano2/clever-replacements.ts'
@@ -24,6 +33,7 @@ import {
   nano2LongTextsTargetBlockId,
   nano2LongTextsWordCount,
   nano2TiptapCleverEditorDocument,
+  nano2TiptapCollaborationDocument,
   nano2TiptapDefaultEditorDocument,
   nano2TiptapForcedContentStructureDocument,
   nano2TiptapLongTextsDocument,
@@ -1055,6 +1065,98 @@ test('Nano2 T3 Syntax highlighting: lowlight tokens are view-only code projectio
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)
   assert.deepEqual(engine.value, next)
 })
+
+test('Nano2 T3 Collaboration: NanoDocumentChange hub converges route peers', () => {
+  const initial = nano2TiptapCollaborationDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const peerAEngine = createNanoDocument(initial)
+  const peerBEngine = createNanoDocument(initial)
+  const hub = createNanoDocumentInMemoryCollaborationHub()
+  const peerA = hub.connect({ engine: peerAEngine, peerId: 'peer-a' })
+  const peerB = hub.connect({ engine: peerBEngine, peerId: 'peer-b' })
+  const peerBSelection = selectionSnap(
+    point(blockTextPointer(2), 4),
+    point(blockTextPointer(2), 4),
+  )
+  peerBEngine.selection?.restore(peerBSelection)
+
+  const afterPeerA = nano2DocumentWithBlockText(
+    peerAEngine.value,
+    'nano2-collab-shared',
+    'Shared paragraph from peer A',
+  )
+  const peerAChange = nanoDocumentChangeFromDocuments(peerAEngine.value, afterPeerA, {
+    label: 'nano2-collaboration-peer-a',
+    origin: 'peer-a',
+    selection: selectionSnap(
+      point(blockTextPointer(1), 'Shared paragraph from peer A'.length),
+      point(blockTextPointer(1), 'Shared paragraph from peer A'.length),
+    ),
+  })
+  assert(peerAChange)
+  assert.equal(commitNanoDocumentChange(peerAEngine, peerAChange).ok, true)
+  const peerADispatch = peerA.publish(peerAChange, { revision: 1 })
+
+  assert.deepEqual(peerADispatch.results.map((entry) => [entry.peerId, entry.result.ok]), [
+    ['peer-a', true],
+    ['peer-b', true],
+  ])
+  assert.deepEqual(peerBEngine.value, afterPeerA)
+  assert.deepEqual(peerBEngine.selection?.snapshot().focus, peerBSelection.focus)
+
+  const afterPeerB = nano2DocumentWithBlockText(
+    peerBEngine.value,
+    'nano2-collab-second',
+    'Second peer paragraph from peer B',
+  )
+  const peerBChange = nanoDocumentChangeFromDocuments(peerBEngine.value, afterPeerB, {
+    label: 'nano2-collaboration-peer-b',
+    origin: 'peer-b',
+  })
+  assert(peerBChange)
+  assert.equal(commitNanoDocumentChange(peerBEngine, peerBChange).ok, true)
+  const peerBDispatch = peerB.publish(peerBChange, { revision: 2 })
+
+  assert.deepEqual(peerBDispatch.results.map((entry) => [entry.peerId, entry.result.ok]), [
+    ['peer-a', true],
+    ['peer-b', true],
+  ])
+  assert.deepEqual(peerAEngine.value, afterPeerB)
+
+  const peerCEngine = createNanoDocument(peerAEngine.value)
+  const peerC = hub.connect({ engine: peerCEngine, peerId: 'peer-c' })
+  assert.deepEqual(hub.peerIds(), ['peer-a', 'peer-b', 'peer-c'])
+  assert.deepEqual(peerCEngine.value, peerAEngine.value)
+
+  const afterLateJoin = nano2DocumentWithBlockText(
+    peerAEngine.value,
+    'nano2-collab-shared',
+    'Shared paragraph from peer A after peer C joined',
+  )
+  const lateJoinChange = nanoDocumentChangeFromDocuments(peerAEngine.value, afterLateJoin, {
+    label: 'nano2-collaboration-late-join',
+    origin: 'peer-a',
+  })
+  assert(lateJoinChange)
+  assert.equal(commitNanoDocumentChange(peerAEngine, lateJoinChange).ok, true)
+  const lateJoinDispatch = peerA.publish(lateJoinChange, { revision: 3 })
+  const duplicate = peerC.receive(JSON.parse(JSON.stringify(lateJoinDispatch.message)))
+
+  assert.equal(duplicate.ok, true)
+  assert.deepEqual(peerAEngine.value, afterLateJoin)
+  assert.deepEqual(peerBEngine.value, afterLateJoin)
+  assert.deepEqual(peerCEngine.value, afterLateJoin)
+})
+
+function nano2DocumentWithBlockText(document, blockId, text) {
+  return {
+    ...document,
+    blocks: document.blocks.map((block) => block.id === blockId
+      ? { ...block, text }
+      : block),
+  }
+}
 
 function typeTextWithNano2Shortcut(text) {
   const doc = prosemirrorDocFromNano({

@@ -8,6 +8,7 @@ import {
   nano2BasicsDocument,
   nano2DinosDocument,
   nano2TiptapCleverEditorDocument,
+  nano2TiptapCollaborationDocument,
   nano2TiptapDefaultEditorDocument,
   nano2TiptapForcedContentStructureDocument,
   nano2TiptapFormattingDocument,
@@ -41,6 +42,7 @@ export interface Nano2ExampleDefinition {
   pressure: string
   sourceHref: string
   status: Nano2ExampleStatus
+  surface?: 'collaboration'
   title: string
   track: Nano2ExampleTrack
   view: string
@@ -296,13 +298,15 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     id: 'tiptap-collaboration',
     title: 'Tiptap Collaboration',
     phase: 'T3',
-    status: 'planned',
-    sourceHref: 'https://tiptap.dev/docs/examples',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/advanced/collaborative-editing',
     track: 'tiptap',
-    pressure: 'Collaborative editing, comments, and cursor-like presence pressure from Tiptap products.',
-    headless: 'NanoDocumentChange transport and selection snapshots are the collaboration payloads.',
-    view: 'The view applies remote edits without stealing local selection and renders annotations/presence as projections.',
-    acceptance: 'Multiple Nano2 engines converge after local, remote, repeated, and late-join changes.',
+    pressure: 'Collaborative editing must sync multiple editor instances without making Y.js or ProseMirror state the canonical document.',
+    headless: 'NanoDocumentChange messages, peer ids, revisions, and selection snapshots are the collaboration payloads.',
+    view: 'Two Nano2 views subscribe to independent NanoDocument engines connected through the in-memory collaboration hub.',
+    acceptance: 'Edit peer A and peer B, mount a late peer C, keep all engines converged, and avoid persisting transport metadata in the document.',
+    document: nano2TiptapCollaborationDocument,
+    surface: 'collaboration',
   },
   {
     id: 'tiptap-node-views',

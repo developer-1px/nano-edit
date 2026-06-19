@@ -35,6 +35,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'tiptap-default-editor'), '/nano2/tiptap-default-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-clever-editor'), '/nano2/tiptap-clever-editor')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-collaboration'), '/nano2/tiptap-collaboration')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-forced-content-structure'), '/nano2/tiptap-forced-content-structure')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-long-texts'), '/nano2/tiptap-long-texts')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
@@ -597,6 +598,29 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(syntaxCodeBlock.text.endsWith('const next = answer + 1'))
   assert.equal('marks' in syntaxCodeBlock, false)
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-collaboration"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-collaboration"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Collaboration")')
+  await waitForExpression(browser, `document.querySelector('.nano2-collaboration')?.dataset.peers === 'peer-a,peer-b'`)
+  await waitForExpression(browser, `document.querySelectorAll('.nano2-collaboration-peer').length === 2`)
+
+  await setCursorAtPeerBlockEndById(browser, 'peer-a', 'nano2-collab-shared')
+  await browser.send('Input.insertText', { text: ' from A' })
+  await waitForExpression(browser, `document.querySelector('.nano2-collaboration-peer[data-peer-id="peer-b"] [data-id="nano2-collab-shared"]')?.textContent.includes('from A')`)
+
+  await setCursorAtPeerBlockEndById(browser, 'peer-b', 'nano2-collab-second')
+  await browser.send('Input.insertText', { text: ' from B' })
+  await waitForExpression(browser, `document.querySelector('.nano2-collaboration-peer[data-peer-id="peer-a"] [data-id="nano2-collab-second"]')?.textContent.includes('from B')`)
+
+  await clickTarget(browser, '.nano2-collaboration-join[data-action="join-peer"]')
+  await waitForExpression(browser, `document.querySelector('.nano2-collaboration')?.dataset.peers === 'peer-a,peer-b,peer-c'`)
+  await waitForExpression(browser, `document.querySelector('.nano2-collaboration-peer[data-peer-id="peer-c"] [data-id="nano2-collab-shared"]')?.textContent.includes('from A')`)
+  await waitForExpression(browser, `document.querySelector('.nano2-collaboration-peer[data-peer-id="peer-c"] [data-id="nano2-collab-second"]')?.textContent.includes('from B')`)
+
+  await setCursorAtPeerBlockEndById(browser, 'peer-a', 'nano2-collab-shared')
+  await browser.send('Input.insertText', { text: ' after C' })
+  await waitForExpression(browser, `document.querySelector('.nano2-collaboration-peer[data-peer-id="peer-c"] [data-id="nano2-collab-shared"]')?.textContent.includes('after C')`)
+
   console.log('ok browser nano2 demo')
 })
 
@@ -916,6 +940,25 @@ async function setCursorAtCodeBlockEndById(browser, id) {
       range.selectNodeContents(target)
       range.collapse(false)
     }
+    const selection = window.getSelection()
+    if (!selection) throw new Error('Missing selection')
+    selection.removeAllRanges()
+    selection.addRange(range)
+    document.dispatchEvent(new Event('selectionchange'))
+    return true
+  })()`)
+}
+
+async function setCursorAtPeerBlockEndById(browser, peerId, blockId) {
+  return evaluate(browser, `(() => {
+    const target = document.querySelector(\`.nano2-collaboration-peer[data-peer-id="${peerId}"] .nano-block[data-id="${blockId}"]\`)
+    const editor = document.querySelector(\`.nano2-collaboration-peer[data-peer-id="${peerId}"] .ProseMirror\`)
+    if (!target || !(editor instanceof HTMLElement)) throw new Error('Missing nano2 collaboration block: ${peerId}/${blockId}')
+
+    editor.focus()
+    const range = document.createRange()
+    range.selectNodeContents(target)
+    range.collapse(false)
     const selection = window.getSelection()
     if (!selection) throw new Error('Missing selection')
     selection.removeAllRanges()

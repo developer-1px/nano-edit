@@ -573,3 +573,27 @@ export const nano2TiptapSyntaxHighlightingDocument: NanoDocument = NanoDocumentS
     },
   ],
 })
+
+export const nano2TiptapCollaborationDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-collab-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Collaboration',
+      marks: [],
+    },
+    {
+      id: 'nano2-collab-shared',
+      type: 'paragraph',
+      text: 'Shared paragraph',
+      marks: [],
+    },
+    {
+      id: 'nano2-collab-second',
+      type: 'paragraph',
+      text: 'Second peer paragraph',
+      marks: [],
+    },
+  ],
+})

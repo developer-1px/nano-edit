@@ -19,6 +19,7 @@ Sources:
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-list>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-item>
 - <https://tiptap.dev/docs/examples/advanced/clever-editor>
+- <https://tiptap.dev/docs/examples/advanced/collaborative-editing>
 - <https://tiptap.dev/docs/examples/advanced/forced-content-structure>
 - <https://tiptap.dev/docs/examples/advanced/menus>
 - <https://tiptap.dev/docs/editor/extensions/functionality/bubble-menu>
@@ -97,6 +98,11 @@ currently proves per-block LTR, RTL, and AUTO direction attrs projected to DOM
 currently proves emoji replacement, typography replacement, highlight delimiter
 replacement, and persisted NanoDocument text/mark state.
 
+`/nano2/tiptap-collaboration` is the runnable T3 Collaboration surface. It
+currently proves two independent Nano2 engines connected by
+NanoDocumentChange transport, plus late peer join convergence without
+document-stored transport metadata.
+
 `/nano2/tiptap-forced-content-structure` is the runnable T2 Forced content
 structure surface. It currently proves pre-mount stored document validation,
 title-slot enforcement, transaction rejection for invalid title demotion, and
@@ -160,7 +166,7 @@ marks.
 | T2 | Mentions | Ready: suggestion menu inserts inline atoms as one-character Nano marks and persists stable mention attrs. |
 | T2 | Clever editor | Ready: custom replacement extensions become Nano2 input rules that persist emoji, typography, and highlight NanoDocument changes. |
 | T2 | Forced content structure | Ready: Zod document profile enforces heading-first structure before mount and rejects invalid view transactions before persistence. |
-| T3 | Collaborative editing | NanoDocumentChange transport converges multiple engines. |
+| T3 | Collaborative editing | Ready: NanoDocumentChange transport converges multiple independent Nano2 engines, including a late-joining peer. |
 | T3 | Drawing | Custom node view stores drawing payload as Nano custom block data. |
 | T3 | Interactive React & Vue views | Framework node views become replaceable view projections over Nano paths. |
 | T3 | Syntax highlighting | Ready: lowlight token ranges render as view decorations while code text and language remain the only NanoDocument data. |
