@@ -30,11 +30,16 @@ import { blockPositionById } from '../../src/entities/block/structure/nano-block
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import { nano2CleverReplacementTransaction } from '../../src/nano2/clever-replacements.ts'
 import {
+  nano2DrawingBlockType,
+  nano2DrawingBlockWithStroke,
+} from '../../src/nano2/drawing.ts'
+import {
   nano2LongTextsTargetBlockId,
   nano2LongTextsWordCount,
   nano2TiptapCleverEditorDocument,
   nano2TiptapCollaborationDocument,
   nano2TiptapDefaultEditorDocument,
+  nano2TiptapDrawingDocument,
   nano2TiptapForcedContentStructureDocument,
   nano2TiptapLongTextsDocument,
   nano2TiptapSyntaxHighlightingDocument,
@@ -1147,6 +1152,46 @@ test('Nano2 T3 Collaboration: NanoDocumentChange hub converges route peers', () 
   assert.deepEqual(peerAEngine.value, afterLateJoin)
   assert.deepEqual(peerBEngine.value, afterLateJoin)
   assert.deepEqual(peerCEngine.value, afterLateJoin)
+})
+
+test('Nano2 T3 Drawing: custom block strokes stay NanoDocument JSON data', () => {
+  const initial = nano2TiptapDrawingDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const drawingBlock = initial.blocks.find((block) => block.id === 'nano2-drawing-canvas')
+  assert(drawingBlock)
+  assert.equal(drawingBlock.type, nano2DrawingBlockType)
+  assert.equal(drawingBlock.data.strokes.length, 1)
+
+  const nextDrawingBlock = nano2DrawingBlockWithStroke(drawingBlock, {
+    color: '#d95b56',
+    points: [
+      [40, 40],
+      [120, 80],
+      [220, 60],
+    ],
+    width: 5,
+  })
+  assert.equal(nextDrawingBlock.data.strokes.length, 2)
+  assert.equal(nextDrawingBlock.text, '2 drawing strokes')
+
+  const next = {
+    ...initial,
+    blocks: initial.blocks.map((block) => block.id === nextDrawingBlock.id ? nextDrawingBlock : block),
+  }
+  assert.deepEqual(NanoDocumentSchema.parse(next), next)
+
+  const change = nanoDocumentChangeFromDocuments(initial, next, {
+    label: 'nano2-drawing-stroke',
+    origin: 'nano2-tiptap-drawing',
+  })
+  assert(change)
+  assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1'])
+  assert.equal('canvas' in nextDrawingBlock.data, false)
+
+  const engine = createNanoDocument(initial)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
 })
 
 function nano2DocumentWithBlockText(document, blockId, text) {

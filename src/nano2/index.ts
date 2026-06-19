@@ -3,6 +3,14 @@ export {
   nano2CleverReplacementTransaction,
 } from './clever-replacements'
 export {
+  nano2DrawingBlockCleared,
+  nano2DrawingBlockType,
+  nano2DrawingBlockWithStroke,
+  type Nano2DrawingBlock,
+  type Nano2DrawingData,
+  type Nano2DrawingStroke,
+} from './drawing'
+export {
   isNano2ForcedStructureDocument,
   parseNano2ForcedStructureDocument,
 } from './forced-structure'

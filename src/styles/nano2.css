@@ -586,6 +586,60 @@
   font-size: 22px;
 }
 
+.nano.nano2 .nano2-drawing-block {
+  width: min(100%, 560px);
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.nano.nano2 .nano2-drawing-toolbar {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nano.nano2 .nano2-drawing-meta {
+  margin-right: auto;
+  color: #747981;
+  font: 650 12px/1.2 var(--nano-mono, ui-monospace, monospace);
+}
+
+.nano.nano2 .nano2-drawing-button {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #5e6269;
+}
+
+.nano.nano2 .nano2-drawing-button:hover,
+.nano.nano2 .nano2-drawing-button:focus-visible {
+  background: #f6f2ef;
+  color: #2f3135;
+}
+
+.nano.nano2 .nano2-drawing-button-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.nano.nano2 .nano2-drawing-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid #e3e4e8;
+  background:
+    linear-gradient(#f4f5f7 1px, transparent 1px),
+    linear-gradient(90deg, #f4f5f7 1px, transparent 1px),
+    #ffffff;
+  background-size: 24px 24px;
+  touch-action: none;
+}
+
 @media (max-width: 760px) {
   .nano2-examples {
     grid-template-columns: 1fr;

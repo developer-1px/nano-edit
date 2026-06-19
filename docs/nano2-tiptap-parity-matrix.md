@@ -20,6 +20,7 @@ Sources:
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-item>
 - <https://tiptap.dev/docs/examples/advanced/clever-editor>
 - <https://tiptap.dev/docs/examples/advanced/collaborative-editing>
+- <https://tiptap.dev/docs/examples/advanced/drawing>
 - <https://tiptap.dev/docs/examples/advanced/forced-content-structure>
 - <https://tiptap.dev/docs/examples/advanced/menus>
 - <https://tiptap.dev/docs/editor/extensions/functionality/bubble-menu>
@@ -103,6 +104,10 @@ currently proves two independent Nano2 engines connected by
 NanoDocumentChange transport, plus late peer join convergence without
 document-stored transport metadata.
 
+`/nano2/tiptap-drawing` is the runnable T3 Drawing surface. It currently proves
+a `nano2.drawing` custom block with JSON stroke data, canvas node-view
+projection, stroke editing, and persistence without storing canvas DOM.
+
 `/nano2/tiptap-forced-content-structure` is the runnable T2 Forced content
 structure surface. It currently proves pre-mount stored document validation,
 title-slot enforcement, transaction rejection for invalid title demotion, and
@@ -167,7 +172,7 @@ marks.
 | T2 | Clever editor | Ready: custom replacement extensions become Nano2 input rules that persist emoji, typography, and highlight NanoDocument changes. |
 | T2 | Forced content structure | Ready: Zod document profile enforces heading-first structure before mount and rejects invalid view transactions before persistence. |
 | T3 | Collaborative editing | Ready: NanoDocumentChange transport converges multiple independent Nano2 engines, including a late-joining peer. |
-| T3 | Drawing | Custom node view stores drawing payload as Nano custom block data. |
+| T3 | Drawing | Ready: custom node view projects canvas strokes while NanoDocument stores only `nano2.drawing` JSON data. |
 | T3 | Interactive React & Vue views | Framework node views become replaceable view projections over Nano paths. |
 | T3 | Syntax highlighting | Ready: lowlight token ranges render as view decorations while code text and language remain the only NanoDocument data. |
 | T3 | Collaborative fields | Multiple logical fields share one collaboration transport without sharing DOM identity. |

@@ -36,6 +36,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-clever-editor'), '/nano2/tiptap-clever-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-collaboration'), '/nano2/tiptap-collaboration')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-drawing'), '/nano2/tiptap-drawing')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-forced-content-structure'), '/nano2/tiptap-forced-content-structure')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-long-texts'), '/nano2/tiptap-long-texts')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
@@ -621,6 +622,23 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   await browser.send('Input.insertText', { text: ' after C' })
   await waitForExpression(browser, `document.querySelector('.nano2-collaboration-peer[data-peer-id="peer-c"] [data-id="nano2-collab-shared"]')?.textContent.includes('after C')`)
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-drawing"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-drawing"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Drawing")')
+  await waitForExpression(browser, `document.querySelector('.nano2')?.dataset.profile === 'drawing'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano2-drawing-block[data-id="nano2-drawing-canvas"]')?.dataset.strokes === '1'`)
+  await waitForExpression(browser, drawingCanvasHasInkExpression())
+
+  await drawOnDrawingCanvas(browser)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano2-drawing-block[data-id="nano2-drawing-canvas"]')?.dataset.strokes === '2'`)
+  await wait(160)
+  const storedDrawing = await storedNano2Document(browser, 'tiptap-drawing')
+  const storedDrawingBlock = storedDrawing.blocks.find((block) => block.id === 'nano2-drawing-canvas')
+  assert(storedDrawingBlock)
+  assert.equal(storedDrawingBlock.type, 'nano2.drawing')
+  assert.equal(storedDrawingBlock.data.strokes.length, 2)
+  assert.equal('canvas' in storedDrawingBlock.data, false)
+
   console.log('ok browser nano2 demo')
 })
 
@@ -1036,6 +1054,44 @@ async function storeNano2Document(browser, exampleId, document) {
 
 async function nano2ExampleHref(browser, exampleId) {
   return evaluate(browser, `new URL(document.querySelector(\`.nano2-example-link[data-example-id="${exampleId}"]\`)?.href ?? '', location.href).pathname`)
+}
+
+function drawingCanvasHasInkExpression() {
+  return `(() => {
+    const canvas = document.querySelector('.nano2 .nano2-drawing-block[data-id="nano2-drawing-canvas"] canvas')
+    if (!(canvas instanceof HTMLCanvasElement)) return false
+    const context = canvas.getContext('2d')
+    if (!context) return false
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data
+    for (let index = 3; index < pixels.length; index += 4) {
+      if (pixels[index] > 0) return true
+    }
+    return false
+  })()`
+}
+
+async function drawOnDrawingCanvas(browser) {
+  const box = await evaluate(browser, `(() => {
+    const canvas = document.querySelector('.nano2 .nano2-drawing-block[data-id="nano2-drawing-canvas"] canvas')
+    if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Missing nano2 drawing canvas')
+    const rect = canvas.getBoundingClientRect()
+    return {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+    }
+  })()`)
+  const points = [
+    [box.left + box.width * 0.18, box.top + box.height * 0.62],
+    [box.left + box.width * 0.42, box.top + box.height * 0.36],
+    [box.left + box.width * 0.72, box.top + box.height * 0.58],
+  ]
+  await browser.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: points[0][0], y: points[0][1] })
+  await browser.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: points[0][0], y: points[0][1], button: 'left', clickCount: 1 })
+  await browser.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: points[1][0], y: points[1][1], button: 'left', buttons: 1 })
+  await browser.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: points[2][0], y: points[2][1], button: 'left', buttons: 1 })
+  await browser.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: points[2][0], y: points[2][1], button: 'left', clickCount: 1 })
 }
 
 function todoBoxSelector(id) {

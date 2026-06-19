@@ -9,7 +9,7 @@ import type {
   NodeType as ProseMirrorNodeType,
 } from 'prosemirror-model'
 import { EditorState, TextSelection, type Command, type Plugin, type Transaction } from 'prosemirror-state'
-import { EditorView } from 'prosemirror-view'
+import { EditorView, type NodeViewConstructor } from 'prosemirror-view'
 import type { Pointer, SelectionSnap } from '@interactive-os/json-document'
 import {
   nanoDocumentFromProseMirror,
@@ -33,6 +33,7 @@ import type { NanoDocument } from '../entities/document/nano-document-model'
 import { splitTextblockTransaction } from '../view/keyboard/enter'
 import { TEXT_MERGE_MS } from '../view/runtime/context'
 import { nano2CleverReplacementPlugin } from './clever-replacements'
+import { nano2DrawingNodeViews } from './drawing'
 import { nano2ImagePlugin } from './images'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { nano2MenuPlugin } from './menus'
@@ -89,6 +90,7 @@ class Nano2View {
         spellcheck: String(options.spellcheck ?? true),
       },
       dispatchTransaction: (transaction) => this.dispatchTransaction(transaction),
+      nodeViews: this.createNodeViews(),
     })
 
     this.unsubscribe = options.engine.subscribe(() => {
@@ -125,6 +127,12 @@ class Nano2View {
     return this.profile === 'minimal'
       ? this.createMinimalPlugins()
       : this.createDefaultPlugins()
+  }
+
+  private createNodeViews(): Record<string, NodeViewConstructor> {
+    return this.profile === 'drawing'
+      ? nano2DrawingNodeViews()
+      : {}
   }
 
   private createMinimalPlugins(): Plugin[] {

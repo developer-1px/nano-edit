@@ -597,3 +597,40 @@ export const nano2TiptapCollaborationDocument: NanoDocument = NanoDocumentSchema
     },
   ],
 })
+
+export const nano2TiptapDrawingDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-drawing-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Drawing',
+      marks: [],
+    },
+    {
+      id: 'nano2-drawing-canvas',
+      type: 'nano2.drawing',
+      text: '1 drawing stroke',
+      data: {
+        width: 480,
+        height: 180,
+        strokes: [{
+          color: '#315f9c',
+          width: 4,
+          points: [
+            [34, 108],
+            [136, 52],
+            [272, 124],
+            [426, 66],
+          ],
+        }],
+      },
+    },
+    {
+      id: 'nano2-drawing-note',
+      type: 'paragraph',
+      text: 'Canvas state is custom block JSON.',
+      marks: [],
+    },
+  ],
+})
