@@ -68,7 +68,7 @@ function visualTextContent(node: Node): string {
 }
 
 function isElementLike(node: Node): node is Element {
-  return typeof (node as Element).getAttribute === 'function'
+  return node.nodeType === 1 || ('getAttribute' in node && typeof node.getAttribute === 'function')
 }
 
 function setAttributeIfChanged(element: HTMLElement, name: string, value: string): void {

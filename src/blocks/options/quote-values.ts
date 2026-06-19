@@ -39,5 +39,5 @@ export function calloutTone(tone: unknown): CalloutTone {
 }
 
 function isCalloutTone(tone: string): tone is CalloutTone {
-  return (calloutTones as readonly string[]).includes(tone)
+  return calloutTones.some((candidate) => candidate === tone)
 }

@@ -1,10 +1,10 @@
-import { footnoteName } from '../../core/nano-footnote'
-import { nonBlankStringValue } from '../../core/schema/nano-block-schema-refinements'
-import { normalizeTagName } from '../../core/nano-tag'
+import { footnoteName } from '../../entities/reference/nano-footnote'
+import { nonBlankStringValue } from '../../entities/block/schema/nano-block-schema-refinements'
+import { normalizeTagName } from '../../entities/reference/nano-tag'
 import {
   destinationStyle,
   linkSyntax,
-} from './prosemirror-atom-dom'
+} from './prosemirror-link-dom'
 import type { AnyNanoMarkCodec } from './prosemirror-mark-codec-types'
 import { defineNanoMarkCodec } from './prosemirror-mark-codec-types'
 import { nanoMarkNames } from './prosemirror-names'

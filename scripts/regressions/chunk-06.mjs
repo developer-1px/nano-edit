@@ -1,5 +1,5 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, inlineMarkBoundaryTransaction, inlineSourceTokenDeleteTransaction, inlineSourceTokenTextInputTransaction, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, markdownPasteTransaction, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, inlineMarkBoundaryTransaction, inlineSourceTokenDeleteTransaction, inlineSourceTokenTextInputTransaction, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, markdownPasteTransaction, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
 function textRangeSelectionState(markdown, blockId, fromOffset, toOffset) {
   const doc = prosemirrorDocFromNano(nanoDocumentFromMarkdown(markdown))
@@ -194,7 +194,7 @@ test('Inline visual token selections copy Markdown source', () => {
   }
 })
 
-test('Escaped Bear tags stay literal Markdown text', () => {
+test('Escaped inline tags stay literal Markdown text', () => {
   const markdown = 'Escaped \\#not-a-tag and real #tag'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -213,7 +213,7 @@ test('Escaped Bear tags stay literal Markdown text', () => {
   ])
 })
 
-test('Bear Markdown links preserve title text', () => {
+test('Markdown links preserve title text', () => {
   const markdown = 'Visit [site](https://example.com "Example Site")'
   const document = nanoDocumentFromMarkdown(markdown)
   const mark = document.blocks[0].marks[0]

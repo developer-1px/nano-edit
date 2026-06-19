@@ -1,5 +1,5 @@
 import type { DOMOutputSpec } from 'prosemirror-model'
-import { normalizeTagName, tagDisplayLabel } from '../../core/nano-tag'
+import { normalizeTagName, tagDisplayLabel } from '../../entities/reference/nano-tag'
 import {
   hiddenSourceTokenAttrs,
   sourceTokenAttrs,

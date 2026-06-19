@@ -1,53 +1,134 @@
 export {
-  NanoBlockSchema,
-  NanoDeckMetadataSchema,
-  NanoDeckSchema,
   NanoDocumentSchema,
-  NanoMarkSchema,
-  NanoSlideRegionKindSchema,
-  NanoSlideRegionSchema,
-  NanoSlideSchema,
+  createEmptyNanoDocument,
+  emptyNanoDocument,
+  type NanoBlock,
+  type NanoCustomBlock,
+  type NanoCustomBlockType,
+  type NanoDocument,
+  type NanoMark,
+} from './entities/document/nano-document-model'
+export { NanoBlockSchema } from './entities/block/schema/nano-block-schema'
+export { NanoMarkSchema } from './entities/mark/nano-mark-schema'
+export {
+  createNanoDocument,
+  type NanoDocumentEngine,
+} from './entities/document/nano-document'
+export {
   blockTextPointer,
   blocksPointer,
-  createEmptyNanoDocument,
-  createEmptyNanoDeck,
-  createNanoDeck,
-  createNanoDocument,
-  emptyNanoDeck,
-  emptyNanoDocument,
   point,
   pointOffset,
   pointPath,
   replaceBlocksPatch,
   selectionSnap,
+} from './entities/document/nano-document-selection'
+export {
+  commitNanoDocumentChange,
+  createNanoDocumentChange,
+  isNanoDocumentChange,
+  nanoDocumentChangeFromDocuments,
+  nanoDocumentChangeMergeKey,
+  nanoDocumentPatchFromDocuments,
+  parseNanoDocumentChange,
+  textMergePathForDocuments,
+  type NanoDocumentChange,
+} from './entities/document/nano-document-change'
+export {
+  commitNanoDocumentCommand,
+  isNanoDocumentCommand,
+  nanoDocumentChangeFromCommand,
+  nanoDocumentCommandLabel,
+  parseNanoDocumentCommand,
+  type NanoDocumentBlockTarget,
+  type NanoDocumentCommand,
+  type NanoDocumentCommandCommitResult,
+  type NanoDocumentCommandFailure,
+  type NanoDocumentCommandOptions,
+  type NanoDocumentCommandResult,
+  type NanoDocumentCommandSuccess,
+  type NanoDocumentInsertPosition,
+  type NanoDocumentInsertBlockCommand,
+  type NanoDocumentMoveBlockCommand,
+  type NanoDocumentRemoveBlockCommand,
+  type NanoDocumentReplaceBlockCommand,
+  type NanoDocumentSetTableCellCommand,
+  type NanoDocumentSetTextCommand,
+} from './entities/document/nano-document-command'
+export {
+  applyRemoteNanoDocumentChange,
+  createNanoDocumentCollaborationChange,
+  nanoDocumentChangeConflictPointers,
+  nanoDocumentChangeScope,
+  nanoDocumentChangeTouchedPointers,
+  nanoDocumentChangeTouchesPointer,
+  nanoDocumentCollaborationDeliveryKey,
+  nanoDocumentCollaborationNumericRevision,
+  isNanoDocumentCollaborationChange,
+  isOwnNanoDocumentCollaborationChange,
+  parseNanoDocumentCollaborationChange,
+  receiveNanoDocumentCollaborationChange,
+  remoteNanoDocumentChangeOrigin,
+  shouldReceiveNanoDocumentCollaborationChange,
+  type ApplyRemoteNanoDocumentChangeOptions,
+  type NanoDocumentChangeScope,
+  type NanoDocumentCollaborationChange,
+  type ReceiveNanoDocumentCollaborationChangeOptions,
+} from './entities/document/nano-document-collaboration'
+export {
+  createNanoDocumentInMemoryCollaborationHub,
+  type NanoDocumentInMemoryCollaborationDispatch,
+  type NanoDocumentInMemoryCollaborationHub,
+  type NanoDocumentInMemoryCollaborationPeer,
+  type NanoDocumentInMemoryCollaborationPeerResult,
+} from './adapters/collaboration/nano-document-in-memory-collaboration'
+export {
+  NanoDeckMetadataSchema,
+  NanoDeckSchema,
+  NanoSlideRegionKindSchema,
+  NanoSlideRegionSchema,
+  NanoSlideSchema,
+  createEmptyNanoDeck,
+  emptyNanoDeck,
   type NanoDeck,
-  type NanoDeckEngine,
   type NanoDeckMetadata,
-  type NanoBlock,
-  type NanoDocument,
-  type NanoDocumentEngine,
-  type NanoMark,
   type NanoSlide,
   type NanoSlideRegion,
   type NanoSlideRegionKind,
-} from './core/nano-core'
+} from './entities/deck/nano-deck-model'
+export {
+  createNanoDeck,
+  type NanoDeckEngine,
+} from './entities/deck/nano-deck'
+export {
+  createNanoView,
+} from './view/runtime/create'
+export type {
+  NanoCustomBlockDescriptor,
+  NanoCustomBlockReplaceOptions,
+  NanoCustomBlockRenderContext,
+  NanoViewHandle,
+  NanoViewInspector,
+  NanoViewOptions,
+} from './view/runtime/types'
 export {
   createNanoDeckView,
-  createNanoView,
+  type NanoDeckActiveSlideChange,
+  type NanoDeckActiveSlideChangeReason,
   type NanoDeckViewHandle,
   type NanoDeckViewOptions,
-  type NanoViewHandle,
-  type NanoViewOptions,
-} from './view/nano-view'
+} from './view/deck/deck-view'
 export {
-  createNanoEditorKit,
-  defaultNanoEditorKit,
   defaultNanoViewFeatures,
-  kitHasViewFeature,
-  type CreateNanoEditorKitOptions,
-  type NanoEditorKit,
   type NanoViewFeatureId,
-} from './engine/index'
+} from './engine/view-features'
+export {
+  defaultNanoCapabilityProfileIds,
+  describeNanoCapabilityProfile,
+  type NanoCapabilityProfileId,
+  type NanoCapabilityProfileOptions,
+  type NanoCapabilityProfileSummary,
+} from './engine/capability-profile'
 export {
   editorPartCatalog,
   editorPartCatalogById,
@@ -56,20 +137,20 @@ export {
   type EditorPartCategory,
   type EditorPartSurface,
 } from './assembly/part-catalog'
-export { basicCapability } from './capabilities/basic/capability'
-export { todoCapability } from './capabilities/todo/capability'
-export {
-  nanoDocumentFromProseMirror,
-  prosemirrorDocFromNano,
-  nanoBlocksFromProseMirror,
-} from './adapters/prosemirror/prosemirror-nano'
 export {
   nanoDocumentFromMarkdown,
   nanoDeckFromMarkdown,
+  nanoMarkdownBlockDiff,
+  nanoMarkdownBlockDiffEntries,
   nanoMarkdownBlocksFromDocument,
   nanoMarkdownFromDeck,
   nanoMarkdownFromDocument,
+  nanoTextBlockFromMarkdown,
+  type NanoMarkdownBlockDiff,
+  type NanoMarkdownBlockDiffIdentity,
   type NanoMarkdownBlockEntry,
+  type NanoMarkdownBlockPair,
+  type NanoTextBlockFromMarkdownOptions,
 } from './codecs/markdown/nano-markdown'
 export {
   nanoDocumentIndex,
@@ -128,15 +209,3 @@ export {
   type AutocompleteSurfaceOption,
   type AutocompleteSurfaceOptions,
 } from './autocomplete/index'
-export {
-  createSuggestionSurface,
-  movedSuggestionIndex,
-  nearestEnabledSuggestionIndex,
-  suggestionOptionMatches,
-  visibleSuggestionOptions,
-  type SuggestionSurface,
-  type SuggestionSurfaceClasses,
-  type SuggestionSurfaceElements,
-  type SuggestionSurfaceOption,
-  type SuggestionSurfaceOptions,
-} from './suggestion/index'

@@ -1,26 +1,13 @@
-import type { BlockTemplate } from '../../blocks/nano-block-options'
+import type { BlockTemplate } from '../../assembly/capability'
 import { todoTemplateMarkdownLine } from '../../capabilities/todo/view'
 import {
-  markdownBulletMarker,
+  bulletMarker,
+  orderedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
+import { orderedStartMarkerText } from '../../codecs/markdown/nano-markdown-list-attrs'
+import { quoteMarkerDepth } from '../../codecs/markdown/nano-markdown-quote-attrs'
+import {
   markdownIndent,
-  markdownOrderedListMarker,
-  markdownOrderedMarkerText,
-  quoteMarkerDepth,
-} from './markdown-values'
-
-export {
-  indentText,
-  markdownBulletMarker,
-  markdownIndent,
-  markdownIndentLevelForTemplate,
-  markdownOrderedListMarker,
-  markdownOrderedMarker,
-  markdownOrderedMarkerText,
-  nextOrderedTemplateStartAttrs,
-  nextOrderedStartAttrs,
-  orderedStartText,
-  quoteMarkerDepths,
-  quoteMarkerSpacing,
 } from './markdown-values'
 
 export function markdownLineForTextBlockTemplate(template: BlockTemplate): string | null {
@@ -45,7 +32,7 @@ export function markdownLineForTextBlockTemplate(template: BlockTemplate): strin
       return todoTemplateMarkdownLine(template, text)
     case 'list_item':
       return markdownMarkedLine(
-        `${markdownIndent(template.indent, template.indentText)}${template.kind === 'ordered' ? `${markdownOrderedMarkerText(template.start, template.orderedStartText)}${markdownOrderedListMarker(template.orderedMarker)}` : markdownBulletMarker(template.marker)}`,
+        `${markdownIndent(template.indent, template.indentText)}${template.kind === 'ordered' ? `${orderedStartMarkerText(template.start, template.orderedStartText)}${orderedMarker(template.orderedMarker)}` : bulletMarker(template.marker)}`,
         text,
       )
     default:

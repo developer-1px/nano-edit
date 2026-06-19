@@ -3,8 +3,9 @@ import type { BlockKeyboardContext } from '../assembly/capability'
 import {
   shiftedContinuationIndents,
   shiftedRawIndent,
-} from '../core/nano-source-metadata'
-import { blockIndent } from './block-behavior-values'
+} from '../entities/source/nano-source-metadata'
+import { blockId } from '../entities/block/structure/nano-block-node-kind'
+import { blockIndent } from './block-indent-values'
 import {
   convertBlockToParagraphAtStart,
   setParagraphTransaction,
@@ -17,7 +18,7 @@ export function outdentEmptyListBlockThen(
     if (context.block.textContent.length > 0) return action(context)
 
     const indent = blockIndent(context.block.attrs)
-    if (indent <= 0) return setParagraphTransaction(context.state, context.blockPosition, context.block.attrs.id)
+    if (indent <= 0) return setParagraphTransaction(context.state, context.blockPosition, blockId(context.block) || null)
 
     return outdentListBlock(context)
   }

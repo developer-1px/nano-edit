@@ -1,12 +1,14 @@
 import { markdownTodoLine } from '../../capabilities/todo/markdown'
 import {
   bulletMarker,
+  orderedMarker,
+} from './nano-markdown-marker-attrs'
+import {
   markdownIndentLevel,
   markdownIndentText,
   markdownOrderedStart,
-  orderedMarker,
   orderedStartText,
-} from './nano-markdown-block-attrs'
+} from './nano-markdown-list-attrs'
 import type {
   BulletMarker,
   CheckedMarker,

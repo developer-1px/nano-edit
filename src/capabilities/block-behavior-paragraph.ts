@@ -1,7 +1,8 @@
 import { TextSelection, type EditorState, type Transaction } from 'prosemirror-state'
 import type { BlockKeyboardContext } from '../assembly/capability'
-import { atxSpacing } from '../adapters/prosemirror/prosemirror-block-attrs'
-import { nanoNodeNames } from '../adapters/prosemirror/prosemirror-nano'
+import { atxSpacing } from '../adapters/prosemirror/prosemirror-heading-attrs'
+import { nanoNodeNames } from '../adapters/prosemirror/prosemirror-names'
+import { blockId } from '../entities/block/structure/nano-block-node-kind'
 
 export function toggleCheckedBlockTransaction(
   state: EditorState,
@@ -21,7 +22,7 @@ export function exitEmptyThen(
 ): (context: BlockKeyboardContext) => Transaction | null {
   return (context) => {
     if (context.block.textContent.length === 0) {
-      return setParagraphTransaction(context.state, context.blockPosition, context.block.attrs.id)
+      return setParagraphTransaction(context.state, context.blockPosition, blockId(context.block) || null)
     }
     return action(context)
   }
@@ -29,7 +30,7 @@ export function exitEmptyThen(
 
 export function convertBlockToParagraphAtStart(context: BlockKeyboardContext): Transaction | null {
   if (context.$from.parentOffset !== 0) return null
-  return setParagraphTransaction(context.state, context.blockPosition, context.block.attrs.id)
+  return setParagraphTransaction(context.state, context.blockPosition, blockId(context.block) || null)
 }
 
 export function decreaseHeadingAtStartThenParagraph(context: BlockKeyboardContext): Transaction | null {
@@ -37,7 +38,7 @@ export function decreaseHeadingAtStartThenParagraph(context: BlockKeyboardContex
 
   const level = typeof context.block.attrs.level === 'number' ? context.block.attrs.level : 1
   if (context.block.attrs.headingStyle === 'setext') {
-    return setParagraphTransaction(context.state, context.blockPosition, context.block.attrs.id)
+    return setParagraphTransaction(context.state, context.blockPosition, blockId(context.block) || null)
   }
 
   const textSpacing = atxSpacing(context.block.attrs.atxTextSpacing)
@@ -50,7 +51,7 @@ export function decreaseHeadingAtStartThenParagraph(context: BlockKeyboardContex
     return transaction
   }
 
-  if (level <= 1) return setParagraphTransaction(context.state, context.blockPosition, context.block.attrs.id)
+  if (level <= 1) return setParagraphTransaction(context.state, context.blockPosition, blockId(context.block) || null)
 
   const transaction = context.state.tr.setNodeMarkup(context.blockPosition, context.block.type, {
     ...context.block.attrs,

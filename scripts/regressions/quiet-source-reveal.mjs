@@ -1,21 +1,24 @@
 import { readFileSync } from 'node:fs'
+import { Mark } from 'prosemirror-model'
 import {
   assert,
   blockPositionById,
   EditorState,
+  nanoMarkNames,
   nanoSchema,
   prosemirrorDocFromNano,
   test,
   TextSelection,
 } from './harness.mjs'
-import { sourceRevealDecorations } from '../../src/features/viewer-edit/source-reveal/plugin.ts'
+import { sourceRevealDecorations } from '../../src/features/viewer-edit/source-reveal/decorations.ts'
+import { collectInlineMarkRanges } from '../../src/features/viewer-edit/source-reveal/inline-sources.ts'
 
 test('Inline Markdown syntax reveal is focus and selection scoped', () => {
   const css = readFileSync(new URL('../../src/style.css', import.meta.url), 'utf8')
   const inlineCss = readFileSync(new URL('../../src/styles/inline-tokens.css', import.meta.url), 'utf8')
   const editorCss = readFileSync(new URL('../../src/styles/editor-blocks.css', import.meta.url), 'utf8')
   const sourceReveal = readFileSync(new URL('../../src/features/viewer-edit/source-reveal/plugin.ts', import.meta.url), 'utf8')
-  const sourceRevealWidgets = readFileSync(new URL('../../src/features/viewer-edit/source-reveal/widgets.ts', import.meta.url), 'utf8')
+  const sourceRevealDecorations = readFileSync(new URL('../../src/features/viewer-edit/source-reveal/decorations.ts', import.meta.url), 'utf8')
   const quietRule = /\.nano-md-token::before,[\s\S]*?\.nano-md-token::after \{([\s\S]*?)\n\}/.exec(inlineCss)
   assert(quietRule, 'inline delimiter quiet rule should be present')
   assert(quietRule[1].includes('position: absolute;'))
@@ -26,7 +29,7 @@ test('Inline Markdown syntax reveal is focus and selection scoped', () => {
   assert.equal(quietRule[1].includes('display: inline-block;'), false)
   assert(inlineCss.includes('.nano-source-widget'))
   assert(inlineCss.includes('.nano-inline-source-marker'))
-  assert(sourceRevealWidgets.includes('Decoration.widget'))
+  assert(sourceRevealDecorations.includes('Decoration.widget'))
   assert(sourceReveal.includes('sourceRevealPluginKey'))
   assert(sourceReveal.includes('focus: (view)'))
   assert(sourceReveal.includes('blur: (view)'))
@@ -75,6 +78,34 @@ test('Inline source reveal ignores unrelated marks in the same block', () => {
   const state = inlineRevealState(5)
   const tokens = sourceTokens(sourceRevealDecorations(state, { focused: true }))
   assert.deepEqual(tokens, [])
+})
+
+test('Inline mark ranges merge attrs that differ only by key insertion order', () => {
+  const linkType = nanoSchema.marks[nanoMarkNames.link]
+  const first = new Mark(linkType, {
+    title: 'Example',
+    href: 'https://example.com',
+    syntax: '',
+    destinationStyle: '',
+    image: false,
+    imageEmptyAlt: false,
+  })
+  const second = new Mark(linkType, {
+    href: 'https://example.com',
+    title: 'Example',
+    syntax: '',
+    destinationStyle: '',
+    image: false,
+    imageEmptyAlt: false,
+  })
+  const block = {
+    descendants(callback) {
+      callback({ isText: true, marks: [first], text: 'a' }, 0)
+      callback({ isText: true, marks: [second], text: 'b' }, 1)
+    },
+  }
+
+  assert.deepEqual(collectInlineMarkRanges(block).map((range) => [range.from, range.to]), [[0, 2]])
 })
 
 test('Inline source-token reveal replaces only the active token', () => {
@@ -147,8 +178,8 @@ test('List and todo source markers reveal as quiet active indicators', () => {
   assert.deepEqual(sourceTokens(sourceRevealDecorations(todoState, { focused: true })), ['- [ ] '])
 })
 
-test('Source reveal focus transactions do not touch the zod-crud engine path', () => {
-  const dispatcher = readFileSync(new URL('../../src/view/engine/dispatch.ts', import.meta.url), 'utf8')
+test('Source reveal focus transactions do not touch the json-document engine path', () => {
+  const dispatcher = readFileSync(new URL('../../src/view/engine/runtime.ts', import.meta.url), 'utf8')
   assert(dispatcher.includes('sourceRevealPluginKey'))
   assert(dispatcher.includes('transaction.getMeta(sourceRevealPluginKey)'))
   assert(dispatcher.indexOf('transaction.getMeta(sourceRevealPluginKey)') < dispatcher.indexOf('restoreNanoSelection(ctx, selection)'))

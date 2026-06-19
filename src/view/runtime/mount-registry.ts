@@ -1,4 +1,4 @@
-import type { NanoViewHandle } from './context'
+import type { NanoViewHandle } from './types'
 
 const mountedNanoViews = new WeakMap<HTMLElement, NanoViewHandle>()
 

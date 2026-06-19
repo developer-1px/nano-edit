@@ -1,12 +1,12 @@
 import type { EditorState } from 'prosemirror-state'
+import { headingSectionRanges } from '../../entities/block/structure/nano-block-ranges'
 import {
-  headingSectionRanges,
   isHeadingNode,
   isListLikeNode,
   nodeIndent,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
-import type { MoveDirection } from '../shell/shell'
+} from '../../entities/block/structure/nano-block-node-kind'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import type { MoveDirection } from '../../commands/types'
 import {
   blockMoveUnitForRange,
   blockMoveUnitFromRanges,
@@ -29,7 +29,9 @@ export function blockMoveTargetUnit(
     : sourceIndex + sourceUnit.ranges.length
   if (sourceIndex < 0 || targetIndex < 0 || targetIndex >= ranges.length) return null
 
-  const targetUnit = blockMoveTargetUnitForRange(doc, ranges[targetIndex]!, sourceUnit, collapsedBlockIds)
+  const targetRange = ranges[targetIndex]
+  if (!targetRange) return null
+  const targetUnit = blockMoveTargetUnitForRange(doc, targetRange, sourceUnit, collapsedBlockIds)
   if (blockMoveUnitsOverlap(sourceUnit, targetUnit)) return null
   return canMoveUnitToTarget(sourceUnit, targetUnit) ? targetUnit : null
 }
@@ -72,13 +74,15 @@ function previousMoveTargetIndex(
   }
 
   const previousIndex = sourceIndex - 1
-  const previous = ranges[previousIndex]!
+  const previous = ranges[previousIndex]
+  if (!previous) return -1
   if (!isListLikeNode(previous.node)) return previousIndex
 
   let targetIndex = previousIndex
   let targetIndent = nodeIndent(previous.node)
   for (let index = previousIndex - 1; index >= 0; index -= 1) {
-    const candidate = ranges[index]!
+    const candidate = ranges[index]
+    if (!candidate) return targetIndex
     if (!isListLikeNode(candidate.node)) break
 
     const indent = nodeIndent(candidate.node)
@@ -97,7 +101,8 @@ function previousListSiblingMoveTargetIndex(
   sourceIndent: number,
 ): number {
   for (let index = sourceIndex - 1; index >= 0; index -= 1) {
-    const candidate = ranges[index]!
+    const candidate = ranges[index]
+    if (!candidate) return -1
     if (!isListLikeNode(candidate.node)) return -1
 
     const indent = nodeIndent(candidate.node)

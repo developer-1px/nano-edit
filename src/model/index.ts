@@ -1,17 +1,22 @@
 // Pure data model: schemas, inferred types, and empty-value factories.
-// Excludes zod-crud document engines (createNanoDocument/createNanoDeck) and
+// Excludes json-document engines (createNanoDocument/createNanoDeck) and
 // editing-time selection helpers so this entry stays free of the persistence
 // runtime and the editor surface.
 export {
-  NanoBlockSchema,
-  NanoMarkSchema,
   NanoDocumentSchema,
+  createNanoParagraphBlock,
   createEmptyNanoDocument,
   emptyNanoDocument,
+  type CreateNanoParagraphBlockOptions,
   type NanoBlock,
+  type NanoCustomBlock,
+  type NanoCustomBlockType,
   type NanoMark,
+  type NanoParagraphBlock,
   type NanoDocument,
-} from '../entities/document/nano-document'
+} from '../entities/document/nano-document-model'
+export { NanoBlockSchema } from '../entities/block/schema/nano-block-schema'
+export { NanoMarkSchema } from '../entities/mark/nano-mark-schema'
 export {
   NanoDeckSchema,
   NanoSlideSchema,
@@ -25,4 +30,4 @@ export {
   type NanoSlideRegion,
   type NanoDeckMetadata,
   type NanoSlideRegionKind,
-} from '../entities/deck/nano-deck'
+} from '../entities/deck/nano-deck-model'

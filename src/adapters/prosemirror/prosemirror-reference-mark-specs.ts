@@ -2,12 +2,13 @@ import type { MarkSpec } from 'prosemirror-model'
 import {
   firstNonBlankStringValue,
   nonBlankStringValue,
-} from '../../core/schema/nano-block-schema-refinements'
-import { footnoteName } from '../../core/nano-footnote'
-import { inlineMathFormula } from '../../core/nano-math'
-import { noteLinkParts } from '../../core/nano-note-link'
-import { normalizeTagName, tagDisplayLabel, tagNameFromToken } from '../../core/nano-tag'
+} from '../../entities/block/schema/nano-block-schema-refinements'
+import { footnoteName } from '../../entities/reference/nano-footnote'
+import { inlineMathFormula } from '../../entities/math/nano-math'
+import { noteLinkParts } from '../../entities/reference/nano-note-link'
+import { normalizeTagName, tagDisplayLabel, tagNameFromToken } from '../../entities/reference/nano-tag'
 import { nanoMarkNames } from './prosemirror-names'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { labelledSourceTokenDomSpec } from './prosemirror-source-token'
 
 export const referenceMarkSpecs: Record<string, MarkSpec> = {
@@ -17,7 +18,9 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
     parseDOM: [{
       tag: 'span.nano-tag',
       getAttrs: (dom) => {
-        const element = dom as HTMLElement
+        const element = prosemirrorParseDomElement(dom)
+        if (!element) return false
+
         const name = firstNonBlankStringValue(
           tagNameFromToken(element.textContent ?? ''),
           normalizeTagName(element.dataset.tag ?? ''),
@@ -38,7 +41,9 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
     parseDOM: [{
       tag: 'span.nano-note-link',
       getAttrs: (dom) => {
-        const element = dom as HTMLElement
+        const element = prosemirrorParseDomElement(dom)
+        if (!element) return false
+
         const parts = noteLinkParts(element.dataset.target ?? '') ?? noteLinkParts(element.textContent ?? '')
         const target = nonBlankStringValue(parts?.target)
         return target ? { target, alias: element.dataset.alias ?? parts?.alias ?? '' } : false
@@ -59,7 +64,9 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
     parseDOM: [{
       tag: 'span.nano-math',
       getAttrs: (dom) => {
-        const element = dom as HTMLElement
+        const element = prosemirrorParseDomElement(dom)
+        if (!element) return false
+
         const formula = firstNonBlankStringValue(
           element.dataset.formula,
           inlineMathFormula(element.textContent ?? ''),
@@ -78,7 +85,9 @@ export const referenceMarkSpecs: Record<string, MarkSpec> = {
     parseDOM: [{
       tag: 'span.nano-footnote-ref',
       getAttrs: (dom) => {
-        const element = dom as HTMLElement
+        const element = prosemirrorParseDomElement(dom)
+        if (!element) return false
+
         const name = firstNonBlankStringValue(
           footnoteName(element.dataset.name ?? ''),
           footnoteName(element.textContent ?? ''),

@@ -1,10 +1,8 @@
 import type { BlockOption } from '../../assembly/capability'
-import {
-  convertBlockToParagraphAtStart,
-  mathFormula,
-  mathStyle,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+import { convertBlockToParagraphAtStart } from '../../capabilities/block-behavior-paragraph'
+import { mathStyle } from '../../codecs/markdown/nano-markdown-code-utils'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const mathBlockOption = {
   id: 'math',
@@ -35,3 +33,9 @@ export const mathBlockOption = {
     backspaceAtStart: convertBlockToParagraphAtStart,
   },
 } satisfies BlockOption
+
+function mathFormula(source: unknown): string {
+  return typeof source === 'string'
+    ? source.replace(/\r\n?/g, '\n').trim()
+    : ''
+}

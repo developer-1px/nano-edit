@@ -47,12 +47,13 @@ export function collapsibleBlockIds(doc: ProseMirrorNode): Set<string> {
   return collapsibleBlockIdsFromRanges(topLevelBlockRanges(doc))
 }
 
-export function collapsibleBlockIdsFromRanges(ranges: readonly ActiveBlockRange[]): Set<string> {
+function collapsibleBlockIdsFromRanges(ranges: readonly ActiveBlockRange[]): Set<string> {
   const ids = new Set<string>()
 
   for (let index = 0; index < ranges.length - 1; index += 1) {
-    const range = ranges[index]!
-    const next = ranges[index + 1]!
+    const range = ranges[index]
+    const next = ranges[index + 1]
+    if (!range || !next) continue
 
     if (isListLikeNode(range.node) && isListLikeNode(next.node) && nodeIndent(next.node) > nodeIndent(range.node)) {
       const id = blockId(range.node)
@@ -76,7 +77,7 @@ export function collapsibleBlockIdsFromRanges(ranges: readonly ActiveBlockRange[
   return ids
 }
 
-export function collapseDescriptorForRange(range: ActiveBlockRange): CollapseDescriptor | null {
+function collapseDescriptorForRange(range: ActiveBlockRange): CollapseDescriptor | null {
   const id = blockId(range.node)
   if (!id) return null
 
@@ -85,16 +86,17 @@ export function collapseDescriptorForRange(range: ActiveBlockRange): CollapseDes
   return null
 }
 
-export function pruneCollapseAncestors(ancestors: CollapseDescriptor[], range: ActiveBlockRange): void {
+function pruneCollapseAncestors(ancestors: CollapseDescriptor[], range: ActiveBlockRange): void {
   while (ancestors.length > 0) {
-    const ancestor = ancestors[ancestors.length - 1]!
+    const ancestor = ancestors.at(-1)
+    if (!ancestor) return
     if (collapseDescriptorHidesRange(ancestor, range)) return
 
     ancestors.pop()
   }
 }
 
-export function collapseDescriptorHidesRange(descriptor: CollapseDescriptor, range: ActiveBlockRange): boolean {
+function collapseDescriptorHidesRange(descriptor: CollapseDescriptor, range: ActiveBlockRange): boolean {
   if (descriptor.type === 'list') {
     return isListLikeNode(range.node) && nodeIndent(range.node) > descriptor.indent
   }

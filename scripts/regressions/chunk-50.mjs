@@ -1,5 +1,5 @@
 import { editorPartCatalog as publicEditorPartCatalog } from '../../src/index.ts'
-import { demoArtifacts } from '../../src/demo/document-library.ts'
+import { demoArtifacts } from '../../src/demo/artifact-library.ts'
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import * as h from './harness.mjs'
 

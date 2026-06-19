@@ -1,8 +1,5 @@
-import {
-  blockOptions as defaultBlockOptions,
-  type BlockOption,
-  type BlockTemplate,
-} from '../blocks/nano-block-options'
+import { blockOptions as defaultBlockOptions } from '../blocks/nano-block-options'
+import type { BlockOption, BlockTemplate } from '../assembly/capability'
 import type {
   NanoCommand,
   NanoCommandsOptions,

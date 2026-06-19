@@ -1,15 +1,14 @@
 import { Fragment, type Node as ProseMirrorNode } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import {
-  blockId,
-  selectedBlockRangesWithCollapsedSubtree,
-  topLevelBlockRanges,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
-import { nanoDocumentFromMarkdown } from '../../codecs/markdown/nano-markdown'
-import { prosemirrorDocFromNano } from '../../adapters/prosemirror/prosemirror-nano'
-import { selectionAfterInsertedContent } from '../../core/nano-selection'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import { selectedBlockRangesWithCollapsedSubtree } from '../../entities/block/structure/nano-block-selection-ranges'
+import { topLevelBlockRanges } from '../../entities/block/structure/nano-block-ranges'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import { nanoDocumentFromMarkdown } from '../../codecs/markdown/nano-markdown-parse'
+import { prosemirrorDocFromNano } from '../../adapters/prosemirror/prosemirror-document'
+import { selectionAfterInsertedContent } from '../selection/placement'
 import { normalizedBlockChangeContent } from '../list/transforms'
+import { setNanoDocumentChangeTransactionMetadata } from '../engine/transaction-metadata'
 
 export function markdownBlockSourceTransaction(
   state: EditorState,
@@ -17,7 +16,7 @@ export function markdownBlockSourceTransaction(
   markdown: string,
   collapsedBlockIds: ReadonlySet<string> = new Set(),
 ): Transaction | null {
-  const block = topLevelBlockRanges(state.doc).find((range) => range.node.attrs.id === sourceBlockId)
+  const block = topLevelBlockRanges(state.doc).find((range) => blockId(range.node) === sourceBlockId)
   if (!block) return null
 
   const parsed = prosemirrorDocFromNano(nanoDocumentFromMarkdown(markdown))
@@ -32,7 +31,10 @@ export function markdownBlockSourceTransaction(
     : { to: last?.to ?? block.to, content: replacement }
   const transaction = state.tr.replaceWith(block.from, change.to, change.content)
   transaction.setSelection(selectionAfterInsertedContent(transaction.doc, block.from, change.content))
-  return transaction
+  return setNanoDocumentChangeTransactionMetadata(transaction, {
+    label: 'edit markdown source',
+    origin: 'markdown-source',
+  })
 }
 
 function markdownBlockSourceReplacement(
@@ -43,13 +45,11 @@ function markdownBlockSourceReplacement(
 ): Fragment | null {
   const usedIds = new Set<string>()
   doc.forEach((node) => {
-    const id = typeof node.attrs.id === 'string' ? node.attrs.id : ''
+    const id = blockId(node)
     if (id && !excludeIds.has(id)) usedIds.add(id)
   })
 
-  const sourceId = typeof block.node.attrs.id === 'string' && block.node.attrs.id
-    ? block.node.attrs.id
-    : uniqueMarkdownSourceBlockId(usedIds, 'markdown-block')
+  const sourceId = blockId(block.node) || uniqueMarkdownSourceBlockId(usedIds, 'markdown-block')
   const nodes: ProseMirrorNode[] = []
 
   parsed.forEach((node, _offset, index) => {

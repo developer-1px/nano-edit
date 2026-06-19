@@ -1,10 +1,10 @@
-import { mathStyle } from './prosemirror-atom-dom'
 import {
   codeFenceIndent,
   codeFenceInfoSpacing,
   codeFenceLength,
   codeFenceMarker,
-} from './prosemirror-block-attrs'
+  mathStyle,
+} from './prosemirror-code-divider-attrs'
 import {
   defineNanoBlockCodec,
   type AnyNanoBlockCodec,

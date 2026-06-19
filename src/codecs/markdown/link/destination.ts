@@ -12,11 +12,10 @@ export function markdownLinkDestination(source: string): { href: string; destina
   const href = markdownLinkHref(destinationSource)
   if (!href) return null
 
-  return {
-    href,
-    ...(usesExplicitAngleDestination(destinationSource, href) ? { destinationStyle: 'angle' as const } : {}),
-    ...(title?.text ? { title: title.text } : {}),
-  }
+  const destination: { href: string; destinationStyle?: 'angle'; title?: string } = { href }
+  if (usesExplicitAngleDestination(destinationSource, href)) destination.destinationStyle = 'angle'
+  if (title?.text) destination.title = title.text
+  return destination
 }
 
 export function markdownLinkLabelClose(source: string, from: number): number {
@@ -37,7 +36,7 @@ export function markdownLinkDestinationClose(source: string, from: number): numb
   let inTitle = false
 
   for (let index = from; index < source.length; index += 1) {
-    const char = source[index]!
+    const char = source[index] ?? ''
     if (escaped) {
       escaped = false
       continue
@@ -77,12 +76,12 @@ export function markdownLinkDestinationClose(source: string, from: number): numb
 
 function markdownLinkTitle(source: string): { from: number; text: string } | null {
   let end = source.length
-  while (end > 0 && /[ \t]/.test(source[end - 1]!)) end -= 1
+  while (end > 0 && /[ \t]/.test(source[end - 1] ?? '')) end -= 1
   if (source[end - 1] !== '"') return null
 
   for (let index = end - 2; index >= 0; index -= 1) {
     if (source[index] !== '"' || isBackslashEscaped(source, index)) continue
-    if (index === 0 || !/[ \t]/.test(source[index - 1]!)) return null
+    if (index === 0 || !/[ \t]/.test(source[index - 1] ?? '')) return null
     return { from: index, text: unescapeMarkdownImageTitle(source.slice(index + 1, end - 1)) }
   }
 

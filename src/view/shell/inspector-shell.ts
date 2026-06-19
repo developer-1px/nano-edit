@@ -5,13 +5,21 @@ import {
   Pin,
   X,
 } from 'lucide'
-import type { InspectorMode, InspectorTab } from './shell'
+import {
+  createInteractionActions,
+  createInteractionOwner,
+  createInteractionRouter,
+  type InteractionKeyRuleDefinition,
+  type InteractionKeyTargetKind,
+} from '@interactive-os/interaction/runtime'
+import type { InspectorTab } from '../../commands/types'
 import { labeledSection, shellButton } from './command-elements'
 import { lucideIconElement } from '../icons'
-import { createNanoInspectorTabInteraction } from './inspector-interaction'
-import { storedInspectorMode, storeInspectorMode } from './inspector-storage'
+
+export type InspectorMode = 'floating' | 'hidden' | 'pinned'
 
 interface NanoInspectorShellOptions {
+  disabled?: boolean
   onIndexSearch: (query: string) => void
   root: HTMLElement
 }
@@ -28,11 +36,38 @@ interface NanoInspectorShell {
   syncInspectorChrome: () => void
 }
 
+type InspectorTabMoveDirection = 'first' | 'last' | 'next' | 'previous'
+
+type NanoInspectorInteractionActions = {
+  'nano.inspector-tabs.move': { direction: InspectorTabMoveDirection }
+}
+
+interface InspectorTabInteractionActions {
+  focusTab: (tab: InspectorTab) => void
+  selectedTab: InspectorTab
+  setTab: (tab: InspectorTab) => void
+}
+
+interface NanoInspectorTabInteraction {
+  destroy: () => void
+  handleTabKeydown: (event: KeyboardEvent, actions: InspectorTabInteractionActions) => void
+}
+
 let inspectorShellId = 0
+const INSPECTOR_MODE_STORAGE_KEY = 'nano-edit:inspector-mode'
+const tabTargetKinds = [
+  'native-control',
+  'pattern',
+  'incidental',
+  'unknown',
+] satisfies readonly InteractionKeyTargetKind[]
+
+const inspectorTabActions = createInteractionActions<NanoInspectorInteractionActions>()
 
 export function createNanoInspectorShell(options: NanoInspectorShellOptions): NanoInspectorShell {
   inspectorShellId += 1
   const shellId = `nano-inspector-${inspectorShellId}`
+  const disabled = options.disabled ?? false
   let inspectorMode = storedInspectorMode()
   let inspectorTab: InspectorTab = 'index'
   const tabInteraction = createNanoInspectorTabInteraction()
@@ -103,11 +138,12 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   inspectorTrigger.append(lucideIconElement(PanelRightOpen, 'nano-shell-icon'))
 
   const syncInspectorChrome = (): void => {
-    options.root.dataset.inspector = inspectorMode
-    inspectorElement.hidden = inspectorMode === 'hidden'
+    options.root.dataset.inspector = disabled ? 'disabled' : inspectorMode
+    inspectorElement.hidden = disabled || inspectorMode === 'hidden'
+    inspectorTrigger.hidden = disabled
     inspectorTrigger.dataset.tab = inspectorTab
-    inspectorTrigger.dataset.active = String(inspectorMode !== 'hidden')
-    inspectorTrigger.setAttribute('aria-expanded', String(inspectorMode !== 'hidden'))
+    inspectorTrigger.dataset.active = String(!disabled && inspectorMode !== 'hidden')
+    inspectorTrigger.setAttribute('aria-expanded', String(!disabled && inspectorMode !== 'hidden'))
     indexTab.dataset.active = String(inspectorTab === 'index')
     indexTab.setAttribute('aria-selected', String(inspectorTab === 'index'))
     indexTab.tabIndex = inspectorTab === 'index' ? 0 : -1
@@ -122,12 +158,20 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   }
 
   const setInspectorMode = (mode: InspectorMode): void => {
+    if (disabled) {
+      syncInspectorChrome()
+      return
+    }
     inspectorMode = mode
     storeInspectorMode(mode)
     syncInspectorChrome()
   }
 
   const showInspector = (tab: InspectorTab = inspectorTab): void => {
+    if (disabled) {
+      syncInspectorChrome()
+      return
+    }
     inspectorTab = tab
     if (inspectorMode === 'hidden') inspectorMode = 'floating'
     storeInspectorMode(inspectorMode)
@@ -176,4 +220,75 @@ export function createNanoInspectorShell(options: NanoInspectorShellOptions): Na
   }
 
   return { destroy, inspectorElement, inspectorTrigger, indexOutput, markdownOutput, showInspector, setInspectorMode, setInspectorTab, syncInspectorChrome }
+}
+
+function storedInspectorMode(): InspectorMode {
+  try {
+    const stored = window.localStorage.getItem(INSPECTOR_MODE_STORAGE_KEY)
+    return stored === 'pinned' ? stored : 'hidden'
+  } catch {
+    return 'hidden'
+  }
+}
+
+function storeInspectorMode(mode: InspectorMode): void {
+  try {
+    if (mode === 'pinned') {
+      window.localStorage.setItem(INSPECTOR_MODE_STORAGE_KEY, mode)
+      return
+    }
+    window.localStorage.removeItem(INSPECTOR_MODE_STORAGE_KEY)
+  } catch {}
+}
+
+function createNanoInspectorTabInteraction(): NanoInspectorTabInteraction {
+  const router = createInteractionRouter()
+  const unregister = router.register(createInteractionOwner({
+    id: 'nano.inspector-tabs',
+    kind: 'pattern',
+    runtimeKind: 'pattern',
+    diagnostics: {
+      label: 'Inspector tabs',
+      role: 'tablist',
+    },
+    keyRules: [
+      tabMoveRule('previous', ['ArrowLeft']),
+      tabMoveRule('next', ['ArrowRight']),
+      tabMoveRule('first', ['Home']),
+      tabMoveRule('last', ['End']),
+    ],
+  }), { active: true })
+
+  return {
+    destroy: unregister,
+    handleTabKeydown: (event, actions) => {
+      router.handleEvent(event, {
+        onOwnerKey: ({ route }) => {
+          const move = inspectorTabActions.getRoute(route, 'nano.inspector-tabs.move')
+          if (!move) return
+
+          const tab = movedInspectorTab(actions.selectedTab, move.params.direction)
+          actions.setTab(tab)
+          actions.focusTab(tab)
+        },
+      })
+    },
+  }
+}
+
+function tabMoveRule(direction: InspectorTabMoveDirection, keys: readonly string[]): InteractionKeyRuleDefinition {
+  return {
+    id: `nano.inspector-tabs.${direction}`,
+    kind: 'navigation',
+    keys,
+    targetKinds: tabTargetKinds,
+    action: { type: 'nano.inspector-tabs.move', params: { direction } },
+    preventDefault: true,
+  }
+}
+
+function movedInspectorTab(current: InspectorTab, direction: InspectorTabMoveDirection): InspectorTab {
+  if (direction === 'first') return 'index'
+  if (direction === 'last') return 'markdown'
+  return current === 'index' ? 'markdown' : 'index'
 }

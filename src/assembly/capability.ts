@@ -1,6 +1,6 @@
 import type { Fragment, Node as ProseMirrorNode, NodeType, ResolvedPos } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import type { UrlSyntax } from '../core/nano-url'
+import type { UrlSyntax } from '../entities/reference/nano-url'
 
 export type ListKind = 'bullet' | 'ordered'
 export type BulletMarker = '-' | '*' | '+'
@@ -95,4 +95,10 @@ export interface BlockKeyboardContext {
 export interface EditorCapability {
   id: string
   blockOptions?: readonly BlockOption[]
+}
+
+export function blockOptionsFromCapabilities(
+  capabilities: readonly EditorCapability[],
+): readonly BlockOption[] {
+  return capabilities.flatMap((capability) => capability.blockOptions ?? [])
 }

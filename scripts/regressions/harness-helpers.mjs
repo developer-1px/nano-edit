@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict'
 import { AllSelection, EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
-import { markShortcutTransaction } from '../../src/marks/nano-mark-options.ts'
+import { markShortcutTransaction } from '../../src/marks/shortcut-transaction.ts'
 import { nanoDocumentFromMarkdown, nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import {
   nanoBlocksFromProseMirror,
-  nanoMarkNames,
-  nanoSchema,
   prosemirrorDocFromNano,
-} from '../../src/adapters/prosemirror/prosemirror-nano.ts'
+} from '../../src/adapters/prosemirror/prosemirror-document.ts'
+import { blockPositionById } from '../../src/entities/block/structure/nano-block-node-kind.ts'
+import { nanoMarkNames } from '../../src/adapters/prosemirror/prosemirror-names.ts'
+import { nanoSchema } from '../../src/adapters/prosemirror/prosemirror-schema.ts'
 
 export function textState(text) {
   const doc = prosemirrorDocFromNano({
@@ -97,10 +98,4 @@ export function selectedBlockText(state, transaction) {
   return node.textContent
 }
 
-export function blockPositionById(doc, id) {
-  let position = null
-  doc.forEach((node, offset) => {
-    if (node.attrs.id === id) position = offset
-  })
-  return position
-}
+export { blockPositionById }

@@ -1,11 +1,16 @@
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import { NodeSelection, TextSelection } from 'prosemirror-state'
-import { collapsibleBlockIds } from '../../blocks/nano-block-structure'
-import { nanoMarkdownFromDocument } from '../../codecs/markdown/nano-markdown'
-import { prosemirrorDocFromNano } from '../../adapters/prosemirror/prosemirror-nano'
-import { writeClipboardText } from '../clipboard/index'
+import { collapsibleBlockIds } from '../../entities/block/structure/nano-block-collapse'
+import { nanoMarkdownFromDocument } from '../../codecs/markdown/nano-markdown-serialize'
+import { prosemirrorDocFromNano } from '../../adapters/prosemirror/prosemirror-document'
+import { writeClipboardText } from '../clipboard/text'
 import type { NanoViewContext } from '../runtime/context'
-import type { NanoEngineDeps } from './types'
+import type { NanoInspectorRuntime } from '../inspector/runtime'
+
+export interface NanoEngineDeps {
+  createEditorState: (doc?: ProseMirrorNode) => Parameters<NanoViewContext['view']['updateState']>[0]
+  inspector: NanoInspectorRuntime
+}
 
 export function syncSelectionFromDOM(ctx: NanoViewContext): void {
   if (ctx.view.state.selection instanceof NodeSelection) return
@@ -30,8 +35,20 @@ export function restoreHistory(
   syncEditorFromEngine: () => void,
   direction: 'undo' | 'redo',
 ): void {
-  const restored = direction === 'undo' ? ctx.engine.history.undo() : ctx.engine.history.redo()
+  const restored = runWithoutEngineSync(ctx, () => (
+    direction === 'undo' ? ctx.engine.history.undo() : ctx.engine.history.redo()
+  ))
   if (restored) syncEditorFromEngine()
+}
+
+function runWithoutEngineSync<T>(ctx: NanoViewContext, fn: () => T): T {
+  const previous = ctx.suppressEngineSync
+  ctx.suppressEngineSync = true
+  try {
+    return fn()
+  } finally {
+    ctx.suppressEngineSync = previous
+  }
 }
 
 export function syncEditorFromEngine(ctx: NanoViewContext, deps: NanoEngineDeps): void {

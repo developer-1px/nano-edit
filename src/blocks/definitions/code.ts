@@ -1,12 +1,13 @@
 import type { BlockOption } from '../../assembly/capability'
+import { convertBlockToParagraphAtStart } from '../../capabilities/block-behavior-paragraph'
 import {
   codeFenceInfo,
+  codeFenceInfoSpacing as codeFenceSpacing,
   codeFenceLength,
   codeFenceMarker,
-  codeFenceSpacing,
-  convertBlockToParagraphAtStart,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../../codecs/markdown/nano-markdown-code-utils'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const codeBlockOption = {
   id: 'code',

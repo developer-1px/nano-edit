@@ -1,5 +1,5 @@
-import { nonBlankStringValue } from '../../core/schema/nano-block-schema-refinements'
-import { normalizeTagName } from '../../core/nano-tag'
+import { nonBlankStringValue } from '../../entities/block/schema/nano-block-schema-refinements'
+import { normalizeTagName } from '../../entities/reference/nano-tag'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'

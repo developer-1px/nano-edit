@@ -1,34 +1,15 @@
 import { EditorState, type Transaction } from 'prosemirror-state'
-import {
-  nextBlockId,
-  type BlockOptionRegistry,
-  type BlockTemplate,
-} from '../../blocks/nano-block-options'
+import type { BlockTemplate } from '../../assembly/capability'
+import type { BlockOptionRegistry } from '../../blocks/nano-block-options'
+import { nextBlockId } from '../../capabilities/block-behavior-id'
 import {
   activeBlockRange,
   listSubtreeEndPosition,
-  topLevelBlockRanges,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
-import { selectionAfterInsertedContent } from '../../core/nano-selection'
+} from '../../entities/block/structure/nano-block-ranges'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
+import { selectionAfterInsertedContent } from '../selection/placement'
 import { insertedNodeForBlockTemplate } from '../block-template/nodes'
-
-export function insertParagraphAfterBlockTransaction(
-  state: EditorState,
-  registry?: BlockOptionRegistry,
-): Transaction | null {
-  return insertBlockAfterActiveTransaction(state, { type: 'paragraph' }, registry)
-}
-
-export function insertBlockAfterIdTransaction(
-  state: EditorState,
-  id: string,
-  template: BlockTemplate,
-  registry?: BlockOptionRegistry,
-): Transaction | null {
-  const block = topLevelBlockRanges(state.doc).find((range) => range.node.attrs.id === id)
-  return block ? insertBlockAfterRangeTransaction(state, block, template, registry) : null
-}
 
 export function insertBlockAfterActiveTransaction(
   state: EditorState,
@@ -45,7 +26,7 @@ function insertBlockAfterRangeTransaction(
   template: BlockTemplate,
   registry?: BlockOptionRegistry,
 ): Transaction | null {
-  const id = nextBlockId(state.doc, block.node.attrs.id)
+  const id = nextBlockId(state.doc, blockId(block.node))
   const inserted = insertedNodeForBlockTemplate(template, id, registry)
   if (!inserted) return null
 

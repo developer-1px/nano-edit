@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import {
+  activeDemoArtifactStorageKey,
   clickTarget,
+  demoDeckStorageKey,
   evaluate,
   pressKey,
   scrollTargetIntoView,
@@ -10,8 +12,8 @@ import {
 } from './browser-test-harness.mjs'
 import { appendText } from './browser-local-edit-actions.mjs'
 
-const activeArtifactStorageKey = 'nano-edit:active-demo-document:v1'
-const deckStorageKey = 'nano-edit:demo-deck:v1'
+const activeArtifactStorageKey = activeDemoArtifactStorageKey()
+const deckStorageKey = demoDeckStorageKey()
 const headingEditText = ' / revised'
 const tableEditText = ' + deck edit'
 const altModifier = 1
@@ -37,9 +39,9 @@ async function runDeckSurfaceLoop(browser, url) {
     return true
   })()`)
   await browser.send('Page.reload', { ignoreCache: true })
-  await waitForExpression(browser, 'Boolean(document.querySelector(".demo-document-button[data-document-id=generated-deck-review]"))')
+  await waitForExpression(browser, 'Boolean(document.querySelector(".demo-artifact-button[data-artifact-id=generated-deck-review]"))')
 
-  await clickTarget(browser, '.demo-document-button[data-document-id="generated-deck-review"]')
+  await clickTarget(browser, '.demo-artifact-button[data-artifact-id="generated-deck-review"]')
   await waitForExpression(browser, 'Boolean(document.querySelector(".nano-deck .ProseMirror.nano-document"))')
 
   const initial = await deckSnapshot(browser)
@@ -67,6 +69,16 @@ async function runDeckSurfaceLoop(browser, url) {
   await pressKey(browser, 'End', 'End', 35)
   await waitForExpression(browser, 'document.querySelector(".nano-deck-frame .nano-heading-1 .nano-block-content")?.textContent.trim() === "First Editable Slice"')
   await pressKey(browser, 'Home', 'Home', 36)
+  await waitForExpression(browser, 'document.querySelector(".nano-deck-frame .nano-heading-1 .nano-block-content")?.textContent.trim() === "Generated Artifacts Need Edits"')
+
+  await evaluate(browser, `(() => {
+    const slide = document.querySelector('.nano-deck-slide-button[data-active="true"]')
+    if (!(slide instanceof HTMLElement)) throw new Error('Missing active slide button')
+    slide.dataset.slideIndex = '99'
+    slide.focus()
+    return document.activeElement === slide
+  })()`)
+  await pressKey(browser, 'Enter', 'Enter', 13)
   await waitForExpression(browser, 'document.querySelector(".nano-deck-frame .nano-heading-1 .nano-block-content")?.textContent.trim() === "Generated Artifacts Need Edits"')
 
   await appendText(browser, '.nano-deck-frame .nano-heading-1[data-id] .nano-block-content', headingEditText)

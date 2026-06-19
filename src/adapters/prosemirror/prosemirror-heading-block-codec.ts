@@ -1,3 +1,4 @@
+import type { NanoBlock } from '../../entities/document/nano-document-model'
 import {
   atxClosingLengthOrNull,
   atxSpacingOrNull,
@@ -6,12 +7,10 @@ import {
   headingStyle,
   setextLength,
   setextMarker,
-} from './prosemirror-block-attrs'
+} from './prosemirror-heading-attrs'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
-import {
-  inlineContentFromText,
-  nanoMarksFromProseMirrorNode,
-} from './prosemirror-mark-codecs'
+import { inlineContentFromText } from './prosemirror-inline-content'
+import { nanoMarksFromProseMirrorNode } from './prosemirror-mark-normalize'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
 
@@ -31,18 +30,25 @@ export const headingBlockCodec = defineNanoBlockCodec({
     },
     inlineContentFromText(block.text, block.marks),
   ),
-  toNano: (node, id) => ({
-    id,
-    type: 'heading',
-    level: clampHeadingLevel(node.attrs.level),
-    ...(headingStyle(node.attrs.headingStyle, node.attrs.level) === 'setext'
-      ? {
-          headingStyle: 'setext' as const,
-          setextMarker: setextMarker(node.attrs.setextMarker, node.attrs.level),
-          setextLength: setextLength(node.attrs.setextLength),
-        }
-      : headingAtxAttrs(node.attrs.atxClosingLength, node.attrs.atxClosingSpacing, node.attrs.atxTextSpacing)),
-    text: node.textContent,
-    marks: nanoMarksFromProseMirrorNode(node),
-  }),
+  toNano: (node, id) => {
+    const block: Extract<NanoBlock, { type: 'heading' }> = {
+      id,
+      type: 'heading',
+      level: clampHeadingLevel(node.attrs.level),
+      text: node.textContent,
+      marks: nanoMarksFromProseMirrorNode(node),
+    }
+    if (headingStyle(node.attrs.headingStyle, node.attrs.level) === 'setext') {
+      block.headingStyle = 'setext'
+      block.setextMarker = setextMarker(node.attrs.setextMarker, node.attrs.level)
+      block.setextLength = setextLength(node.attrs.setextLength)
+    } else {
+      Object.assign(block, headingAtxAttrs(
+        node.attrs.atxClosingLength,
+        node.attrs.atxClosingSpacing,
+        node.attrs.atxTextSpacing,
+      ))
+    }
+    return block
+  },
 })

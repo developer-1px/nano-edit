@@ -1,5 +1,5 @@
-import type { NanoDeck } from '../core/nano-core'
-import { nanoDeckFromMarkdown } from '../codecs/markdown/nano-markdown'
+import type { NanoDeck } from '../entities/deck/nano-deck-model'
+import { nanoDeckFromMarkdown } from '../codecs/markdown/nano-deck-markdown'
 
 const initialDeckMarkdown = `---
 title: Generated Deck Review

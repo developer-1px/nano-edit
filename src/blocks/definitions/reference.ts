@@ -1,17 +1,24 @@
+import { Fragment, type Node as ProseMirrorNode } from 'prosemirror-model'
 import type { BlockOption } from '../../assembly/capability'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+import type { BlockTemplate } from '../../assembly/capability'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 import {
   convertBlockToParagraphAtStart,
   exitEmptyThen,
+} from '../../capabilities/block-behavior-paragraph'
+import { splitBlockToParagraph } from '../../capabilities/block-behavior-split'
+import { footnoteName } from '../../entities/reference/nano-footnote'
+import {
   footnoteTemplate,
-  footnoteName,
   noteRefTemplate,
-  noteRefNodeForBlockTemplate,
-  quoteMarkerSpacingValue,
-  splitBlockToParagraph,
   tagRefTemplate,
-  tagRefNodeForBlockTemplate,
-} from '../options/index'
+} from '../options/templates'
+import {
+  blockWithTrailingParagraph,
+  sourceBlockId,
+} from '../options/node-helpers'
+import { quoteMarkerSpacingValue } from '../options/quote-values'
 
 export const referenceBlockOptions: readonly BlockOption[] = [
   {
@@ -87,3 +94,26 @@ export const referenceBlockOptions: readonly BlockOption[] = [
     replacementNode: tagRefNodeForBlockTemplate,
   },
 ]
+
+function noteRefNodeForBlockTemplate(template: BlockTemplate, source: string | ProseMirrorNode): Fragment | null {
+  if (template.type !== 'note_ref') return null
+
+  const id = sourceBlockId(source, 'note-ref')
+  const noteRef = nanoSchema.nodes[nanoNodeNames.noteRef].create({
+    id,
+    target: template.target,
+    alias: template.alias ?? '',
+  })
+  return blockWithTrailingParagraph(noteRef, id)
+}
+
+function tagRefNodeForBlockTemplate(template: BlockTemplate, source: string | ProseMirrorNode): Fragment | null {
+  if (template.type !== 'tag_ref') return null
+
+  const id = sourceBlockId(source, 'tag-ref')
+  const tagRef = nanoSchema.nodes[nanoNodeNames.tagRef].create({
+    id,
+    name: template.name,
+  })
+  return blockWithTrailingParagraph(tagRef, id)
+}

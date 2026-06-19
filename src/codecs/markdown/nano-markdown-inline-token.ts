@@ -1,30 +1,15 @@
-import { footnoteRefAt } from '../../core/nano-footnote'
-import { inlineMathTokenAt } from '../../core/nano-math'
+import { footnoteRefAt } from '../../entities/reference/nano-footnote'
+import { inlineMathTokenAt } from '../../entities/math/nano-math'
 import {
   markdownLinkAt,
   markdownNoteLinkAt,
-} from './link/index'
-import { tagTokenAt } from '../../core/nano-tag'
-import { externalUrlTokenAt, type UrlSyntax } from '../../core/nano-url'
+} from './link/parse'
+import { tagTokenAt } from '../../entities/reference/nano-tag'
+import { externalUrlTokenAt } from '../../entities/reference/nano-url'
 import { markdownCodeSpanAt } from './nano-markdown-inline-code-span'
-import {
-  findItalicClose,
-  findUnderlineClose,
-  findUnderscoreItalicClose,
-} from './nano-markdown-inline-close'
+import type { NanoMarkWithoutRange } from '../../entities/mark/nano-mark-range'
 
-export type NanoMarkWithoutRange =
-  | { type: 'bold'; marker?: '**' | '__' }
-  | { type: 'italic'; marker?: '*' | '_' }
-  | { type: 'underline' }
-  | { type: 'strike' }
-  | { type: 'highlight' }
-  | { type: 'code'; backtickLength?: number }
-  | { type: 'tag'; name: string }
-  | { type: 'note_link'; target: string; alias?: string }
-  | { type: 'math'; formula: string }
-  | { type: 'footnote_ref'; name: string }
-  | { type: 'link'; href: string; destinationStyle?: 'angle'; title?: string; syntax?: UrlSyntax }
+export type { NanoMarkWithoutRange } from '../../entities/mark/nano-mark-range'
 
 type InlineMarkdownToken =
   | { kind: 'text'; text: string; to: number }
@@ -34,7 +19,7 @@ type InlineMarkdownToken =
 
 export function inlineMarkdownTokenAt(source: string, index: number): InlineMarkdownToken {
   if (source[index] === '\\' && index + 1 < source.length) {
-    return { kind: 'text', text: source[index + 1]!, to: index + 2 }
+    return { kind: 'text', text: source[index + 1] ?? '', to: index + 2 }
   }
 
   const literal = literalInlineTokenAt(source, index)
@@ -49,7 +34,7 @@ export function inlineMarkdownTokenAt(source: string, index: number): InlineMark
   const tag = tagTokenAt(source, index)
   if (tag) return { kind: 'literalMark', token: tag.token, mark: { type: 'tag', name: tag.name }, to: tag.to }
 
-  return { kind: 'text', text: source[index]!, to: index + 1 }
+  return { kind: 'text', text: source[index] ?? '', to: index + 1 }
 }
 
 function literalInlineTokenAt(source: string, index: number): InlineMarkdownToken | null {
@@ -123,4 +108,25 @@ function delimitedInlineTokenAt(source: string, index: number): InlineMarkdownTo
   if (highlightTo > index + 2) return { kind: 'parsedMark', content: source.slice(index + 2, highlightTo), mark: { type: 'highlight' }, to: highlightTo + 2 }
 
   return null
+}
+
+function findItalicClose(source: string, from: number): number {
+  for (let index = from; index < source.length; index += 1) {
+    if (source[index] === '*' && source[index - 1] !== '*' && source[index + 1] !== '*') return index
+  }
+  return -1
+}
+
+function findUnderscoreItalicClose(source: string, from: number): number {
+  for (let index = from; index < source.length; index += 1) {
+    if (source[index] === '_' && source[index - 1] !== '_' && source[index + 1] !== '_') return index
+  }
+  return -1
+}
+
+function findUnderlineClose(source: string, from: number): number {
+  for (let index = from; index < source.length; index += 1) {
+    if (source[index] === '~' && source[index - 1] !== '~' && source[index + 1] !== '~') return index
+  }
+  return -1
 }

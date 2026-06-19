@@ -1,21 +1,37 @@
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
-import type { NanoMark } from '../../core/nano-core'
-import { footnoteName } from '../../core/nano-footnote'
-import { inlineMathFormula } from '../../core/nano-math'
-import { noteLinkParts } from '../../core/nano-note-link'
-import { tagNameFromToken } from '../../core/nano-tag'
-import { externalUrlTokenAt } from '../../core/nano-url'
-import { linkSyntax } from './prosemirror-atom-dom'
+import type { NanoMark } from '../../entities/document/nano-document-model'
+import { footnoteName } from '../../entities/reference/nano-footnote'
+import { inlineMathFormula } from '../../entities/math/nano-math'
+import { noteLinkParts } from '../../entities/reference/nano-note-link'
+import { tagNameFromToken } from '../../entities/reference/nano-tag'
+import { externalUrlTokenAt } from '../../entities/reference/nano-url'
+import { linkSyntax } from './prosemirror-link-dom'
 import {
   markKey,
   nanoMarkFromProseMirrorMark,
 } from './prosemirror-mark-codec-registry'
+import { nanoNodeNames } from './prosemirror-names'
 
 export function nanoMarksFromProseMirrorNode(node: ProseMirrorNode): NanoMark[] {
   const marks: NanoMark[] = []
   let offset = 0
 
   node.forEach((child) => {
+    if (child.type.name === nanoNodeNames.mention) {
+      const id = String(child.attrs.id ?? '').trim()
+      if (id) {
+        marks.push({
+          type: 'mention',
+          from: offset,
+          to: offset + 1,
+          id,
+          ...(child.attrs.label ? { label: String(child.attrs.label) } : {}),
+        })
+      }
+      offset += 1
+      return
+    }
+
     if (!child.isText) return
     const textLength = child.text?.length ?? 0
     for (const mark of child.marks) {

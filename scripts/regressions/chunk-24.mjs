@@ -1,14 +1,14 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
-test('Bear enter splits list continuation text without leaking continuation indentation', () => {
+test('Markdown enter splits list continuation text without leaking continuation indentation', () => {
   const state = textSelectionState('- [ ] task\n  detail', 'md-1', 'task'.length)
   const transaction = enterBlockTransaction(state)
 
   assert.equal(markdownAfter(state, transaction), '- [ ] task\n- [ ] detail')
 })
 
-test('Bear parent-end enter keeps list marker syntax after child subtree', () => {
+test('Markdown parent-end enter keeps list marker syntax after child subtree', () => {
   const bulletState = textSelectionState('+ parent\n  - child', 'md-1', 'parent'.length)
   assert.equal(markdownAfter(bulletState, enterListParentEndTransaction(bulletState)), '+ parent\n  - child\n+')
 
@@ -25,7 +25,7 @@ test('Bear parent-end enter keeps list marker syntax after child subtree', () =>
   assert.equal(markdownAfter(paddedState, enterListParentEndTransaction(paddedState)), '007) parent\n  - child\n008)')
 })
 
-test('Bear empty list markers stay list blocks without trailing filler', () => {
+test('Markdown empty list markers stay list blocks without trailing filler', () => {
   const markdown = '-\n3.\n4. next\n  -'
   const document = nanoDocumentFromMarkdown(markdown)
 

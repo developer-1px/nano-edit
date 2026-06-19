@@ -1,6 +1,7 @@
 import type { Mark, Node as ProseMirrorNode } from 'prosemirror-model'
-import type { NanoMark } from '../../core/nano-core'
+import type { NanoMark } from '../../entities/document/nano-document-model'
 import { prosemirrorMarkFromNanoMark } from './prosemirror-mark-codec-registry'
+import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
 
 export function inlineContentFromText(text: string, marks: readonly NanoMark[]): ProseMirrorNode[] | null {
@@ -19,12 +20,21 @@ export function inlineContentFromText(text: string, marks: readonly NanoMark[]):
   const sortedBoundaries = [...boundaries].sort((a, b) => a - b)
   const nodes: ProseMirrorNode[] = []
   for (let index = 0; index < sortedBoundaries.length - 1; index += 1) {
-    const from = sortedBoundaries[index]!
-    const to = sortedBoundaries[index + 1]!
+    const from = sortedBoundaries[index] ?? 0
+    const to = sortedBoundaries[index + 1] ?? text.length
     if (from === to) continue
 
-    const activeMarks = marks
-      .filter((mark) => mark.from <= from && mark.to >= to)
+    const activeNanoMarks = marks.filter((mark) => mark.from <= from && mark.to >= to)
+    const mention = activeNanoMarks.find((mark): mark is Extract<NanoMark, { type: 'mention' }> => mark.type === 'mention')
+    if (mention) {
+      nodes.push(nanoSchema.nodes[nanoNodeNames.mention].create({
+        id: mention.id,
+        label: mentionLabel(mention, text.slice(from, to)),
+      }))
+      continue
+    }
+
+    const activeMarks = activeNanoMarks
       .map(prosemirrorMarkFromNanoMark)
       .filter((mark): mark is Mark => mark !== null)
 
@@ -36,4 +46,8 @@ export function inlineContentFromText(text: string, marks: readonly NanoMark[]):
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value))
+}
+
+function mentionLabel(mark: Extract<NanoMark, { type: 'mention' }>, text: string): string {
+  return (mark.label || text.replace(/^@/, '').replace(/\ufffc/g, '') || mark.id).trim()
 }

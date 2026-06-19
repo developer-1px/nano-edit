@@ -2,6 +2,7 @@ import {
   createInteractionActions,
   createInteractionOwner,
   createInteractionRouter,
+  type InteractionKeyRuleDefinition,
   type InteractionKeyTargetKind,
 } from '@interactive-os/interaction/runtime'
 
@@ -22,7 +23,7 @@ interface DeckRailInteractionActions {
   slideCount: number
 }
 
-export interface NanoDeckRailInteraction {
+interface NanoDeckRailInteraction {
   destroy: () => void
   handleSlideKeydown: (event: KeyboardEvent, actions: DeckRailInteractionActions) => void
 }
@@ -84,7 +85,7 @@ export function createNanoDeckRailInteraction(): NanoDeckRailInteraction {
           }
 
           if (deckRailActions.getRoute(route, 'nano.deck-rail.select')) {
-            actions.selectSlide(slideIndexFromTarget(event.target) ?? actions.activeIndex)
+            actions.selectSlide(slideIndexFromTarget(event.target, actions.slideCount) ?? actions.activeIndex)
           }
         },
       })
@@ -92,7 +93,7 @@ export function createNanoDeckRailInteraction(): NanoDeckRailInteraction {
   }
 }
 
-function railReorderRule(direction: DeckRailReorderDirection, keys: readonly string[]) {
+function railReorderRule(direction: DeckRailReorderDirection, keys: readonly string[]): InteractionKeyRuleDefinition {
   return {
     id: `nano.deck-rail.reorder-${direction}`,
     kind: 'command',
@@ -101,10 +102,10 @@ function railReorderRule(direction: DeckRailReorderDirection, keys: readonly str
     targetKinds: deckRailTargetKinds,
     action: { type: 'nano.deck-rail.reorder', params: { direction } },
     preventDefault: true,
-  } as const
+  }
 }
 
-function railMoveRule(direction: DeckRailMoveDirection, keys: readonly string[]) {
+function railMoveRule(direction: DeckRailMoveDirection, keys: readonly string[]): InteractionKeyRuleDefinition {
   return {
     id: `nano.deck-rail.${direction}`,
     kind: 'navigation',
@@ -112,7 +113,7 @@ function railMoveRule(direction: DeckRailMoveDirection, keys: readonly string[])
     targetKinds: deckRailTargetKinds,
     action: { type: 'nano.deck-rail.move', params: { direction } },
     preventDefault: true,
-  } as const
+  }
 }
 
 function movedSlideIndex(current: number, count: number, direction: DeckRailMoveDirection): number {
@@ -123,7 +124,7 @@ function movedSlideIndex(current: number, count: number, direction: DeckRailMove
   return Math.min(Math.max(current + delta, 0), count - 1)
 }
 
-function slideIndexFromTarget(target: EventTarget | null): number | null {
+function slideIndexFromTarget(target: EventTarget | null, slideCount: number): number | null {
   const element = target instanceof Element
     ? target
     : target instanceof Node
@@ -131,5 +132,5 @@ function slideIndexFromTarget(target: EventTarget | null): number | null {
       : null
   const slideButton = element?.closest<HTMLElement>('[data-slide-index]')
   const index = Number(slideButton?.dataset.slideIndex)
-  return Number.isInteger(index) ? index : null
+  return Number.isInteger(index) && index >= 0 && index < slideCount ? index : null
 }

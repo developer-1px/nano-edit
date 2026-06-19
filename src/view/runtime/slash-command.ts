@@ -1,8 +1,8 @@
 import { activeBlockId } from '../selection/active-block'
 import type { NanoViewContext } from './context'
-import { slashPickerBlockIdFromSelection } from '../keyboard/transactions'
+import { slashPickerBlockIdFromSelection } from '../keyboard/shortcuts'
 
-export interface NanoSlashCommandRuntime {
+interface NanoSlashCommandRuntime {
   handleSlashKeydown: (event: KeyboardEvent) => void
 }
 

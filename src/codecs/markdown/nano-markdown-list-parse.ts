@@ -1,16 +1,13 @@
-import type { NanoBlock } from '../../core/nano-core'
+import type { NanoBlock } from '../../entities/document/nano-document-model'
 import {
   listContinuationIndentAttrs,
   markdownIndentColumns,
-} from './nano-markdown-block-attrs'
+} from './nano-markdown-list-attrs'
 import { markdownListLine } from './nano-markdown-list-line'
 import { textBlock } from './nano-markdown-text-block'
 import type {
-  BulletMarker,
-  CheckedMarker,
   ListContinuationIndent,
   MarkdownParseState,
-  OrderedMarker,
 } from './nano-markdown-types'
 
 export function parseListBlock(
@@ -26,7 +23,7 @@ export function parseListBlock(
   let nextIndex = index + 1
 
   while (nextIndex < lines.length) {
-    const continuation = listContinuationLine(lines[nextIndex]!, first.indentText)
+    const continuation = listContinuationLine(lines[nextIndex] ?? '', first.indentText)
     if (!continuation) break
 
     continuationIndents.push(continuation.indent)
@@ -41,8 +38,8 @@ export function parseListBlock(
 
   return {
     block: first.type === 'todo'
-      ? textBlock('todo', text.join('\n'), state, attrs as { checked: boolean; continuationIndents?: ListContinuationIndent[]; indent?: number; indentText?: string; marker?: BulletMarker; checkedMarker?: CheckedMarker })
-      : textBlock('list_item', text.join('\n'), state, attrs as { kind: 'bullet' | 'ordered'; continuationIndents?: ListContinuationIndent[]; indent?: number; indentText?: string; marker?: BulletMarker; orderedMarker?: OrderedMarker; orderedStartText?: string; start?: number | null }),
+      ? textBlock('todo', text.join('\n'), state, attrs)
+      : textBlock('list_item', text.join('\n'), state, attrs),
     nextIndex,
   }
 }
@@ -56,7 +53,7 @@ function listContinuationLine(
   const match = /^([\t ]+)(.*)$/.exec(line)
   if (!match) return null
 
-  const indent = match[1]!
+  const indent = match[1] ?? ''
   if (markdownIndentColumns(indent) <= markdownIndentColumns(parentIndentText)) return null
   return { indent, text: match[2] ?? '' }
 }

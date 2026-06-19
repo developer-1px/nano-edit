@@ -1,7 +1,7 @@
 import {
   replaceInlineEditText,
   restoreInlineEditFocus,
-} from '../inline-edit/index'
+} from '../inline-edit/dom'
 
 export interface InlineAutocompleteTrigger<TMode extends string = string> {
   mode: TMode
@@ -33,8 +33,12 @@ export interface InlineAutocompleteInsertOptions {
 }
 
 /**
- * Builds a context from a single trigger input such as "@" or "/".
- * For full editor text and query replacement, prefer inlineAutocompleteMatchFromText.
+ * Builds a context from one inserted trigger token, usually InputEvent.data
+ * after the host already knows the caret offset. It does not inspect existing
+ * editor text or derive a replacement range.
+ *
+ * For normal inline autocomplete over current editor text, prefer
+ * inlineAutocompleteMatchFromText.
  */
 export function inlineAutocompleteContextFromInput<TMode extends string>(
   data: string | null,
@@ -54,6 +58,11 @@ export function inlineAutocompleteContextFromMode<TMode extends string>(
   return trigger ? inlineAutocompleteContext(trigger, offset) : null
 }
 
+/**
+ * Builds a context from an explicit trigger token such as "@" or "/".
+ * Prefer inlineAutocompleteMatchFromText when query extraction or replacement
+ * ranges are needed.
+ */
 export function inlineAutocompleteContextFromTrigger<TMode extends string>(
   triggerText: string,
   offset: number,

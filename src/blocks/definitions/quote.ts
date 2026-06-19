@@ -1,13 +1,14 @@
 import type { BlockOption } from '../../assembly/capability'
+import { decreaseQuoteAtStartThenParagraph } from '../options/keyboard-quote-callout'
+import { exitEmptyThen } from '../../capabilities/block-behavior-paragraph'
+import { splitBlockContinuingType } from '../options/keyboard-split'
 import {
-  decreaseQuoteAtStartThenParagraph,
-  exitEmptyThen,
   quoteMarkerDepth,
   quoteMarkerDepths,
   quoteMarkerSpacing,
-  splitBlockContinuingType,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../options/quote-values'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const quoteBlockOption = {
   id: 'quote',

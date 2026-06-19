@@ -2,12 +2,29 @@ export function normalizeContinuationIndents(indents: unknown): string[] | null 
   if (typeof indents === 'string') return decodeContinuationIndents(indents)
   if (!Array.isArray(indents) || indents.length === 0) return null
 
-  const normalized = indents.map(lineIndent).filter((indent) => indent !== null) as string[]
+  const normalized = indents.map(lineIndent).filter(isLineIndent)
   return normalized.length > 0 ? normalized : null
 }
 
-export function lineIndent(indent: unknown): string | null {
+export function normalizeContinuationIndentsForText(
+  indents: unknown,
+  text: string,
+  defaultIndent: string,
+): string[] | null {
+  const normalized = normalizeContinuationIndents(indents)
+  const continuationCount = Math.max(0, text.split('\n').length - 1)
+  if (!normalized || continuationCount === 0) return null
+
+  const values = Array.from({ length: continuationCount }, (_value, index) => normalized[index] ?? defaultIndent)
+  return values.some((indent) => indent !== defaultIndent) ? values : null
+}
+
+function lineIndent(indent: unknown): string | null {
   return typeof indent === 'string' && /^[\t ]+$/.test(indent) ? indent : null
+}
+
+function isLineIndent(indent: string | null): indent is string {
+  return indent !== null
 }
 
 export function continuationIndentDataAttrs(indents: unknown): Record<string, string> {
@@ -19,7 +36,7 @@ export function continuationIndentDataAttrs(indents: unknown): Record<string, st
 
 export function decodeContinuationIndents(indents: unknown): string[] | null {
   if (typeof indents !== 'string' || !indents) return null
-  const normalized = indents.split('|').map(decodeLineIndent).filter((indent) => indent !== null) as string[]
+  const normalized = indents.split('|').map(decodeLineIndent).filter(isLineIndent)
   return normalized.length > 0 ? normalized : null
 }
 

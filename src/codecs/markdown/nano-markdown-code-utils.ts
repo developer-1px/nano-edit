@@ -19,8 +19,17 @@ export function codeFenceMarker(marker: unknown): CodeFenceMarker {
 }
 
 export function codeFenceLength(length: unknown): number {
-  const value = typeof length === 'number' && Number.isFinite(length) ? Math.trunc(length) : 3
-  return Math.max(3, value)
+  const value = typeof length === 'number'
+    ? length
+    : typeof length === 'string'
+      ? Number(length)
+      : 3
+  if (!Number.isFinite(value)) return 3
+  return Math.max(3, Math.trunc(value))
+}
+
+export function codeFenceToken(marker: unknown, length: unknown): string {
+  return codeFenceMarker(marker).repeat(codeFenceLength(length))
 }
 
 export function codeFenceIndent(indent: unknown): string {
@@ -36,4 +45,8 @@ export function codeFenceInfo(info: unknown): string | undefined {
     ? info.replace(/[`~\r\n]+/g, ' ').replace(/\s+/g, ' ').trim()
     : ''
   return value || undefined
+}
+
+export function mathStyle(style: unknown): 'single' | '' {
+  return style === 'single' ? style : ''
 }

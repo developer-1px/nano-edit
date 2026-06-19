@@ -1,10 +1,8 @@
 import type { EditorState } from 'prosemirror-state'
-import {
-  blockCollapseRanges,
-  selectedWholeBlockRanges,
-} from '../../blocks/nano-block-structure'
-import { nanoMarkdownFromDocument } from '../../codecs/markdown/nano-markdown'
-import { nanoBlocksFromProseMirror } from '../../adapters/prosemirror/prosemirror-nano'
+import { blockCollapseRanges } from '../../entities/block/structure/nano-block-collapse'
+import { selectedWholeBlockRanges } from '../../entities/block/structure/nano-block-selection-ranges'
+import { nanoMarkdownFromDocument } from '../../codecs/markdown/nano-markdown-serialize'
+import { nanoBlocksFromProseMirror } from '../../adapters/prosemirror/prosemirror-document'
 
 export function markdownCopyTextFromSelection(
   state: EditorState,

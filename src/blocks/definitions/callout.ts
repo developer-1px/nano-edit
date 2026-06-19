@@ -1,5 +1,8 @@
+import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import type { BlockOption, CalloutTone } from '../../assembly/capability'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+import type { BlockTemplate } from '../../assembly/capability'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 import {
   calloutPattern,
   calloutTone,
@@ -8,13 +11,11 @@ import {
   quoteMarkerDepths,
   quoteMarkerSpacing,
   quoteMarkerSpacingValue,
-} from '../options/values'
-import {
-  decreaseCalloutAtStartThenQuote,
-  exitEmptyThen,
-  splitCalloutBlock,
-} from '../options/keyboard'
-import { calloutNodeForBlockTemplate } from '../options/nodes'
+} from '../options/quote-values'
+import { decreaseCalloutAtStartThenQuote } from '../options/keyboard-quote-callout'
+import { exitEmptyThen } from '../../capabilities/block-behavior-paragraph'
+import { splitCalloutBlock } from '../options/keyboard-split'
+import { sourceBlockId } from '../options/node-helpers'
 
 export const calloutBlockOptions = calloutTones.map((tone) => calloutBlockOption(tone))
 
@@ -85,4 +86,28 @@ function calloutLabel(tone: CalloutTone): string {
     case 'caution':
       return 'Caut'
   }
+}
+
+function calloutNodeForBlockTemplate(template: BlockTemplate, source: string | ProseMirrorNode): ProseMirrorNode | null {
+  if (template.type !== 'callout') return null
+
+  const id = sourceBlockId(source, 'callout')
+  const content = typeof template.text === 'string'
+    ? template.text ? nanoSchema.text(template.text) : null
+    : typeof source === 'string'
+      ? null
+      : source.isTextblock ? source.content : null
+  return nanoSchema.nodes[nanoNodeNames.callout].create(
+    {
+      id,
+      tone: template.tone,
+      calloutMarkerDepths: quoteMarkerDepths(template.calloutMarkerDepths)
+        ?? (typeof source === 'string' ? null : quoteMarkerDepths(source.attrs.calloutMarkerDepths)),
+      calloutMarkerSpacing: quoteMarkerSpacing(template.calloutMarkerSpacing)
+        ?? (typeof source === 'string' ? null : quoteMarkerSpacing(source.attrs.calloutMarkerSpacing)),
+      calloutTextSpacing: quoteMarkerSpacingValue(template.calloutTextSpacing)
+        ?? (typeof source === 'string' ? null : quoteMarkerSpacingValue(source.attrs.calloutTextSpacing)),
+    },
+    content,
+  )
 }

@@ -2,12 +2,13 @@ import {
   createInteractionActions,
   createInteractionRouter,
   detectInteractionPlatform,
+  type InteractionShortcutBinding,
   type InteractionKeyTargetKind,
   shellOwner,
   temporaryControl,
 } from '@interactive-os/interaction/runtime'
 
-export interface NanoCommandInteraction {
+interface NanoCommandInteraction {
   activateCommandPalette: () => void
   destroy: () => void
   handleCommandPaletteKeydown: (
@@ -114,11 +115,11 @@ export function createNanoCommandInteraction(): NanoCommandInteraction {
   }
 }
 
-function shellOpenCommandBinding(key: 'k' | 'K') {
+function shellOpenCommandBinding(key: 'k' | 'K'): InteractionShortcutBinding<NanoCommandInteractionActions> {
   return {
     key,
     mod: 'primary',
     targetKinds: shellTargetKinds,
     action: 'nano.command-palette.open',
-  } as const
+  }
 }

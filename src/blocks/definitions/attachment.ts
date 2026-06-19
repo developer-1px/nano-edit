@@ -1,9 +1,8 @@
 import type { BlockOption } from '../../assembly/capability'
-import {
-  attachmentNodeForBlockTemplate,
-  markdownAttachmentTemplate,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+import { markdownAttachmentTemplate } from '../options/templates'
+import { attachmentNodeForBlockTemplate } from '../options/node-media'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const attachmentBlockOption = {
   id: 'attachment',

@@ -1,5 +1,5 @@
-import type { IndexEntry, NanoDocumentIndex } from '../../indexing/nano-document-index'
-import type { IndexSectionView } from '../index-view/index'
+import type { IndexEntry, NanoDocumentIndex } from '../../indexing/document-index/types'
+import type { IndexSectionView } from '../index-entry-view'
 
 export function inspectorIndexSections(index: NanoDocumentIndex): IndexSectionView[] {
   const todoEntries: IndexEntry[] = index.todos.map((todo) => ({

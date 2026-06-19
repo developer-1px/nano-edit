@@ -1,16 +1,16 @@
-import type { NanoDocument } from '../core/nano-core'
-import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown'
+import type { NanoDocument } from '../entities/document/nano-document-model'
+import { nanoDocumentFromMarkdown } from '../codecs/markdown/nano-markdown-parse'
 
-const initialMarkdown = `# Nano Editable
+const initialMarkdown = `# Nano Edit
 
-Nano Edit의 working identity는 Nano Editable이다. 즉, Nano Edit은 embeddable editor package이며, LLM이 생성한 Markdown을 제품 안에서 **공식 기술문서처럼 읽게 하고**, 필요한 일부만 조용히 수정하게 하는 contenteditable editing foundation이다. 이 문서 자체가 데모이며, 별도 docs-site chrome 없이 \`README.md\` 같은 문서가 바로 편집 surface가 되는 상태를 보여준다.
+Nano Edit은 embeddable editor package이자 contenteditable document engine이다. LLM이 생성한 Markdown을 제품 안에서 **공식 기술문서처럼 읽게 하고**, 필요한 일부만 조용히 수정하게 한다. 이 문서 자체가 데모이며, 별도 docs-site chrome 없이 \`README.md\` 같은 문서가 바로 편집 surface가 되는 상태를 보여준다.
 
 > [!NOTE]
 > 이 화면은 landing page가 아니다. LLM이 만든 긴 기술문서를 그대로 열었을 때, 사용자는 문서를 먼저 읽고 필요한 문장, 표 셀, 체크 항목만 local edit로 고친다.
 
 ## Overview
 
-Nano Editable의 핵심 가정은 간단하다. 앞으로 많은 제품은 AI가 만든 긴 Markdown 결과물을 보여주고, 사람은 그중 작은 부분만 검토하거나 바꾼다. 그래서 editor는 항상 보이는 command chrome보다, contenteditable 기반의 **quiet local edit loop**를 우선한다.
+Nano Edit의 핵심 가정은 간단하다. 앞으로 많은 제품은 AI가 만든 긴 Markdown 결과물을 보여주고, 사람은 그중 작은 부분만 검토하거나 바꾼다. 그래서 editor는 항상 보이는 command chrome보다, contenteditable 기반의 **quiet local edit loop**를 우선한다.
 
 Markdown은 유일한 원본이 아니라 여러 표현 중 하나다. 내부에서는 Nano Document가 block, inline mark, source choice를 구조화하고, Markdown codec은 import/export 계약을 맡는다. 그래서 \`**bold**\`, *italic*, ==highlight==, ~~outdated phrase~~, \`inline code\`, [[Nano Kit]] note link, #generated-markdown 태그가 문서 흐름 안에서 조용히 보존된다.
 
@@ -49,14 +49,14 @@ createNanoView({
 | --- | --- | --- |
 | Nano Document | 구조화된 문서 상태 | block과 mark의 최소 계약 |
 | Markdown codec | Markdown import/export | LLM 결과물과 host 저장 포맷의 교차점 |
-| Editor Kit | 선택된 part 묶음 | host나 agent가 조립하는 runtime preset |
-| Capability | 기능 단위 affordance | command, shortcut, behavior의 후보 |
+| Capability profile | 공개 capability 선택 | host나 agent가 고르는 built-in runtime profile |
+| Capability | 기능 단위 affordance | command, shortcut, behavior의 내부 후보 |
 | View feature | surface plugin | source reveal, table cell edit 같은 편집 감각 |
 | Catalog | 선택 가능한 part 설명 | LLM이 판단하는 제한된 option 목록 |
 
 ## Architecture
 
-Nano Edit은 완성형 app보다 작은 contenteditable foundation package를 목표로 한다. host product는 이 package를 붙이고, 필요한 part만 선택한다.
+Nano Edit은 완성형 제품 화면보다 작은 contenteditable engine package를 목표로 한다. host product는 이 package를 붙이고, 필요한 part만 선택한다.
 
 \`\`\`text
 nano-edit
@@ -65,57 +65,49 @@ nano-edit
 ├─ adapters        # ProseMirror schema, DOM, codec bridge
 ├─ capabilities    # selectable editing behavior slices
 ├─ features        # view-first local edit affordances
-├─ engine          # kit composition entry
+├─ engine          # capability profile composition entry
 └─ view            # quiet editable surface
 \`\`\`
 
-현재 runtime은 ProseMirror를 contenteditable runtime provider로 사용하고, zod-crud는 document state foundation으로 둔다. public contract의 중심은 ProseMirror document나 zod-crud 내부가 아니라 Nano Document와 Nano feature seam이다. 이 기준이 있어야 Markdown도, future renderer도, LLM-selected kit도 같은 문서 상태를 공유할 수 있다.
+현재 runtime은 ProseMirror를 contenteditable runtime provider로 사용하고, json-document는 document state support로 둔다. public contract의 중심은 ProseMirror document나 json-document 내부가 아니라 Nano Document와 Nano feature seam이다. 이 기준이 있어야 Markdown도, future renderer도, LLM-selected profile도 같은 문서 상태를 공유할 수 있다.
 
-## Kit API
+## Capability Profile API
 
-현재 지원되는 kit seam은 block options와 view features를 조립한다. 아래 예시는 현재 코드에서 동작하는 범위다.
+현재 공개된 조립 seam은 built-in capability profile이다. host는 ProseMirror block option이나 provider kit을 import하지 않고 profile id와 view feature만 고른다.
 
 \`\`\`ts
 import {
-  basicCapability,
   createNanoDocument,
-  createNanoEditorKit,
   createNanoView,
+  describeNanoCapabilityProfile,
 } from 'nano-edit'
 
-const basicOnlyKit = createNanoEditorKit({
+const capabilityProfile = {
   id: 'docs.basic-only',
-  capabilities: [basicCapability],
+  capabilities: ['basic'],
   viewFeatures: ['active-block-ui'],
-})
+} as const
+
+const summary = describeNanoCapabilityProfile(capabilityProfile)
 
 createNanoView({
   mount,
   engine: createNanoDocument(document),
-  kit: basicOnlyKit,
+  capabilityProfile,
 })
 \`\`\`
 
-비전은 더 넓다. catalog item은 단순한 string 목록이 아니라, schema, Markdown codec, ProseMirror adapter, command, view feature를 함께 설명하는 typed contract가 된다. LLM은 이 catalog를 보고 필요한 option만 선택하고, host는 선택 결과를 검증 가능한 kit으로 조립한다.
+비전은 더 넓다. catalog item은 단순한 string 목록이 아니라, schema, Markdown codec, provider adapter, command, view feature를 함께 설명하는 typed descriptor가 된다. LLM은 이 catalog를 보고 필요한 option만 선택하고, host는 선택 결과를 검증 가능한 profile이나 descriptor로 조립한다.
 
 \`\`\`ts
-const reportReviewKit = createNanoEditorKit({
+const reportReviewProfile = {
   id: 'docs.report-review',
-  parts: [
-    'block.paragraph',
-    'block.heading',
-    'block.todo',
-    'block.table',
-    'inline.link',
-    'inline.tag',
-    'codec.markdown',
-    'feature.source-reveal',
-    'feature.table-cell-edit',
-  ],
-})
+  capabilities: ['basic', 'todo'],
+  viewFeatures: ['active-block-ui', 'source-reveal', 'table-cell-edit'],
+} as const
 \`\`\`
 
-위 예시는 planned contract다. 지금 데모는 그 방향을 설명하기 위해 문서 본문 안에서 catalog와 kit의 관계를 보여준다.
+위 profile은 현재 공개 가능한 범위다. third-party block descriptor는 아직 planned contract다. 지금 데모는 그 경계를 숨기지 않고 catalog와 profile의 관계를 문서 본문 안에서 보여준다.
 
 ## Catalog Model
 
@@ -138,37 +130,34 @@ LLM이 선택해야 하는 catalog는 사람이 읽기에도 충분히 명확해
 
 1. LLM이 PRD, 회의록, API note, release summary 같은 Markdown을 생성한다
 2. Host product가 Markdown을 Nano Document로 import한다
-3. Catalog 정책이 문서 목적에 맞는 kit을 고른다
+3. Catalog 정책이 문서 목적에 맞는 profile을 고른다
 4. 사용자는 공식 기술문서처럼 읽는다
 5. 필요한 문장, 체크박스, 표 셀만 quiet local edit로 고친다
 6. Host가 patch, history, persistence를 저장한다
 
 이 흐름에서 중요한 점은 “편집 모드로 전환한다”가 아니라 “문서가 이미 편집 가능한 surface로 열려 있다”는 것이다. 읽기와 수정 사이에 큰 모드 전환이 없기 때문에 LLM 결과물을 검토하는 시간이 짧아진다.
 
-## Example: Documentation Review Kit
+## Example: Documentation Review Profile
 
-아래 예시는 공식 기술문서 검토용 kit을 설명한다. 현재 runtime에서 완전히 동작하는 부분과 planned extension을 함께 보여준다.
+아래 예시는 공식 기술문서 검토용 profile을 설명한다. 현재 runtime에서 완전히 동작하는 부분과 planned descriptor extension을 함께 보여준다.
 
 \`\`\`ts
-const documentationReviewKit = createNanoEditorKit({
+const documentationReviewProfile = {
   id: 'docs.review',
-  capabilities: [
-    basicCapability,
-    todoCapability,
-  ],
+  capabilities: ['basic', 'todo'],
   viewFeatures: [
     'active-block-ui',
     'source-reveal',
     'table-cell-edit',
   ],
-})
+} as const
 \`\`\`
 
-이 kit은 문서가 길어도 chrome을 늘리지 않는다. heading은 section navigation의 기준이 되고, todo는 검토 checklist가 되고, table cell edit은 비교표의 작은 보정을 맡는다. source reveal은 cursor 주변에서만 Markdown 선택을 보여준다.
+이 profile은 문서가 길어도 chrome을 늘리지 않는다. heading은 section navigation의 기준이 되고, todo는 검토 checklist가 되고, table cell edit은 비교표의 작은 보정을 맡는다. source reveal은 cursor 주변에서만 Markdown 선택을 보여준다.
 
-## Example: Agent-Selected Kit
+## Example: Agent-Selected Profile
 
-미래형 catalog에서는 agent가 문서 목적을 보고 kit 후보를 만든다.
+미래형 catalog에서는 agent가 문서 목적을 보고 profile 후보를 만든다.
 
 \`\`\`ts
 const selected = selectEditorParts({
@@ -177,10 +166,11 @@ const selected = selectEditorParts({
   allowedParts: editorPartCatalog,
 })
 
-const kit = createNanoEditorKit({
+const capabilityProfile = {
   id: selected.id,
-  parts: selected.parts,
-})
+  capabilities: selected.capabilities,
+  viewFeatures: selected.viewFeatures,
+} as const
 \`\`\`
 
 선택은 자유 생성이 아니라 제한된 option 안에서 일어난다. 그래서 사람이 catalog를 읽고 평가할 수 있고, LLM도 같은 typed contract를 근거로 선택한다.
@@ -190,9 +180,9 @@ const kit = createNanoEditorKit({
 - [x] 문서 본문이 먼저 읽힌다
 - [x] Markdown source는 필요한 순간에만 드러난다
 - [x] 표의 일반 셀은 local edit로 고칠 수 있다
-- [ ] schema와 codec도 kit에서 조립한다
+- [ ] schema와 codec도 descriptor에서 조립한다
 - [ ] catalog item을 typed interface contract로 승격한다
-- [ ] agent가 선택한 kit을 사람이 검토하는 diff를 제공한다
+- [ ] agent가 선택한 profile을 사람이 검토하는 diff를 제공한다
 
 ## Try It In This Document
 
@@ -203,7 +193,7 @@ const kit = createNanoEditorKit({
 1. Overview의 첫 문장을 현재 제품 언어에 맞게 다듬는다
 2. Editing Surface Checklist의 planned 항목 하나를 완료 처리한다
 3. Catalog Model 표에서 \`Status\` 셀 하나를 바꿔 본다
-4. Kit API 예시의 \`id\` 값을 host product 이름으로 바꿔 본다
+4. Capability Profile API 예시의 \`id\` 값을 host product 이름으로 바꿔 본다
 
 ## FAQ
 
@@ -217,7 +207,7 @@ Markdown을 중요하게 다루지만, plain textarea나 native form editor는 �
 
 ### What is current and what is planned?
 
-현재는 block options와 view features를 kit으로 조립할 수 있다. planned direction은 schema, Markdown codec, ProseMirror adapter까지 part contract로 올리는 것이다. 이 문서는 그 비전을 숨기지 않되, current/planned 상태를 표로 나눠 적는다.
+현재 공개 surface는 built-in capability profile을 조립할 수 있다. planned direction은 schema, Markdown codec, provider adapter까지 descriptor contract로 올리는 것이다. 이 문서는 그 비전을 숨기지 않되, current/planned 상태를 표로 나눠 적는다.
 
 ### How does this relate to CommonMark?
 

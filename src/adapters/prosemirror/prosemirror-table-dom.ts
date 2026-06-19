@@ -1,21 +1,18 @@
 import type { DOMOutputSpec } from 'prosemirror-model'
-import type { TableAlign } from './prosemirror-table-types'
+import {
+  tableAlignment,
+  type TableAlign,
+} from '../../codecs/markdown/nano-markdown-table-align'
 import { rawMarkdownInlineDomSpec } from './prosemirror-raw-markdown'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
-import {
-  tableAlignDataAttrs,
-  tableCellAttrs,
-  tableLinePipeDataAttrs,
-  tablePipeDataAttrs,
-  tableSeparatorCellDataAttrs,
-} from './prosemirror-table-data-attrs'
-import { markdownTableToken } from './prosemirror-table-markdown'
+import { markdownTable } from '../../codecs/markdown/nano-markdown-table-serialize'
 import {
   normalizeTableAlignments,
   normalizeTableLinePipes,
   normalizeTableRows,
   normalizeTableSeparatorCells,
   tableLineCount,
+  tableLinePipesDiffer,
   tablePipe,
 } from './prosemirror-table-normalize'
 
@@ -56,10 +53,10 @@ export function tableDomSpec(
       ['thead', {}, ['tr', {}, ...header.map((cell, index) => tableCellDomSpec('th', 0, index, alignments[index], cell))]],
       ['tbody', {}, ...bodyRows.map((row, rowIndex) => ['tr', {}, ...row.map((cell, index) => tableCellDomSpec('td', rowIndex + 1, index, alignments[index], cell))])],
     ],
-    ['figcaption', hiddenSourceTokenAttrs('nano-table-markdown'), markdownTableToken(
+    ['figcaption', hiddenSourceTokenAttrs('nano-table-markdown'), markdownTable(
       tableRows,
       alignments,
-      separators,
+      separators ?? undefined,
       tableLeadingPipe,
       tableTrailingPipe,
       tableLeadingPipes,
@@ -89,10 +86,45 @@ function tableCellEditAttrs(rowIndex: number, columnIndex: number, align: TableA
     ...tableCellAttrs(align),
     contenteditable: String(editable),
     spellcheck: 'false',
+    tabindex: '-1',
     'data-editable': String(editable),
     'data-row': String(rowIndex),
     'data-column': String(columnIndex),
   }
+}
+
+function tableAlignDataAttrs(align: readonly TableAlign[]): Record<string, string> {
+  return align.some((value) => value !== null)
+    ? { 'data-align': align.map((value) => value ?? '-').join('|') }
+    : {}
+}
+
+function tableSeparatorCellDataAttrs(separatorCells: readonly string[] | null): Record<string, string> {
+  return separatorCells ? { 'data-separator-cells': separatorCells.join('|') } : {}
+}
+
+function tablePipeDataAttrs(leadingPipe: boolean, trailingPipe: boolean): Record<string, string> {
+  return {
+    ...(leadingPipe ? {} : { 'data-leading-pipe': 'false' }),
+    ...(trailingPipe ? {} : { 'data-trailing-pipe': 'false' }),
+  }
+}
+
+function tableLinePipeDataAttrs(
+  leadingPipes: readonly boolean[],
+  trailingPipes: readonly boolean[],
+  leadingPipe: boolean,
+  trailingPipe: boolean,
+): Record<string, string> {
+  return {
+    ...(tableLinePipesDiffer(leadingPipes, leadingPipe) ? { 'data-leading-pipes': leadingPipes.join('|') } : {}),
+    ...(tableLinePipesDiffer(trailingPipes, trailingPipe) ? { 'data-trailing-pipes': trailingPipes.join('|') } : {}),
+  }
+}
+
+function tableCellAttrs(align: TableAlign | undefined): Record<string, string> {
+  const value = tableAlignment(align)
+  return value ? { 'data-align': value, style: `text-align: ${value};` } : {}
 }
 
 function isPlainEditableTableCell(content: readonly unknown[], cell: string): boolean {

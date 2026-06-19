@@ -1,12 +1,13 @@
+import { markdownTableSeparatorCell } from './nano-markdown-table-align'
 import {
-  markdownTableSeparatorCell,
   normalizeTableAlignments,
   normalizeTableLinePipes,
   normalizeTableRows,
   normalizeTableSeparatorCells,
   padTableRow,
 } from './nano-markdown-table-normalize'
-import type { TableAlign } from './nano-markdown-table-types'
+import { backtickRunLength } from './nano-markdown-inline-code-span'
+import type { TableAlign } from './nano-markdown-table-align'
 
 export function markdownTable(
   rows: readonly string[][],
@@ -45,7 +46,7 @@ function escapeMarkdownTableCell(text: string): string {
   let index = 0
 
   while (index < text.length) {
-    const char = text[index]!
+    const char = text[index] ?? ''
     if (char === '`') {
       const length = backtickRunLength(text, index)
       markdown += text.slice(index, index + length)
@@ -59,10 +60,4 @@ function escapeMarkdownTableCell(text: string): string {
   }
 
   return markdown
-}
-
-function backtickRunLength(source: string, from: number): number {
-  let index = from
-  while (source[index] === '`') index += 1
-  return index - from
 }

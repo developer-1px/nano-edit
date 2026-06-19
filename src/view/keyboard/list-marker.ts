@@ -1,6 +1,8 @@
 import type { ResolvedPos } from 'prosemirror-model'
 import { EditorState, TextSelection, type Transaction } from 'prosemirror-state'
-import { markdownOrderedMarkerText } from '../block-template/markdown'
+import { checkedMarker } from '../../codecs/markdown/nano-markdown-marker-attrs'
+import { orderedStartMarkerText } from '../../codecs/markdown/nano-markdown-list-attrs'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
 import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
 
 export function todoMarkerInputTransaction(
@@ -21,11 +23,11 @@ export function todoMarkerInputTransaction(
   if (!todoType) return null
 
   const blockPosition = $from.before()
-  const checkedMarker = match[1] === 'X' ? 'X' : 'x'
+  const checkedMarkerValue = checkedMarker(match[1])
   const todo = todoType.create({
-    id: block.attrs.id,
+    id: blockId(block) || null,
     checked: match[1]?.toLowerCase() === 'x',
-    checkedMarker,
+    checkedMarker: checkedMarkerValue,
     continuationIndents: block.attrs.continuationIndents,
     indent: block.attrs.indent,
     indentText: block.attrs.indentText,
@@ -116,7 +118,7 @@ function isOrderedStartInput(text: string): boolean {
 }
 
 function orderedStartTextFromInput(attrs: Record<string, unknown>, text: string): string {
-  const currentText = markdownOrderedMarkerText(attrs.start, attrs.orderedStartText)
+  const currentText = orderedStartMarkerText(attrs.start, attrs.orderedStartText)
   return text.length === 1 && currentText.length > 1
     ? text.padStart(currentText.length, '0')
     : text

@@ -1,10 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { blockOptions } from '../../src/blocks/nano-block-options.ts'
-import { blockActionCommands } from '../../src/commands/actions-block.ts'
-import { documentActionCommands } from '../../src/commands/actions-document.ts'
-import { inspectorActionCommands } from '../../src/commands/actions-inspector.ts'
 import { blockCommands } from '../../src/commands/blocks.ts'
 import { markCommands } from '../../src/commands/marks.ts'
+import { nanoCommands } from '../../src/commands/registry.ts'
 import { assert, test } from './harness.mjs'
 
 function commandOptions(overrides = {}) {
@@ -35,7 +33,8 @@ function commandOptions(overrides = {}) {
 }
 
 test('Inspector commands use compact labels without losing Markdown search terms', () => {
-  const commands = inspectorActionCommands(commandOptions())
+  const inspectorIds = new Set(['source', 'index', 'markdown', 'pin-inspector'])
+  const commands = nanoCommands(commandOptions()).filter((command) => inspectorIds.has(command.id))
   assert.deepEqual(
     commands.map((command) => [command.id, command.title, command.hint ?? '']),
     [
@@ -75,12 +74,13 @@ test('Command surfaces keep Markdown triggers searchable but visually quiet', ()
     assert(blockOptions.some((option) => option.markdownTrigger === sourceOnly[1]), `${sourceOnly[1]} trigger should still parse typed source`)
   }
 
-  assert.deepEqual(
-    blockActionCommands(commandOptions()).map((command) => command.title),
-    ['Duplicate', 'Delete', 'Move Up', 'Move Down', 'Indent', 'Outdent'],
-  )
-  assert.deepEqual(documentActionCommands(commandOptions()).map((command) => command.title), ['Copy'])
-  assert(documentActionCommands(commandOptions())[0].keywords.includes('markdown'))
+  const blockActionIds = new Set(['duplicate', 'delete', 'move-up', 'move-down', 'indent', 'outdent'])
+  const allCommands = nanoCommands(commandOptions())
+  const blockActions = allCommands.filter((command) => blockActionIds.has(command.id))
+  assert.deepEqual(blockActions.map((command) => command.title), ['Duplicate', 'Delete', 'Move Up', 'Move Down', 'Indent', 'Outdent'])
+  const copyCommand = allCommands.find((command) => command.id === 'copy-markdown')
+  assert.equal(copyCommand?.title, 'Copy')
+  assert(copyCommand?.keywords?.includes('markdown'))
 
   const markHints = markCommands(commandOptions()).map((command) => command.hint)
   for (const rawHint of ['**', '*', '~', '~~', '==', '`']) {
@@ -103,7 +103,7 @@ test('Source-only blocks do not carry demo placeholder templates', () => {
     '../../src/blocks/options/templates.ts',
   ]) {
     const source = readFileSync(new URL(sourcePath, import.meta.url), 'utf8')
-    for (const placeholder of ['hero.png', 'Working image', 'https://bear.app', 'files/brief.pdf', 'Project brief', 'Today', 'projects/editor']) {
+    for (const placeholder of ['hero.png', 'Working image', 'https://placeholder.invalid', 'files/brief.pdf', 'Project brief', 'Today', 'projects/editor']) {
       assert.equal(source.includes(placeholder), false, `${sourcePath} should not carry ${placeholder}`)
     }
   }
@@ -118,13 +118,12 @@ test('Toolbar chrome stays removed without losing command metadata', () => {
 
   const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
   const viewCreate = readFileSync(new URL('../../src/view/runtime/create.ts', import.meta.url), 'utf8')
-  const viewShell = readFileSync(new URL('../../src/view/runtime/shell.ts', import.meta.url), 'utf8')
   assert.equal(baseCss.includes('.toolbar'), false)
   assert.equal(baseCss.includes('.block-picker'), false)
   assert.equal(viewCreate.includes('createNanoToolbarRuntime'), false)
   assert.equal(viewCreate.includes('installToolbar'), false)
-  assert.equal(viewShell.includes('ctx.toolbar'), false)
-  assert.equal(viewShell.includes('ctx.blockPicker'), false)
+  assert.equal(viewCreate.includes('ctx.toolbar'), false)
+  assert.equal(viewCreate.includes('ctx.blockPicker'), false)
 })
 
 test('Command metadata is not named after removed toolbar chrome', () => {
@@ -133,7 +132,7 @@ test('Command metadata is not named after removed toolbar chrome', () => {
     '../../src/blocks/nano-block-options.ts',
     '../../src/marks/types.ts',
     '../../src/marks/queries.ts',
-    '../../src/marks/nano-mark-options.ts',
+    '../../src/marks/shortcut-transaction.ts',
     '../../src/commands/marks.ts',
   ]
     .map((path) => readFileSync(new URL(path, import.meta.url), 'utf8'))

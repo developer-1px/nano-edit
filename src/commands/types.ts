@@ -1,11 +1,15 @@
-import type { BlockOption, BlockTemplate } from '../blocks/nano-block-options'
-import type { MarkOption } from '../marks/nano-mark-options'
-import type {
-  CommandPaletteMode,
-  IndentDirection,
-  InspectorTab,
-  MoveDirection,
-} from '../view/shell/shell'
+import type { BlockOption, BlockTemplate } from '../assembly/capability'
+import type { MarkOption } from '../marks/types'
+
+export type IndentDirection = 'in' | 'out'
+export type MoveDirection = 'down' | 'up'
+export type InspectorTab = 'index' | 'markdown'
+export type CommandPaletteMode = 'global' | 'slash'
+
+export interface NanoCommandContext {
+  blockId: string | null
+  mode: CommandPaletteMode
+}
 
 export interface NanoCommand {
   id: string
@@ -17,7 +21,7 @@ export interface NanoCommand {
   isVisible?: () => boolean
 }
 
-export interface NanoCommandActions {
+interface NanoCommandActions {
   changeBlockById: (id: string, template: BlockTemplate) => void
   copyMarkdown: () => void
   deleteBlock: () => void

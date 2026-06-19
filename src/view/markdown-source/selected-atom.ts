@@ -1,14 +1,15 @@
 import { type Node as ProseMirrorNode } from 'prosemirror-model'
 import { EditorState, NodeSelection, TextSelection, type Transaction } from 'prosemirror-state'
-import type { NanoBlock } from '../../core/nano-core'
+import type { NanoBlock } from '../../entities/document/nano-document-model'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
 import { parseInlineMarkdown } from '../../codecs/markdown/nano-markdown-inline-parse'
-import { nanoMarkdownFromDocument } from '../../codecs/markdown/nano-markdown'
+import { nanoMarkdownFromDocument } from '../../codecs/markdown/nano-markdown-serialize'
 import {
   nanoBlocksFromProseMirror,
-  nanoNodeNames,
-  nanoSchema,
   prosemirrorDocFromNano,
-} from '../../adapters/prosemirror/prosemirror-nano'
+} from '../../adapters/prosemirror/prosemirror-document'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 const sourceableAtomNodeNames = new Set<string>([
   nanoNodeNames.bookmark,
@@ -25,7 +26,7 @@ export function selectedAtomSourceTransaction(state: EditorState): Transaction |
   if (!(selection instanceof NodeSelection) || !selection.node.isBlock) return null
   if (!sourceableAtomNodeNames.has(selection.node.type.name)) return null
 
-  const paragraph = paragraphFromSelectedAtom(selection.node, blockId(selection.node))
+  const paragraph = paragraphFromSelectedAtom(selection.node, blockId(selection.node) || 'source')
   if (!paragraph) return null
 
   const transaction = state.tr.replaceWith(selection.from, selection.to, paragraph)
@@ -73,25 +74,23 @@ function paragraphFromImage(node: ProseMirrorNode, id: string): ProseMirrorNode 
   if (!src) return paragraphFromMarkdown(selectedNodeMarkdown(node), id)
 
   const text = alt || '[]'
+  const mark: Extract<NanoBlock, { type: 'paragraph' }>['marks'][number] = {
+    type: 'link',
+    from: 0,
+    to: text.length,
+    href: src,
+    image: true,
+  }
+  if (!alt) mark.imageEmptyAlt = true
+  if (node.attrs.destinationStyle === 'angle') mark.destinationStyle = 'angle'
+  if (typeof node.attrs.title === 'string' && node.attrs.title) mark.title = node.attrs.title
+
   return prosemirrorDocFromNano({
     blocks: [{
       id,
       type: 'paragraph',
       text,
-      marks: [{
-        type: 'link',
-        from: 0,
-        to: text.length,
-        href: src,
-        image: true,
-        ...(alt ? {} : { imageEmptyAlt: true }),
-        ...(node.attrs.destinationStyle === 'angle' ? { destinationStyle: 'angle' as const } : {}),
-        ...(typeof node.attrs.title === 'string' && node.attrs.title ? { title: node.attrs.title } : {}),
-      }],
+      marks: [mark],
     } satisfies NanoBlock],
   }).firstChild
-}
-
-function blockId(node: ProseMirrorNode): string {
-  return typeof node.attrs.id === 'string' && node.attrs.id ? node.attrs.id : 'source'
 }

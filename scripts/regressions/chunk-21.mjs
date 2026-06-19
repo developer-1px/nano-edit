@@ -1,5 +1,5 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
 
 function paragraphSelectionState(text, offset) {
   const doc = prosemirrorDocFromNano({
@@ -26,7 +26,7 @@ function markdownFromState(state) {
   return nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(state.doc) })
 }
 
-test('Bear empty todos stay todo blocks without trailing filler', () => {
+test('Markdown empty todos stay todo blocks without trailing filler', () => {
   const markdown = '- [ ]\n- [x]\n  - [ ] child'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -41,7 +41,7 @@ test('Bear empty todos stay todo blocks without trailing filler', () => {
   assert.equal(nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(prosemirrorDocFromNano(document)) }), markdown)
 })
 
-test('Bear checked todos preserve uppercase checkbox markers', () => {
+test('Markdown checked todos preserve uppercase checkbox markers', () => {
   const markdown = '* [X] DONE\n+ [x] done'
   const document = nanoDocumentFromMarkdown(markdown)
 
@@ -64,7 +64,7 @@ test('Bear checked todos preserve uppercase checkbox markers', () => {
   ])
 })
 
-test('Bear todo marker backspace degrades checkbox syntax before list syntax', () => {
+test('Markdown todo marker backspace degrades checkbox syntax before list syntax', () => {
   const checkedState = textSelectionState('* [X] DONE', 'md-1', 0)
   assert.equal(markdownAfter(checkedState, backspaceBlockTransaction(checkedState)), '* DONE')
 
@@ -76,7 +76,7 @@ test('Bear todo marker backspace degrades checkbox syntax before list syntax', (
   assert.equal(markdownAfter(bulletState, backspaceBlockTransaction(bulletState)), 'task')
 })
 
-test('Bear typed checkbox marker inside a bullet becomes todo structure', () => {
+test('Markdown typed checkbox marker inside a bullet becomes todo structure', () => {
   const uncheckedState = textSelectionState('- [ ]task', 'md-1', 3)
   assert.equal(
     markdownAfter(uncheckedState, blockShortcutTransaction(uncheckedState, uncheckedState.selection.from, uncheckedState.selection.from, ' ')),
@@ -90,7 +90,7 @@ test('Bear typed checkbox marker inside a bullet becomes todo structure', () => 
   )
 })
 
-test('Bear list marker input at visual list start edits source marker, not content', () => {
+test('Markdown list marker input at visual list start edits source marker, not content', () => {
   const bulletState = textSelectionState('- item', 'md-1', 0)
   assert.equal(
     markdownAfter(bulletState, blockShortcutTransaction(bulletState, bulletState.selection.from, bulletState.selection.from, '*')),
@@ -122,7 +122,7 @@ test('Bear list marker input at visual list start edits source marker, not conte
   )
 })
 
-test('Bear paragraph prefix markers promote existing text before Enter', () => {
+test('Markdown paragraph prefix markers promote existing text before Enter', () => {
   const bulletState = paragraphSelectionState('-Task', 1)
   const bulletTransaction = blockShortcutTransaction(bulletState, bulletState.selection.from, bulletState.selection.from, ' ')
   assert.equal(markdownAfter(bulletState, bulletTransaction), '- Task')
@@ -152,7 +152,7 @@ test('Bear paragraph prefix markers promote existing text before Enter', () => {
   ])
 })
 
-test('Bear paragraph prefix markers keep working through real typed input order', () => {
+test('Markdown paragraph prefix markers keep working through real typed input order', () => {
   const bulletState = typeShortcutText(paragraphSelectionState('Task', 0), '- ')
   assert.equal(markdownFromState(bulletState), '- Task')
   assert.deepEqual(nanoBlocksFromProseMirror(bulletState.doc), [
@@ -202,7 +202,7 @@ test('Bear paragraph prefix markers keep working through real typed input order'
   ])
 })
 
-test('Bear todo marker input at visual checkbox start edits source marker and checkbox state', () => {
+test('Markdown todo marker input at visual checkbox start edits source marker and checkbox state', () => {
   const markerState = textSelectionState('- [ ] task', 'md-1', 0)
   assert.equal(
     markdownAfter(markerState, blockShortcutTransaction(markerState, markerState.selection.from, markerState.selection.from, '+')),
@@ -222,7 +222,7 @@ test('Bear todo marker input at visual checkbox start edits source marker and ch
   )
 })
 
-test('Bear list continuation lines stay inside one block', () => {
+test('Markdown list continuation lines stay inside one block', () => {
   const markdown = [
     '- parent',
     '  continued **bold**',
@@ -253,7 +253,7 @@ test('Bear list continuation lines stay inside one block', () => {
   assert.equal(nanoMarkdownFromDocument({ blocks: nanoBlocksFromProseMirror(prosemirrorDocFromNano(document)) }), markdown)
 })
 
-test('Bear list continuation indentation feels editable through input and backspace', () => {
+test('Markdown list continuation indentation feels editable through input and backspace', () => {
   const continuationState = textSelectionState('- parent\n  detail', 'md-1', 'parent\n'.length)
   assert.equal(
     markdownAfter(continuationState, blockShortcutTransaction(continuationState, continuationState.selection.from, continuationState.selection.from, ' ')),

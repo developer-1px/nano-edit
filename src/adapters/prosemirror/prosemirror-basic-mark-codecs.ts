@@ -4,7 +4,7 @@ import {
   boldMarker,
   codeBacktickLength,
   italicMarker,
-} from './prosemirror-mark-attrs'
+} from '../../codecs/markdown/nano-markdown-inline-utils'
 import { nanoMarkNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
 

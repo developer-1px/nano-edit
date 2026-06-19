@@ -3,12 +3,20 @@ import {
   blockAcceptsInputHints,
   type BlockOptionRegistry,
 } from '../../blocks/nano-block-options'
-import type { NanoDocument } from '../../core/nano-core'
-import { nanoDocumentFromMarkdown } from '../../codecs/markdown/nano-markdown'
-import { prosemirrorDocFromNano } from '../../adapters/prosemirror/prosemirror-nano'
-import { selectionAfterInsertedContent } from '../../core/nano-selection'
+import {
+  activeBlockRange,
+  topLevelBlockRanges,
+} from '../../entities/block/structure/nano-block-ranges'
+import {
+  expandedBlockRangesWithCollapsedSubtrees,
+  selectedBlockRangesWithCollapsedSubtree,
+} from '../../entities/block/structure/nano-block-selection-ranges'
+import type { NanoDocument } from '../../entities/document/nano-document-model'
+import { nanoDocumentFromMarkdown } from '../../codecs/markdown/nano-markdown-parse'
+import { prosemirrorDocFromNano } from '../../adapters/prosemirror/prosemirror-document'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { selectionAfterInsertedContent } from '../selection/placement'
 import { inlineSourceTokenTextInputTransaction } from '../keyboard/inline-boundary'
-import { topLevelReplacementRange } from './replacement-range'
 
 export function markdownPasteTransaction(
   state: EditorState,
@@ -16,6 +24,9 @@ export function markdownPasteTransaction(
   collapsedBlockIds: ReadonlySet<string> = new Set(),
   registry?: BlockOptionRegistry,
 ): Transaction | null {
+  const codeBlockTransaction = codeBlockPasteTransaction(state, markdown)
+  if (codeBlockTransaction) return codeBlockTransaction
+
   if (!markdown.trim()) return null
 
   if (!markdown.includes('\n')) {
@@ -40,6 +51,22 @@ export function markdownPasteTransaction(
 
   const transaction = state.tr.replaceWith(range.from, range.to, replacement)
   transaction.setSelection(selectionAfterInsertedContent(transaction.doc, range.from, replacement))
+  return transaction
+}
+
+function codeBlockPasteTransaction(state: EditorState, text: string): Transaction | null {
+  if (text.length === 0) return null
+
+  const { selection } = state
+  if (!selection.$from.sameParent(selection.$to)) return null
+
+  const block = selection.$from.parent
+  if (block.type.name !== nanoNodeNames.codeBlock) return null
+
+  const inserted = state.schema.text(text)
+  const transaction = state.tr.replaceWith(selection.from, selection.to, inserted)
+  transaction.setSelection(TextSelection.create(transaction.doc, selection.from + text.length))
+  transaction.setMeta('inputType', 'codeBlockPaste')
   return transaction
 }
 
@@ -73,4 +100,29 @@ function isStructuredBlockMarkdownPaste(document: NanoDocument): boolean {
 
   const block = document.blocks[0]
   return block !== undefined && block.type !== 'paragraph'
+}
+
+function topLevelReplacementRange(
+  state: EditorState,
+  collapsedBlockIds: ReadonlySet<string> = new Set(),
+): { from: number; to: number } | null {
+  if (state.selection.empty) {
+    const block = activeBlockRange(state)
+    if (!block) return null
+
+    const ranges = selectedBlockRangesWithCollapsedSubtree(state.doc, block, collapsedBlockIds)
+    const last = ranges[ranges.length - 1]
+    return last ? { from: block.from, to: last.to } : { from: block.from, to: block.to }
+  }
+
+  const ranges = topLevelBlockRanges(state.doc).filter((block) =>
+    block.to > state.selection.from && block.from < state.selection.to,
+  )
+  const first = ranges[0]
+  const last = ranges[ranges.length - 1]
+  if (!first || !last) return null
+
+  const expandedRanges = expandedBlockRangesWithCollapsedSubtrees(state.doc, ranges, collapsedBlockIds)
+  const expandedLast = expandedRanges[expandedRanges.length - 1]
+  return expandedLast ? { from: first.from, to: expandedLast.to } : { from: first.from, to: last.to }
 }

@@ -1,11 +1,14 @@
-import { EditorState, NodeSelection, type Transaction } from 'prosemirror-state'
+import type { ResolvedPos } from 'prosemirror-model'
+import { EditorState, NodeSelection, TextSelection, type Transaction } from 'prosemirror-state'
 import {
   blockAcceptsInputHints,
   blockEnterShortcutOptions,
   blockShortcutOptions,
   type BlockOptionRegistry,
 } from '../../blocks/nano-block-options'
-import { footnoteMarkerInputTransaction } from './footnote-marker'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import { footnoteName } from '../../entities/reference/nano-footnote'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
 import {
   headingMarkerInputTransaction,
   headingMarkerSpaceInputTransaction,
@@ -52,7 +55,7 @@ export function blockShortcutTransaction(
   const headingPrefixTransaction = headingPrefixInputTransaction(state, $from, text)
   if (headingPrefixTransaction) return headingPrefixTransaction
 
-  const paragraphPrefixTransaction = paragraphPrefixInputTransaction(state, $from, text)
+  const paragraphPrefixTransaction = paragraphPrefixInputTransaction(state, $from, text, registry)
   if (paragraphPrefixTransaction) return paragraphPrefixTransaction
 
   const todoMarkerTransaction = todoMarkerInputTransaction(state, $from, text)
@@ -128,7 +131,7 @@ export function slashPickerBlockIdFromInput(
   if (!block.isTextblock || !acceptsInputHints) return null
   if ($from.parentOffset !== 0 || block.textContent.length > 0) return null
 
-  return typeof block.attrs.id === 'string' && block.attrs.id ? block.attrs.id : null
+  return blockId(block) || null
 }
 
 export function slashPickerBlockIdFromSelection(
@@ -137,8 +140,7 @@ export function slashPickerBlockIdFromSelection(
 ): string | null {
   const { selection } = state
   if (selection instanceof NodeSelection && selection.node.isBlock) {
-    const id = selection.node.attrs.id
-    return typeof id === 'string' && id ? id : null
+    return blockId(selection.node) || null
   }
 
   if (!selection.empty) return null
@@ -151,6 +153,33 @@ export function slashPickerBlockIdFromSelection(
   if (!block.isTextblock || !acceptsInputHints) return null
   if ($from.parentOffset !== 0 || block.textContent.length > 0) return null
 
-  const id = block.attrs.id
-  return typeof id === 'string' && id ? id : null
+  return blockId(block) || null
+}
+
+function footnoteMarkerInputTransaction(
+  state: EditorState,
+  $from: ResolvedPos,
+  text: string,
+): Transaction | null {
+  const block = $from.parent
+  if (block.type.name !== nanoNodeNames.footnote || (text !== ':' && text !== ' ')) return null
+
+  const textBefore = block.textBetween(0, $from.parentOffset)
+  if (textBefore.length !== $from.parentOffset) return null
+
+  const match = /^\[\^([^\]\s\r\n]+)\]:( ?)$/.exec(textBefore + text)
+  if (!match) return null
+
+  const name = footnoteName(match[1] ?? '')
+  if (!name) return null
+
+  const footnote = block.type.create({
+    ...block.attrs,
+    name,
+    footnoteTextSpacing: match[2] === ' ' ? null : 'none',
+  }, block.content.cut($from.parentOffset))
+  const blockPosition = $from.before()
+  const transaction = state.tr.replaceWith(blockPosition, blockPosition + block.nodeSize, footnote)
+  transaction.setSelection(TextSelection.create(transaction.doc, blockPosition + 1))
+  return transaction
 }

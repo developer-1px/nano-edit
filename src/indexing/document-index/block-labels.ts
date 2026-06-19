@@ -1,25 +1,23 @@
-import { todoIndexBlockLabel } from '../../capabilities/todo/index'
-import type { NanoBlock } from '../../core/nano-core'
-import { tagHierarchyDisplayLabels } from '../../core/nano-tag'
+import { todoIndexBlockLabel } from '../../capabilities/todo/indexing'
+import type { NanoBlock } from '../../entities/document/nano-document-model'
+import { tagHierarchyDisplayLabels } from '../../entities/reference/nano-tag'
 import {
   attachmentIndexLabel,
   bookmarkIndexLabel,
 } from './link-labels'
+import { codeFenceToken } from '../../codecs/markdown/nano-markdown-code-utils'
 import {
   atxClosingLength,
   atxSpacing,
-  bulletListMarker,
-  orderedListMarker,
-  orderedStartText,
-  plainTextPreview,
-  quoteMarker,
   setextLength,
   setextMarker,
-} from './label-format'
+} from '../../codecs/markdown/nano-markdown-heading-attrs'
+import { orderedStartText } from '../../codecs/markdown/nano-markdown-list-attrs'
 import {
-  codeFenceToken,
+  bulletMarker,
   dividerMarkdown,
-} from './source-labels'
+  orderedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
 
 export function indexBlockLabel(block: NanoBlock): string {
   switch (block.type) {
@@ -55,6 +53,8 @@ export function indexBlockLabel(block: NanoBlock): string {
       return `table ${block.rows.length}x${Math.max(0, ...block.rows.map((row) => row.length))}`
     case 'paragraph':
       return plainTextPreview(block.text)
+    default:
+      return customBlockLabel(block)
   }
 }
 
@@ -70,7 +70,7 @@ export function indexBlockSearchLabel(block: NanoBlock): string {
       return todoIndexBlockLabel(block, plainTextPreview)
     case 'list_item':
       return [
-        block.kind === 'ordered' ? `${orderedStartText(block.orderedStartText) ?? '1'}${orderedListMarker(block.orderedMarker)}` : bulletListMarker(block.marker),
+        block.kind === 'ordered' ? `${orderedStartText(block.orderedStartText) ?? '1'}${orderedMarker(block.orderedMarker)}` : bulletMarker(block.marker),
         plainTextPreview(block.text),
       ].join(' ')
     case 'footnote':
@@ -90,6 +90,12 @@ export function indexBlockSearchLabel(block: NanoBlock): string {
   }
 }
 
+function customBlockLabel(block: NanoBlock): string {
+  return 'text' in block && block.text
+    ? plainTextPreview(block.text)
+    : block.type
+}
+
 export function headingBlockLabel(block: Extract<NanoBlock, { type: 'heading' }>): string {
   return plainTextPreview(block.text) || 'Heading'
 }
@@ -107,7 +113,7 @@ function headingBlockSourceLabel(block: Extract<NanoBlock, { type: 'heading' }>)
 export function calloutBlockLabel(block: Extract<NanoBlock, { type: 'callout' }>): string {
   const firstLine = block.text.split('\n')[0] ?? ''
   const text = plainTextPreview(firstLine)
-  const tone = block.tone ? block.tone[0]!.toUpperCase() + block.tone.slice(1) : 'Callout'
+  const tone = block.tone ? block.tone.charAt(0).toUpperCase() + block.tone.slice(1) : 'Callout'
   return text ? `${tone}: ${text}` : tone
 }
 
@@ -140,4 +146,15 @@ export function noteRefIndexLabel(block: Extract<NanoBlock, { type: 'note_ref' }
 
 function noteRefSourceLabel(block: Extract<NanoBlock, { type: 'note_ref' }>): string {
   return block.alias ? `[[${block.target}|${block.alias}]]` : `[[${block.target}]]`
+}
+
+function plainTextPreview(text: string): string {
+  const preview = text.replace(/\s+/g, ' ').trim()
+  return preview.length > 48 ? `${preview.slice(0, 45)}...` : preview || '(empty)'
+}
+
+function quoteMarker(spacing: unknown, text: string): '>' | '> ' {
+  if (spacing === 'space') return '> '
+  if (spacing === 'none') return '>'
+  return text.trim() ? '> ' : '>'
 }

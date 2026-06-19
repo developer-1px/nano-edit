@@ -1,7 +1,7 @@
 import * as h from './harness.mjs'
 const { assert, nanoDocumentIndex, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockEnterShortcutTransaction, nanoBlocksFromProseMirror, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, blockAfterMarkShortcut, blocksAfter } = h
 
-test('Bear footnotes keep refs and definitions as Markdown-visible structure', () => {
+test('Markdown footnotes keep refs and definitions as Markdown-visible structure', () => {
   const markdown = 'Footnote ref[^1]\n\n[^1]: **detail**'
   const document = nanoDocumentFromMarkdown(markdown)
 

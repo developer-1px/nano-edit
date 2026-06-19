@@ -1,8 +1,8 @@
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
 import { EditorState, type Transaction } from 'prosemirror-state'
-import { noteLinkTarget } from '../../core/nano-note-link'
-import { tagTokenEndingAt } from '../../core/nano-tag'
-import { nanoMarkNames } from '../../adapters/prosemirror/prosemirror-nano'
+import { noteLinkTarget } from '../../entities/reference/nano-note-link'
+import { tagTokenEndingAt } from '../../entities/reference/nano-tag'
+import { nanoMarkNames } from '../../adapters/prosemirror/prosemirror-names'
 
 export function trailingReferenceMarkTransaction(state: EditorState): Transaction | null {
   const { selection } = state

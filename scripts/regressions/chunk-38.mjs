@@ -6,6 +6,8 @@ import {
   createPersistedDemoNanoDeck,
   DEMO_DECK_STORAGE_KEY,
 } from '../../src/demo/persisted-deck.ts'
+import { defaultDocumentPersistenceCodec } from '@interactive-os/json-document-persist-web'
+import { staleVersionedStorageKeys } from '../../src/demo/demo-persistence.ts'
 import { initialNanoDocument } from '../../src/demo/initial-document.ts'
 import { assert, test } from './harness.mjs'
 
@@ -34,7 +36,7 @@ class FakeStorage {
 
 function storedValue(storage, key = DEMO_DOCUMENT_STORAGE_KEY) {
   const stored = storage.getItem(key)
-  return stored ? JSON.parse(stored).value : null
+  return stored ? defaultDocumentPersistenceCodec.decode(stored).value : null
 }
 
 function storedDocument(storage, key = DEMO_DOCUMENT_STORAGE_KEY) {
@@ -84,48 +86,30 @@ test('Persisted demo document falls back when stored data is invalid', () => {
   }
 })
 
+test('Demo persistence derives stale versioned storage keys from the current key', () => {
+  assert.deepEqual(staleVersionedStorageKeys('nano-edit:demo-document:v1'), [])
+  assert.deepEqual(staleVersionedStorageKeys('nano-edit:demo-document:v0'), [])
+  assert.deepEqual(staleVersionedStorageKeys('nano-edit:demo-document:v3'), [
+    'nano-edit:demo-document:v1',
+    'nano-edit:demo-document:v2',
+  ])
+  assert.deepEqual(staleVersionedStorageKeys('nano-edit:demo-document'), [])
+})
+
 test('Persisted demo document ignores older demo storage versions', () => {
   const staleDocument = {
     blocks: [{ id: 'stale-1', type: 'paragraph', text: 'Old demo opening', marks: [] }],
   }
-  const storage = new FakeStorage([
-    ['nano-edit:demo-document:v1', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v2', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v3', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v4', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v5', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v6', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v7', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v8', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v9', JSON.stringify(staleDocument)],
-    ['nano-edit:demo-document:v10', JSON.stringify(staleDocument)],
-  ])
+  const staleStorageKeys = staleVersionedStorageKeys(DEMO_DOCUMENT_STORAGE_KEY)
+  const storage = new FakeStorage(staleStorageKeys.map((key) => [key, JSON.stringify(staleDocument)]))
 
   const persisted = createPersistedDemoNanoDocument(storage)
 
   assert.deepEqual(persisted.engine.value, initialNanoDocument)
-  assert.equal(storage.getItem('nano-edit:demo-document:v1'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v2'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v3'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v4'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v5'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v6'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v7'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v8'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v9'), null)
-  assert.equal(storage.getItem('nano-edit:demo-document:v10'), null)
-  assert.deepEqual(storage.removes, [
-    'nano-edit:demo-document:v1',
-    'nano-edit:demo-document:v2',
-    'nano-edit:demo-document:v3',
-    'nano-edit:demo-document:v4',
-    'nano-edit:demo-document:v5',
-    'nano-edit:demo-document:v6',
-    'nano-edit:demo-document:v7',
-    'nano-edit:demo-document:v8',
-    'nano-edit:demo-document:v9',
-    'nano-edit:demo-document:v10',
-  ])
+  for (const key of staleStorageKeys) {
+    assert.equal(storage.getItem(key), null)
+  }
+  assert.deepEqual(storage.removes, staleStorageKeys)
   persisted.destroy()
 })
 
@@ -136,8 +120,10 @@ test('Persisted demo document ignores old per-document seeds after demo content 
   const contentCatalogSeed = {
     blocks: [{ id: 'content-catalog', type: 'heading', level: 1, text: 'Content Catalog', marks: [] }],
   }
+  const previousDemoDocumentStorageKey = staleVersionedStorageKeys(DEMO_DOCUMENT_STORAGE_KEY).at(-1)
+  if (!previousDemoDocumentStorageKey) throw new Error('Expected a previous demo document storage key')
   const storage = new FakeStorage([
-    ['nano-edit:demo-document:v10:part-catalog', JSON.stringify(oldPartCatalog)],
+    [`${previousDemoDocumentStorageKey}:part-catalog`, JSON.stringify(oldPartCatalog)],
   ])
 
   const persisted = createPersistedDemoNanoDocument({
@@ -165,7 +151,7 @@ test('Persisted demo document saves edits and stops saving after destroy', () =>
     storedDocument(storage).blocks[0].text,
     'Saved note survives reload',
   )
-  assert.equal(JSON.parse(storage.getItem(DEMO_DOCUMENT_STORAGE_KEY)).kind, 'zod-crud.persistence+json')
+  assert.equal(JSON.parse(storage.getItem(DEMO_DOCUMENT_STORAGE_KEY)).kind, 'json-document.persistence+json')
 
   persisted.destroy()
 
@@ -231,6 +217,6 @@ test('Persisted demo deck uses zod-crud persistence envelopes', () => {
 
   assert.equal(committed.ok, true)
   assert.equal(storedValue(storage, DEMO_DECK_STORAGE_KEY).title, 'Saved deck v2')
-  assert.equal(JSON.parse(storage.getItem(DEMO_DECK_STORAGE_KEY)).kind, 'zod-crud.persistence+json')
+  assert.equal(JSON.parse(storage.getItem(DEMO_DECK_STORAGE_KEY)).kind, 'json-document.persistence+json')
   persisted.destroy()
 })

@@ -1,19 +1,28 @@
-import type { NanoCommand } from '../../commands/registry'
-import {
-  createAutocompleteSurface,
-  visibleAutocompleteOptions,
-  type AutocompleteOption,
-} from '../../autocomplete/index'
-import type { CommandPaletteMode, NanoCommandContext } from './shell'
-import { createNanoCommandInteraction } from './command-interaction'
-import { positionCommandPalette } from './command-palette-dom'
 import type {
-  NanoCommandPalette,
-  NanoCommandPaletteOptions,
-} from './command-palette-types'
+  CommandPaletteMode,
+  NanoCommand,
+  NanoCommandContext,
+} from '../../commands/types'
+import { createAutocompleteSurface } from '../../autocomplete/surface'
+import { visibleAutocompleteOptions } from '../../autocomplete/selection'
+import type { AutocompleteOption } from '../../autocomplete/types'
+import { clampNumber } from './command-elements'
+import { createNanoCommandInteraction } from './command-interaction'
 
 interface CommandAutocompleteOption extends AutocompleteOption {
   command: NanoCommand
+}
+
+interface NanoCommandPaletteOptions {
+  commandAnchorRect: () => DOMRect | null
+  commands: (context: NanoCommandContext) => readonly NanoCommand[]
+  onCommandClose: () => void
+}
+
+interface NanoCommandPalette {
+  commandPalette: HTMLElement
+  openCommandPalette: (mode: CommandPaletteMode, blockId?: string | null) => void
+  destroy: () => void
 }
 
 export function createNanoCommandPalette(options: NanoCommandPaletteOptions): NanoCommandPalette {
@@ -110,4 +119,21 @@ function commandSuggestionOption(command: NanoCommand): CommandAutocompleteOptio
     keywords: command.keywords,
     title: command.title,
   }
+}
+
+function positionCommandPalette(
+  commandPalette: HTMLElement,
+  mode: CommandPaletteMode | null,
+  commandAnchorRect: () => DOMRect | null,
+): void {
+  commandPalette.style.removeProperty('--command-left')
+  commandPalette.style.removeProperty('--command-top')
+  if (mode !== 'slash') return
+  const rect = commandAnchorRect()
+  if (!rect) return
+  const width = Math.min(360, window.innerWidth - 32)
+  const left = clampNumber(rect.left, 16, Math.max(16, window.innerWidth - width - 16))
+  const top = clampNumber(rect.bottom + 8, 16, Math.max(16, window.innerHeight - 320))
+  commandPalette.style.setProperty('--command-left', `${left}px`)
+  commandPalette.style.setProperty('--command-top', `${top}px`)
 }

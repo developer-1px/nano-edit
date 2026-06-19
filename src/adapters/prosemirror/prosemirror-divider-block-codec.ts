@@ -1,7 +1,7 @@
 import {
   dividerMarker,
   dividerMarkerLength,
-} from './prosemirror-block-attrs'
+} from './prosemirror-code-divider-attrs'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'

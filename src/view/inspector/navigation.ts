@@ -1,8 +1,6 @@
 import { NodeSelection, type Transaction } from 'prosemirror-state'
-import {
-  blockPositionById,
-  collapsedAncestorIdsForBlockId,
-} from '../../blocks/nano-block-structure'
+import { blockPositionById } from '../../entities/block/structure/nano-block-node-kind'
+import { collapsedAncestorIdsForBlockId } from '../../entities/block/structure/nano-block-collapse'
 import { activeBlockId } from '../selection/active-block'
 import type { NanoViewContext } from '../runtime/context'
 

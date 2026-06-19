@@ -1,9 +1,17 @@
-import type { NanoBlock, NanoMark } from '../../core/nano-core'
+import type { NanoBlock, NanoMark } from '../../entities/document/nano-document-model'
 import type { BulletMarker, CheckedMarker } from '../../assembly/capability'
+import {
+  markdownIndentLevel,
+  markdownIndentText,
+} from '../../codecs/markdown/nano-markdown-list-attrs'
+import {
+  bulletMarker,
+  checkedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
 
 type TodoBlock = Extract<NanoBlock, { type: 'todo' }>
 
-export interface MarkdownTodoLine {
+interface MarkdownTodoLine {
   attrs: {
     checked: boolean
     checkedMarker?: CheckedMarker
@@ -17,7 +25,7 @@ export interface MarkdownTodoLine {
   type: 'todo'
 }
 
-export interface MarkdownTodoBlockHelpers {
+interface MarkdownTodoBlockHelpers {
   inlineMarkdown: (text: string, marks: readonly NanoMark[]) => string
   listContinuationDefaultIndent: (marker: string) => string
   listContinuationIndent: (indent: string | undefined, defaultIndent: string) => string
@@ -60,29 +68,4 @@ export function markdownTodoBlock(
     firstLine ? `${marker} ${firstLine}` : marker,
     ...lines.slice(1).map((line, index) => `${helpers.listContinuationIndent(block.continuationIndents?.[index], continuationIndent)}${line}`),
   ].join('\n')
-}
-
-function markdownIndentLevel(indent: string): number {
-  const columns = [...indent].reduce((total, char) => total + (char === '\t' ? 4 : 1), 0)
-  return clampIndent(Math.floor(columns / 2))
-}
-
-function markdownIndentText(indent: unknown): string | undefined {
-  if (typeof indent !== 'string' || !/^[\t ]+$/.test(indent)) return undefined
-
-  const canonical = '  '.repeat(markdownIndentLevel(indent))
-  return indent === canonical ? undefined : indent
-}
-
-function bulletMarker(marker: unknown): BulletMarker {
-  return marker === '*' || marker === '+' ? marker : '-'
-}
-
-function checkedMarker(marker: unknown): CheckedMarker {
-  return marker === 'X' ? 'X' : 'x'
-}
-
-function clampIndent(indent: unknown): number {
-  const value = typeof indent === 'number' && Number.isFinite(indent) ? Math.trunc(indent) : 0
-  return Math.max(0, Math.min(6, value))
 }

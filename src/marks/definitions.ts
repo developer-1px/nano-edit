@@ -1,15 +1,17 @@
-import { nanoMarkNames } from '../adapters/prosemirror/prosemirror-nano'
+import { inlineMathTokenAt } from '../entities/math/nano-math'
+import { footnoteRefAt } from '../entities/reference/nano-footnote'
+import { noteLinkParts } from '../entities/reference/nano-note-link'
+import { tagTokenEndingAt } from '../entities/reference/nano-tag'
 import {
-  bearFootnoteRefShortcutMatch,
-  bearMathShortcutMatch,
-  bearNoteLinkShortcutMatch,
-  bearTagShortcutMatch,
-  codeSpanShortcutMatch,
-  externalAutolinkShortcutMatch,
-  externalBareUrlShortcutMatch,
-  markdownLinkShortcutMatch,
-} from './shortcuts'
-import type { MarkOption } from './types'
+  externalUrlTokenAt,
+  externalUrlTokenEndingAt,
+} from '../entities/reference/nano-url'
+import { nanoMarkNames } from '../adapters/prosemirror/prosemirror-names'
+import { codeSpanShortcutMatch } from './delimited-shortcuts'
+import type {
+  MarkOption,
+  MarkShortcutMatch,
+} from './types'
 
 export const markOptions: readonly MarkOption[] = [
   {
@@ -92,3 +94,173 @@ export const markOptions: readonly MarkOption[] = [
     ],
   },
 ]
+
+function markdownLinkShortcutMatch(source: string): MarkShortcutMatch | null {
+  if (!source.endsWith(')')) return null
+
+  const closeTo = source.length
+  const linkMiddle = source.lastIndexOf('](', closeTo - 1)
+  if (linkMiddle < 0) return null
+
+  const openFrom = source.lastIndexOf('[', linkMiddle - 1)
+  if (openFrom < 0) return null
+  if (openFrom > 0 && source[openFrom - 1] === '!') return null
+
+  const contentFrom = openFrom + 1
+  const contentTo = linkMiddle
+  const destination = markdownLinkDestination(source.slice(linkMiddle + 2, closeTo - 1))
+  if (contentFrom >= contentTo) return null
+  if (source.slice(contentFrom, contentTo).trim().length === 0) return null
+  if (!destination) return null
+
+  return { openFrom, contentFrom, contentTo, closeTo, attrs: destination }
+}
+
+function externalAutolinkShortcutMatch(source: string): MarkShortcutMatch | null {
+  if (!source.endsWith('>')) return null
+
+  const openFrom = source.lastIndexOf('<')
+  if (openFrom < 0) return null
+
+  const token = externalUrlTokenAt(source, openFrom)
+  if (!token || token.syntax !== 'autolink' || token.to !== source.length) return null
+
+  return {
+    openFrom,
+    contentFrom: openFrom + 1,
+    contentTo: source.length - 1,
+    closeTo: source.length,
+    markFrom: openFrom,
+    markTo: source.length,
+    attrs: { href: token.href, syntax: token.syntax },
+  }
+}
+
+function externalBareUrlShortcutMatch(source: string): MarkShortcutMatch | null {
+  if (!/(?:\s|[.,;:!?])$/.test(source)) return null
+
+  const tokenSource = source.slice(0, -1)
+  const token = externalUrlTokenEndingAt(tokenSource)
+  if (!token || token.syntax !== 'bare') return null
+
+  return {
+    openFrom: token.from,
+    contentFrom: token.from,
+    contentTo: token.to,
+    closeTo: source.length,
+    markFrom: token.from,
+    markTo: token.to,
+    attrs: { href: token.href, syntax: token.syntax },
+  }
+}
+
+function markdownLinkDestination(source: string): { href: string; title?: string } | null {
+  const match = /^(\S+)(?:\s+"((?:\\.|[^"\\])*)")?$/.exec(source.trim())
+  if (!match) return null
+
+  const href = match[1] ?? ''
+  if (!href) return null
+
+  const title = match[2]?.replace(/\\([\\"])/g, '$1')
+  return { href, ...(title ? { title } : {}) }
+}
+
+function bearTagShortcutMatch(source: string): MarkShortcutMatch | null {
+  const closed = bearClosedTagShortcutMatch(source)
+  if (closed) return closed
+
+  if (!/(?:\s|[.,;:!?()[\]{}"'])$/.test(source)) return null
+
+  const tokenSource = source.slice(0, -1)
+  const tag = tagTokenEndingAt(tokenSource)
+  if (!tag) return null
+
+  const token = tag.token
+  const openFrom = tokenSource.length - token.length
+  return {
+    openFrom,
+    contentFrom: openFrom + 1,
+    contentTo: tokenSource.length,
+    closeTo: source.length,
+    attrs: { name: tag.name },
+  }
+}
+
+function bearNoteLinkShortcutMatch(source: string): MarkShortcutMatch | null {
+  if (!source.endsWith(']]')) return null
+
+  const contentTo = source.length - 2
+  const openFrom = source.lastIndexOf('[[', contentTo - 1)
+  if (openFrom < 0) return null
+
+  const contentFrom = openFrom + 2
+  const parts = noteLinkParts(source.slice(contentFrom, contentTo))
+  if (!parts) return null
+
+  return {
+    openFrom,
+    contentFrom,
+    contentTo,
+    closeTo: source.length,
+    markFrom: openFrom,
+    markTo: source.length,
+    attrs: { ...parts },
+  }
+}
+
+function bearMathShortcutMatch(source: string): MarkShortcutMatch | null {
+  if (!source.endsWith('$')) return null
+
+  const openFrom = source.lastIndexOf('$', source.length - 2)
+  if (openFrom < 0) return null
+
+  const math = inlineMathTokenAt(source, openFrom)
+  if (!math || math.to !== source.length) return null
+
+  return {
+    openFrom,
+    contentFrom: openFrom + 1,
+    contentTo: source.length - 1,
+    closeTo: source.length,
+    markFrom: openFrom,
+    markTo: source.length,
+    attrs: { formula: math.formula },
+  }
+}
+
+function bearFootnoteRefShortcutMatch(source: string): MarkShortcutMatch | null {
+  if (!source.endsWith(']')) return null
+
+  const openFrom = source.lastIndexOf('[^')
+  if (openFrom < 0) return null
+
+  const footnote = footnoteRefAt(source, openFrom)
+  if (!footnote || footnote.to !== source.length) return null
+
+  return {
+    openFrom,
+    contentFrom: openFrom + 2,
+    contentTo: source.length - 1,
+    closeTo: source.length,
+    markFrom: openFrom,
+    markTo: source.length,
+    attrs: { name: footnote.name },
+  }
+}
+
+function bearClosedTagShortcutMatch(source: string): MarkShortcutMatch | null {
+  if (!source.endsWith('#')) return null
+
+  const tag = tagTokenEndingAt(source)
+  if (!tag) return null
+
+  return {
+    openFrom: tag.from,
+    contentFrom: tag.from + 1,
+    contentTo: source.length - 1,
+    closeTo: source.length,
+    markFrom: tag.from,
+    markTo: source.length,
+    attrs: { name: tag.name },
+  }
+}

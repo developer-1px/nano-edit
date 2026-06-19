@@ -1,10 +1,11 @@
 import type { BlockOption } from '../../assembly/capability'
 import {
   bookmarkTemplate,
-  bookmarkNodeForBlockTemplate,
   markdownBookmarkTemplate,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../options/templates'
+import { bookmarkNodeForBlockTemplate } from '../options/node-media'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const bookmarkBlockOption = {
   id: 'bookmark',

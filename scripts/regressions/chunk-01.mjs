@@ -1,6 +1,6 @@
 import * as h from './harness.mjs'
-const { bearInlineMarkdown, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
-const { createNanoEditorKit, defaultNanoEditorKit, kitHasViewFeature, nanoCommands } = h
+const { inlineMarkdownFixture, assert, AllSelection, EditorState, NodeSelection, TextSelection, editorPartCatalog, editorPartCatalogById, editorPartsByCategory, blockOptionsFromCapabilities, basicCapability, todoCapability, todoIndexEntryFromBlock, markdownTodoLine, todoNodeAttrsFromBlock, createTodoBlockSchema, nanoDocumentIndex, nanoDocumentSearch, markShortcutTransaction, nanoDocumentFromMarkdown, nanoMarkdownFromDocument, blockTextPointer, createNanoDocument, NanoMarkSchema, point, selectionSnap, blockEnterShortcutTransaction, blockShortcutTransaction, backspaceBlockTransaction, changeActiveBlockTransaction, changeBlockByIdTransaction, canIndentActiveBlock, deleteActiveBlockTransaction, enterBlockTransaction, enterListParentEndTransaction, externalHrefFromMarkdownLink, indentActiveBlockTransaction, markdownBlockSourceTransaction, markdownCopyTextFromSelection, moveActiveBlockTransaction, moveBlockToTargetTransaction, selectAdjacentBlockTransaction, trailingReferenceMarkTransaction, nanoBlocksFromProseMirror, nanoMarkNames, nanoNodeNames, nanoSchema, prosemirrorDocFromNano, rawMarkdownInlineDomSpec, test, textState, selectedState, allSelectedState, textSelectionState, blockAfterMarkShortcut, blockDomSpec, markDomSpec, domSpecHasClass, blocksAfter, markdownAfter, selectedBlockText, blockPositionById } = h
+const { createNanoEditorKit, defaultNanoEditorKit, describeNanoCapabilityProfile, kitHasViewFeature, nanoCommands } = h
 
 test('Editor part catalog exposes 49 usable assembly parts', () => {
   assert.equal(editorPartCatalog.length, 49)
@@ -82,6 +82,22 @@ test('Editor kit turns selected capabilities into block affordances', () => {
   assert.equal(defaultNanoEditorKit.blockOptions.some((option) => option.id === 'todo'), true)
 })
 
+test('Capability profiles describe built-in editor assembly without provider options', () => {
+  const summary = describeNanoCapabilityProfile({
+    id: 'nano.basic-profile',
+    capabilities: ['basic'],
+    viewFeatures: ['active-block-ui'],
+  })
+
+  assert.equal(summary.id, 'nano.basic-profile')
+  assert.deepEqual(summary.capabilityIds, ['basic'])
+  assert.deepEqual(
+    summary.blockOptionIds,
+    ['paragraph', 'heading-1', 'heading-2', 'heading-3', 'heading-4', 'heading-5', 'heading-6'],
+  )
+  assert.deepEqual(summary.viewFeatures, ['active-block-ui'])
+})
+
 test('Command registry uses the active editor kit block options', () => {
   const kit = createNanoEditorKit({ capabilities: [basicCapability] })
   const commandIds = nanoCommands({
@@ -133,7 +149,7 @@ test('zod-crud history restores Nano selection snapshots on undo and redo', () =
       origin: 'regression',
       label: 'replace text',
       mergeKey: `text:${path}`,
-      selection: selectionSnap(after, after),
+      selectionAfter: selectionSnap(after, after),
     },
   )
 

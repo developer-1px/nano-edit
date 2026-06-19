@@ -1,9 +1,14 @@
 import type { NodeSpec } from 'prosemirror-model'
-import { nonBlankStringValue } from '../../core/schema/nano-block-schema-refinements'
+import { nonBlankStringValue } from '../../entities/block/schema/nano-block-schema-refinements'
+import {
+  escapeMarkdownImageText,
+  escapeMarkdownImageTitle,
+} from '../../codecs/markdown/link/serialize'
 import {
   destinationStyle,
-  markdownImageToken,
-} from './prosemirror-atom-dom'
+  markdownLinkDestinationSource,
+} from './prosemirror-link-dom'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const imageNodeSpec: NodeSpec = {
@@ -20,21 +25,26 @@ export const imageNodeSpec: NodeSpec = {
   parseDOM: [{
     tag: 'figure.nano-image',
     getAttrs: (dom) => {
-      const image = (dom as HTMLElement).querySelector('img')
+      const element = prosemirrorParseDomElement(dom)
+      if (!element) return false
+
+      const image = element.querySelector('img')
       const src = nonBlankStringValue(image?.getAttribute('src'))
       if (!src) return false
 
       return {
         src,
         alt: image?.getAttribute('alt') ?? '',
-        destinationStyle: (dom as HTMLElement).dataset.destinationStyle ?? '',
+        destinationStyle: element.dataset.destinationStyle ?? '',
         title: image?.getAttribute('title') ?? '',
       }
     },
   }, {
     tag: 'img[src]',
     getAttrs: (dom) => {
-      const element = dom as HTMLElement
+      const element = prosemirrorParseDomElement(dom)
+      if (!element) return false
+
       const src = nonBlankStringValue(element.getAttribute('src'))
       return src ? {
         src,
@@ -60,4 +70,13 @@ export const imageNodeSpec: NodeSpec = {
       node.attrs.destinationStyle,
     )],
   ],
+}
+
+function markdownImageToken(alt: unknown, src: unknown, title: unknown, rawDestinationStyle?: unknown): string {
+  const label = escapeMarkdownImageText(String(alt ?? ''))
+  const href = String(src ?? '')
+  const imageTitle = typeof title === 'string' && title
+    ? ` "${escapeMarkdownImageTitle(title)}"`
+    : ''
+  return `![${label}](${markdownLinkDestinationSource(href, rawDestinationStyle)}${imageTitle})`
 }

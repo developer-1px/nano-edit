@@ -25,12 +25,12 @@ The current broad CSS rule shape, `active block -> reveal every inline source to
 
 Local authoritative sources:
 
-- [package.json](/Users/user/Desktop/@interactive-os/nano-edit/package.json)
-- [nano-core.ts](/Users/user/Desktop/@interactive-os/nano-edit/src/core/nano-core.ts)
-- [prosemirror-nano.ts](/Users/user/Desktop/@interactive-os/nano-edit/src/adapters/prosemirror/prosemirror-nano.ts)
-- [nano-selection-core.ts](/Users/user/Desktop/@interactive-os/nano-edit/src/core/nano-selection-core.ts)
-- [zod-crud README](/Users/user/Desktop/@interactive-os/zod-crud/packages/zod-crud/README.md)
-- [zod-crud SPEC](/Users/user/Desktop/@interactive-os/zod-crud/packages/zod-crud/SPEC.md)
+- `package.json`
+- `src/core/nano-core.ts`
+- `src/adapters/prosemirror/prosemirror-nano.ts`
+- `src/core/nano-selection-core.ts`
+- sibling `zod-crud/packages/zod-crud/README.md`
+- sibling `zod-crud/packages/zod-crud/SPEC.md`
 
 ## Product spec
 
@@ -114,7 +114,7 @@ Visible source markers are editing affordances, not document content.
 The weak points are specific:
 
 1. Patch granularity is too broad.
-   - [replaceBlocksPatch](/Users/user/Desktop/@interactive-os/nano-edit/src/core/nano-selection-core.ts:29) replaces `/blocks` for nearly every document change.
+   - `replaceBlocksPatch` in `src/core/nano-selection-core.ts` replaces `/blocks` for nearly every document change.
    - This works, but reduces debug readability and makes `zod-crud` selection tracking less useful than it could be.
 
 2. Visual source reveal is currently CSS-driven.
@@ -223,7 +223,7 @@ Source marker text should reuse existing serialization logic where possible:
 - Basic marks can use `data-md-open` / `data-md-close` equivalents.
 - Link/image markers should use the same close text as `markdownLinkClose`.
 - Code marks should use the same backtick length logic as `codeBacktickToken`.
-- The data model equivalent is already available through [inlineMark](/Users/user/Desktop/@interactive-os/nano-edit/src/codecs/markdown/nano-markdown-inline-mark.ts:13).
+- The data model equivalent is already available through `inlineMark` in `src/codecs/markdown/nano-markdown-inline-mark.ts`.
 
 Widget DOM requirements:
 

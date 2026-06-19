@@ -4,7 +4,7 @@ import { NonBlankStringSchema } from '../block/schema/nano-block-schema-refineme
 const MarkRangeBaseSchema = z.object({
   from: z.number().int().nonnegative(),
   to: z.number().int().nonnegative(),
-})
+}).strict()
 
 export const NanoMarkSchema = z.discriminatedUnion('type', [
   MarkRangeBaseSchema.extend({
@@ -25,6 +25,11 @@ export const NanoMarkSchema = z.discriminatedUnion('type', [
   MarkRangeBaseSchema.extend({
     type: z.literal('tag'),
     name: NonBlankStringSchema,
+  }),
+  MarkRangeBaseSchema.extend({
+    type: z.literal('mention'),
+    id: NonBlankStringSchema,
+    label: z.string().optional(),
   }),
   MarkRangeBaseSchema.extend({
     type: z.literal('note_link'),

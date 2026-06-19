@@ -1,3 +1,4 @@
+import type { NanoBlock } from '../../entities/document/nano-document-model'
 import { defineNanoBlockCodec } from './prosemirror-block-codec-types'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
@@ -10,7 +11,7 @@ import {
   tableLineCount,
   tableLinePipesDiffer,
   tablePipe,
-} from './prosemirror-table'
+} from './prosemirror-table-normalize'
 
 export const tableBlockCodec = defineNanoBlockCodec({
   nanoType: 'table',
@@ -33,16 +34,17 @@ export const tableBlockCodec = defineNanoBlockCodec({
     const trailingPipe = tablePipe(node.attrs.trailingPipe)
     const leadingPipes = normalizeTableLinePipes(node.attrs.leadingPipes, tableLineCount(rows), leadingPipe)
     const trailingPipes = normalizeTableLinePipes(node.attrs.trailingPipes, tableLineCount(rows), trailingPipe)
-    return {
+    const block: Extract<NanoBlock, { type: 'table' }> = {
       id,
       type: 'table',
       rows,
-      ...(align.some((value) => value !== null) ? { align } : {}),
-      ...(leadingPipe ? {} : { leadingPipe: false as const }),
-      ...(tableLinePipesDiffer(leadingPipes, leadingPipe) ? { leadingPipes } : {}),
-      ...(separatorCells ? { separatorCells } : {}),
-      ...(trailingPipe ? {} : { trailingPipe: false as const }),
-      ...(tableLinePipesDiffer(trailingPipes, trailingPipe) ? { trailingPipes } : {}),
     }
+    if (align.some((value) => value !== null)) block.align = align
+    if (!leadingPipe) block.leadingPipe = false
+    if (tableLinePipesDiffer(leadingPipes, leadingPipe)) block.leadingPipes = leadingPipes
+    if (separatorCells) block.separatorCells = separatorCells
+    if (!trailingPipe) block.trailingPipe = false
+    if (tableLinePipesDiffer(trailingPipes, trailingPipe)) block.trailingPipes = trailingPipes
+    return block
   },
 })

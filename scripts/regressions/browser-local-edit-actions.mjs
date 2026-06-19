@@ -21,10 +21,24 @@ export async function composeText(browser, selector, text) {
       range.selectNodeContents(target)
       range.collapse(false)
     }
-    range.insertNode(document.createTextNode(${JSON.stringify(text)}))
-    range.collapse(false)
-    selection?.removeAllRanges()
-    selection?.addRange(range)
+    target.dispatchEvent(new CompositionEvent('compositionstart', {
+      bubbles: true,
+      data: '',
+    }))
+    const beforeInput = new InputEvent('beforeinput', {
+      bubbles: true,
+      cancelable: true,
+      data: ${JSON.stringify(text)},
+      inputType: 'insertCompositionText',
+      isComposing: true,
+    })
+    target.dispatchEvent(beforeInput)
+    if (!beforeInput.defaultPrevented) {
+      range.insertNode(document.createTextNode(${JSON.stringify(text)}))
+      range.collapse(false)
+      selection?.removeAllRanges()
+      selection?.addRange(range)
+    }
     target.dispatchEvent(new InputEvent('input', {
       bubbles: true,
       data: ${JSON.stringify(text)},

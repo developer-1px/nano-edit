@@ -1,4 +1,4 @@
-import type { ActiveBlockRange } from '../../blocks/nano-block-structure'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
 import type { BlockMoveUnit } from './unit'
 
 export type DropPlacement = 'after' | 'before'

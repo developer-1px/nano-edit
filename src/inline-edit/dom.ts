@@ -85,6 +85,7 @@ export function restoreInlineEditFocus(resolveElement: () => HTMLElement | null,
 
   restore()
   requestAnimationFrame(restore)
+  requestAnimationFrame(() => requestAnimationFrame(restore))
 }
 
 export function collapseInlineEditSelection(element: HTMLElement, offset: number): void {

@@ -1,11 +1,13 @@
 import type { EditorState } from 'prosemirror-state'
 import {
   blockId,
-  headingSectionRanges,
   isHeadingNode,
+} from '../../entities/block/structure/nano-block-node-kind'
+import {
+  headingSectionRanges,
   listSubtreeRanges,
-  type ActiveBlockRange,
-} from '../../blocks/nano-block-structure'
+} from '../../entities/block/structure/nano-block-ranges'
+import type { ActiveBlockRange } from '../../entities/block/structure/nano-block-structure-types'
 
 export interface BlockMoveUnit {
   from: number

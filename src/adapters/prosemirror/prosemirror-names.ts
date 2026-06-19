@@ -4,6 +4,7 @@ export const nanoNodeNames = {
   heading: 'heading',
   quote: 'quote',
   callout: 'callout',
+  customBlock: 'custom_block',
   todo: 'todo',
   listItem: 'list_item',
   footnote: 'footnote',
@@ -16,6 +17,7 @@ export const nanoNodeNames = {
   divider: 'divider',
   image: 'image',
   table: 'table',
+  mention: 'mention',
   text: 'text',
 } as const
 

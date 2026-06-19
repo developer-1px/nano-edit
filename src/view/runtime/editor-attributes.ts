@@ -1,4 +1,4 @@
-import type { NanoViewOptions } from './context'
+import type { NanoViewOptions } from './types'
 
 const DEFAULT_NANO_EDITOR_ARIA_LABEL = 'Document'
 

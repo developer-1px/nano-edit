@@ -1,5 +1,4 @@
 import type { NodeSpec } from 'prosemirror-model'
-import { mathStyle } from './prosemirror-atom-dom'
 import {
   codeFenceCloseToken,
   codeFenceIndent,
@@ -7,8 +6,10 @@ import {
   codeFenceLength,
   codeFenceMarker,
   codeFenceOpenToken,
-} from './prosemirror-block-attrs'
+  mathStyle,
+} from './prosemirror-code-divider-attrs'
 import { nanoNodeNames } from './prosemirror-names'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 
 export const nanoCodeNodeSpecs: Record<string, NodeSpec> = {
@@ -29,7 +30,9 @@ export const nanoCodeNodeSpecs: Record<string, NodeSpec> = {
       tag: 'pre.nano-code',
       preserveWhitespace: 'full',
       getAttrs: (dom) => {
-        const element = dom as HTMLElement
+        const element = prosemirrorParseDomElement(dom)
+        if (!element) return false
+
         return {
           fenceIndent: codeFenceIndent(element.dataset.fenceIndent),
           fenceInfoSpacing: codeFenceInfoSpacing(element.dataset.fenceInfoSpacing),
@@ -78,7 +81,10 @@ export const nanoCodeNodeSpecs: Record<string, NodeSpec> = {
     parseDOM: [{
       tag: 'pre.nano-math-block',
       preserveWhitespace: 'full',
-      getAttrs: (dom) => ({ mathStyle: mathStyle((dom as HTMLElement).dataset.mathStyle) }),
+      getAttrs: (dom) => {
+        const element = prosemirrorParseDomElement(dom)
+        return element ? { mathStyle: mathStyle(element.dataset.mathStyle) } : false
+      },
     }],
     toDOM: (node) => [
       'pre',

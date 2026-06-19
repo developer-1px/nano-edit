@@ -1,4 +1,4 @@
-import type { NanoBlock, NanoDocument } from '../../core/nano-core'
+import type { NanoBlock, NanoDocument } from '../../entities/document/nano-document-model'
 import { nanoDocumentFromMarkdown } from './nano-markdown-parse'
 import { nanoMarkdownFromDocument } from './nano-markdown-serialize'
 import {
@@ -7,7 +7,7 @@ import {
   type NanoDeckMetadata,
   type NanoSlide,
   type NanoSlideRegion,
-} from '../../entities/deck/nano-deck'
+} from '../../entities/deck/nano-deck-model'
 
 type ParsedMetadata = Record<string, string | number | boolean>
 
@@ -193,6 +193,7 @@ function markdownFromDeckMetadata(deck: NanoDeck): string | null {
 
 function metadataValueMarkdown(value: string | number | boolean): string {
   if (typeof value !== 'string') return String(value)
+  if (value === 'true' || value === 'false' || /^-?\d+(\.\d+)?$/.test(value)) return JSON.stringify(value)
   if (/^[A-Za-z0-9_.-]+$/.test(value)) return value
   return JSON.stringify(value)
 }
@@ -221,7 +222,7 @@ function parseSimpleMetadata(lines: readonly string[]): ParsedMetadata | null {
 
     const match = /^([A-Za-z][\w.-]*):\s*(.*)$/.exec(trimmed)
     if (!match) return null
-    metadata[match[1]!] = parseMetadataValue(match[2]!)
+    metadata[match[1] ?? ''] = parseMetadataValue(match[2] ?? '')
   }
 
   return metadata
@@ -232,7 +233,17 @@ function parseMetadataValue(source: string): string | number | boolean {
   if (trimmed === 'true') return true
   if (trimmed === 'false') return false
   if (/^-?\d+(\.\d+)?$/.test(trimmed)) return Number(trimmed)
-  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+  if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    const unquoted = trimmed.slice(1, -1)
+    try {
+      const value = JSON.parse(trimmed)
+      if (typeof value === 'string') return value
+    } catch {
+      return unquoted
+    }
+    return unquoted
+  }
+  if (trimmed.startsWith("'") && trimmed.endsWith("'")) {
     return trimmed.slice(1, -1)
   }
   return trimmed

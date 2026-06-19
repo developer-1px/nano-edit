@@ -46,7 +46,7 @@ Update the demo persistence version so existing local demo state does not hide t
 24. As an Integrator Reader, I want the demo to include enough supported block types to exercise the editor, so that the package surface can be evaluated.
 25. As an Integrator Reader, I want the demo to include enough inline mark types to exercise source reveal, so that quiet editing behavior is visible.
 26. As an Integrator Reader, I want the demo to show the difference between viewer feel and editability, so that I understand the product's central trade-off.
-27. As an Integrator Reader, I want the demo to explain what is out of scope, so that I do not expect a full Markdown source editor or Notion-style block app.
+27. As an Integrator Reader, I want the demo to explain what is out of scope, so that I do not expect a full Markdown source editor or product-owned block workspace.
 28. As an Integrator Reader, I want the document to be written in a generated-document tone, so that it matches the AI-produced content use case.
 29. As a host product developer, I want the demo to avoid global style assumptions, so that I can trust the editor package can be embedded.
 30. As a host product developer, I want the demo to show quiet inline edits without requiring a toolbar, so that I can judge whether it fits a review workflow.

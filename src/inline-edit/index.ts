@@ -1,16 +1,21 @@
 export {
   createContenteditableScalarEdit,
+  type ContenteditableScalarBlurPolicy,
   type ContenteditableScalarCancel,
   type ContenteditableScalarCancelReason,
   type ContenteditableScalarCommit,
   type ContenteditableScalarCommitReason,
+  type ContenteditableScalarDecoration,
+  type ContenteditableScalarDecorationDataValue,
   type ContenteditableScalarEditHandle,
   type ContenteditableScalarEditOptions,
+  type ContenteditableScalarHistoryPolicy,
   type ContenteditableScalarEditSnapshot,
   type ContenteditableScalarHistoryDirection,
   type ContenteditableScalarHistoryIntent,
   type ContenteditableScalarLineBreakPolicy,
   type ContenteditableScalarSelection,
+  type ContenteditableScalarSetTextOptions,
 } from './scalar-edit'
 
 export {

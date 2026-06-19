@@ -9,6 +9,13 @@ export async function resolve(specifier, context, nextResolve) {
     ) {
       return nextResolve(`${specifier}.ts`, context)
     }
+    if (
+      error?.code === 'ERR_MODULE_NOT_FOUND'
+      && (specifier.startsWith('./') || specifier.startsWith('../'))
+      && specifier.endsWith('.js')
+    ) {
+      return nextResolve(`${specifier.slice(0, -3)}.ts`, context)
+    }
 
     throw error
   }

@@ -8,7 +8,7 @@ import {
   headingSuffixDomSpec,
   setextLength,
   setextMarker,
-} from './prosemirror-block-attrs'
+} from './prosemirror-heading-attrs'
 import { foldIndicatorDomSpec } from '../../view/block-ui/fold-indicator'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
 

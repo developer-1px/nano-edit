@@ -1,18 +1,21 @@
 import type { NodeSpec } from 'prosemirror-model'
 import {
+  continuationIndentDataAttrs,
+  decodeContinuationIndents,
+} from './prosemirror-continuation-indent-attrs'
+import {
   blockIndentAttrs,
   bulletMarker,
   clampIndent,
-  continuationIndentDataAttrs,
-  decodeContinuationIndents,
   indentText,
   indentTextAttrs,
   orderedMarker,
   orderedStart,
   orderedStartText,
   orderedStartTextAttrs,
-} from './prosemirror-block-attrs'
+} from './prosemirror-list-attrs'
 import { foldIndicatorDomSpec } from '../../view/block-ui/fold-indicator'
+import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { sourceTokenAttrs } from './prosemirror-source-token'
 
 export const listItemNodeSpec: NodeSpec = {
@@ -32,7 +35,9 @@ export const listItemNodeSpec: NodeSpec = {
   parseDOM: [{
     tag: 'div.nano-list-item',
     getAttrs: (dom) => {
-      const element = dom as HTMLElement
+      const element = prosemirrorParseDomElement(dom)
+      if (!element) return false
+
       return {
         kind: element.classList.contains('nano-list-ordered') ? 'ordered' : 'bullet',
         continuationIndents: decodeContinuationIndents(element.dataset.continuationIndents),

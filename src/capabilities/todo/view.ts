@@ -1,5 +1,13 @@
 import type { Node as ProseMirrorNode, NodeType } from 'prosemirror-model'
 import type { BlockTemplate } from '../../assembly/capability'
+import {
+  clampIndent as markdownIndentLevelForTemplate,
+  indentText,
+} from '../block-indent-values'
+import {
+  bulletMarker as markdownBulletMarker,
+  checkedMarker as markdownCheckedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
 
 type TodoTemplate = Extract<BlockTemplate, { type: 'todo' }>
 
@@ -60,21 +68,4 @@ function markdownMarkedLine(marker: string, text: string): string {
 
 function markdownIndent(indent: unknown, rawIndent?: unknown): string {
   return indentText(rawIndent) ?? '  '.repeat(markdownIndentLevelForTemplate(indent))
-}
-
-function indentText(indent: unknown): string | null {
-  return typeof indent === 'string' && /^[\t ]+$/.test(indent) ? indent : null
-}
-
-function markdownIndentLevelForTemplate(indent: unknown): number {
-  const value = typeof indent === 'number' && Number.isFinite(indent) ? Math.trunc(indent) : 0
-  return Math.max(0, Math.min(6, value))
-}
-
-function markdownBulletMarker(marker: unknown): '-' | '*' | '+' {
-  return marker === '*' || marker === '+' ? marker : '-'
-}
-
-function markdownCheckedMarker(marker: unknown): 'x' | 'X' {
-  return marker === 'X' ? 'X' : 'x'
 }

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   clickTarget,
-  demoStorageKey,
+  demoDocumentStorageKey,
   evaluate,
   pressKey,
   scrollTargetIntoView,
@@ -16,7 +16,7 @@ import {
   pasteText,
 } from './browser-local-edit-actions.mjs'
 
-const storageKey = demoStorageKey()
+const documentStorageKey = demoDocumentStorageKey()
 const localEditText = ' Local Edit Loop 확인'
 const tableEditText = ' / local edit'
 const compositionEditText = ' 조합 입력'
@@ -40,11 +40,18 @@ async function runLocalEditLoop(browser, url) {
   await browser.send('Page.navigate', { url })
   await waitForExpression(browser, 'document.readyState !== "loading"')
   await evaluate(browser, `(() => {
-    localStorage.removeItem(${JSON.stringify(storageKey)});
+    localStorage.removeItem(${JSON.stringify(documentStorageKey)});
     return true
   })()`)
   await browser.send('Page.reload', { ignoreCache: true })
   await waitForExpression(browser, 'Boolean(document.querySelector(".nano-block[data-id]"))')
+  await waitForExpression(browser, `(() => {
+    const todoReady = [...document.querySelectorAll('.nano-todo[data-id]')]
+      .some((block) => block.textContent?.includes('schema와 codec도 descriptor에서 조립한다'))
+    const tableReady = [...document.querySelectorAll('.nano-table[data-id]')]
+      .some((block) => block.textContent?.includes('LLM이 판단하는 제한된 option 목록'))
+    return todoReady && tableReady
+  })()`)
 
   const targets = await resolveLocalEditTargets(browser)
   assertResolvedTargets(targets)
@@ -116,7 +123,7 @@ async function resolveLocalEditTargets(browser) {
   return evaluate(browser, `(() => {
     const title = document.querySelector('.nano-heading-1[data-id] .nano-block-content')
     const textBlock = blockContaining('.nano-paragraph[data-id]', 'LLM이 생성한 Markdown')
-    const todoBlock = blockContaining('.nano-todo[data-id]', 'schema와 codec도 kit에서 조립한다')
+    const todoBlock = blockContaining('.nano-todo[data-id]', 'schema와 codec도 descriptor에서 조립한다')
     const tableBlock = blockContaining('.nano-table[data-id]', 'LLM이 판단하는 제한된 option 목록')
     const tableCell = [...tableBlock.querySelectorAll('th[data-row][data-column], td[data-row][data-column]')]
       .find((cell) => cell.textContent?.includes('LLM이 판단하는 제한된 option 목록'))
@@ -190,15 +197,15 @@ function assertResolvedTargets(targets) {
 }
 
 function storedTextIncludesExpression(blockId, text) {
-  return `${storedPersistenceValueExpression(storageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.text?.includes(${JSON.stringify(text)}) === true`
+  return `${storedPersistenceValueExpression(documentStorageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.text?.includes(${JSON.stringify(text)}) === true`
 }
 
 function storedTodoCheckedExpression(blockId, checked) {
-  return `${storedPersistenceValueExpression(storageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.checked === ${checked}`
+  return `${storedPersistenceValueExpression(documentStorageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(blockId)})?.checked === ${checked}`
 }
 
 function storedTableCellIncludesExpression(targets, text) {
-  return `${storedPersistenceValueExpression(storageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(targets.tableBlockId)})?.rows?.[${Number(targets.tableRow)}]?.[${Number(targets.tableColumn)}]?.includes(${JSON.stringify(text)}) === true`
+  return `${storedPersistenceValueExpression(documentStorageKey)}?.blocks?.find((block) => block.id === ${JSON.stringify(targets.tableBlockId)})?.rows?.[${Number(targets.tableRow)}]?.[${Number(targets.tableColumn)}]?.includes(${JSON.stringify(text)}) === true`
 }
 
 function domTextIncludesExpression(selector, text) {

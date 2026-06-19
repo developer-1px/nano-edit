@@ -3,7 +3,8 @@ import { EditorState, TextSelection, type Transaction } from 'prosemirror-state'
 import {
   quoteMarkerDepthsOrNull,
   quoteMarkerSpacingOrNull,
-} from '../../core/nano-source-metadata'
+} from '../../entities/source/nano-source-metadata'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
 import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
 
 export function quoteMarkerInputTransaction(
@@ -54,7 +55,7 @@ export function calloutMarkerInputTransaction(
 
   const blockPosition = $from.before()
   const callout = calloutType.create({
-    id: block.attrs.id,
+    id: blockId(block) || null,
     tone: calloutToneFromInput(match[1]),
     calloutMarkerDepths: quoteMarkerDepthsOrNull(block.attrs.quoteMarkerDepths),
     calloutMarkerSpacing: quoteMarkerSpacingOrNull(block.attrs.quoteMarkerSpacing),

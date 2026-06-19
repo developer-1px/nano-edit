@@ -1,9 +1,8 @@
 import type { BlockOption } from '../../assembly/capability'
-import {
-  imageNodeForBlockTemplate,
-  markdownImageTemplate,
-} from '../options/index'
-import { nanoNodeNames, nanoSchema } from '../../adapters/prosemirror/prosemirror-nano'
+import { markdownImageTemplate } from '../options/templates'
+import { imageNodeForBlockTemplate } from '../options/node-media'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
+import { nanoSchema } from '../../adapters/prosemirror/prosemirror-schema'
 
 export const imageBlockOption = {
   id: 'image',

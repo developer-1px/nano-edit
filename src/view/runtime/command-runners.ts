@@ -1,11 +1,9 @@
-import type { BlockTemplate } from '../../blocks/nano-block-options'
-import type { IndentDirection, MoveDirection } from '../shell/shell'
-import {
-  markCommand,
-  type MarkOption,
-} from '../../marks/nano-mark-options'
+import type { BlockTemplate } from '../../assembly/capability'
+import type { IndentDirection, MoveDirection } from '../../commands/types'
+import { markCommand } from '../../marks/commands'
+import type { MarkOption } from '../../marks/types'
 import type { NanoViewContext } from './context'
-import { changeBlockByIdTransaction } from '../block-edit/index'
+import { changeBlockByIdTransaction } from '../block-edit/change'
 import type { NanoEngineRuntime } from '../engine/runtime'
 import type { NanoInspectorRuntime } from '../inspector/runtime'
 import type { NanoKeymapRuntime } from '../keyboard/runtime'

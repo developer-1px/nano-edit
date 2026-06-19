@@ -20,7 +20,7 @@ export function markdownCodeSpanAt(source: string, from: number): { backtickLeng
   return null
 }
 
-function backtickRunLength(source: string, from: number): number {
+export function backtickRunLength(source: string, from: number): number {
   let index = from
   while (source[index] === '`') index += 1
   return index - from

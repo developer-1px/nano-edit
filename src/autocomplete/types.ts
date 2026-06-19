@@ -6,6 +6,10 @@ export interface AutocompleteOption {
   title: string
 }
 
+/**
+ * Compatibility alias for consumers that adopted surface-oriented naming.
+ * New code can use AutocompleteOption directly.
+ */
 export type AutocompleteSurfaceOption = AutocompleteOption
 
 export interface AutocompleteOptions<
@@ -63,6 +67,7 @@ export interface AutocompleteSurfaceOptions<
   ariaLabel?: string
   classes?: Partial<AutocompleteSurfaceClasses>
   emptyText?: string
+  inputType?: 'search' | 'text'
   placeholder?: string | ((context: TContext) => string)
   position?: (root: HTMLElement, context: TContext) => void
   run: (option: TOption, context: TContext) => void

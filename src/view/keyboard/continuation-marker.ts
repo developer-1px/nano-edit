@@ -2,22 +2,26 @@ import type { Node as ProseMirrorNode, ResolvedPos } from 'prosemirror-model'
 import { Fragment } from 'prosemirror-model'
 import { TextSelection, type EditorState, type Transaction } from 'prosemirror-state'
 import type { BlockKeyboardContext } from '../../assembly/capability'
-import { nextBlockId } from '../../blocks/nano-block-options'
+import { nextBlockId } from '../../capabilities/block-behavior-id'
 import {
   bulletMarker,
+  checkedMarker,
+  orderedMarker,
+} from '../../codecs/markdown/nano-markdown-marker-attrs'
+import {
   clampIndent,
-  footnoteContinuationIndent,
   indentText,
   listContinuationDefaultIndent,
   listContinuationIndent,
-  orderedMarker,
   orderedStartText,
-} from '../../codecs/markdown/nano-markdown-block-attrs'
+} from '../../codecs/markdown/nano-markdown-list-attrs'
+import { footnoteContinuationIndent } from '../../codecs/markdown/nano-markdown-footnote-attrs'
 import {
   attrsWithSlicedSourceLineAttrs,
   quoteMarkerDepthsOrNull,
-} from '../../core/nano-source-metadata'
-import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-nano'
+} from '../../entities/source/nano-source-metadata'
+import { blockId } from '../../entities/block/structure/nano-block-node-kind'
+import { nanoNodeNames } from '../../adapters/prosemirror/prosemirror-names'
 
 export function continuationMarkerInputTransaction(
   state: EditorState,
@@ -120,7 +124,7 @@ function splitContinuationLineToParagraph(context: BlockKeyboardContext, lineInd
     beforeContent,
   )
   const paragraph = paragraphType.create(
-    { id: nextBlockId(context.state.doc, `${String(context.block.attrs.id ?? 'block')}-line-${lineIndex + 1}`) },
+    { id: nextBlockId(context.state.doc, `${blockId(context.block) || 'block'}-line-${lineIndex + 1}`) },
     afterContent,
   )
   const replacement = before.textContent.length > 0
@@ -211,10 +215,6 @@ function defaultListContinuationIndent(block: ProseMirrorNode): string {
     ? `${orderedStartText(block.attrs.orderedStartText) ?? String(block.attrs.start ?? 1)}${orderedMarker(block.attrs.orderedMarker)}`
     : bulletMarker(block.attrs.marker)
   return listContinuationDefaultIndent(`${indent}${marker}`)
-}
-
-function checkedMarker(marker: unknown): 'x' | 'X' {
-  return marker === 'X' ? 'X' : 'x'
 }
 
 function removeOneHiddenSpace(indent: string, minLength = 1): string | null {

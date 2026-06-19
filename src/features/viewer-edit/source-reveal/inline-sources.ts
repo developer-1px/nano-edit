@@ -10,16 +10,16 @@ import {
   linkSyntax,
   markdownLinkClose,
 } from '../../../adapters/prosemirror/prosemirror-link-dom'
-import { nanoMarkNames } from '../../../adapters/prosemirror/prosemirror-nano'
+import { nanoMarkNames } from '../../../adapters/prosemirror/prosemirror-names'
 import { noteLinkTitle } from '../../../adapters/prosemirror/prosemirror-note-tag-dom'
 
-export interface InlineMarkRange {
+interface InlineMarkRange {
   mark: Mark
   from: number
   to: number
 }
 
-export type InlineMarkSource =
+type InlineMarkSource =
   | { kind: 'boundary'; open: string; close: string; priority: number }
   | { kind: 'replacement'; source: string; priority: number }
 
@@ -115,5 +115,9 @@ function markPriority(mark: Mark): number {
 }
 
 function markIdentity(mark: Mark): string {
-  return `${mark.type.name}:${JSON.stringify(mark.attrs)}`
+  return `${mark.type.name}:${markAttrsIdentity(mark.attrs)}`
+}
+
+function markAttrsIdentity(attrs: Record<string, unknown>): string {
+  return JSON.stringify(Object.keys(attrs).sort().map((key) => [key, attrs[key]]))
 }

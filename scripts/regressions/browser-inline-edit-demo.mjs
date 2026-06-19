@@ -22,8 +22,8 @@ await withBrowserRegression('nano-edit-inline-edit-demo-chrome-', async ({ brows
 
   await browser.send('Page.navigate', { url })
   await waitForExpression(browser, 'document.readyState !== "loading"')
-  await waitForExpression(browser, 'Boolean(document.querySelector(".demo-document-button[data-document-id=\\"inline-edit\\"]"))')
-  await clickTarget(browser, '.demo-document-button[data-document-id="inline-edit"]')
+  await waitForExpression(browser, 'Boolean(document.querySelector(".demo-artifact-button[data-artifact-id=\\"inline-edit\\"]"))')
+  await clickTarget(browser, '.demo-artifact-button[data-artifact-id="inline-edit"]')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
 
   assert.equal(await textContent(browser, editorSelector), 'Draft release note with @Mina and /summary')
