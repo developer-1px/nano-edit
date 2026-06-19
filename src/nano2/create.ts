@@ -34,6 +34,7 @@ import { splitTextblockTransaction } from '../view/keyboard/enter'
 import { TEXT_MERGE_MS } from '../view/runtime/context'
 import { nano2CleverReplacementPlugin } from './clever-replacements'
 import { nano2DrawingNodeViews } from './drawing'
+import { nano2IFrameNodeViews } from './iframe'
 import { nano2ImagePlugin } from './images'
 import { nano2LintPlugin } from './linting'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
@@ -131,9 +132,9 @@ class Nano2View {
   }
 
   private createNodeViews(): Record<string, NodeViewConstructor> {
-    return this.profile === 'drawing'
-      ? nano2DrawingNodeViews()
-      : {}
+    if (this.profile === 'drawing') return nano2DrawingNodeViews()
+    if (this.profile === 'iframe') return nano2IFrameNodeViews()
+    return {}
   }
 
   private createMinimalPlugins(): Plugin[] {

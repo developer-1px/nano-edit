@@ -640,6 +640,62 @@
   touch-action: none;
 }
 
+.nano.nano2 .nano2-iframe-block {
+  width: min(100%, 620px);
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.nano.nano2 .nano2-iframe-toolbar {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nano.nano2 .nano2-iframe-meta {
+  min-width: 0;
+  margin-right: auto;
+  overflow: hidden;
+  color: #747981;
+  font: 650 12px/1.2 var(--nano-mono, ui-monospace, monospace);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nano.nano2 .nano2-iframe-button {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #5e6269;
+  text-decoration: none;
+}
+
+.nano.nano2 .nano2-iframe-button:hover,
+.nano.nano2 .nano2-iframe-button:focus-visible {
+  background: #f6f2ef;
+  color: #2f3135;
+}
+
+.nano.nano2 .nano2-iframe-button-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.nano.nano2 .nano2-iframe-frame {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border: 1px solid #e3e4e8;
+  background: #f7f8fa;
+}
+
 .nano.nano2 .nano2-lint-problem {
   border-bottom: 2px solid #d95b56;
   cursor: pointer;

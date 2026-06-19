@@ -34,6 +34,12 @@ import {
   nano2DrawingBlockWithStroke,
 } from '../../src/nano2/drawing.ts'
 import {
+  nano2IFrameBlockType,
+  nano2IFrameBlockWithAttrs,
+  nano2IFrameSampleUpdate,
+  Nano2IFrameBlockSchema,
+} from '../../src/nano2/iframe.ts'
+import {
   nano2LintDiagnostics,
   nano2LintFixChange,
 } from '../../src/nano2/linting.ts'
@@ -45,6 +51,7 @@ import {
   nano2TiptapDefaultEditorDocument,
   nano2TiptapDrawingDocument,
   nano2TiptapForcedContentStructureDocument,
+  nano2TiptapIFrameDocument,
   nano2TiptapLintingDocument,
   nano2TiptapLongTextsDocument,
   nano2TiptapSyntaxHighlightingDocument,
@@ -1193,6 +1200,40 @@ test('Nano2 T3 Drawing: custom block strokes stay NanoDocument JSON data', () =>
   assert(change)
   assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1'])
   assert.equal('canvas' in nextDrawingBlock.data, false)
+
+  const engine = createNanoDocument(initial)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
+})
+
+test('Nano2 T3 iFrame: embed attrs stay NanoDocument custom block data', () => {
+  const initial = nano2TiptapIFrameDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const iframeBlock = initial.blocks.find((block) => block.id === 'nano2-iframe-embed')
+  assert(iframeBlock)
+  assert.equal(iframeBlock.type, nano2IFrameBlockType)
+  assert.deepEqual(Nano2IFrameBlockSchema.parse(iframeBlock), iframeBlock)
+
+  const nextIFrameBlock = nano2IFrameBlockWithAttrs(iframeBlock, nano2IFrameSampleUpdate)
+  assert.equal(nextIFrameBlock.data.src, nano2IFrameSampleUpdate.src)
+  assert.equal(nextIFrameBlock.data.title, nano2IFrameSampleUpdate.title)
+  assert.equal(nextIFrameBlock.text, nano2IFrameSampleUpdate.title)
+
+  const next = {
+    ...initial,
+    blocks: initial.blocks.map((block) => block.id === nextIFrameBlock.id ? nextIFrameBlock : block),
+  }
+  assert.deepEqual(NanoDocumentSchema.parse(next), next)
+
+  const change = nanoDocumentChangeFromDocuments(initial, next, {
+    label: 'nano2-iframe-attrs',
+    origin: 'nano2-tiptap-iframe',
+  })
+  assert(change)
+  assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1'])
+  assert.equal('contentWindow' in nextIFrameBlock.data, false)
+  assert.equal('dom' in nextIFrameBlock.data, false)
 
   const engine = createNanoDocument(initial)
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)

@@ -635,6 +635,37 @@ export const nano2TiptapDrawingDocument: NanoDocument = NanoDocumentSchema.parse
   ],
 })
 
+export const nano2TiptapIFrameDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-iframe-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap iFrame',
+      marks: [],
+    },
+    {
+      id: 'nano2-iframe-embed',
+      type: 'nano2.iframe',
+      text: 'Nano2 iframe embed',
+      data: {
+        allow: 'fullscreen',
+        height: 315,
+        sandbox: 'allow-same-origin allow-scripts allow-presentation',
+        src: 'https://example.com/nano2-iframe',
+        title: 'Nano2 iframe',
+        width: 560,
+      },
+    },
+    {
+      id: 'nano2-iframe-note',
+      type: 'paragraph',
+      text: 'Embed attrs are custom block JSON.',
+      marks: [],
+    },
+  ],
+})
+
 export const nano2TiptapLintingDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

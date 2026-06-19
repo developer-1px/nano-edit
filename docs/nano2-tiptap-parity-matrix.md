@@ -22,12 +22,19 @@ Sources:
 - <https://tiptap.dev/docs/examples/advanced/collaborative-editing>
 - <https://tiptap.dev/docs/examples/advanced/drawing>
 - <https://tiptap.dev/docs/examples/advanced/forced-content-structure>
+- <https://tiptap.dev/docs/examples/advanced/interactive-react-and-vue-views>
+- <https://tiptap.dev/docs/examples/advanced/react-performance>
 - <https://tiptap.dev/docs/examples/advanced/menus>
 - <https://tiptap.dev/docs/editor/extensions/functionality/bubble-menu>
 - <https://tiptap.dev/docs/editor/extensions/functionality/floatingmenu>
 - <https://tiptap.dev/docs/examples/advanced/mentions>
 - <https://tiptap.dev/docs/editor/extensions/nodes/mention>
 - <https://tiptap.dev/docs/examples/advanced/syntax-highlighting>
+- <https://tiptap.dev/docs/examples/experiments/ai-agent>
+- <https://tiptap.dev/docs/examples/experiments/collaborative-fields>
+- <https://tiptap.dev/docs/examples/experiments/figure>
+- <https://tiptap.dev/docs/examples/experiments/generic-figure>
+- <https://tiptap.dev/docs/examples/experiments/iframe>
 - <https://tiptap.dev/docs/examples/experiments/linting>
 - <https://tiptap.dev/docs/examples/experiments/slash-commands>
 - <https://tiptap.dev/docs/examples>
@@ -118,6 +125,10 @@ persisted schema-valid body edits.
 existing image rendering, Markdown image paste, HTML img paste, and persisted
 NanoDocument image attrs.
 
+`/nano2/tiptap-iframe` is the runnable T3 iFrame surface. It currently proves
+a `nano2.iframe` custom block with schema-validated embed attrs, iframe node-view
+projection, attr editing, and persistence without storing iframe DOM state.
+
 `/nano2/tiptap-linting` is the runnable T3 Linting surface. It currently proves
 headless NanoDocument diagnostics, view-only lint decorations, click-to-fix
 transactions, and persistence without stored diagnostic state.
@@ -179,10 +190,12 @@ marks.
 | T3 | Collaborative editing | Ready: NanoDocumentChange transport converges multiple independent Nano2 engines, including a late-joining peer. |
 | T3 | Drawing | Ready: custom node view projects canvas strokes while NanoDocument stores only `nano2.drawing` JSON data. |
 | T3 | Interactive React & Vue views | Framework node views become replaceable view projections over Nano paths. |
+| T3 | React performance | Editor state subscriptions and host renders are isolated so NanoDocument transactions do not remount the view tree. |
+| T3 | AI agent | Agent tools read and propose NanoDocument changes; accepted changes commit through json-document history. |
 | T3 | Syntax highlighting | Ready: lowlight token ranges render as view decorations while code text and language remain the only NanoDocument data. |
 | T3 | Collaborative fields | Multiple logical fields share one collaboration transport without sharing DOM identity. |
 | T3 | Figure / Generic figure | Media node attrs and captions become structured Nano blocks. |
-| T3 | iFrame | Embed attrs are schema-validated Nano custom block data. |
+| T3 | iFrame | Ready: embed attrs are schema-validated `nano2.iframe` custom block data projected as replaceable DOM. |
 | T3 | Linting | Ready: diagnostics are pure NanoDocument projections and accepted fixes become NanoDocumentChange text replacements. |
 | T3 | Slash commands | Ready: suggestion surface runs Nano commands from trigger position, removes trigger text, and persists block changes. |
 
