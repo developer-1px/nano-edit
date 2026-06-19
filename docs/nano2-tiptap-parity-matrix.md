@@ -7,6 +7,7 @@ ProseMirror the canonical document engine.
 Sources:
 
 - <https://tiptap.dev/docs/editor/extensions/functionality/starterkit>
+- <https://tiptap.dev/docs/examples/basics/default-text-editor>
 - <https://tiptap.dev/docs/examples/basics/formatting>
 - <https://tiptap.dev/docs/editor/extensions/nodes/image>
 - <https://tiptap.dev/docs/examples/basics/images>
@@ -68,6 +69,11 @@ Tiptap StarterKit currently bundles these common extensions:
 keyboard and persistence slice for underline, strike, inline code, hard break,
 bullet list, ordered list, blockquote, and code block.
 
+`/nano2/tiptap-default-editor` is the runnable T1 Default text editor surface. It
+currently proves a bare default Nano2 profile with common mark/block commands,
+DOM text input, and persisted NanoDocument state without requiring product
+chrome.
+
 `/nano2/tiptap-formatting` is the runnable T1 Formatting surface. It currently
 proves bold, italic, underline, strike, inline code, paragraph, and heading
 command intent as NanoDocument mark ranges and heading blocks.
@@ -96,7 +102,7 @@ toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
 
 | Phase | Tiptap example | Nano2 acceptance contract |
 | --- | --- | --- |
-| T1 | Default text editor | Mount default content, edit, run common commands, persist/reload NanoDocument. |
+| T1 | Default text editor | Ready: mount default content, edit, run common mark/block commands, persist/reload NanoDocument. |
 | T1 | Formatting | Ready: toggle StarterKit-style marks and heading commands, then persist Nano mark ranges and block attrs. |
 | T1 | Images | Ready: render image blocks, paste Markdown/HTML image input, export Markdown, and persist image attrs. |
 | T1 | Markdown shortcuts | Ready: type Markdown prefixes/delimiters and commit schema-valid NanoDocument changes. |

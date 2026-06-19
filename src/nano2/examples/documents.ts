@@ -107,6 +107,42 @@ export const nano2TiptapStarterKitDocument: NanoDocument = NanoDocumentSchema.pa
   ],
 })
 
+export const nano2TiptapDefaultEditorDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-default-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Default Editor',
+      marks: [],
+    },
+    {
+      id: 'nano2-default-inline-target',
+      type: 'paragraph',
+      text: 'Inline default target',
+      marks: [],
+    },
+    {
+      id: 'nano2-default-heading-target',
+      type: 'paragraph',
+      text: 'Heading default target',
+      marks: [],
+    },
+    {
+      id: 'nano2-default-list-target',
+      type: 'paragraph',
+      text: 'List default target',
+      marks: [],
+    },
+    {
+      id: 'nano2-default-quote-target',
+      type: 'paragraph',
+      text: 'Quote default target',
+      marks: [],
+    },
+  ],
+})
+
 export const nano2TiptapFormattingDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

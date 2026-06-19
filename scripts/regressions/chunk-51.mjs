@@ -17,7 +17,9 @@ import { nanoSchema } from '../../src/adapters/prosemirror/prosemirror-schema.ts
 import { commitNanoDocumentChange } from '../../src/entities/document/nano-document-change.ts'
 import { createNanoDocument } from '../../src/entities/document/nano-document.ts'
 import { NanoDocumentSchema } from '../../src/entities/document/nano-document-model.ts'
+import { blockPositionById } from '../../src/entities/block/structure/nano-block-node-kind.ts'
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
+import { nano2TiptapDefaultEditorDocument } from '../../src/nano2/examples/documents.ts'
 import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
 import {
@@ -256,6 +258,27 @@ function setSingleBlock(nodeName, attrs = {}) {
   return nanoDocumentFromProseMirror(transaction.doc)
 }
 
+function applyCommandAtBlock(doc, blockId, command, options = {}) {
+  const position = blockPositionById(doc, blockId)
+  assert.notEqual(position, null)
+
+  const node = doc.nodeAt(position)
+  assert(node)
+  const fromOffset = options.fromOffset ?? node.content.size
+  const toOffset = options.toOffset ?? fromOffset
+  const from = position + 1 + fromOffset
+  const to = position + 1 + toOffset
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, from, to),
+  })
+  let transaction = null
+  assert.equal(command(state, (tr) => { transaction = tr }), true)
+  assert(transaction)
+  return transaction.doc
+}
+
 test('Nano2 T1 Markdown shortcuts: block prefixes lower to Nano block variants', () => {
   assert.deepEqual(typeTextWithNano2Shortcut('# ').blocks[0], {
     id: 'b1',
@@ -401,6 +424,63 @@ test('Nano2 T1 Images: setImage lowers to Nano image block and Markdown export',
   assert.deepEqual(engine.value, next)
   assert.equal(Boolean(engine.history.undo()), true)
   assert.deepEqual(engine.value, initial)
+})
+
+test('Nano2 T1 Default editor: common commands lower to NanoDocument state', () => {
+  const initial = nano2TiptapDefaultEditorDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const engine = createNanoDocument(initial)
+  const markedDoc = applyCommandAtBlock(
+    prosemirrorDocFromNano(engine.value),
+    'nano2-default-inline-target',
+    (state, dispatch) => toggleMark(nanoSchema.marks[nanoMarkNames.bold])(state, dispatch),
+    { fromOffset: 0, toOffset: 6 },
+  )
+  const headingDoc = applyCommandAtBlock(
+    markedDoc,
+    'nano2-default-heading-target',
+    (state, dispatch) => setBlockType(nanoSchema.nodes[nanoNodeNames.heading], {
+      id: 'nano2-default-heading-target',
+      level: 2,
+    })(state, dispatch),
+  )
+  const listDoc = applyCommandAtBlock(
+    headingDoc,
+    'nano2-default-list-target',
+    (state, dispatch) => setBlockType(nanoSchema.nodes[nanoNodeNames.listItem], {
+      id: 'nano2-default-list-target',
+      kind: 'bullet',
+      indent: 0,
+      marker: '-',
+    })(state, dispatch),
+  )
+
+  const next = nanoDocumentFromProseMirror(listDoc)
+  assert(next.blocks.some((block) =>
+    block.id === 'nano2-default-inline-target'
+    && block.type === 'paragraph'
+    && block.marks.some((mark) => mark.type === 'bold' && block.text.slice(mark.from, mark.to) === 'Inline'),
+  ))
+  assert(next.blocks.some((block) =>
+    block.id === 'nano2-default-heading-target'
+    && block.type === 'heading'
+    && block.level === 2,
+  ))
+  assert(next.blocks.some((block) =>
+    block.id === 'nano2-default-list-target'
+    && block.type === 'list_item'
+    && block.kind === 'bullet',
+  ))
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, listDoc, {
+    label: 'nano2-default-editor-commands',
+    origin: 'nano2-tiptap-default-editor',
+  })
+  assert(change)
+  assert(change.operations.some((operation) => operation.path.startsWith('/blocks')))
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
 })
 
 test('Nano2 T1 Minimal setup: zod profile accepts only paragraph text blocks', () => {

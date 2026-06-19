@@ -31,6 +31,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   await waitForExpression(browser, '!document.querySelector(".demo-artifact-button[data-artifact-id=\\"nano2\\"]")')
   assert.equal(await nano2ExampleHref(browser, 'basics'), '/nano2/basics')
   assert.equal(await nano2ExampleHref(browser, 'dinos'), '/nano2/dinos')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-default-editor'), '/nano2/tiptap-default-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-minimal-setup'), '/nano2/tiptap-minimal-setup')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(prosemirrorSelector)}))`)
@@ -171,6 +172,38 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedStarterKit.blocks.some((block) => block.type === 'list_item' && block.kind === 'ordered' && block.text.includes('Ordered target')))
   assert(storedStarterKit.blocks.some((block) => block.type === 'quote' && block.text.includes('Quote target')))
   assert(storedStarterKit.blocks.some((block) => block.type === 'code' && block.text.includes('Code block target')))
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-default-editor"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-default-editor"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Default Editor")')
+  await waitForExpression(browser, `document.querySelector('.nano2')?.dataset.profile === 'default'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-default-inline-target')
+  await pressKey(browser, 'b', 'KeyB', 66, modifier)
+  await browser.send('Input.insertText', { text: ' BOLD' })
+  await pressKey(browser, 'b', 'KeyB', 66, modifier)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 [data-id="nano2-default-inline-target"] strong'))`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-default-heading-target')
+  await pressKey(browser, '2', 'Digit2', 50, 10)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-heading-2[data-id="nano2-default-heading-target"]')?.textContent.includes('Heading default target')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-default-list-target')
+  await pressKey(browser, '8', 'Digit8', 56, modifier | 8)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-list-bullet[data-id="nano2-default-list-target"]')?.textContent.includes('List default target')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-default-quote-target')
+  await pressKey(browser, 'b', 'KeyB', 66, modifier | 8)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-quote[data-id="nano2-default-quote-target"]')?.textContent.includes('Quote default target')`)
+
+  await wait(160)
+  const storedDefaultEditor = await storedNano2Document(browser, 'tiptap-default-editor')
+  const defaultInline = storedDefaultEditor.blocks.find((block) => block.id === 'nano2-default-inline-target')
+  assert(defaultInline)
+  assert(defaultInline.marks.some((mark) => mark.type === 'bold' && defaultInline.text.slice(mark.from, mark.to).trim() === 'BOLD'))
+  assert(storedDefaultEditor.blocks.some((block) => block.id === 'nano2-default-heading-target' && block.type === 'heading' && block.level === 2))
+  assert(storedDefaultEditor.blocks.some((block) => block.id === 'nano2-default-list-target' && block.type === 'list_item' && block.kind === 'bullet'))
+  assert(storedDefaultEditor.blocks.some((block) => block.id === 'nano2-default-quote-target' && block.type === 'quote'))
 
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-formatting"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-formatting"')
