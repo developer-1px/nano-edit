@@ -35,6 +35,18 @@
   gap: 2px;
 }
 
+.nano2-example-section-title {
+  margin: 16px 0 4px;
+  padding: 0 8px;
+  color: #9aa0a8;
+  font: 700 10px/1.2 var(--nano-mono, ui-monospace, monospace);
+  text-transform: uppercase;
+}
+
+.nano2-example-section-title:first-child {
+  margin-top: 0;
+}
+
 .nano2-example-link {
   min-height: 38px;
   display: grid;

@@ -3,6 +3,7 @@ import { basicMarkSpecs } from './prosemirror-basic-mark-specs'
 import { nanoCodeNodeSpecs } from './prosemirror-code-node-specs'
 import { customBlockNodeSpec } from './prosemirror-custom-block'
 import { dividerNodeSpec } from './prosemirror-divider-node-spec'
+import { hardBreakNodeSpec } from './prosemirror-hard-break-node-spec'
 import { linkMarkSpec } from './prosemirror-link-mark-spec'
 import { imageNodeSpec } from './prosemirror-image-node-spec'
 import { referenceMarkSpecs } from './prosemirror-reference-mark-specs'
@@ -53,6 +54,7 @@ const nanoAtomicNodeSpecs: Record<string, NodeSpec> = {
 
 const nanoInlineNodeSpecs: Record<string, NodeSpec> = {
   [nanoNodeNames.mention]: mentionNodeSpec,
+  [nanoNodeNames.hardBreak]: hardBreakNodeSpec,
 }
 
 const nanoMarkSpecs: Record<string, MarkSpec> = {

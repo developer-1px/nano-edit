@@ -130,3 +130,112 @@ test('Nano2 P0 dinos: inserted inline atom lowers to one-character json-document
   assert.equal(next.blocks[0].marks[0].to - next.blocks[0].marks[0].from, 1)
   assert.equal(next.blocks[0].text.codePointAt(next.blocks[0].marks[0].from), 0xfffc)
 })
+
+test('Nano2 T0 StarterKit: hard break round-trips as NanoDocument newline', () => {
+  const initial = {
+    blocks: [{ id: 'b1', type: 'paragraph', text: 'AB', marks: [] }],
+  }
+  const doc = prosemirrorDocFromNano(initial)
+  const hardBreak = nanoSchema.nodes[nanoNodeNames.hardBreak].create()
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 2),
+  })
+  const transaction = state.tr.replaceSelectionWith(hardBreak)
+  const next = nanoDocumentFromProseMirror(transaction.doc)
+
+  assert.deepEqual(next.blocks[0], {
+    id: 'b1',
+    type: 'paragraph',
+    text: 'A\nB',
+    marks: [],
+  })
+  assert.equal(transaction.doc.firstChild.child(1).type.name, nanoNodeNames.hardBreak)
+  assert.deepEqual(prosemirrorDocFromNano(next).firstChild.child(1).type.name, nanoNodeNames.hardBreak)
+  assert.deepEqual(NanoDocumentSchema.parse(next), next)
+})
+
+test('Nano2 T0 StarterKit: common marks lower to Nano mark ranges', () => {
+  const initial = {
+    blocks: [{ id: 'b1', type: 'paragraph', text: 'underline strike code', marks: [] }],
+  }
+  const doc = prosemirrorDocFromNano(initial)
+
+  const next = applyMark(applyMark(applyMark(
+    doc,
+    nanoMarkNames.underline,
+    1,
+    10,
+  ), nanoMarkNames.strike, 11, 17), nanoMarkNames.code, 18, 22)
+
+  assert.deepEqual(nanoDocumentFromProseMirror(next).blocks[0], {
+    id: 'b1',
+    type: 'paragraph',
+    text: 'underline strike code',
+    marks: [
+      { type: 'underline', from: 0, to: 9 },
+      { type: 'strike', from: 10, to: 16 },
+      { type: 'code', from: 17, to: 21 },
+    ],
+  })
+})
+
+test('Nano2 T0 StarterKit: block commands lower to Nano block variants', () => {
+  assert.deepEqual(setSingleBlock(nanoNodeNames.listItem, { kind: 'bullet', indent: 0, marker: '-' }).blocks[0], {
+    id: 'b1',
+    type: 'list_item',
+    kind: 'bullet',
+    indent: 0,
+    text: 'Target',
+    marks: [],
+  })
+  assert.deepEqual(setSingleBlock(nanoNodeNames.listItem, { kind: 'ordered', indent: 0, orderedMarker: '.', start: 1 }).blocks[0], {
+    id: 'b1',
+    type: 'list_item',
+    kind: 'ordered',
+    indent: 0,
+    start: 1,
+    text: 'Target',
+    marks: [],
+  })
+  assert.deepEqual(setSingleBlock(nanoNodeNames.quote).blocks[0], {
+    id: 'b1',
+    type: 'quote',
+    text: 'Target',
+    marks: [],
+  })
+  assert.deepEqual(setSingleBlock(nanoNodeNames.codeBlock).blocks[0], {
+    id: 'b1',
+    type: 'code',
+    text: 'Target',
+  })
+})
+
+function applyMark(doc, markName, from, to) {
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, from, to),
+  })
+  let transaction = null
+  assert.equal(toggleMark(nanoSchema.marks[markName])(state, (tr) => { transaction = tr }), true)
+  assert(transaction)
+  return transaction.doc
+}
+
+function setSingleBlock(nodeName, attrs = {}) {
+  const initial = {
+    blocks: [{ id: 'b1', type: 'paragraph', text: 'Target', marks: [] }],
+  }
+  const doc = prosemirrorDocFromNano(initial)
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 1),
+  })
+  let transaction = null
+  assert.equal(setBlockType(nanoSchema.nodes[nodeName], attrs)(state, (tr) => { transaction = tr }), true)
+  assert(transaction)
+  return nanoDocumentFromProseMirror(transaction.doc)
+}

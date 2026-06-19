@@ -101,13 +101,22 @@ class Nano2View {
           Enter: this.enterCommand(),
           End: this.textblockEndCommand(),
           'Mod-ArrowRight': this.textblockEndCommand(),
+          'Shift-Enter': this.hardBreakCommand(),
+          'Mod-Enter': this.hardBreakCommand(),
           'Shift-End': this.textblockEndCommand({ extend: true }),
           'Shift-Mod-ArrowRight': this.textblockEndCommand({ extend: true }),
           'Mod-b': this.toggleMarkCommand(nanoMarkNames.bold),
           'Mod-i': this.toggleMarkCommand(nanoMarkNames.italic),
+          'Mod-u': this.toggleMarkCommand(nanoMarkNames.underline),
+          'Mod-Shift-s': this.toggleMarkCommand(nanoMarkNames.strike),
+          'Mod-e': this.toggleMarkCommand(nanoMarkNames.code),
           'Ctrl-Shift-0': this.setBlockTypeCommand(nanoNodeNames.paragraph),
           'Ctrl-Shift-1': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 1 }),
           'Ctrl-Shift-2': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 2 }),
+          'Mod-Shift-8': this.toggleBlockTypeCommand(nanoNodeNames.listItem, { kind: 'bullet', indent: 0, marker: '-' }),
+          'Mod-Shift-7': this.toggleBlockTypeCommand(nanoNodeNames.listItem, { kind: 'ordered', indent: 0, orderedMarker: '.', start: 1 }),
+          'Mod-Shift-b': this.toggleBlockTypeCommand(nanoNodeNames.quote),
+          'Mod-Alt-c': this.toggleBlockTypeCommand(nanoNodeNames.codeBlock),
           'Mod-z': this.historyCommand('undo'),
           'Shift-Mod-z': this.historyCommand('redo'),
           'Mod-y': this.historyCommand('redo'),
@@ -185,6 +194,16 @@ class Nano2View {
     }
   }
 
+  private hardBreakCommand(): Command {
+    return (state, dispatch) => {
+      if (!state.selection.$from.parent.inlineContent) return false
+      const hardBreakType = nanoSchema.nodes[nanoNodeNames.hardBreak]
+      if (!hardBreakType) return false
+      if (dispatch) dispatch(state.tr.replaceSelectionWith(hardBreakType.create()).scrollIntoView())
+      return true
+    }
+  }
+
   private historyCommand(direction: 'undo' | 'redo'): Command {
     return () => {
       this.restoreHistory(direction)
@@ -200,6 +219,20 @@ class Nano2View {
   private toggleMarkCommand(markName: string): Command {
     const markType = nanoSchema.marks[markName]
     return markType ? toggleMark(markType) : () => false
+  }
+
+  private toggleBlockTypeCommand(nodeName: string, attrs: Record<string, unknown> = {}): Command {
+    const nodeType = nanoSchema.nodes[nodeName]
+    const paragraphType = nanoSchema.nodes[nanoNodeNames.paragraph]
+    if (!nodeType || !paragraphType) return () => false
+
+    return (state, dispatch) => {
+      const current = state.selection.$from.parent
+      const active = current.type === nodeType && blockAttrsMatch(current.attrs, attrs)
+      return active
+        ? setBlockType(paragraphType)(state, dispatch)
+        : setBlockType(nodeType, attrs)(state, dispatch)
+    }
   }
 
   private textblockEndCommand(options: { extend?: boolean } = {}): Command {
@@ -229,6 +262,10 @@ class Nano2View {
     this.lastTextMergePath = change.mergePath ?? null
     this.lastTextMergeAt = now
   }
+}
+
+function blockAttrsMatch(current: Record<string, unknown>, expected: Record<string, unknown>): boolean {
+  return Object.entries(expected).every(([key, value]) => current[key] === value)
 }
 
 function transactionLabel(transaction: Transaction): string {

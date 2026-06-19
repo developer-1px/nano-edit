@@ -38,7 +38,19 @@ export function inlineContentFromText(text: string, marks: readonly NanoMark[]):
       .map(prosemirrorMarkFromNanoMark)
       .filter((mark): mark is Mark => mark !== null)
 
-    nodes.push(nanoSchema.text(text.slice(from, to), activeMarks))
+    nodes.push(...inlineNodesFromText(text.slice(from, to), activeMarks))
+  }
+
+  return nodes
+}
+
+function inlineNodesFromText(text: string, marks: readonly Mark[]): ProseMirrorNode[] {
+  const nodes: ProseMirrorNode[] = []
+  const parts = text.split('\n')
+
+  for (const [index, part] of parts.entries()) {
+    if (part) nodes.push(nanoSchema.text(part, marks))
+    if (index < parts.length - 1) nodes.push(nanoSchema.nodes[nanoNodeNames.hardBreak].create())
   }
 
   return nodes

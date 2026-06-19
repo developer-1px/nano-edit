@@ -18,6 +18,7 @@ export const nanoNodeNames = {
   image: 'image',
   table: 'table',
   mention: 'mention',
+  hardBreak: 'hard_break',
   text: 'text',
 } as const
 

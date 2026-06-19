@@ -4,6 +4,7 @@ import {
   nano2Examples,
   validNano2ExampleId,
   type Nano2ExampleDefinition,
+  type Nano2ExampleTrack,
 } from './registry'
 import {
   nano2ExampleHref,
@@ -56,35 +57,42 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
   let activeView: Nano2ViewHandle | null = null
   let activeDocument: PersistedNano2ExampleDocument | null = null
 
-  for (const example of nano2Examples) {
-    const link = document.createElement('a')
-    link.className = 'nano2-example-link'
-    link.href = nano2ExampleHref(example.id)
-    link.dataset.exampleId = example.id
-    link.dataset.phase = example.phase
-    link.dataset.status = example.status
+  for (const track of nano2ExampleTracks) {
+    const sectionTitle = document.createElement('div')
+    sectionTitle.className = 'nano2-example-section-title'
+    sectionTitle.textContent = nano2ExampleTrackLabel(track)
+    list.append(sectionTitle)
 
-    const phase = document.createElement('span')
-    phase.className = 'nano2-example-link-phase'
-    phase.textContent = example.phase
+    for (const example of nano2Examples.filter((candidate) => candidate.track === track)) {
+      const link = document.createElement('a')
+      link.className = 'nano2-example-link'
+      link.href = nano2ExampleHref(example.id)
+      link.dataset.exampleId = example.id
+      link.dataset.phase = example.phase
+      link.dataset.status = example.status
 
-    const title = document.createElement('span')
-    title.className = 'nano2-example-link-title'
-    title.textContent = example.title
+      const phase = document.createElement('span')
+      phase.className = 'nano2-example-link-phase'
+      phase.textContent = example.phase
 
-    link.append(phase, title)
-    link.addEventListener('click', (event) => {
-      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
-      if (event.button !== 0) return
-      event.preventDefault()
-      void nano2ExamplesRouter.navigate({
-        to: '/nano2/$exampleId',
-        params: { exampleId: example.id },
-      }).then(() => {
-        selectExample(example.id)
+      const title = document.createElement('span')
+      title.className = 'nano2-example-link-title'
+      title.textContent = example.title
+
+      link.append(phase, title)
+      link.addEventListener('click', (event) => {
+        if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+        if (event.button !== 0) return
+        event.preventDefault()
+        void nano2ExamplesRouter.navigate({
+          to: '/nano2/$exampleId',
+          params: { exampleId: example.id },
+        }).then(() => {
+          selectExample(example.id)
+        })
       })
-    })
-    list.append(link)
+      list.append(link)
+    }
   }
 
   const unsubscribeRouter = nano2ExamplesRouter.subscribe('onResolved', (event) => {
@@ -152,6 +160,12 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
       else link.removeAttribute('aria-current')
     }
   }
+}
+
+const nano2ExampleTracks: readonly Nano2ExampleTrack[] = ['prosemirror', 'tiptap']
+
+function nano2ExampleTrackLabel(track: Nano2ExampleTrack): string {
+  return track === 'tiptap' ? 'Tiptap' : 'ProseMirror'
 }
 
 function routeExampleId(pathname: string): string {

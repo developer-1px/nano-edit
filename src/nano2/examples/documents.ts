@@ -47,3 +47,62 @@ export const nano2DinosDocument: NanoDocument = NanoDocumentSchema.parse({
     },
   ],
 })
+
+export const nano2TiptapStarterKitDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-tiptap-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap StarterKit',
+      marks: [],
+    },
+    {
+      id: 'nano2-tiptap-inline',
+      type: 'paragraph',
+      text: 'Inline target',
+      marks: [],
+    },
+    {
+      id: 'nano2-tiptap-bullet',
+      type: 'paragraph',
+      text: 'Bullet target',
+      marks: [],
+    },
+    {
+      id: 'nano2-tiptap-ordered',
+      type: 'paragraph',
+      text: 'Ordered target',
+      marks: [],
+    },
+    {
+      id: 'nano2-tiptap-quote',
+      type: 'paragraph',
+      text: 'Quote target',
+      marks: [],
+    },
+    {
+      id: 'nano2-tiptap-code',
+      type: 'paragraph',
+      text: 'Code block target',
+      marks: [],
+    },
+    {
+      id: 'nano2-tiptap-existing',
+      type: 'paragraph',
+      text: 'Existing marks: bold italic underline strike code link',
+      marks: [
+        { type: 'bold', from: 16, to: 20 },
+        { type: 'italic', from: 21, to: 27 },
+        { type: 'underline', from: 28, to: 37 },
+        { type: 'strike', from: 38, to: 44 },
+        { type: 'code', from: 45, to: 49 },
+        { type: 'link', from: 50, to: 54, href: 'https://tiptap.dev' },
+      ],
+    },
+    {
+      id: 'nano2-tiptap-divider',
+      type: 'divider',
+    },
+  ],
+})

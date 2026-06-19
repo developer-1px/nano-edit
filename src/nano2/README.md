@@ -13,6 +13,7 @@ Authoritative policy:
 
 - `docs/nano2-headless-design-policy.md`
 - `docs/nano2-headless-capability-matrix.md`
+- `docs/nano2-tiptap-parity-matrix.md`
 - `docs/adr/0001-nano2-headless-prosemirror-view-seed.md`
 
 Implementation rule:
@@ -32,6 +33,7 @@ The runnable example surface is Nano2-owned:
 ```text
 /nano2/basics
 /nano2/dinos
+/nano2/tiptap-starter-kit
 ```
 
 The legacy demo artifact host does not own Nano2 examples.

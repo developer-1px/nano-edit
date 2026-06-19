@@ -32,6 +32,11 @@ export function nanoMarksFromProseMirrorNode(node: ProseMirrorNode): NanoMark[] 
       return
     }
 
+    if (child.type.name === nanoNodeNames.hardBreak) {
+      offset += 1
+      return
+    }
+
     if (!child.isText) return
     const textLength = child.text?.length ?? 0
     for (const mark of child.marks) {
