@@ -30,6 +30,7 @@ import { splitTextblockTransaction } from '../view/keyboard/enter'
 import { TEXT_MERGE_MS } from '../view/runtime/context'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { Nano2MentionRuntime } from './mention'
+import { nano2TaskPlugin } from './tasks'
 import type { Nano2ViewHandle, Nano2ViewOptions } from './types'
 
 export function createNano2View(options: Nano2ViewOptions): Nano2ViewHandle {
@@ -99,6 +100,7 @@ class Nano2View {
       plugins: [
         this.mention.plugin(),
         nano2MarkdownShortcutPlugin(),
+        nano2TaskPlugin(),
         keymap({
           Enter: this.enterCommand(),
           End: this.textblockEndCommand(),

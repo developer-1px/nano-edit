@@ -7,6 +7,8 @@ ProseMirror the canonical document engine.
 Sources:
 
 - <https://tiptap.dev/docs/editor/extensions/functionality/starterkit>
+- <https://tiptap.dev/docs/editor/extensions/nodes/task-list>
+- <https://tiptap.dev/docs/editor/extensions/nodes/task-item>
 - <https://tiptap.dev/docs/examples>
 
 ## Policy
@@ -64,6 +66,10 @@ bullet list, ordered list, blockquote, and code block.
 It currently proves heading, bullet list, ordered list, blockquote, code block,
 divider, bold, italic, strike, and inline code shortcuts.
 
+`/nano2/tiptap-tasks` is the runnable T1 Tasks surface. It currently proves
+bare `[ ] ` / `[x] ` task shortcuts, Markdown task shortcuts, checkbox click
+toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
+
 ## Official Example Map
 
 | Phase | Tiptap example | Nano2 acceptance contract |
@@ -74,7 +80,7 @@ divider, bold, italic, strike, and inline code shortcuts.
 | T1 | Markdown shortcuts | Ready: type Markdown prefixes/delimiters and commit schema-valid NanoDocument changes. |
 | T1 | Minimal setup | Mount Nano2 with only document/paragraph/text and basic input. |
 | T1 | Tables | Edit cells, preserve table schema, copy/paste rows, and persist cell changes. |
-| T1 | Tasks | Toggle task items through Nano todo blocks and keyboard behavior. |
+| T1 | Tasks | Ready: type task shortcuts, toggle task items through Nano todo blocks, and persist checked state. |
 | T1 | Text direction & RTL | Store direction as explicit attrs or session projection and test bidirectional selection. |
 | T2 | Long texts | Measure large document mount/edit latency and avoid full-DOM churn where possible. |
 | T2 | Menus | Bubble/floating menus reflect command state and emit Nano changes. |

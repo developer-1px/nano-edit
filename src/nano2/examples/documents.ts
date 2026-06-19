@@ -160,3 +160,41 @@ export const nano2TiptapMarkdownShortcutsDocument: NanoDocument = NanoDocumentSc
     },
   ],
 })
+
+export const nano2TiptapTasksDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-tasks-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Tasks',
+      marks: [],
+    },
+    {
+      id: 'nano2-task-unchecked',
+      type: 'todo',
+      checked: false,
+      text: 'Ship unchecked task',
+      marks: [],
+    },
+    {
+      id: 'nano2-task-checked',
+      type: 'todo',
+      checked: true,
+      text: 'Review checked task',
+      marks: [],
+    },
+    {
+      id: 'nano2-task-shortcut-open',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-task-shortcut-done',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+  ],
+})

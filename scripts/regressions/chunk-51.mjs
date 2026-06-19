@@ -18,6 +18,7 @@ import { commitNanoDocumentChange } from '../../src/entities/document/nano-docum
 import { createNanoDocument } from '../../src/entities/document/nano-document.ts'
 import { NanoDocumentSchema } from '../../src/entities/document/nano-document-model.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
+import { nano2ToggleTodoTransaction } from '../../src/nano2/tasks.ts'
 import { assert, EditorState, test } from './harness.mjs'
 
 test('Nano2 P0 basics: mark command commits canonical NanoDocument history', () => {
@@ -284,6 +285,68 @@ test('Nano2 T1 Markdown shortcuts: block prefixes lower to Nano block variants',
     id: 'b1',
     type: 'divider',
   })
+})
+
+test('Nano2 T1 Tasks: task shortcuts lower to Nano todo blocks', () => {
+  assert.deepEqual(typeTextWithNano2Shortcut('[ ] ').blocks[0], {
+    id: 'b1',
+    type: 'todo',
+    checked: false,
+    indent: 0,
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeTextWithNano2Shortcut('[x] ').blocks[0], {
+    id: 'b1',
+    type: 'todo',
+    checked: true,
+    indent: 0,
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeTextWithNano2Shortcut('* [X] ').blocks[0], {
+    id: 'b1',
+    type: 'todo',
+    checked: true,
+    checkedMarker: 'X',
+    indent: 0,
+    marker: '*',
+    text: '',
+    marks: [],
+  })
+})
+
+test('Nano2 T1 Tasks: checkbox toggle commits canonical NanoDocument change', () => {
+  const initial = {
+    blocks: [{ id: 'b1', type: 'todo', checked: false, indent: 0, text: 'Task', marks: [] }],
+  }
+  const engine = createNanoDocument(initial)
+  const doc = prosemirrorDocFromNano(engine.value)
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 1),
+  })
+  const transaction = nano2ToggleTodoTransaction(state, 0)
+
+  assert(transaction)
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-task-toggle',
+    origin: 'nano2-tiptap-tasks',
+  })
+  assert(change)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value.blocks[0], {
+    id: 'b1',
+    type: 'todo',
+    checked: true,
+    indent: 0,
+    text: 'Task',
+    marks: [],
+  })
+  assert.equal(Boolean(engine.history.undo()), true)
+  assert.deepEqual(engine.value, initial)
 })
 
 test('Nano2 T1 Markdown shortcuts: delimiters lower to Nano mark ranges', () => {

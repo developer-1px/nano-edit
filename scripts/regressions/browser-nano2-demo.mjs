@@ -223,6 +223,38 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(inlineShortcutBlock.marks.some((mark) => mark.type === 'strike' && inlineShortcutBlock.text.slice(mark.from, mark.to) === 'gone'))
   assert(inlineShortcutBlock.marks.some((mark) => mark.type === 'code' && inlineShortcutBlock.text.slice(mark.from, mark.to) === 'code'))
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-tasks"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-tasks"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Tasks")')
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(todoBoxSelector('nano2-task-unchecked'))})?.getAttribute('aria-checked') === 'false'`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(todoBoxSelector('nano2-task-checked'))})?.getAttribute('aria-checked') === 'true'`)
+
+  await clickTarget(browser, todoBoxSelector('nano2-task-unchecked'))
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-todo[data-id="nano2-task-unchecked"]')?.dataset.checked === 'true'`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(todoBoxSelector('nano2-task-unchecked'))})?.getAttribute('aria-checked') === 'true'`)
+
+  await focusTodoBoxById(browser, 'nano2-task-checked')
+  await pressKey(browser, ' ', 'Space', 32)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-todo[data-id="nano2-task-checked"]')?.dataset.checked === 'false'`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(todoBoxSelector('nano2-task-checked'))})?.getAttribute('aria-checked') === 'false'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-task-shortcut-open')
+  await typeCharacters(browser, '[ ] Open task')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-todo[data-id="nano2-task-shortcut-open"]')?.textContent.includes('Open task')`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(todoBoxSelector('nano2-task-shortcut-open'))})?.getAttribute('aria-checked') === 'false'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-task-shortcut-done')
+  await typeCharacters(browser, '- [X] Done task')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-todo[data-id="nano2-task-shortcut-done"]')?.textContent.includes('Done task')`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(todoBoxSelector('nano2-task-shortcut-done'))})?.getAttribute('aria-checked') === 'true'`)
+
+  await wait(160)
+  const storedTasks = await storedNano2Document(browser, 'tiptap-tasks')
+  assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-unchecked' && block.type === 'todo' && block.checked === true && block.text === 'Ship unchecked task'))
+  assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-checked' && block.type === 'todo' && block.checked === false && block.text === 'Review checked task'))
+  assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-shortcut-open' && block.type === 'todo' && block.checked === false && block.text === 'Open task'))
+  assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-shortcut-done' && block.type === 'todo' && block.checked === true && block.checkedMarker === 'X' && block.text === 'Done task'))
+
   console.log('ok browser nano2 demo')
 })
 
@@ -427,6 +459,16 @@ async function setCursorAtBlockEndById(browser, id) {
   })()`)
 }
 
+async function focusTodoBoxById(browser, id) {
+  const selector = todoBoxSelector(id)
+  return evaluate(browser, `(() => {
+    const target = document.querySelector(${JSON.stringify(selector)})
+    if (!(target instanceof HTMLElement)) throw new Error('Missing nano2 todo checkbox id: ${id}')
+    target.focus()
+    return document.activeElement === target
+  })()`)
+}
+
 async function typeCharacters(browser, text) {
   for (const character of text) {
     await browser.send('Input.insertText', { text: character })
@@ -440,6 +482,10 @@ async function storedNano2Document(browser, exampleId) {
 
 async function nano2ExampleHref(browser, exampleId) {
   return evaluate(browser, `new URL(document.querySelector(\`.nano2-example-link[data-example-id="${exampleId}"]\`)?.href ?? '', location.href).pathname`)
+}
+
+function todoBoxSelector(id) {
+  return `.nano2 .nano-todo[data-id="${id}"] .nano-todo-box`
 }
 
 function withNano2ParagraphGap(expression) {

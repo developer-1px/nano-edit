@@ -4,6 +4,7 @@ import {
   nano2DinosDocument,
   nano2TiptapMarkdownShortcutsDocument,
   nano2TiptapStarterKitDocument,
+  nano2TiptapTasksDocument,
 } from './documents'
 
 export type Nano2ExamplePhase = 'P0' | 'P1' | 'P2' | 'P3'
@@ -91,6 +92,19 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     view: 'The view recognizes text input order, composition boundaries, and undoable shortcut transactions.',
     acceptance: 'Type heading, list, quote, code block, divider, bold, italic, strike, and inline code shortcuts and persist the NanoDocument.',
     document: nano2TiptapMarkdownShortcutsDocument,
+  },
+  {
+    id: 'tiptap-tasks',
+    title: 'Tiptap Tasks',
+    phase: 'T1',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/basics/tasks',
+    track: 'tiptap',
+    pressure: 'Task list input rules and interactive task item checkboxes must update checked state without product chrome.',
+    headless: 'NanoDocument stores each task as a Zod-validated todo block with checked state and Markdown source marker attrs.',
+    view: 'Nano2 maps [ ] and [x] shortcuts plus checkbox click/keyboard events to ProseMirror view transactions that commit through json-document.',
+    acceptance: 'Type unchecked and checked task shortcuts, click a checkbox, keyboard-toggle a checkbox, reload, and compare persisted NanoDocument todo blocks.',
+    document: nano2TiptapTasksDocument,
   },
   {
     id: 'tiptap-menus',

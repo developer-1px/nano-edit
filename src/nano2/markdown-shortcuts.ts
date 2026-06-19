@@ -1,4 +1,4 @@
-import type { Mark } from 'prosemirror-model'
+import type { Mark, Node as ProseMirrorNode } from 'prosemirror-model'
 import { NodeSelection, Plugin, TextSelection, type EditorState, type Transaction } from 'prosemirror-state'
 import { nanoMarkNames, nanoNodeNames } from '../adapters/prosemirror/prosemirror-names'
 import { nanoSchema } from '../adapters/prosemirror/prosemirror-schema'
@@ -52,7 +52,7 @@ function applyBlockShortcut(transaction: Transaction, $cursor: TextSelection['$f
   const prefix = block.textBetween(0, $cursor.parentOffset)
   if (prefix.length !== $cursor.parentOffset || block.textContent.length !== prefix.length) return null
 
-  const shortcut = blockShortcutFromPrefix(prefix)
+  const shortcut = blockShortcutFromPrefix(prefix, block)
   if (!shortcut) return null
 
   const blockPosition = $cursor.before()
@@ -82,13 +82,23 @@ function applyBlockShortcut(transaction: Transaction, $cursor: TextSelection['$f
   return transaction
 }
 
-function blockShortcutFromPrefix(prefix: string): BlockShortcut | null {
+function blockShortcutFromPrefix(prefix: string, block: ProseMirrorNode): BlockShortcut | null {
   const heading = /^(#{1,6}) $/.exec(prefix)
   if (heading) {
     return {
       nodeName: nanoNodeNames.heading,
       attrs: { level: heading[1]?.length ?? 1, headingStyle: 'atx' },
     }
+  }
+
+  const bareTodo = /^\[([ xX])\] $/.exec(prefix)
+  if (bareTodo) {
+    return todoShortcutAttrs(bareTodo[1] ?? ' ', todoAttrsFromCurrentBlock(block))
+  }
+
+  const todo = /^([-*+]) \[([ xX])\] $/.exec(prefix)
+  if (todo) {
+    return todoShortcutAttrs(todo[2] ?? ' ', { marker: todo[1] ?? '-' })
   }
 
   const bullet = /^([-*+]) $/.exec(prefix)
@@ -143,6 +153,30 @@ function blockShortcutFromPrefix(prefix: string): BlockShortcut | null {
   }
 
   return null
+}
+
+function todoShortcutAttrs(checkedMarker: string, attrs: Record<string, unknown>): BlockShortcut {
+  return {
+    nodeName: nanoNodeNames.todo,
+    attrs: {
+      checked: checkedMarker.toLowerCase() === 'x',
+      checkedMarker: checkedMarker === 'X' ? 'X' : 'x',
+      indent: 0,
+      ...attrs,
+    },
+  }
+}
+
+function todoAttrsFromCurrentBlock(block: ProseMirrorNode): Record<string, unknown> {
+  if (block.type.name !== nanoNodeNames.listItem || block.attrs.kind !== 'bullet') {
+    return { marker: '-' }
+  }
+
+  return {
+    indent: block.attrs.indent ?? 0,
+    indentText: block.attrs.indentText ?? null,
+    marker: block.attrs.marker ?? '-',
+  }
 }
 
 function applyDelimitedShortcut(transaction: Transaction, $cursor: TextSelection['$from']): Transaction | null {
