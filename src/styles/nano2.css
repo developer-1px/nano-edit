@@ -696,6 +696,58 @@
   background: #f7f8fa;
 }
 
+.nano.nano2 .nano2-figure-block {
+  width: min(100%, 620px);
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.nano.nano2 .nano2-figure-body {
+  min-width: 0;
+}
+
+.nano.nano2 .nano2-figure-image {
+  width: min(100%, 360px);
+  min-height: 160px;
+  display: block;
+  border: 1px solid #e3e4e8;
+  object-fit: contain;
+  background: #f7f8fa;
+}
+
+.nano.nano2 .nano2-figure-table {
+  width: min(100%, 560px);
+  border-collapse: collapse;
+  color: #3f4145;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.nano.nano2 .nano2-figure-table th,
+.nano.nano2 .nano2-figure-table td {
+  padding: 7px 9px;
+  border: 1px solid #e3e4e8;
+}
+
+.nano.nano2 .nano2-figure-table th {
+  background: #f7f8fa;
+  font-weight: 680;
+}
+
+.nano.nano2 .nano2-figure-caption {
+  min-height: 1.5em;
+  width: min(100%, 560px);
+  outline: none;
+  color: #747981;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.nano.nano2 .nano2-figure-caption:focus {
+  color: #3f4145;
+}
+
 .nano.nano2 .nano2-lint-problem {
   border-bottom: 2px solid #d95b56;
   cursor: pointer;

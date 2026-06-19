@@ -34,6 +34,11 @@ import {
   nano2DrawingBlockWithStroke,
 } from '../../src/nano2/drawing.ts'
 import {
+  nano2FigureBlockType,
+  nano2FigureBlockWithCaption,
+  Nano2FigureBlockSchema,
+} from '../../src/nano2/figure.ts'
+import {
   nano2IFrameBlockType,
   nano2IFrameBlockWithAttrs,
   nano2IFrameSampleUpdate,
@@ -50,6 +55,7 @@ import {
   nano2TiptapCollaborationDocument,
   nano2TiptapDefaultEditorDocument,
   nano2TiptapDrawingDocument,
+  nano2TiptapFigureDocument,
   nano2TiptapForcedContentStructureDocument,
   nano2TiptapIFrameDocument,
   nano2TiptapLintingDocument,
@@ -1200,6 +1206,44 @@ test('Nano2 T3 Drawing: custom block strokes stay NanoDocument JSON data', () =>
   assert(change)
   assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1'])
   assert.equal('canvas' in nextDrawingBlock.data, false)
+
+  const engine = createNanoDocument(initial)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
+})
+
+test('Nano2 T3 Figure: image and table captions stay NanoDocument custom block data', () => {
+  const initial = nano2TiptapFigureDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const imageFigure = initial.blocks.find((block) => block.id === 'nano2-figure-image')
+  const tableFigure = initial.blocks.find((block) => block.id === 'nano2-figure-table')
+  assert(imageFigure)
+  assert(tableFigure)
+  assert.equal(imageFigure.type, nano2FigureBlockType)
+  assert.equal(tableFigure.type, nano2FigureBlockType)
+  assert.equal(Nano2FigureBlockSchema.parse(imageFigure).data.kind, 'image')
+  assert.equal(Nano2FigureBlockSchema.parse(tableFigure).data.kind, 'table')
+
+  const nextFigure = nano2FigureBlockWithCaption(imageFigure, 'Edited image figure caption')
+  assert.equal(nextFigure.data.caption, 'Edited image figure caption')
+  assert.equal(nextFigure.text, 'Edited image figure caption')
+  assert.equal(nextFigure.data.kind, 'image')
+
+  const next = {
+    ...initial,
+    blocks: initial.blocks.map((block) => block.id === nextFigure.id ? nextFigure : block),
+  }
+  assert.deepEqual(NanoDocumentSchema.parse(next), next)
+
+  const change = nanoDocumentChangeFromDocuments(initial, next, {
+    label: 'nano2-figure-caption',
+    origin: 'nano2-tiptap-figure',
+  })
+  assert(change)
+  assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1'])
+  assert.equal('figcaption' in nextFigure.data, false)
+  assert.equal('dom' in nextFigure.data, false)
 
   const engine = createNanoDocument(initial)
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)

@@ -666,6 +666,55 @@ export const nano2TiptapIFrameDocument: NanoDocument = NanoDocumentSchema.parse(
   ],
 })
 
+export const nano2TiptapFigureDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-figure-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Figure',
+      marks: [],
+    },
+    {
+      id: 'nano2-figure-image',
+      type: 'nano2.figure',
+      text: 'Image figure caption',
+      data: {
+        kind: 'image',
+        caption: 'Image figure caption',
+        image: {
+          src: '/favicon.svg',
+          alt: 'Nano Edit icon',
+          title: 'Nano Edit icon',
+        },
+      },
+    },
+    {
+      id: 'nano2-figure-table',
+      type: 'nano2.figure',
+      text: 'Table figure caption',
+      data: {
+        kind: 'table',
+        caption: 'Table figure caption',
+        table: {
+          rows: [
+            ['Feature', 'State'],
+            ['Image figure', 'ready'],
+            ['Table figure', 'ready'],
+          ],
+          align: ['left', 'center'],
+        },
+      },
+    },
+    {
+      id: 'nano2-figure-note',
+      type: 'paragraph',
+      text: 'Figure content and captions are custom block JSON.',
+      marks: [],
+    },
+  ],
+})
+
 export const nano2TiptapLintingDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

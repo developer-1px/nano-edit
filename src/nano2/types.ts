@@ -12,7 +12,7 @@ export interface Nano2ViewOptions {
   spellcheck?: boolean
 }
 
-export type Nano2ViewProfile = 'clever' | 'default' | 'drawing' | 'forced' | 'iframe' | 'linting' | 'menus' | 'minimal' | 'slash' | 'syntax'
+export type Nano2ViewProfile = 'clever' | 'default' | 'drawing' | 'figure' | 'forced' | 'iframe' | 'linting' | 'menus' | 'minimal' | 'slash' | 'syntax'
 
 export interface Nano2ViewHandle {
   destroy(): void

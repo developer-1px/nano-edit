@@ -11,6 +11,13 @@ export {
   type Nano2DrawingStroke,
 } from './drawing'
 export {
+  nano2FigureBlockFromCustomBlock,
+  nano2FigureBlockType,
+  nano2FigureBlockWithCaption,
+  type Nano2FigureBlock,
+  type Nano2FigureData,
+} from './figure'
+export {
   isNano2ForcedStructureDocument,
   parseNano2ForcedStructureDocument,
 } from './forced-structure'

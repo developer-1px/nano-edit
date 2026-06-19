@@ -116,6 +116,10 @@ document-stored transport metadata.
 a `nano2.drawing` custom block with JSON stroke data, canvas node-view
 projection, stroke editing, and persistence without storing canvas DOM.
 
+`/nano2/tiptap-figure` is the runnable T3 Figure surface. It currently proves
+image and table figures as `nano2.figure` custom block data, figcaption
+node-view editing, and persistence without storing nested figure DOM.
+
 `/nano2/tiptap-forced-content-structure` is the runnable T2 Forced content
 structure surface. It currently proves pre-mount stored document validation,
 title-slot enforcement, transaction rejection for invalid title demotion, and
@@ -194,7 +198,7 @@ marks.
 | T3 | AI agent | Agent tools read and propose NanoDocument changes; accepted changes commit through json-document history. |
 | T3 | Syntax highlighting | Ready: lowlight token ranges render as view decorations while code text and language remain the only NanoDocument data. |
 | T3 | Collaborative fields | Multiple logical fields share one collaboration transport without sharing DOM identity. |
-| T3 | Figure / Generic figure | Media node attrs and captions become structured Nano blocks. |
+| T3 | Figure / Generic figure | Ready: image/table media attrs and captions become structured `nano2.figure` custom block data. |
 | T3 | iFrame | Ready: embed attrs are schema-validated `nano2.iframe` custom block data projected as replaceable DOM. |
 | T3 | Linting | Ready: diagnostics are pure NanoDocument projections and accepted fixes become NanoDocumentChange text replacements. |
 | T3 | Slash commands | Ready: suggestion surface runs Nano commands from trigger position, removes trigger text, and persists block changes. |
