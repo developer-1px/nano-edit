@@ -12,6 +12,10 @@ export {
   type Nano2SlashCommandAction,
 } from './slash-commands'
 export {
+  nano2SyntaxHighlightTokens,
+  type Nano2SyntaxToken,
+} from './syntax-highlighting'
+export {
   nano2SetTextDirectionTransaction,
   type Nano2TextDirection,
 } from './text-direction'

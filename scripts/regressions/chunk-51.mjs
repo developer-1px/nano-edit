@@ -27,6 +27,7 @@ import {
   nano2TiptapDefaultEditorDocument,
   nano2TiptapForcedContentStructureDocument,
   nano2TiptapLongTextsDocument,
+  nano2TiptapSyntaxHighlightingDocument,
 } from '../../src/nano2/examples/documents.ts'
 import {
   isNano2ForcedStructureDocument,
@@ -44,6 +45,7 @@ import {
   nano2SlashCommandContextFromState,
   nano2SlashCommandTransaction,
 } from '../../src/nano2/slash-commands.ts'
+import { nano2SyntaxHighlightTokens } from '../../src/nano2/syntax-highlighting.ts'
 import {
   isNano2MinimalDocument,
   parseNano2MinimalDocument,
@@ -1008,6 +1010,50 @@ test('Nano2 T3 Slash commands: trigger query lowers to Nano block commands', () 
   }])
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)
   assert.deepEqual(engine.value, nanoDocumentFromProseMirror(transaction.doc))
+})
+
+test('Nano2 T3 Syntax highlighting: lowlight tokens are view-only code projections', () => {
+  const initial = nano2TiptapSyntaxHighlightingDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const codeBlock = initial.blocks.find((block) => block.id === 'nano2-syntax-code')
+  assert(codeBlock)
+  assert.equal(codeBlock.type, 'code')
+
+  const tokens = nano2SyntaxHighlightTokens(codeBlock.text, codeBlock.language ?? null)
+  assert(tokens.some((token) => token.className.includes('hljs-keyword') && codeBlock.text.slice(token.from, token.to) === 'const'))
+  assert(tokens.some((token) => token.className.includes('hljs-number') && codeBlock.text.slice(token.from, token.to) === '42'))
+  assert(tokens.every((token) => token.from >= 0 && token.to <= codeBlock.text.length))
+
+  const engine = createNanoDocument(initial)
+  const doc = prosemirrorDocFromNano(engine.value)
+  const codePosition = blockPositionById(doc, 'nano2-syntax-code')
+  assert.notEqual(codePosition, null)
+  const codeNode = doc.nodeAt(codePosition)
+  assert(codeNode)
+
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, codePosition + 1 + codeNode.content.size),
+  })
+  const transaction = state.tr.insertText('\nconst next = answer + 1')
+  const next = nanoDocumentFromProseMirror(transaction.doc)
+  const nextCodeBlock = next.blocks.find((block) => block.id === 'nano2-syntax-code')
+  assert(nextCodeBlock)
+  assert.equal(nextCodeBlock.type, 'code')
+  assert.equal(nextCodeBlock.language, 'typescript')
+  assert.equal('marks' in nextCodeBlock, false)
+  assert(nextCodeBlock.text.endsWith('const next = answer + 1'))
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-syntax-code-edit',
+    origin: 'nano2-tiptap-syntax-highlighting',
+  })
+  assert(change)
+  assert.deepEqual(change.operations, [{ op: 'replace', path: '/blocks/1/text', value: nextCodeBlock.text }])
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
 })
 
 function typeTextWithNano2Shortcut(text) {

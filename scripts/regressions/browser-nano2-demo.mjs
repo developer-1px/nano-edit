@@ -40,6 +40,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-slash-commands'), '/nano2/tiptap-slash-commands')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-syntax-highlighting'), '/nano2/tiptap-syntax-highlighting')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-minimal-setup'), '/nano2/tiptap-minimal-setup')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(prosemirrorSelector)}))`)
@@ -572,6 +573,30 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedSlash.blocks.some((block) => block.id === 'nano2-slash-quote' && block.type === 'quote' && block.text === ''))
   assert(storedSlash.blocks.some((block) => block.id === 'nano2-slash-code' && block.type === 'code' && block.text === ''))
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-syntax-highlighting"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-syntax-highlighting"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Syntax Highlighting")')
+  await waitForExpression(browser, `document.querySelector('.nano2')?.dataset.profile === 'syntax'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-code[data-id="nano2-syntax-code"] code')?.getAttribute('data-language') === 'typescript'`)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-code[data-id="nano2-syntax-code"] .hljs-keyword'))`)
+  await waitForExpression(browser, `Array.from(document.querySelectorAll('.nano2 .nano-code[data-id="nano2-syntax-code"] .hljs-number')).some((node) => node.textContent === '42')`)
+
+  await setCursorAtCodeBlockEndById(browser, 'nano2-syntax-code')
+  assert.equal(await pasteIntoNano2Editor(browser, {
+    'text/plain': '\nconst next = answer + 1',
+  }), true)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-code[data-id="nano2-syntax-code"]')?.textContent.includes('const next = answer + 1')`)
+  await waitForExpression(browser, `Array.from(document.querySelectorAll('.nano2 .nano-code[data-id="nano2-syntax-code"] .hljs-keyword')).some((node) => node.textContent === 'const')`)
+
+  await wait(160)
+  const storedSyntax = await storedNano2Document(browser, 'tiptap-syntax-highlighting')
+  const syntaxCodeBlock = storedSyntax.blocks.find((block) => block.id === 'nano2-syntax-code')
+  assert(syntaxCodeBlock)
+  assert.equal(syntaxCodeBlock.type, 'code')
+  assert.equal(syntaxCodeBlock.language, 'typescript')
+  assert(syntaxCodeBlock.text.endsWith('const next = answer + 1'))
+  assert.equal('marks' in syntaxCodeBlock, false)
+
   console.log('ok browser nano2 demo')
 })
 
@@ -864,6 +889,33 @@ async function setCursorAtBlockEndById(browser, id) {
     const range = document.createRange()
     range.selectNodeContents(target)
     range.collapse(false)
+    const selection = window.getSelection()
+    if (!selection) throw new Error('Missing selection')
+    selection.removeAllRanges()
+    selection.addRange(range)
+    document.dispatchEvent(new Event('selectionchange'))
+    return true
+  })()`)
+}
+
+async function setCursorAtCodeBlockEndById(browser, id) {
+  return evaluate(browser, `(() => {
+    const target = document.querySelector(\`.nano2 .nano-block[data-id="${id}"] code\`)
+    const editor = document.querySelector(${JSON.stringify(prosemirrorSelector)})
+    if (!target || !(editor instanceof HTMLElement)) throw new Error('Missing nano2 code block id: ${id}')
+
+    editor.focus()
+    const range = document.createRange()
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT)
+    let lastText = null
+    while (walker.nextNode()) lastText = walker.currentNode
+    if (lastText instanceof Text) {
+      range.setStart(lastText, lastText.data.length)
+      range.collapse(true)
+    } else {
+      range.selectNodeContents(target)
+      range.collapse(false)
+    }
     const selection = window.getSelection()
     if (!selection) throw new Error('Missing selection')
     selection.removeAllRanges()

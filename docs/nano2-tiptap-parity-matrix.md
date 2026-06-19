@@ -25,6 +25,7 @@ Sources:
 - <https://tiptap.dev/docs/editor/extensions/functionality/floatingmenu>
 - <https://tiptap.dev/docs/examples/advanced/mentions>
 - <https://tiptap.dev/docs/editor/extensions/nodes/mention>
+- <https://tiptap.dev/docs/examples/advanced/syntax-highlighting>
 - <https://tiptap.dev/docs/examples/experiments/slash-commands>
 - <https://tiptap.dev/docs/examples>
 
@@ -137,6 +138,11 @@ focus return, and persisted NanoDocument mark/block changes.
 currently proves a `/` trigger, filtered command panel, heading/list/quote/code
 block command dispatch, and persisted NanoDocument block changes.
 
+`/nano2/tiptap-syntax-highlighting` is the runnable T3 Syntax highlighting
+surface. It currently proves lowlight-derived code decorations over a
+NanoDocument code block, editable code text, and persistence without highlight
+marks.
+
 ## Official Example Map
 
 | Phase | Tiptap example | Nano2 acceptance contract |
@@ -157,7 +163,7 @@ block command dispatch, and persisted NanoDocument block changes.
 | T3 | Collaborative editing | NanoDocumentChange transport converges multiple engines. |
 | T3 | Drawing | Custom node view stores drawing payload as Nano custom block data. |
 | T3 | Interactive React & Vue views | Framework node views become replaceable view projections over Nano paths. |
-| T3 | Syntax highlighting | Code block highlighting is view-derived, while code text remains Nano data. |
+| T3 | Syntax highlighting | Ready: lowlight token ranges render as view decorations while code text and language remain the only NanoDocument data. |
 | T3 | Collaborative fields | Multiple logical fields share one collaboration transport without sharing DOM identity. |
 | T3 | Figure / Generic figure | Media node attrs and captions become structured Nano blocks. |
 | T3 | iFrame | Embed attrs are schema-validated Nano custom block data. |

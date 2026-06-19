@@ -545,3 +545,31 @@ export const nano2TiptapSlashCommandsDocument: NanoDocument = NanoDocumentSchema
     },
   ],
 })
+
+export const nano2TiptapSyntaxHighlightingDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-syntax-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Syntax Highlighting',
+      marks: [],
+    },
+    {
+      id: 'nano2-syntax-code',
+      type: 'code',
+      language: 'typescript',
+      text: [
+        'const answer: number = 42',
+        'function run() {',
+        '  return `value:${answer}`',
+        '}',
+      ].join('\n'),
+    },
+    {
+      id: 'nano2-syntax-plain',
+      type: 'code',
+      text: 'plain text stays editable',
+    },
+  ],
+})

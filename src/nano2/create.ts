@@ -38,6 +38,7 @@ import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { nano2MenuPlugin } from './menus'
 import { Nano2MentionRuntime } from './mention'
 import { Nano2SlashCommandRuntime } from './slash-commands'
+import { nano2SyntaxHighlightPlugin } from './syntax-highlighting'
 import { nano2TablePlugin } from './tables'
 import { nano2TaskPlugin } from './tasks'
 import {
@@ -144,6 +145,7 @@ class Nano2View {
       ...(this.slash ? [this.slash.plugin()] : []),
       ...(this.profile === 'clever' ? [nano2CleverReplacementPlugin()] : []),
       ...(this.profile === 'menus' ? [nano2MenuPlugin(this.root)] : []),
+      ...(this.profile === 'syntax' ? [nano2SyntaxHighlightPlugin()] : []),
       nano2MarkdownShortcutPlugin(),
       nano2ImagePlugin(),
       nano2TablePlugin({ restoreHistory: (direction) => this.restoreHistory(direction) }),

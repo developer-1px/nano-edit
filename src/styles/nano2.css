@@ -454,6 +454,38 @@
   font-size: 14px;
 }
 
+.nano.nano2 .nano-code .nano2-syntax-token {
+  font: inherit;
+}
+
+.nano.nano2 .nano-code .hljs-keyword,
+.nano.nano2 .nano-code .hljs-built_in,
+.nano.nano2 .nano-code .hljs-selector-tag {
+  color: #7a3e9d;
+}
+
+.nano.nano2 .nano-code .hljs-string,
+.nano.nano2 .nano-code .hljs-regexp,
+.nano.nano2 .nano-code .hljs-template-variable {
+  color: #176f56;
+}
+
+.nano.nano2 .nano-code .hljs-number,
+.nano.nano2 .nano-code .hljs-literal {
+  color: #8a4f12;
+}
+
+.nano.nano2 .nano-code .hljs-comment {
+  color: #77716d;
+  font-style: italic;
+}
+
+.nano.nano2 .nano-code .hljs-title,
+.nano.nano2 .nano-code .hljs-attr,
+.nano.nano2 .nano-code .hljs-property {
+  color: #315f9c;
+}
+
 @media (max-width: 760px) {
   .nano2-examples {
     grid-template-columns: 1fr;

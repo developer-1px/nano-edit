@@ -170,5 +170,8 @@
     "zod": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "lowlight": "^3.3.0"
   }
 }
