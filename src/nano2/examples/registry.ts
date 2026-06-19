@@ -2,6 +2,7 @@ import type { NanoDocument } from '../../entities/document/nano-document-model'
 import {
   nano2BasicsDocument,
   nano2DinosDocument,
+  nano2TiptapMarkdownShortcutsDocument,
   nano2TiptapStarterKitDocument,
 } from './documents'
 
@@ -82,13 +83,14 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     id: 'tiptap-markdown-shortcuts',
     title: 'Tiptap Markdown Shortcuts',
     phase: 'T1',
-    status: 'planned',
+    status: 'ready',
     sourceHref: 'https://tiptap.dev/docs/examples',
     track: 'tiptap',
     pressure: 'Markdown shortcuts transform typed prefixes and delimiters into rich structure.',
     headless: 'Shortcut results are NanoDocument changes with source choices preserved where useful.',
     view: 'The view recognizes text input order, composition boundaries, and undoable shortcut transactions.',
-    acceptance: 'Type heading, list, quote, code, divider, bold, italic, strike, and code shortcuts and persist the NanoDocument.',
+    acceptance: 'Type heading, list, quote, code block, divider, bold, italic, strike, and inline code shortcuts and persist the NanoDocument.',
+    document: nano2TiptapMarkdownShortcutsDocument,
   },
   {
     id: 'tiptap-menus',

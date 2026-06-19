@@ -34,6 +34,7 @@ The runnable example surface is Nano2-owned:
 /nano2/basics
 /nano2/dinos
 /nano2/tiptap-starter-kit
+/nano2/tiptap-markdown-shortcuts
 ```
 
 The legacy demo artifact host does not own Nano2 examples.

@@ -60,6 +60,10 @@ Tiptap StarterKit currently bundles these common extensions:
 keyboard and persistence slice for underline, strike, inline code, hard break,
 bullet list, ordered list, blockquote, and code block.
 
+`/nano2/tiptap-markdown-shortcuts` is the runnable T1 Markdown shortcuts surface.
+It currently proves heading, bullet list, ordered list, blockquote, code block,
+divider, bold, italic, strike, and inline code shortcuts.
+
 ## Official Example Map
 
 | Phase | Tiptap example | Nano2 acceptance contract |
@@ -67,7 +71,7 @@ bullet list, ordered list, blockquote, and code block.
 | T1 | Default text editor | Mount default content, edit, run common commands, persist/reload NanoDocument. |
 | T1 | Formatting | Toggle all StarterKit marks and prove persisted Nano mark ranges. |
 | T1 | Images | Insert image blocks with attrs, copy/paste/import/export, persist attrs. |
-| T1 | Markdown shortcuts | Type Markdown prefixes/delimiters and commit schema-valid NanoDocument changes. |
+| T1 | Markdown shortcuts | Ready: type Markdown prefixes/delimiters and commit schema-valid NanoDocument changes. |
 | T1 | Minimal setup | Mount Nano2 with only document/paragraph/text and basic input. |
 | T1 | Tables | Edit cells, preserve table schema, copy/paste rows, and persist cell changes. |
 | T1 | Tasks | Toggle task items through Nano todo blocks and keyboard behavior. |

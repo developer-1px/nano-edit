@@ -28,6 +28,7 @@ import {
 import type { NanoDocument } from '../entities/document/nano-document-model'
 import { splitTextblockTransaction } from '../view/keyboard/enter'
 import { TEXT_MERGE_MS } from '../view/runtime/context'
+import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { Nano2MentionRuntime } from './mention'
 import type { Nano2ViewHandle, Nano2ViewOptions } from './types'
 
@@ -97,6 +98,7 @@ class Nano2View {
       selection: prosemirrorSelectionFromNano(doc, this.options.engine.selection?.snapshot()),
       plugins: [
         this.mention.plugin(),
+        nano2MarkdownShortcutPlugin(),
         keymap({
           Enter: this.enterCommand(),
           End: this.textblockEndCommand(),

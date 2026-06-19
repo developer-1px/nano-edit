@@ -171,6 +171,58 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedStarterKit.blocks.some((block) => block.type === 'quote' && block.text.includes('Quote target')))
   assert(storedStarterKit.blocks.some((block) => block.type === 'code' && block.text.includes('Code block target')))
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-markdown-shortcuts"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-markdown-shortcuts"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Markdown Shortcuts")')
+
+  await setCursorAtBlockEndById(browser, 'nano2-shortcut-heading')
+  await typeCharacters(browser, '## Heading')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-heading[data-id="nano2-shortcut-heading"]')?.textContent.includes('Heading')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-shortcut-bullet')
+  await typeCharacters(browser, '- Bullet')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-list-bullet[data-id="nano2-shortcut-bullet"]')?.textContent.includes('Bullet')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-shortcut-ordered')
+  await typeCharacters(browser, '03) Ordered')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-list-ordered[data-id="nano2-shortcut-ordered"]')?.textContent.includes('Ordered')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-shortcut-quote')
+  await typeCharacters(browser, '> Quote')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-quote[data-id="nano2-shortcut-quote"]')?.textContent.includes('Quote')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-shortcut-code')
+  await typeCharacters(browser, '```ts const answer = 42')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-code[data-id="nano2-shortcut-code"]')?.textContent.includes('const answer = 42')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-shortcut-divider')
+  await typeCharacters(browser, '--- ')
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-divider[data-id="nano2-shortcut-divider"]'))`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-shortcut-inline')
+  await typeCharacters(browser, '**bold** *em* ~~gone~~ `code`')
+  await waitForExpression(browser, `document.querySelector('.nano2 [data-id="nano2-shortcut-inline"]')?.textContent === 'bold em gone code'`)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 [data-id="nano2-shortcut-inline"] strong'))`)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 [data-id="nano2-shortcut-inline"] em'))`)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 [data-id="nano2-shortcut-inline"] s'))`)
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 [data-id="nano2-shortcut-inline"] code'))`)
+
+  await wait(160)
+  const storedShortcuts = await storedNano2Document(browser, 'tiptap-markdown-shortcuts')
+  assert(storedShortcuts.blocks.some((block) => block.id === 'nano2-shortcut-heading' && block.type === 'heading' && block.level === 2 && block.text === 'Heading'))
+  assert(storedShortcuts.blocks.some((block) => block.id === 'nano2-shortcut-bullet' && block.type === 'list_item' && block.kind === 'bullet' && block.text === 'Bullet'))
+  assert(storedShortcuts.blocks.some((block) => block.id === 'nano2-shortcut-ordered' && block.type === 'list_item' && block.kind === 'ordered' && block.start === 3 && block.orderedMarker === ')' && block.orderedStartText === '03' && block.text === 'Ordered'))
+  assert(storedShortcuts.blocks.some((block) => block.id === 'nano2-shortcut-quote' && block.type === 'quote' && block.text === 'Quote'))
+  assert(storedShortcuts.blocks.some((block) => block.id === 'nano2-shortcut-code' && block.type === 'code' && block.language === 'ts' && block.text === 'const answer = 42'))
+  assert(storedShortcuts.blocks.some((block) => block.id === 'nano2-shortcut-divider' && block.type === 'divider'))
+  const inlineShortcutBlock = storedShortcuts.blocks.find((block) => block.id === 'nano2-shortcut-inline')
+  assert(inlineShortcutBlock)
+  assert.equal(inlineShortcutBlock.text, 'bold em gone code')
+  assert(inlineShortcutBlock.marks.some((mark) => mark.type === 'bold' && inlineShortcutBlock.text.slice(mark.from, mark.to) === 'bold'))
+  assert(inlineShortcutBlock.marks.some((mark) => mark.type === 'italic' && inlineShortcutBlock.text.slice(mark.from, mark.to) === 'em'))
+  assert(inlineShortcutBlock.marks.some((mark) => mark.type === 'strike' && inlineShortcutBlock.text.slice(mark.from, mark.to) === 'gone'))
+  assert(inlineShortcutBlock.marks.some((mark) => mark.type === 'code' && inlineShortcutBlock.text.slice(mark.from, mark.to) === 'code'))
+
   console.log('ok browser nano2 demo')
 })
 
@@ -354,6 +406,31 @@ async function setCursorAtBlockEndByText(browser, text) {
     document.dispatchEvent(new Event('selectionchange'))
     return true
   })()`)
+}
+
+async function setCursorAtBlockEndById(browser, id) {
+  return evaluate(browser, `(() => {
+    const target = document.querySelector(\`.nano2 .nano-block[data-id="${id}"]\`)
+    const editor = document.querySelector(${JSON.stringify(prosemirrorSelector)})
+    if (!target || !(editor instanceof HTMLElement)) throw new Error('Missing nano2 block id: ${id}')
+
+    editor.focus()
+    const range = document.createRange()
+    range.selectNodeContents(target)
+    range.collapse(false)
+    const selection = window.getSelection()
+    if (!selection) throw new Error('Missing selection')
+    selection.removeAllRanges()
+    selection.addRange(range)
+    document.dispatchEvent(new Event('selectionchange'))
+    return true
+  })()`)
+}
+
+async function typeCharacters(browser, text) {
+  for (const character of text) {
+    await browser.send('Input.insertText', { text: character })
+  }
 }
 
 async function storedNano2Document(browser, exampleId) {

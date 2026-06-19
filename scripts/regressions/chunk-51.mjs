@@ -17,6 +17,7 @@ import { nanoSchema } from '../../src/adapters/prosemirror/prosemirror-schema.ts
 import { commitNanoDocumentChange } from '../../src/entities/document/nano-document-change.ts'
 import { createNanoDocument } from '../../src/entities/document/nano-document.ts'
 import { NanoDocumentSchema } from '../../src/entities/document/nano-document-model.ts'
+import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
 import { assert, EditorState, test } from './harness.mjs'
 
 test('Nano2 P0 basics: mark command commits canonical NanoDocument history', () => {
@@ -238,4 +239,85 @@ function setSingleBlock(nodeName, attrs = {}) {
   assert.equal(setBlockType(nanoSchema.nodes[nodeName], attrs)(state, (tr) => { transaction = tr }), true)
   assert(transaction)
   return nanoDocumentFromProseMirror(transaction.doc)
+}
+
+test('Nano2 T1 Markdown shortcuts: block prefixes lower to Nano block variants', () => {
+  assert.deepEqual(typeTextWithNano2Shortcut('# ').blocks[0], {
+    id: 'b1',
+    type: 'heading',
+    level: 1,
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeTextWithNano2Shortcut('- ').blocks[0], {
+    id: 'b1',
+    type: 'list_item',
+    kind: 'bullet',
+    indent: 0,
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeTextWithNano2Shortcut('03) ').blocks[0], {
+    id: 'b1',
+    type: 'list_item',
+    kind: 'ordered',
+    indent: 0,
+    start: 3,
+    orderedMarker: ')',
+    orderedStartText: '03',
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeTextWithNano2Shortcut('> ').blocks[0], {
+    id: 'b1',
+    type: 'quote',
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeTextWithNano2Shortcut('```ts ').blocks[0], {
+    id: 'b1',
+    type: 'code',
+    text: '',
+    language: 'ts',
+  })
+  assert.deepEqual(typeTextWithNano2Shortcut('--- ').blocks[0], {
+    id: 'b1',
+    type: 'divider',
+  })
+})
+
+test('Nano2 T1 Markdown shortcuts: delimiters lower to Nano mark ranges', () => {
+  const next = typeTextWithNano2Shortcut('**bold** *em* ~~gone~~ `code`')
+
+  assert.deepEqual(next.blocks[0], {
+    id: 'b1',
+    type: 'paragraph',
+    text: 'bold em gone code',
+    marks: [
+      { type: 'bold', from: 0, to: 4 },
+      { type: 'italic', from: 5, to: 7 },
+      { type: 'strike', from: 8, to: 12 },
+      { type: 'code', from: 13, to: 17 },
+    ],
+  })
+})
+
+function typeTextWithNano2Shortcut(text) {
+  const doc = prosemirrorDocFromNano({
+    blocks: [{ id: 'b1', type: 'paragraph', text: '', marks: [] }],
+  })
+  let state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 1),
+  })
+
+  for (const character of text) {
+    const { from, to } = state.selection
+    const transaction = nano2MarkdownShortcutTransaction(state, from, to, character)
+      ?? state.tr.insertText(character, from, to)
+    state = state.apply(transaction)
+  }
+
+  return nanoDocumentFromProseMirror(state.doc)
 }

@@ -106,3 +106,57 @@ export const nano2TiptapStarterKitDocument: NanoDocument = NanoDocumentSchema.pa
     },
   ],
 })
+
+export const nano2TiptapMarkdownShortcutsDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-shortcuts-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Markdown Shortcuts',
+      marks: [],
+    },
+    {
+      id: 'nano2-shortcut-heading',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-shortcut-bullet',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-shortcut-ordered',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-shortcut-quote',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-shortcut-code',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-shortcut-divider',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-shortcut-inline',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+  ],
+})
