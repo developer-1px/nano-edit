@@ -715,6 +715,30 @@ export const nano2TiptapFigureDocument: NanoDocument = NanoDocumentSchema.parse(
   ],
 })
 
+export const nano2TiptapReactPerformanceDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-react-performance-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap React Performance',
+      marks: [],
+    },
+    {
+      id: 'nano2-react-performance-target',
+      type: 'paragraph',
+      text: 'Host renders and editor transactions update NanoDocument state without remounting the editor view.',
+      marks: [],
+    },
+    {
+      id: 'nano2-react-performance-observer',
+      type: 'paragraph',
+      text: 'Derived stats read NanoDocument data directly.',
+      marks: [],
+    },
+  ],
+})
+
 export const nano2TiptapLintingDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

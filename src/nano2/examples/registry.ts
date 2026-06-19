@@ -22,6 +22,7 @@ import {
   nano2TiptapMentionsDocument,
   nano2TiptapMenusDocument,
   nano2TiptapMinimalSetupDocument,
+  nano2TiptapReactPerformanceDocument,
   nano2TiptapSlashCommandsDocument,
   nano2TiptapStarterKitDocument,
   nano2TiptapSyntaxHighlightingDocument,
@@ -46,7 +47,7 @@ export interface Nano2ExampleDefinition {
   pressure: string
   sourceHref: string
   status: Nano2ExampleStatus
-  surface?: 'collaboration'
+  surface?: 'collaboration' | 'react-performance'
   title: string
   track: Nano2ExampleTrack
   view: string
@@ -297,6 +298,20 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     acceptance: 'Render TypeScript highlight spans, edit the code text, persist the plain NanoDocument code block, and reload without stored highlight marks.',
     document: nano2TiptapSyntaxHighlightingDocument,
     viewProfile: 'syntax',
+  },
+  {
+    id: 'tiptap-react-performance',
+    title: 'Tiptap React Performance',
+    phase: 'T3',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/advanced/react-performance',
+    track: 'tiptap',
+    pressure: 'Host framework renders and editor state reads must not remount the editor view on every transaction.',
+    headless: 'Nano2 derives lightweight performance snapshots directly from NanoDocument state without requiring DOM or framework renders.',
+    view: 'A route-local host surface updates surrounding metrics while keeping the Nano2 ProseMirror view seed mounted once.',
+    acceptance: 'Trigger host renders, edit the document, observe derived state, and verify the same editor view DOM remains mounted.',
+    document: nano2TiptapReactPerformanceDocument,
+    surface: 'react-performance',
   },
   {
     id: 'tiptap-collaboration',

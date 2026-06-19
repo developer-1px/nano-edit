@@ -20,6 +20,7 @@ import {
   createNano2CollaborationExample,
   type Nano2ExampleSurfaceHandle,
 } from './collaboration'
+import { createNano2ReactPerformanceExample } from './react-performance'
 
 export interface Nano2ExamplesAppHandle {
   destroy(): void
@@ -143,6 +144,15 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
         activeView = createNano2CollaborationExample({
           document: example.document,
           mount: content,
+        })
+        return
+      }
+
+      if (example.surface === 'react-performance') {
+        activeView = createNano2ReactPerformanceExample({
+          document: example.document,
+          mount: content,
+          storageKey: nano2ExampleStorageKey(example.id),
         })
         return
       }

@@ -586,6 +586,57 @@
   font-size: 22px;
 }
 
+.nano2-performance {
+  min-height: calc(100svh - 69px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.nano2-performance-controls {
+  width: min(100%, 780px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 22px clamp(20px, 8vw, 112px) 0;
+}
+
+.nano2-performance-button {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #5e6269;
+}
+
+.nano2-performance-button:hover,
+.nano2-performance-button:focus-visible {
+  background: #f6f2ef;
+  color: #2f3135;
+}
+
+.nano2-performance-button-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.nano2-performance-metrics {
+  min-width: 0;
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
+  color: #747981;
+  font: 650 12px/1.2 var(--nano-mono, ui-monospace, monospace);
+  white-space: nowrap;
+}
+
+.nano2-performance-editor .nano.nano2 .nano2-editor {
+  min-height: calc(100svh - 121px);
+  padding-top: 26px;
+}
+
 .nano.nano2 .nano2-drawing-block {
   width: min(100%, 560px);
   display: grid;

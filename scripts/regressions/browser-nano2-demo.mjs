@@ -44,6 +44,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'tiptap-linting'), '/nano2/tiptap-linting')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-react-performance'), '/nano2/tiptap-react-performance')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-slash-commands'), '/nano2/tiptap-slash-commands')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-syntax-highlighting'), '/nano2/tiptap-syntax-highlighting')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-minimal-setup'), '/nano2/tiptap-minimal-setup')
@@ -334,6 +335,33 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedForced.blocks.some((block) => block.id === 'nano2-forced-title' && block.type === 'heading' && block.level === 1))
   assert(storedForced.blocks.some((block) => block.id === 'nano2-forced-body' && block.type === 'paragraph' && block.text === 'Body target edited'))
   assert(!storedForced.blocks.slice(1).some((block) => block.type === 'heading'))
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-react-performance"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-react-performance"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap React Performance")')
+  await waitForExpression(browser, `document.querySelector('.nano2-performance')?.dataset.viewMounts === '1'`)
+  await evaluate(browser, `(() => {
+    window.__nano2PerformanceView = document.querySelector('.nano2-performance .ProseMirror')
+    return true
+  })()`)
+
+  await clickTarget(browser, '.nano2-performance [data-action="host-render"]')
+  await clickTarget(browser, '.nano2-performance [data-action="host-render"]')
+  await clickTarget(browser, '.nano2-performance [data-action="host-render"]')
+  await waitForExpression(browser, `document.querySelector('.nano2-performance')?.dataset.hostRenders === '3'`)
+  await waitForExpression(browser, `document.querySelector('.nano2-performance')?.dataset.viewMounts === '1'`)
+  await waitForExpression(browser, `window.__nano2PerformanceView === document.querySelector('.nano2-performance .ProseMirror')`)
+
+  await appendText(browser, '.nano2-performance [data-id="nano2-react-performance-target"]', ' PATCHED')
+  await waitForExpression(browser, `document.querySelector('.nano2-performance [data-id="nano2-react-performance-target"]')?.textContent.includes('PATCHED')`)
+  await waitForExpression(browser, `Number(document.querySelector('.nano2-performance')?.dataset.snapshotRenders || 0) >= 1`)
+  await waitForExpression(browser, `window.__nano2PerformanceView === document.querySelector('.nano2-performance .ProseMirror')`)
+  await wait(160)
+  const storedReactPerformance = await storedNano2Document(browser, 'tiptap-react-performance')
+  assert(storedReactPerformance.blocks.some((block) =>
+    block.id === 'nano2-react-performance-target'
+    && block.text.includes('PATCHED'),
+  ))
 
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-images"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-images"')

@@ -48,6 +48,7 @@ The runnable example surface is Nano2-owned and mounted by
 /nano2/tiptap-linting
 /nano2/tiptap-long-texts
 /nano2/tiptap-minimal-setup
+/nano2/tiptap-react-performance
 /nano2/tiptap-tables
 /nano2/tiptap-markdown-shortcuts
 /nano2/tiptap-tasks

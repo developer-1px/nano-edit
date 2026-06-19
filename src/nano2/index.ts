@@ -60,4 +60,8 @@ export {
   type Nano2MenuAction,
   type Nano2MenuCommandState,
 } from './menus'
+export {
+  nano2PerformanceSnapshot,
+  type Nano2PerformanceSnapshot,
+} from './performance'
 export type { Nano2ViewHandle, Nano2ViewOptions, Nano2ViewProfile } from './types'

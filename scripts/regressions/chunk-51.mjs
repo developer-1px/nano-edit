@@ -60,6 +60,7 @@ import {
   nano2TiptapIFrameDocument,
   nano2TiptapLintingDocument,
   nano2TiptapLongTextsDocument,
+  nano2TiptapReactPerformanceDocument,
   nano2TiptapSyntaxHighlightingDocument,
 } from '../../src/nano2/examples/documents.ts'
 import {
@@ -78,6 +79,7 @@ import {
   nano2SlashCommandContextFromState,
   nano2SlashCommandTransaction,
 } from '../../src/nano2/slash-commands.ts'
+import { nano2PerformanceSnapshot } from '../../src/nano2/performance.ts'
 import { nano2SyntaxHighlightTokens } from '../../src/nano2/syntax-highlighting.ts'
 import {
   isNano2MinimalDocument,
@@ -633,6 +635,36 @@ test('Nano2 T2 Long texts: large document edits stay narrow', () => {
   }])
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)
   assert.equal(engine.value.blocks[targetIndex].text, next.blocks[targetIndex].text)
+})
+
+test('Nano2 T3 React performance: derived snapshots read NanoDocument without view state', () => {
+  const initial = nano2TiptapReactPerformanceDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const before = nano2PerformanceSnapshot(initial)
+  assert.equal(before.blockCount, 3)
+  assert.equal(before.textBlockCount, 3)
+  assert(before.wordCount > 10)
+
+  const next = nano2DocumentWithBlockText(
+    initial,
+    'nano2-react-performance-target',
+    'Host render isolation keeps one editor view mounted after NanoDocument edits.',
+  )
+  const change = nanoDocumentChangeFromDocuments(initial, next, {
+    label: 'nano2-react-performance-edit',
+    origin: 'nano2-tiptap-react-performance',
+  })
+  assert(change)
+  assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1/text'])
+
+  const engine = createNanoDocument(initial)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  const after = nano2PerformanceSnapshot(engine.value)
+  assert.equal(after.blockCount, before.blockCount)
+  assert.notEqual(after.wordCount, before.wordCount)
+  assert.equal('view' in after, false)
+  assert.equal('dom' in after, false)
 })
 
 test('Nano2 T1 Default editor: common commands lower to NanoDocument state', () => {
