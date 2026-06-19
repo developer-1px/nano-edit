@@ -10,6 +10,7 @@ Sources:
 - <https://tiptap.dev/docs/examples/basics/formatting>
 - <https://tiptap.dev/docs/editor/extensions/nodes/image>
 - <https://tiptap.dev/docs/examples/basics/images>
+- <https://tiptap.dev/docs/examples/basics/minimal-setup>
 - <https://tiptap.dev/docs/editor/extensions/nodes/table>
 - <https://tiptap.dev/docs/examples/basics/tables>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-list>
@@ -75,6 +76,10 @@ command intent as NanoDocument mark ranges and heading blocks.
 existing image rendering, Markdown image paste, HTML img paste, and persisted
 NanoDocument image attrs.
 
+`/nano2/tiptap-minimal-setup` is the runnable T1 Minimal setup surface. It
+currently proves paragraph-only Zod validation, literal Markdown-looking text,
+plain paragraph splitting, and persisted paragraph-only NanoDocument state.
+
 `/nano2/tiptap-tables` is the runnable T1 Tables surface. It currently proves
 table rendering, single-cell contenteditable commits, tabular paste across
 cells, and persisted NanoDocument rows.
@@ -95,7 +100,7 @@ toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
 | T1 | Formatting | Ready: toggle StarterKit-style marks and heading commands, then persist Nano mark ranges and block attrs. |
 | T1 | Images | Ready: render image blocks, paste Markdown/HTML image input, export Markdown, and persist image attrs. |
 | T1 | Markdown shortcuts | Ready: type Markdown prefixes/delimiters and commit schema-valid NanoDocument changes. |
-| T1 | Minimal setup | Mount Nano2 with only document/paragraph/text and basic input. |
+| T1 | Minimal setup | Ready: mount paragraph-only Nano2 profile, type literal text, split paragraphs, and persist paragraph-only NanoDocument state. |
 | T1 | Tables | Ready: edit cells, paste tabular text across rows, preserve table schema, and persist row changes. |
 | T1 | Tasks | Ready: type task shortcuts, toggle task items through Nano todo blocks, and persist checked state. |
 | T1 | Text direction & RTL | Store direction as explicit attrs or session projection and test bidirectional selection. |

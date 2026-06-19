@@ -20,6 +20,10 @@ import { NanoDocumentSchema } from '../../src/entities/document/nano-document-mo
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
+import {
+  isNano2MinimalDocument,
+  parseNano2MinimalDocument,
+} from '../../src/nano2/minimal.ts'
 import { nano2SetTableCellTransaction } from '../../src/nano2/tables.ts'
 import { nano2ToggleTodoTransaction } from '../../src/nano2/tasks.ts'
 import { assert, EditorState, test } from './harness.mjs'
@@ -397,6 +401,49 @@ test('Nano2 T1 Images: setImage lowers to Nano image block and Markdown export',
   assert.deepEqual(engine.value, next)
   assert.equal(Boolean(engine.history.undo()), true)
   assert.deepEqual(engine.value, initial)
+})
+
+test('Nano2 T1 Minimal setup: zod profile accepts only paragraph text blocks', () => {
+  const initial = {
+    blocks: [{ id: 'b1', type: 'paragraph', text: 'Plain', marks: [] }],
+  }
+
+  assert.deepEqual(parseNano2MinimalDocument(initial), initial)
+  assert.equal(isNano2MinimalDocument({
+    blocks: [{ id: 'b1', type: 'heading', level: 1, text: 'Title', marks: [] }],
+  }), false)
+  assert.equal(isNano2MinimalDocument({
+    blocks: [{ id: 'b1', type: 'paragraph', text: 'Bold', marks: [{ type: 'bold', from: 0, to: 4 }] }],
+  }), false)
+  assert.equal(isNano2MinimalDocument({
+    blocks: [
+      { id: 'b1', type: 'paragraph', text: 'One', marks: [] },
+      { id: 'b1', type: 'paragraph', text: 'Two', marks: [] },
+    ],
+  }), false)
+
+  const engine = createNanoDocument(initial)
+  const doc = prosemirrorDocFromNano(engine.value)
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 6),
+  })
+  const transaction = state.tr.insertText(' text', 6, 6)
+  const next = nanoDocumentFromProseMirror(transaction.doc)
+
+  assert.deepEqual(parseNano2MinimalDocument(next), {
+    blocks: [{ id: 'b1', type: 'paragraph', text: 'Plain text', marks: [] }],
+  })
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-minimal-text-input',
+    origin: 'nano2-tiptap-minimal-setup',
+  })
+  assert(change)
+  assert.deepEqual(change.operations, [{ op: 'replace', path: '/blocks/0/text', value: 'Plain text' }])
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(parseNano2MinimalDocument(engine.value), next)
 })
 
 test('Nano2 T1 Tables: setTableCell lowers to Nano table row changes', () => {

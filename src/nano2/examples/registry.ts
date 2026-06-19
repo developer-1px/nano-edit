@@ -5,6 +5,7 @@ import {
   nano2TiptapFormattingDocument,
   nano2TiptapImagesDocument,
   nano2TiptapMarkdownShortcutsDocument,
+  nano2TiptapMinimalSetupDocument,
   nano2TiptapStarterKitDocument,
   nano2TiptapTablesDocument,
   nano2TiptapTasksDocument,
@@ -27,6 +28,7 @@ export interface Nano2ExampleDefinition {
   title: string
   track: Nano2ExampleTrack
   view: string
+  viewProfile?: 'default' | 'minimal'
 }
 
 export const defaultNano2ExampleId = 'basics'
@@ -108,6 +110,20 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     view: 'Nano2 maps Markdown image paste and HTML img paste to image block transactions through the ProseMirror view seed.',
     acceptance: 'Render an existing image, paste Markdown and HTML images into empty blocks, reload, and compare persisted NanoDocument image attrs.',
     document: nano2TiptapImagesDocument,
+  },
+  {
+    id: 'tiptap-minimal-setup',
+    title: 'Tiptap Minimal Setup',
+    phase: 'T1',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/basics/minimal-setup',
+    track: 'tiptap',
+    pressure: 'A tiny editor setup with document, paragraph, and text behavior only.',
+    headless: 'Nano2 validates the example with a Zod paragraph-only NanoDocument profile with empty mark arrays.',
+    view: 'Nano2 mounts a minimal view profile with plain text input, Enter splits, base ProseMirror input handling, and json-document history only.',
+    acceptance: 'Mount paragraph-only content, type Markdown-looking text literally, split a paragraph, reload, and compare persisted paragraph-only NanoDocument state.',
+    document: nano2TiptapMinimalSetupDocument,
+    viewProfile: 'minimal',
   },
   {
     id: 'tiptap-tables',

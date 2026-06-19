@@ -174,6 +174,23 @@ export const nano2TiptapImagesDocument: NanoDocument = NanoDocumentSchema.parse(
   ],
 })
 
+export const nano2TiptapMinimalSetupDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-minimal-title',
+      type: 'paragraph',
+      text: 'Minimal setup',
+      marks: [],
+    },
+    {
+      id: 'nano2-minimal-target',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+  ],
+})
+
 export const nano2TiptapTablesDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

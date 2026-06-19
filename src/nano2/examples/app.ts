@@ -143,6 +143,7 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
         mount: content,
         engine: activeDocument.engine,
         ariaLabel: `Nano2 ${example.title} example`,
+        profile: example.viewProfile,
       })
       return
     }

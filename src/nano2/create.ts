@@ -5,7 +5,7 @@ import {
 } from 'prosemirror-commands'
 import { keymap } from 'prosemirror-keymap'
 import type { Node as ProseMirrorNode } from 'prosemirror-model'
-import { EditorState, TextSelection, type Command, type Transaction } from 'prosemirror-state'
+import { EditorState, TextSelection, type Command, type Plugin, type Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import type { Pointer, SelectionSnap } from '@interactive-os/json-document'
 import {
@@ -33,7 +33,7 @@ import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { Nano2MentionRuntime } from './mention'
 import { nano2TablePlugin } from './tables'
 import { nano2TaskPlugin } from './tasks'
-import type { Nano2ViewHandle, Nano2ViewOptions } from './types'
+import type { Nano2ViewHandle, Nano2ViewOptions, Nano2ViewProfile } from './types'
 
 export function createNano2View(options: Nano2ViewOptions): Nano2ViewHandle {
   const view = new Nano2View(options)
@@ -45,9 +45,10 @@ export function createNano2View(options: Nano2ViewOptions): Nano2ViewHandle {
 
 class Nano2View {
   private readonly options: Nano2ViewOptions
+  private readonly profile: Nano2ViewProfile
   private readonly root = document.createElement('section')
   private readonly editor = document.createElement('div')
-  private readonly mention: Nano2MentionRuntime
+  private readonly mention: Nano2MentionRuntime | null
   private readonly view: EditorView
   private readonly unsubscribe: () => void
   private suppressEngineSync = false
@@ -57,10 +58,12 @@ class Nano2View {
 
   constructor(options: Nano2ViewOptions) {
     this.options = options
+    this.profile = options.profile ?? 'default'
     this.root.className = 'nano nano2'
+    this.root.dataset.profile = this.profile
     this.editor.className = 'nano-editor nano2-editor'
     this.root.append(this.editor)
-    this.mention = new Nano2MentionRuntime(this.root)
+    this.mention = this.profile === 'default' ? new Nano2MentionRuntime(this.root) : null
     options.mount.replaceChildren(this.root)
 
     this.view = new EditorView(this.editor, {
@@ -84,7 +87,7 @@ class Nano2View {
     if (this.destroyed) return
     this.destroyed = true
     this.unsubscribe()
-    this.mention.destroy()
+    this.mention?.destroy()
     this.view.destroy()
     this.root.remove()
   }
@@ -99,40 +102,62 @@ class Nano2View {
       schema: nanoSchema,
       doc,
       selection: prosemirrorSelectionFromNano(doc, this.options.engine.selection?.snapshot()),
-      plugins: [
-        this.mention.plugin(),
-        nano2MarkdownShortcutPlugin(),
-        nano2ImagePlugin(),
-        nano2TablePlugin({ restoreHistory: (direction) => this.restoreHistory(direction) }),
-        nano2TaskPlugin(),
-        keymap({
-          Enter: this.enterCommand(),
-          End: this.textblockEndCommand(),
-          'Mod-ArrowRight': this.textblockEndCommand(),
-          'Shift-Enter': this.hardBreakCommand(),
-          'Mod-Enter': this.hardBreakCommand(),
-          'Shift-End': this.textblockEndCommand({ extend: true }),
-          'Shift-Mod-ArrowRight': this.textblockEndCommand({ extend: true }),
-          'Mod-b': this.toggleMarkCommand(nanoMarkNames.bold),
-          'Mod-i': this.toggleMarkCommand(nanoMarkNames.italic),
-          'Mod-u': this.toggleMarkCommand(nanoMarkNames.underline),
-          'Mod-Shift-s': this.toggleMarkCommand(nanoMarkNames.strike),
-          'Mod-e': this.toggleMarkCommand(nanoMarkNames.code),
-          'Ctrl-Shift-0': this.setBlockTypeCommand(nanoNodeNames.paragraph),
-          'Ctrl-Shift-1': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 1 }),
-          'Ctrl-Shift-2': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 2 }),
-          'Ctrl-Shift-3': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 3 }),
-          'Mod-Shift-8': this.toggleBlockTypeCommand(nanoNodeNames.listItem, { kind: 'bullet', indent: 0, marker: '-' }),
-          'Mod-Shift-7': this.toggleBlockTypeCommand(nanoNodeNames.listItem, { kind: 'ordered', indent: 0, orderedMarker: '.', start: 1 }),
-          'Mod-Shift-b': this.toggleBlockTypeCommand(nanoNodeNames.quote),
-          'Mod-Alt-c': this.toggleBlockTypeCommand(nanoNodeNames.codeBlock),
-          'Mod-z': this.historyCommand('undo'),
-          'Shift-Mod-z': this.historyCommand('redo'),
-          'Mod-y': this.historyCommand('redo'),
-        }),
-        keymap(baseKeymap),
-      ],
+      plugins: this.createPlugins(),
     })
+  }
+
+  private createPlugins(): Plugin[] {
+    return this.profile === 'minimal'
+      ? this.createMinimalPlugins()
+      : this.createDefaultPlugins()
+  }
+
+  private createMinimalPlugins(): Plugin[] {
+    return [
+      keymap({
+        Enter: this.enterCommand(),
+        'Mod-z': this.historyCommand('undo'),
+        'Shift-Mod-z': this.historyCommand('redo'),
+        'Mod-y': this.historyCommand('redo'),
+      }),
+      keymap(baseKeymap),
+    ]
+  }
+
+  private createDefaultPlugins(): Plugin[] {
+    return [
+      ...(this.mention ? [this.mention.plugin()] : []),
+      nano2MarkdownShortcutPlugin(),
+      nano2ImagePlugin(),
+      nano2TablePlugin({ restoreHistory: (direction) => this.restoreHistory(direction) }),
+      nano2TaskPlugin(),
+      keymap({
+        Enter: this.enterCommand(),
+        End: this.textblockEndCommand(),
+        'Mod-ArrowRight': this.textblockEndCommand(),
+        'Shift-Enter': this.hardBreakCommand(),
+        'Mod-Enter': this.hardBreakCommand(),
+        'Shift-End': this.textblockEndCommand({ extend: true }),
+        'Shift-Mod-ArrowRight': this.textblockEndCommand({ extend: true }),
+        'Mod-b': this.toggleMarkCommand(nanoMarkNames.bold),
+        'Mod-i': this.toggleMarkCommand(nanoMarkNames.italic),
+        'Mod-u': this.toggleMarkCommand(nanoMarkNames.underline),
+        'Mod-Shift-s': this.toggleMarkCommand(nanoMarkNames.strike),
+        'Mod-e': this.toggleMarkCommand(nanoMarkNames.code),
+        'Ctrl-Shift-0': this.setBlockTypeCommand(nanoNodeNames.paragraph),
+        'Ctrl-Shift-1': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 1 }),
+        'Ctrl-Shift-2': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 2 }),
+        'Ctrl-Shift-3': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 3 }),
+        'Mod-Shift-8': this.toggleBlockTypeCommand(nanoNodeNames.listItem, { kind: 'bullet', indent: 0, marker: '-' }),
+        'Mod-Shift-7': this.toggleBlockTypeCommand(nanoNodeNames.listItem, { kind: 'ordered', indent: 0, orderedMarker: '.', start: 1 }),
+        'Mod-Shift-b': this.toggleBlockTypeCommand(nanoNodeNames.quote),
+        'Mod-Alt-c': this.toggleBlockTypeCommand(nanoNodeNames.codeBlock),
+        'Mod-z': this.historyCommand('undo'),
+        'Shift-Mod-z': this.historyCommand('redo'),
+        'Mod-y': this.historyCommand('redo'),
+      }),
+      keymap(baseKeymap),
+    ]
   }
 
   private createProseMirrorDocument(document: NanoDocument): ProseMirrorNode {

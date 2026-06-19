@@ -6,8 +6,11 @@ export interface Nano2ViewOptions {
   engine: NanoDocumentEngine
   ariaLabel?: string
   onLocalChange?: (change: NanoDocumentChange) => void
+  profile?: Nano2ViewProfile
   spellcheck?: boolean
 }
+
+export type Nano2ViewProfile = 'default' | 'minimal'
 
 export interface Nano2ViewHandle {
   destroy(): void
