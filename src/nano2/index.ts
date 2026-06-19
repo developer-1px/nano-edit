@@ -7,6 +7,11 @@ export {
   parseNano2ForcedStructureDocument,
 } from './forced-structure'
 export {
+  nano2SlashCommandContextFromState,
+  nano2SlashCommandTransaction,
+  type Nano2SlashCommandAction,
+} from './slash-commands'
+export {
   nano2SetTextDirectionTransaction,
   type Nano2TextDirection,
 } from './text-direction'

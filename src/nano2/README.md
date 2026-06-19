@@ -48,6 +48,7 @@ The runnable example surface is Nano2-owned and mounted by
 /nano2/tiptap-tasks
 /nano2/tiptap-menus
 /nano2/tiptap-mentions
+/nano2/tiptap-slash-commands
 ```
 
 The legacy demo artifact host does not own Nano2 examples and should not expose

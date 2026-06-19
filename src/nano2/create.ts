@@ -37,6 +37,7 @@ import { nano2ImagePlugin } from './images'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { nano2MenuPlugin } from './menus'
 import { Nano2MentionRuntime } from './mention'
+import { Nano2SlashCommandRuntime } from './slash-commands'
 import { nano2TablePlugin } from './tables'
 import { nano2TaskPlugin } from './tasks'
 import {
@@ -59,6 +60,7 @@ class Nano2View {
   private readonly root = document.createElement('section')
   private readonly editor = document.createElement('div')
   private readonly mention: Nano2MentionRuntime | null
+  private readonly slash: Nano2SlashCommandRuntime | null
   private readonly view: EditorView
   private readonly unsubscribe: () => void
   private suppressEngineSync = false
@@ -74,6 +76,7 @@ class Nano2View {
     this.editor.className = 'nano-editor nano2-editor'
     this.root.append(this.editor)
     this.mention = this.profile === 'default' ? new Nano2MentionRuntime(this.root) : null
+    this.slash = this.profile === 'slash' ? new Nano2SlashCommandRuntime(this.root) : null
     options.mount.replaceChildren(this.root)
 
     this.view = new EditorView(this.editor, {
@@ -98,6 +101,7 @@ class Nano2View {
     this.destroyed = true
     this.unsubscribe()
     this.mention?.destroy()
+    this.slash?.destroy()
     this.view.destroy()
     this.root.remove()
   }
@@ -137,6 +141,7 @@ class Nano2View {
   private createDefaultPlugins(): Plugin[] {
     return [
       ...(this.mention ? [this.mention.plugin()] : []),
+      ...(this.slash ? [this.slash.plugin()] : []),
       ...(this.profile === 'clever' ? [nano2CleverReplacementPlugin()] : []),
       ...(this.profile === 'menus' ? [nano2MenuPlugin(this.root)] : []),
       nano2MarkdownShortcutPlugin(),

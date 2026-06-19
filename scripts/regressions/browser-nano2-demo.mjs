@@ -39,6 +39,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'tiptap-long-texts'), '/nano2/tiptap-long-texts')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-slash-commands'), '/nano2/tiptap-slash-commands')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-minimal-setup'), '/nano2/tiptap-minimal-setup')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(prosemirrorSelector)}))`)
@@ -545,6 +546,32 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(existingMentionBlock.marks.some((mark) => mark.type === 'mention' && mark.id === 'mina' && mark.label === 'Mina' && mark.to - mark.from === 1))
   assert(targetMentionBlock.marks.some((mark) => mark.type === 'mention' && mark.id === 'avery' && mark.label === 'Avery' && mark.to - mark.from === 1))
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-slash-commands"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-slash-commands"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Slash Commands")')
+  await waitForExpression(browser, `document.querySelector('.nano2')?.dataset.profile === 'slash'`)
+
+  await runSlashCommand(browser, 'nano2-slash-heading', 'heading')
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-heading-1[data-id="nano2-slash-heading"]'))`)
+  await browser.send('Input.insertText', { text: 'Slash heading' })
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-heading-1[data-id="nano2-slash-heading"]')?.textContent.includes('Slash heading')`)
+
+  await runSlashCommand(browser, 'nano2-slash-bullet', 'bullet')
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-list-bullet[data-id="nano2-slash-bullet"]'))`)
+
+  await runSlashCommand(browser, 'nano2-slash-quote', 'quote')
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-quote[data-id="nano2-slash-quote"]'))`)
+
+  await runSlashCommand(browser, 'nano2-slash-code', 'code')
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 .nano-code[data-id="nano2-slash-code"]'))`)
+
+  await wait(160)
+  const storedSlash = await storedNano2Document(browser, 'tiptap-slash-commands')
+  assert(storedSlash.blocks.some((block) => block.id === 'nano2-slash-heading' && block.type === 'heading' && block.level === 1 && block.text === 'Slash heading'))
+  assert(storedSlash.blocks.some((block) => block.id === 'nano2-slash-bullet' && block.type === 'list_item' && block.kind === 'bullet' && block.text === ''))
+  assert(storedSlash.blocks.some((block) => block.id === 'nano2-slash-quote' && block.type === 'quote' && block.text === ''))
+  assert(storedSlash.blocks.some((block) => block.id === 'nano2-slash-code' && block.type === 'code' && block.text === ''))
+
   console.log('ok browser nano2 demo')
 })
 
@@ -587,6 +614,17 @@ async function insertMention(browser, query, expectedText) {
   await browser.send('Input.insertText', { text: query })
   await waitForExpression(browser, `document.querySelector(${JSON.stringify(mentionSelector)})?.textContent.includes(${JSON.stringify(expectedText)})`)
   await pressKey(browser, 'Enter', 'Enter', 13)
+}
+
+async function runSlashCommand(browser, blockId, query) {
+  await setCursorAtBlockEndById(browser, blockId)
+  await browser.send('Input.insertText', { text: '/' })
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2-slash-command:not([hidden])'))`)
+  await waitForExpression(browser, `document.activeElement?.classList.contains('nano2-slash-input')`)
+  await typeCharacters(browser, query)
+  await waitForExpression(browser, `document.querySelector('.nano2-slash-command:not([hidden])')?.textContent.toLowerCase().includes(${JSON.stringify(query)})`)
+  await pressKey(browser, 'Enter', 'Enter', 13)
+  await waitForExpression(browser, `!document.querySelector('.nano2-slash-command:not([hidden])')`)
 }
 
 async function assertTextblockEndKeySkipsMention(browser, { key, code, keyCode, marker, modifiers }) {

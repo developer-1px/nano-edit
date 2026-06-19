@@ -25,6 +25,7 @@ Sources:
 - <https://tiptap.dev/docs/editor/extensions/functionality/floatingmenu>
 - <https://tiptap.dev/docs/examples/advanced/mentions>
 - <https://tiptap.dev/docs/editor/extensions/nodes/mention>
+- <https://tiptap.dev/docs/examples/experiments/slash-commands>
 - <https://tiptap.dev/docs/examples>
 
 ## Policy
@@ -132,6 +133,10 @@ persisted one-character NanoDocument mention marks.
 selection bubble menu state, empty-line floating menu state, command dispatch,
 focus return, and persisted NanoDocument mark/block changes.
 
+`/nano2/tiptap-slash-commands` is the runnable T3 Slash commands surface. It
+currently proves a `/` trigger, filtered command panel, heading/list/quote/code
+block command dispatch, and persisted NanoDocument block changes.
+
 ## Official Example Map
 
 | Phase | Tiptap example | Nano2 acceptance contract |
@@ -157,7 +162,7 @@ focus return, and persisted NanoDocument mark/block changes.
 | T3 | Figure / Generic figure | Media node attrs and captions become structured Nano blocks. |
 | T3 | iFrame | Embed attrs are schema-validated Nano custom block data. |
 | T3 | Linting | Diagnostics are pure NanoDocument projections with optional fixer changes. |
-| T3 | Slash commands | Suggestion surface runs Nano commands from trigger position and selection snapshot. |
+| T3 | Slash commands | Ready: suggestion surface runs Nano commands from trigger position, removes trigger text, and persists block changes. |
 
 ## Acceptance Rule
 

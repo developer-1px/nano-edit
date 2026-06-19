@@ -509,3 +509,39 @@ export const nano2TiptapForcedContentStructureDocument: NanoDocument = NanoDocum
     },
   ],
 })
+
+export const nano2TiptapSlashCommandsDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-slash-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Slash Commands',
+      marks: [],
+    },
+    {
+      id: 'nano2-slash-heading',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-slash-bullet',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-slash-quote',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-slash-code',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+  ],
+})

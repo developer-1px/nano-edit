@@ -41,6 +41,10 @@ import {
 import { nano2InsertMentionTransaction } from '../../src/nano2/mentions.ts'
 import { nano2SetTextDirectionTransaction } from '../../src/nano2/text-direction.ts'
 import {
+  nano2SlashCommandContextFromState,
+  nano2SlashCommandTransaction,
+} from '../../src/nano2/slash-commands.ts'
+import {
   isNano2MinimalDocument,
   parseNano2MinimalDocument,
 } from '../../src/nano2/minimal.ts'
@@ -940,6 +944,72 @@ test('Nano2 T2 Forced content structure: Zod profile guards document shape', () 
   assert.deepEqual(parseNano2ForcedStructureDocument(engine.value), next)
 })
 
+test('Nano2 T3 Slash commands: trigger query lowers to Nano block commands', () => {
+  assert.deepEqual(typeSlashCommand('/heading', 'heading1').blocks[0], {
+    id: 'b1',
+    type: 'heading',
+    level: 1,
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeSlashCommand('/bullet', 'bulletList').blocks[0], {
+    id: 'b1',
+    type: 'list_item',
+    kind: 'bullet',
+    indent: 0,
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeSlashCommand('/quote', 'quote').blocks[0], {
+    id: 'b1',
+    type: 'quote',
+    text: '',
+    marks: [],
+  })
+  assert.deepEqual(typeSlashCommand('/code', 'codeBlock').blocks[0], {
+    id: 'b1',
+    type: 'code',
+    text: '',
+  })
+
+  const initial = {
+    blocks: [{ id: 'b1', type: 'paragraph', text: '/bullet', marks: [] }],
+  }
+  const engine = createNanoDocument(initial)
+  const doc = prosemirrorDocFromNano(engine.value)
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 8),
+  })
+  assert.deepEqual(nano2SlashCommandContextFromState(state), {
+    from: 1,
+    query: 'bullet',
+    to: 8,
+  })
+  const transaction = nano2SlashCommandTransaction(state, 'bulletList')
+  assert(transaction)
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-slash-command-bullet',
+    origin: 'nano2-tiptap-slash-commands',
+  })
+  assert(change)
+  assert.deepEqual(change.operations, [{
+    op: 'replace',
+    path: '/blocks/0',
+    value: {
+      id: 'b1',
+      type: 'list_item',
+      kind: 'bullet',
+      indent: 0,
+      text: '',
+      marks: [],
+    },
+  }])
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, nanoDocumentFromProseMirror(transaction.doc))
+})
+
 function typeTextWithNano2Shortcut(text) {
   const doc = prosemirrorDocFromNano({
     blocks: [{ id: 'b1', type: 'paragraph', text: '', marks: [] }],
@@ -990,4 +1060,18 @@ function typeTextWithNano2CleverReplacement(engine, blockId, text) {
   }
 
   return operations
+}
+
+function typeSlashCommand(text, action) {
+  const doc = prosemirrorDocFromNano({
+    blocks: [{ id: 'b1', type: 'paragraph', text, marks: [] }],
+  })
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, text.length + 1),
+  })
+  const transaction = nano2SlashCommandTransaction(state, action)
+  assert(transaction)
+  return nanoDocumentFromProseMirror(transaction.doc)
 }
