@@ -17,6 +17,9 @@ Sources:
 - <https://tiptap.dev/docs/examples/basics/tables>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-list>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-item>
+- <https://tiptap.dev/docs/examples/advanced/menus>
+- <https://tiptap.dev/docs/editor/extensions/functionality/bubble-menu>
+- <https://tiptap.dev/docs/editor/extensions/functionality/floatingmenu>
 - <https://tiptap.dev/docs/examples/advanced/mentions>
 - <https://tiptap.dev/docs/editor/extensions/nodes/mention>
 - <https://tiptap.dev/docs/examples>
@@ -109,6 +112,10 @@ toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
 proves an existing mention, `@` suggestion insertion, DOM chip rendering, and
 persisted one-character NanoDocument mention marks.
 
+`/nano2/tiptap-menus` is the runnable T2 Menus surface. It currently proves
+selection bubble menu state, empty-line floating menu state, command dispatch,
+focus return, and persisted NanoDocument mark/block changes.
+
 ## Official Example Map
 
 | Phase | Tiptap example | Nano2 acceptance contract |
@@ -122,7 +129,7 @@ persisted one-character NanoDocument mention marks.
 | T1 | Tasks | Ready: type task shortcuts, toggle task items through Nano todo blocks, and persist checked state. |
 | T1 | Text direction & RTL | Ready: store direction as NanoDocument text block attrs, project DOM `dir`, switch LTR/RTL/AUTO, and persist attrs. |
 | T2 | Long texts | Measure large document mount/edit latency and avoid full-DOM churn where possible. |
-| T2 | Menus | Bubble/floating menus reflect command state and emit Nano changes. |
+| T2 | Menus | Ready: bubble/floating menus reflect command state, dispatch Nano2 commands, and persist mark/block changes. |
 | T2 | Mentions | Ready: suggestion menu inserts inline atoms as one-character Nano marks and persists stable mention attrs. |
 | T2 | Clever editor | Custom replacement extensions become Nano shortcut/change rules. |
 | T2 | Forced content structure | Headless schema rules enforce required block order before DOM mount. |

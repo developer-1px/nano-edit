@@ -407,3 +407,27 @@ export const nano2TiptapMentionsDocument: NanoDocument = NanoDocumentSchema.pars
     },
   ],
 })
+
+export const nano2TiptapMenusDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-menus-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Menus',
+      marks: [],
+    },
+    {
+      id: 'nano2-menus-selection',
+      type: 'paragraph',
+      text: 'Select menu target',
+      marks: [],
+    },
+    {
+      id: 'nano2-menus-floating',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+  ],
+})

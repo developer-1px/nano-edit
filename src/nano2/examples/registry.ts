@@ -1,4 +1,5 @@
 import type { NanoDocument } from '../../entities/document/nano-document-model'
+import type { Nano2ViewProfile } from '../types'
 import {
   nano2BasicsDocument,
   nano2DinosDocument,
@@ -7,6 +8,7 @@ import {
   nano2TiptapImagesDocument,
   nano2TiptapMarkdownShortcutsDocument,
   nano2TiptapMentionsDocument,
+  nano2TiptapMenusDocument,
   nano2TiptapMinimalSetupDocument,
   nano2TiptapStarterKitDocument,
   nano2TiptapTablesDocument,
@@ -31,7 +33,7 @@ export interface Nano2ExampleDefinition {
   title: string
   track: Nano2ExampleTrack
   view: string
-  viewProfile?: 'default' | 'minimal'
+  viewProfile?: Nano2ViewProfile
 }
 
 export const defaultNano2ExampleId = 'basics'
@@ -198,13 +200,15 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     id: 'tiptap-menus',
     title: 'Tiptap Menus',
     phase: 'T2',
-    status: 'planned',
-    sourceHref: 'https://tiptap.dev/docs/examples',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/advanced/menus',
     track: 'tiptap',
     pressure: 'Bubble and floating menus reflect command availability and active state.',
-    headless: 'Command state is derived from NanoDocument and selection snapshots.',
-    view: 'The view owns anchored menu positioning and focus return without moving document authority into menu callbacks.',
-    acceptance: 'Selection opens menus, command state updates, actions emit Nano changes, and destroy cleans up overlays.',
+    headless: 'Menu actions and active state derive from ProseMirror selection over NanoDocument content and commit through json-document changes.',
+    view: 'Nano2 owns route-local bubble and floating menu plugin views over the ProseMirror view seed without making menu callbacks document authority.',
+    acceptance: 'Selection opens a bubble menu, empty lines open a floating menu, menu actions update NanoDocument marks/blocks, and focus returns to the editor.',
+    document: nano2TiptapMenusDocument,
+    viewProfile: 'menus',
   },
   {
     id: 'tiptap-collaboration',

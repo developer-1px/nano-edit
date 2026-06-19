@@ -33,6 +33,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'dinos'), '/nano2/dinos')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-default-editor'), '/nano2/tiptap-default-editor')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-menus'), '/nano2/tiptap-menus')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-mentions'), '/nano2/tiptap-mentions')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-minimal-setup'), '/nano2/tiptap-minimal-setup')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
@@ -427,6 +428,31 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-shortcut-open' && block.type === 'todo' && block.checked === false && block.text === 'Open task'))
   assert(storedTasks.blocks.some((block) => block.id === 'nano2-task-shortcut-done' && block.type === 'todo' && block.checked === true && block.checkedMarker === 'X' && block.text === 'Done task'))
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-menus"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-menus"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Menus")')
+  await waitForExpression(browser, `document.querySelector('.nano2')?.dataset.profile === 'menus'`)
+
+  await setSelectionInBlockById(browser, 'nano2-menus-selection', 0, 6)
+  await waitForExpression(browser, `!document.querySelector('.nano2-bubble-menu')?.hidden`)
+  await clickTarget(browser, '.nano2-bubble-menu .nano2-menu-button[data-command="bold"]')
+  await waitForExpression(browser, `Boolean(document.querySelector('.nano2 [data-id="nano2-menus-selection"] strong'))`)
+  await waitForExpression(browser, `document.activeElement?.classList.contains('ProseMirror')`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-menus-floating')
+  await waitForExpression(browser, `!document.querySelector('.nano2-floating-menu')?.hidden`)
+  await clickTarget(browser, '.nano2-floating-menu .nano2-menu-button[data-command="heading1"]')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-heading-1[data-id="nano2-menus-floating"]') !== null`)
+  await browser.send('Input.insertText', { text: 'Menu heading' })
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-heading-1[data-id="nano2-menus-floating"]')?.textContent.includes('Menu heading')`)
+
+  await wait(160)
+  const storedMenus = await storedNano2Document(browser, 'tiptap-menus')
+  const menuSelectionBlock = storedMenus.blocks.find((block) => block.id === 'nano2-menus-selection')
+  assert(menuSelectionBlock)
+  assert(menuSelectionBlock.marks.some((mark) => mark.type === 'bold' && menuSelectionBlock.text.slice(mark.from, mark.to) === 'Select'))
+  assert(storedMenus.blocks.some((block) => block.id === 'nano2-menus-floating' && block.type === 'heading' && block.level === 1 && block.text === 'Menu heading'))
+
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-mentions"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-mentions"')
   await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Mentions")')
@@ -727,6 +753,28 @@ async function setCursorAtBlockEndById(browser, id) {
     const range = document.createRange()
     range.selectNodeContents(target)
     range.collapse(false)
+    const selection = window.getSelection()
+    if (!selection) throw new Error('Missing selection')
+    selection.removeAllRanges()
+    selection.addRange(range)
+    document.dispatchEvent(new Event('selectionchange'))
+    return true
+  })()`)
+}
+
+async function setSelectionInBlockById(browser, id, fromOffset, toOffset) {
+  return evaluate(browser, `(() => {
+    const target = document.querySelector(\`.nano2 .nano-block[data-id="${id}"]\`)
+    const editor = document.querySelector(${JSON.stringify(prosemirrorSelector)})
+    if (!target || !(editor instanceof HTMLElement)) throw new Error('Missing nano2 block id: ${id}')
+
+    const text = target.firstChild
+    if (!(text instanceof Text)) throw new Error('Missing text node for nano2 block id: ${id}')
+
+    editor.focus()
+    const range = document.createRange()
+    range.setStart(text, ${fromOffset})
+    range.setEnd(text, ${toOffset})
     const selection = window.getSelection()
     if (!selection) throw new Error('Missing selection')
     selection.removeAllRanges()

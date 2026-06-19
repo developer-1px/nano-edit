@@ -344,6 +344,51 @@
   white-space: nowrap;
 }
 
+.nano2-menu {
+  position: fixed;
+  z-index: 45;
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid #e4dfda;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgb(40 36 36 / 12%);
+}
+
+.nano2-menu[hidden] {
+  display: none;
+}
+
+.nano2-bubble-menu {
+  transform: translateX(-50%);
+}
+
+.nano2-menu-button {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #5e6269;
+}
+
+.nano2-menu-button:hover,
+.nano2-menu-button:focus-visible,
+.nano2-menu-button[data-active='true'] {
+  background: #f6f2ef;
+  color: #2f3135;
+}
+
+.nano2-menu-button:disabled {
+  color: #b8bcc3;
+}
+
+.nano2-menu-icon {
+  width: 17px;
+  height: 17px;
+}
+
 @media (max-width: 760px) {
   .nano2-examples {
     grid-template-columns: 1fr;

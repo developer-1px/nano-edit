@@ -33,6 +33,7 @@ import { splitTextblockTransaction } from '../view/keyboard/enter'
 import { TEXT_MERGE_MS } from '../view/runtime/context'
 import { nano2ImagePlugin } from './images'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
+import { nano2MenuPlugin } from './menus'
 import { Nano2MentionRuntime } from './mention'
 import { nano2TablePlugin } from './tables'
 import { nano2TaskPlugin } from './tasks'
@@ -134,6 +135,7 @@ class Nano2View {
   private createDefaultPlugins(): Plugin[] {
     return [
       ...(this.mention ? [this.mention.plugin()] : []),
+      ...(this.profile === 'menus' ? [nano2MenuPlugin(this.root)] : []),
       nano2MarkdownShortcutPlugin(),
       nano2ImagePlugin(),
       nano2TablePlugin({ restoreHistory: (direction) => this.restoreHistory(direction) }),

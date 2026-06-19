@@ -22,6 +22,10 @@ import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdow
 import { nano2TiptapDefaultEditorDocument } from '../../src/nano2/examples/documents.ts'
 import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
+import {
+  nano2MenuActionTransaction,
+  nano2MenuCommandState,
+} from '../../src/nano2/menus.ts'
 import { nano2InsertMentionTransaction } from '../../src/nano2/mentions.ts'
 import { nano2SetTextDirectionTransaction } from '../../src/nano2/text-direction.ts'
 import {
@@ -183,6 +187,74 @@ test('Nano2 T2 Mentions: suggestion insertion lowers to a one-character Nano mar
   assert.deepEqual(engine.value, next)
   assert.equal(Boolean(engine.history.undo()), true)
   assert.deepEqual(engine.value, initial)
+})
+
+test('Nano2 T2 Menus: menu state and actions lower to NanoDocument changes', () => {
+  const initial = {
+    blocks: [
+      { id: 'selection', type: 'paragraph', text: 'Select target', marks: [] },
+      { id: 'floating', type: 'paragraph', text: '', marks: [] },
+    ],
+  }
+  const engine = createNanoDocument(initial)
+  let doc = prosemirrorDocFromNano(engine.value)
+  let state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 1, 7),
+  })
+
+  assert.deepEqual(nano2MenuCommandState(state), {
+    boldActive: false,
+    bubbleVisible: true,
+    bulletListActive: false,
+    floatingVisible: false,
+    italicActive: false,
+  })
+
+  let transaction = nano2MenuActionTransaction(state, 'bold')
+  assert(transaction)
+  let next = nanoDocumentFromProseMirror(transaction.doc)
+  assert.deepEqual(next.blocks[0], {
+    id: 'selection',
+    type: 'paragraph',
+    text: 'Select target',
+    marks: [{ type: 'bold', from: 0, to: 6 }],
+  })
+
+  const floatingPosition = blockPositionById(transaction.doc, 'floating')
+  assert.notEqual(floatingPosition, null)
+  doc = transaction.doc
+  state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, floatingPosition + 1),
+  })
+  assert.deepEqual(nano2MenuCommandState(state), {
+    boldActive: false,
+    bubbleVisible: false,
+    bulletListActive: false,
+    floatingVisible: true,
+    italicActive: false,
+  })
+
+  transaction = nano2MenuActionTransaction(state, 'heading1')
+  assert(transaction)
+  next = nanoDocumentFromProseMirror(transaction.doc)
+  assert.deepEqual(next.blocks[1], {
+    id: 'floating',
+    type: 'heading',
+    level: 1,
+    text: '',
+    marks: [],
+  })
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-menu-heading',
+    origin: 'nano2-tiptap-menus',
+  })
+  assert(change)
+  assert(change.operations.some((operation) => operation.path.startsWith('/blocks')))
 })
 
 test('Nano2 T0 StarterKit: hard break round-trips as NanoDocument newline', () => {
