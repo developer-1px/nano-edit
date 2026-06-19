@@ -6,6 +6,7 @@ import {
   nano2TiptapImagesDocument,
   nano2TiptapMarkdownShortcutsDocument,
   nano2TiptapStarterKitDocument,
+  nano2TiptapTablesDocument,
   nano2TiptapTasksDocument,
 } from './documents'
 
@@ -107,6 +108,19 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     view: 'Nano2 maps Markdown image paste and HTML img paste to image block transactions through the ProseMirror view seed.',
     acceptance: 'Render an existing image, paste Markdown and HTML images into empty blocks, reload, and compare persisted NanoDocument image attrs.',
     document: nano2TiptapImagesDocument,
+  },
+  {
+    id: 'tiptap-tables',
+    title: 'Tiptap Tables',
+    phase: 'T1',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/basics/tables',
+    track: 'tiptap',
+    pressure: 'Table nodes render rows/cells and editable cells must commit cell text without making the DOM table canonical.',
+    headless: 'NanoDocument stores table rows and alignment as schema-valid JSON; table cell edits become narrow json-document table cell changes.',
+    view: 'Nano2 installs table cell contenteditable handling over the ProseMirror view seed and commits edited or pasted cell text to the table block.',
+    acceptance: 'Render a table, edit a single cell, paste tabular text across cells, reload, and compare persisted NanoDocument rows.',
+    document: nano2TiptapTablesDocument,
   },
   {
     id: 'tiptap-markdown-shortcuts',

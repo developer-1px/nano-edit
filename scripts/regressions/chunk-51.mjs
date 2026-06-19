@@ -2,7 +2,7 @@ import {
   setBlockType,
   toggleMark,
 } from 'prosemirror-commands'
-import { TextSelection } from 'prosemirror-state'
+import { NodeSelection, TextSelection } from 'prosemirror-state'
 import {
   nanoDocumentChangeFromProseMirrorDoc,
   nanoDocumentFromProseMirror,
@@ -20,6 +20,7 @@ import { NanoDocumentSchema } from '../../src/entities/document/nano-document-mo
 import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
 import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
+import { nano2SetTableCellTransaction } from '../../src/nano2/tables.ts'
 import { nano2ToggleTodoTransaction } from '../../src/nano2/tasks.ts'
 import { assert, EditorState, test } from './harness.mjs'
 
@@ -392,6 +393,60 @@ test('Nano2 T1 Images: setImage lowers to Nano image block and Markdown export',
     origin: 'nano2-tiptap-images',
   })
   assert(change)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
+  assert.equal(Boolean(engine.history.undo()), true)
+  assert.deepEqual(engine.value, initial)
+})
+
+test('Nano2 T1 Tables: setTableCell lowers to Nano table row changes', () => {
+  const initial = {
+    blocks: [{
+      id: 'table',
+      type: 'table',
+      rows: [
+        ['Name', 'Status'],
+        ['Alpha', 'Open'],
+        ['Beta', 'Queued'],
+      ],
+      align: ['left', 'center'],
+    }],
+  }
+  const engine = createNanoDocument(initial)
+  const doc = prosemirrorDocFromNano(engine.value)
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: NodeSelection.create(doc, 0),
+  })
+  const transaction = nano2SetTableCellTransaction(state, 'table', 1, 1, 'Closed')
+
+  assert(transaction)
+
+  const next = nanoDocumentFromProseMirror(transaction.doc)
+  assert.deepEqual(next.blocks[0], {
+    id: 'table',
+    type: 'table',
+    rows: [
+      ['Name', 'Status'],
+      ['Alpha', 'Closed'],
+      ['Beta', 'Queued'],
+    ],
+    align: ['left', 'center'],
+  })
+  assert.equal(nanoMarkdownFromDocument(next), [
+    '| Name | Status |',
+    '| :--- | :---: |',
+    '| Alpha | Closed |',
+    '| Beta | Queued |',
+  ].join('\n'))
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-table-cell-input',
+    origin: 'nano2-tiptap-tables',
+  })
+  assert(change)
+  assert.deepEqual(change.operations, [{ op: 'replace', path: '/blocks/0/rows/1/1', value: 'Closed' }])
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)
   assert.deepEqual(engine.value, next)
   assert.equal(Boolean(engine.history.undo()), true)

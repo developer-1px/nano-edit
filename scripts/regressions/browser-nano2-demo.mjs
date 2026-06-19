@@ -237,6 +237,33 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(storedImages.blocks.some((block) => block.id === 'nano2-image-markdown-target' && block.type === 'image' && block.src === 'https://cdn.example.com/nano.png' && block.alt === 'Pasted image' && block.title === 'Pasted title'))
   assert(storedImages.blocks.some((block) => block.id === 'nano2-image-html-target' && block.type === 'image' && block.src === 'https://cdn.example.com/html.png' && block.alt === 'HTML image' && block.title === 'HTML title'))
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-tables"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-tables"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Tables")')
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(tableCellSelector('nano2-table-main', 1, 1))})?.textContent === 'Open'`)
+
+  await replaceTableCellText(browser, 'nano2-table-main', 1, 1, 'Closed')
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(tableCellSelector('nano2-table-main', 1, 1))})?.textContent === 'Closed'`)
+  await pasteTableCells(browser, 'nano2-table-main', 1, 0, 'Gamma\tDone\nDelta\tNext')
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(tableCellSelector('nano2-table-main', 1, 0))})?.textContent === 'Gamma'`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(tableCellSelector('nano2-table-main', 1, 1))})?.textContent === 'Done'`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(tableCellSelector('nano2-table-main', 2, 0))})?.textContent === 'Delta'`)
+  await waitForExpression(browser, `document.querySelector(${JSON.stringify(tableCellSelector('nano2-table-main', 2, 1))})?.textContent === 'Next'`)
+
+  await wait(160)
+  const storedTables = await storedNano2Document(browser, 'tiptap-tables')
+  assert(storedTables.blocks.some((block) =>
+    block.id === 'nano2-table-main'
+    && block.type === 'table'
+    && JSON.stringify(block.rows) === JSON.stringify([
+      ['Name', 'Status'],
+      ['Gamma', 'Done'],
+      ['Delta', 'Next'],
+    ])
+    && block.align?.[0] === 'left'
+    && block.align?.[1] === 'center',
+  ))
+
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-markdown-shortcuts"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-markdown-shortcuts"')
   await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Markdown Shortcuts")')
@@ -443,6 +470,59 @@ async function pasteImageHtml(browser, html) {
   })
 }
 
+async function replaceTableCellText(browser, tableId, row, column, text) {
+  await focusTableCell(browser, tableId, row, column)
+  return evaluate(browser, `(() => {
+    const cell = document.querySelector(${JSON.stringify(tableCellSelector(tableId, row, column))})
+    if (!(cell instanceof HTMLTableCellElement)) throw new Error('Missing nano2 table cell')
+
+    cell.textContent = ${JSON.stringify(text)}
+    const event = new InputEvent('input', {
+      bubbles: true,
+      cancelable: true,
+      data: ${JSON.stringify(text)},
+      inputType: 'insertText',
+    })
+    cell.dispatchEvent(event)
+    return event.defaultPrevented
+  })()`)
+}
+
+async function pasteTableCells(browser, tableId, row, column, text) {
+  await focusTableCell(browser, tableId, row, column)
+  return evaluate(browser, `(() => {
+    const cell = document.querySelector(${JSON.stringify(tableCellSelector(tableId, row, column))})
+    if (!(cell instanceof HTMLTableCellElement)) throw new Error('Missing nano2 table cell')
+
+    const data = new DataTransfer()
+    data.setData('text/plain', ${JSON.stringify(text)})
+    const event = new ClipboardEvent('paste', {
+      bubbles: true,
+      cancelable: true,
+      clipboardData: data,
+    })
+    cell.dispatchEvent(event)
+    return event.defaultPrevented
+  })()`)
+}
+
+async function focusTableCell(browser, tableId, row, column) {
+  return evaluate(browser, `(() => {
+    const cell = document.querySelector(${JSON.stringify(tableCellSelector(tableId, row, column))})
+    if (!(cell instanceof HTMLTableCellElement)) throw new Error('Missing nano2 table cell')
+
+    cell.focus()
+    const range = document.createRange()
+    range.selectNodeContents(cell)
+    const selection = window.getSelection()
+    if (!selection) throw new Error('Missing selection')
+    selection.removeAllRanges()
+    selection.addRange(range)
+    document.dispatchEvent(new Event('selectionchange'))
+    return document.activeElement === cell
+  })()`)
+}
+
 async function pasteIntoNano2Editor(browser, dataByType) {
   return evaluate(browser, `(() => {
     const editor = document.querySelector(${JSON.stringify(prosemirrorSelector)})
@@ -585,6 +665,10 @@ async function nano2ExampleHref(browser, exampleId) {
 
 function todoBoxSelector(id) {
   return `.nano2 .nano-todo[data-id="${id}"] .nano-todo-box`
+}
+
+function tableCellSelector(tableId, row, column) {
+  return `.nano2 .nano-table[data-id="${tableId}"] [data-row="${row}"][data-column="${column}"]`
 }
 
 function withNano2ParagraphGap(expression) {

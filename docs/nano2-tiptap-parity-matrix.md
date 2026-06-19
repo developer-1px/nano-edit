@@ -10,6 +10,8 @@ Sources:
 - <https://tiptap.dev/docs/examples/basics/formatting>
 - <https://tiptap.dev/docs/editor/extensions/nodes/image>
 - <https://tiptap.dev/docs/examples/basics/images>
+- <https://tiptap.dev/docs/editor/extensions/nodes/table>
+- <https://tiptap.dev/docs/examples/basics/tables>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-list>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-item>
 - <https://tiptap.dev/docs/examples>
@@ -73,6 +75,10 @@ command intent as NanoDocument mark ranges and heading blocks.
 existing image rendering, Markdown image paste, HTML img paste, and persisted
 NanoDocument image attrs.
 
+`/nano2/tiptap-tables` is the runnable T1 Tables surface. It currently proves
+table rendering, single-cell contenteditable commits, tabular paste across
+cells, and persisted NanoDocument rows.
+
 `/nano2/tiptap-markdown-shortcuts` is the runnable T1 Markdown shortcuts surface.
 It currently proves heading, bullet list, ordered list, blockquote, code block,
 divider, bold, italic, strike, and inline code shortcuts.
@@ -90,7 +96,7 @@ toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
 | T1 | Images | Ready: render image blocks, paste Markdown/HTML image input, export Markdown, and persist image attrs. |
 | T1 | Markdown shortcuts | Ready: type Markdown prefixes/delimiters and commit schema-valid NanoDocument changes. |
 | T1 | Minimal setup | Mount Nano2 with only document/paragraph/text and basic input. |
-| T1 | Tables | Edit cells, preserve table schema, copy/paste rows, and persist cell changes. |
+| T1 | Tables | Ready: edit cells, paste tabular text across rows, preserve table schema, and persist row changes. |
 | T1 | Tasks | Ready: type task shortcuts, toggle task items through Nano todo blocks, and persist checked state. |
 | T1 | Text direction & RTL | Store direction as explicit attrs or session projection and test bidirectional selection. |
 | T2 | Long texts | Measure large document mount/edit latency and avoid full-DOM churn where possible. |

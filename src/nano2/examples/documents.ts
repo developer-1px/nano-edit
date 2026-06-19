@@ -174,6 +174,28 @@ export const nano2TiptapImagesDocument: NanoDocument = NanoDocumentSchema.parse(
   ],
 })
 
+export const nano2TiptapTablesDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-tables-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Tables',
+      marks: [],
+    },
+    {
+      id: 'nano2-table-main',
+      type: 'table',
+      rows: [
+        ['Name', 'Status'],
+        ['Alpha', 'Open'],
+        ['Beta', 'Queued'],
+      ],
+      align: ['left', 'center'],
+    },
+  ],
+})
+
 export const nano2TiptapMarkdownShortcutsDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

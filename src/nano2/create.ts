@@ -31,6 +31,7 @@ import { TEXT_MERGE_MS } from '../view/runtime/context'
 import { nano2ImagePlugin } from './images'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { Nano2MentionRuntime } from './mention'
+import { nano2TablePlugin } from './tables'
 import { nano2TaskPlugin } from './tasks'
 import type { Nano2ViewHandle, Nano2ViewOptions } from './types'
 
@@ -102,6 +103,7 @@ class Nano2View {
         this.mention.plugin(),
         nano2MarkdownShortcutPlugin(),
         nano2ImagePlugin(),
+        nano2TablePlugin({ restoreHistory: (direction) => this.restoreHistory(direction) }),
         nano2TaskPlugin(),
         keymap({
           Enter: this.enterCommand(),
