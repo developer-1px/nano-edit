@@ -36,6 +36,7 @@ The runnable example surface is Nano2-owned and mounted by
 /nano2/dinos
 /nano2/tiptap-starter-kit
 /nano2/tiptap-formatting
+/nano2/tiptap-images
 /nano2/tiptap-markdown-shortcuts
 /nano2/tiptap-tasks
 ```

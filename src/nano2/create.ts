@@ -28,6 +28,7 @@ import {
 import type { NanoDocument } from '../entities/document/nano-document-model'
 import { splitTextblockTransaction } from '../view/keyboard/enter'
 import { TEXT_MERGE_MS } from '../view/runtime/context'
+import { nano2ImagePlugin } from './images'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { Nano2MentionRuntime } from './mention'
 import { nano2TaskPlugin } from './tasks'
@@ -100,6 +101,7 @@ class Nano2View {
       plugins: [
         this.mention.plugin(),
         nano2MarkdownShortcutPlugin(),
+        nano2ImagePlugin(),
         nano2TaskPlugin(),
         keymap({
           Enter: this.enterCommand(),

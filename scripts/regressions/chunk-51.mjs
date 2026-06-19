@@ -17,6 +17,8 @@ import { nanoSchema } from '../../src/adapters/prosemirror/prosemirror-schema.ts
 import { commitNanoDocumentChange } from '../../src/entities/document/nano-document-change.ts'
 import { createNanoDocument } from '../../src/entities/document/nano-document.ts'
 import { NanoDocumentSchema } from '../../src/entities/document/nano-document-model.ts'
+import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdown.ts'
+import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
 import { nano2ToggleTodoTransaction } from '../../src/nano2/tasks.ts'
 import { assert, EditorState, test } from './harness.mjs'
@@ -352,6 +354,46 @@ test('Nano2 T1 Tasks: checkbox toggle commits canonical NanoDocument change', ()
     text: 'Task',
     marks: [],
   })
+  assert.equal(Boolean(engine.history.undo()), true)
+  assert.deepEqual(engine.value, initial)
+})
+
+test('Nano2 T1 Images: setImage lowers to Nano image block and Markdown export', () => {
+  const initial = {
+    blocks: [{ id: 'b1', type: 'paragraph', text: '', marks: [] }],
+  }
+  const engine = createNanoDocument(initial)
+  const doc = prosemirrorDocFromNano(engine.value)
+  const state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, 1),
+  })
+  const transaction = nano2SetImageTransaction(state, {
+    src: 'https://cdn.example.com/cover.png',
+    alt: 'Cover image',
+    title: 'Cover title',
+  })
+
+  assert(transaction)
+
+  const next = nanoDocumentFromProseMirror(transaction.doc)
+  assert.deepEqual(next.blocks[0], {
+    id: 'b1',
+    type: 'image',
+    src: 'https://cdn.example.com/cover.png',
+    alt: 'Cover image',
+    title: 'Cover title',
+  })
+  assert.equal(nanoMarkdownFromDocument(next), '![Cover image](https://cdn.example.com/cover.png "Cover title")')
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-set-image',
+    origin: 'nano2-tiptap-images',
+  })
+  assert(change)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
   assert.equal(Boolean(engine.history.undo()), true)
   assert.deepEqual(engine.value, initial)
 })

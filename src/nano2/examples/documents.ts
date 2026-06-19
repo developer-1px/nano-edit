@@ -143,6 +143,37 @@ export const nano2TiptapFormattingDocument: NanoDocument = NanoDocumentSchema.pa
   ],
 })
 
+export const nano2TiptapImagesDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-images-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Images',
+      marks: [],
+    },
+    {
+      id: 'nano2-image-existing',
+      type: 'image',
+      src: '/favicon.svg',
+      alt: 'Nano Edit icon',
+      title: 'Existing image',
+    },
+    {
+      id: 'nano2-image-markdown-target',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+    {
+      id: 'nano2-image-html-target',
+      type: 'paragraph',
+      text: '',
+      marks: [],
+    },
+  ],
+})
+
 export const nano2TiptapMarkdownShortcutsDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

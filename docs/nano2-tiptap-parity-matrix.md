@@ -8,6 +8,8 @@ Sources:
 
 - <https://tiptap.dev/docs/editor/extensions/functionality/starterkit>
 - <https://tiptap.dev/docs/examples/basics/formatting>
+- <https://tiptap.dev/docs/editor/extensions/nodes/image>
+- <https://tiptap.dev/docs/examples/basics/images>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-list>
 - <https://tiptap.dev/docs/editor/extensions/nodes/task-item>
 - <https://tiptap.dev/docs/examples>
@@ -67,6 +69,10 @@ bullet list, ordered list, blockquote, and code block.
 proves bold, italic, underline, strike, inline code, paragraph, and heading
 command intent as NanoDocument mark ranges and heading blocks.
 
+`/nano2/tiptap-images` is the runnable T1 Images surface. It currently proves
+existing image rendering, Markdown image paste, HTML img paste, and persisted
+NanoDocument image attrs.
+
 `/nano2/tiptap-markdown-shortcuts` is the runnable T1 Markdown shortcuts surface.
 It currently proves heading, bullet list, ordered list, blockquote, code block,
 divider, bold, italic, strike, and inline code shortcuts.
@@ -81,7 +87,7 @@ toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
 | --- | --- | --- |
 | T1 | Default text editor | Mount default content, edit, run common commands, persist/reload NanoDocument. |
 | T1 | Formatting | Ready: toggle StarterKit-style marks and heading commands, then persist Nano mark ranges and block attrs. |
-| T1 | Images | Insert image blocks with attrs, copy/paste/import/export, persist attrs. |
+| T1 | Images | Ready: render image blocks, paste Markdown/HTML image input, export Markdown, and persist image attrs. |
 | T1 | Markdown shortcuts | Ready: type Markdown prefixes/delimiters and commit schema-valid NanoDocument changes. |
 | T1 | Minimal setup | Mount Nano2 with only document/paragraph/text and basic input. |
 | T1 | Tables | Edit cells, preserve table schema, copy/paste rows, and persist cell changes. |

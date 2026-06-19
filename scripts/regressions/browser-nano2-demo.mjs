@@ -213,6 +213,30 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(formattingTarget.marks.some((mark) => mark.type === 'code' && formattingTarget.text.slice(mark.from, mark.to).trim() === 'CODE'))
   assert(storedFormatting.blocks.some((block) => block.id === 'nano2-formatting-heading-target' && block.type === 'heading' && block.level === 3 && block.text === 'Heading target'))
 
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-images"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-images"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Images")')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-image[data-id="nano2-image-existing"] img')?.getAttribute('src') === '/favicon.svg'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-image[data-id="nano2-image-existing"] img')?.getAttribute('alt') === 'Nano Edit icon'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-image-markdown-target')
+  await pasteImageMarkdown(browser, '![Pasted image](https://cdn.example.com/nano.png "Pasted title")')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-image[data-id="nano2-image-markdown-target"] img')?.getAttribute('src') === 'https://cdn.example.com/nano.png'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-image[data-id="nano2-image-markdown-target"] img')?.getAttribute('alt') === 'Pasted image'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-image[data-id="nano2-image-markdown-target"] img')?.getAttribute('title') === 'Pasted title'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-image-html-target')
+  await pasteImageHtml(browser, '<img src="https://cdn.example.com/html.png" alt="HTML image" title="HTML title">')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-image[data-id="nano2-image-html-target"] img')?.getAttribute('src') === 'https://cdn.example.com/html.png'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-image[data-id="nano2-image-html-target"] img')?.getAttribute('alt') === 'HTML image'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-image[data-id="nano2-image-html-target"] img')?.getAttribute('title') === 'HTML title'`)
+
+  await wait(160)
+  const storedImages = await storedNano2Document(browser, 'tiptap-images')
+  assert(storedImages.blocks.some((block) => block.id === 'nano2-image-existing' && block.type === 'image' && block.src === '/favicon.svg' && block.alt === 'Nano Edit icon' && block.title === 'Existing image'))
+  assert(storedImages.blocks.some((block) => block.id === 'nano2-image-markdown-target' && block.type === 'image' && block.src === 'https://cdn.example.com/nano.png' && block.alt === 'Pasted image' && block.title === 'Pasted title'))
+  assert(storedImages.blocks.some((block) => block.id === 'nano2-image-html-target' && block.type === 'image' && block.src === 'https://cdn.example.com/html.png' && block.alt === 'HTML image' && block.title === 'HTML title'))
+
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-markdown-shortcuts"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-markdown-shortcuts"')
   await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Markdown Shortcuts")')
@@ -395,6 +419,39 @@ async function pasteMentionChip(browser, id, label) {
     const data = new DataTransfer()
     data.setData('text/html', ${JSON.stringify(`<span class="nano-mention-chip" data-mention-id="${id}" data-mention-label="${label}" contenteditable="false" draggable="true">@${label}</span>`)})
     data.setData('text/plain', ${JSON.stringify(`@${label}`)})
+    const event = new ClipboardEvent('paste', {
+      bubbles: true,
+      cancelable: true,
+      clipboardData: data,
+    })
+    editor.dispatchEvent(event)
+    return event.defaultPrevented
+  })()`)
+}
+
+async function pasteImageMarkdown(browser, markdown) {
+  return pasteIntoNano2Editor(browser, {
+    'text/markdown': markdown,
+    'text/plain': markdown,
+  })
+}
+
+async function pasteImageHtml(browser, html) {
+  return pasteIntoNano2Editor(browser, {
+    'text/html': html,
+    'text/plain': '',
+  })
+}
+
+async function pasteIntoNano2Editor(browser, dataByType) {
+  return evaluate(browser, `(() => {
+    const editor = document.querySelector(${JSON.stringify(prosemirrorSelector)})
+    if (!(editor instanceof HTMLElement)) throw new Error('Missing nano2 editor')
+
+    const data = new DataTransfer()
+    for (const [type, value] of Object.entries(${JSON.stringify(dataByType)})) {
+      data.setData(type, value)
+    }
     const event = new ClipboardEvent('paste', {
       bubbles: true,
       cancelable: true,
