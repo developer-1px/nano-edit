@@ -634,3 +634,27 @@ export const nano2TiptapDrawingDocument: NanoDocument = NanoDocumentSchema.parse
     },
   ],
 })
+
+export const nano2TiptapLintingDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-linting-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Linting',
+      marks: [],
+    },
+    {
+      id: 'nano2-linting-target',
+      type: 'paragraph',
+      text: 'This is teh linting paragraph with very very clear signal.',
+      marks: [],
+    },
+    {
+      id: 'nano2-linting-space',
+      type: 'paragraph',
+      text: 'Extra  spacing stays a fixable NanoDocument text change.',
+      marks: [],
+    },
+  ],
+})

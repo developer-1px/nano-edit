@@ -15,6 +15,13 @@ export {
   parseNano2ForcedStructureDocument,
 } from './forced-structure'
 export {
+  nano2LintDiagnostics,
+  nano2LintFixChange,
+  type Nano2LintDiagnostic,
+  type Nano2LintRule,
+  type Nano2LintSeverity,
+} from './linting'
+export {
   nano2SlashCommandContextFromState,
   nano2SlashCommandTransaction,
   type Nano2SlashCommandAction,

@@ -28,6 +28,7 @@ Sources:
 - <https://tiptap.dev/docs/examples/advanced/mentions>
 - <https://tiptap.dev/docs/editor/extensions/nodes/mention>
 - <https://tiptap.dev/docs/examples/advanced/syntax-highlighting>
+- <https://tiptap.dev/docs/examples/experiments/linting>
 - <https://tiptap.dev/docs/examples/experiments/slash-commands>
 - <https://tiptap.dev/docs/examples>
 
@@ -117,6 +118,10 @@ persisted schema-valid body edits.
 existing image rendering, Markdown image paste, HTML img paste, and persisted
 NanoDocument image attrs.
 
+`/nano2/tiptap-linting` is the runnable T3 Linting surface. It currently proves
+headless NanoDocument diagnostics, view-only lint decorations, click-to-fix
+transactions, and persistence without stored diagnostic state.
+
 `/nano2/tiptap-long-texts` is the runnable T2 Long texts surface. It currently
 proves a generated 200k+ word NanoDocument, a middle-block edit, stable neighbor
 DOM nodes during that edit, and persisted NanoDocument text.
@@ -178,7 +183,7 @@ marks.
 | T3 | Collaborative fields | Multiple logical fields share one collaboration transport without sharing DOM identity. |
 | T3 | Figure / Generic figure | Media node attrs and captions become structured Nano blocks. |
 | T3 | iFrame | Embed attrs are schema-validated Nano custom block data. |
-| T3 | Linting | Diagnostics are pure NanoDocument projections with optional fixer changes. |
+| T3 | Linting | Ready: diagnostics are pure NanoDocument projections and accepted fixes become NanoDocumentChange text replacements. |
 | T3 | Slash commands | Ready: suggestion surface runs Nano commands from trigger position, removes trigger text, and persists block changes. |
 
 ## Acceptance Rule

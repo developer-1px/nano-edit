@@ -640,6 +640,19 @@
   touch-action: none;
 }
 
+.nano.nano2 .nano2-lint-problem {
+  border-bottom: 2px solid #d95b56;
+  cursor: pointer;
+}
+
+.nano.nano2 .nano2-lint-info {
+  border-bottom-color: #315f9c;
+}
+
+.nano.nano2 .nano2-lint-warning {
+  border-bottom-color: #d95b56;
+}
+
 @media (max-width: 760px) {
   .nano2-examples {
     grid-template-columns: 1fr;

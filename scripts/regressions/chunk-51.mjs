@@ -34,6 +34,10 @@ import {
   nano2DrawingBlockWithStroke,
 } from '../../src/nano2/drawing.ts'
 import {
+  nano2LintDiagnostics,
+  nano2LintFixChange,
+} from '../../src/nano2/linting.ts'
+import {
   nano2LongTextsTargetBlockId,
   nano2LongTextsWordCount,
   nano2TiptapCleverEditorDocument,
@@ -41,6 +45,7 @@ import {
   nano2TiptapDefaultEditorDocument,
   nano2TiptapDrawingDocument,
   nano2TiptapForcedContentStructureDocument,
+  nano2TiptapLintingDocument,
   nano2TiptapLongTextsDocument,
   nano2TiptapSyntaxHighlightingDocument,
 } from '../../src/nano2/examples/documents.ts'
@@ -1192,6 +1197,31 @@ test('Nano2 T3 Drawing: custom block strokes stay NanoDocument JSON data', () =>
   const engine = createNanoDocument(initial)
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)
   assert.deepEqual(engine.value, next)
+})
+
+test('Nano2 T3 Linting: diagnostics are view-only projections with Nano fixes', () => {
+  const initial = nano2TiptapLintingDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const diagnostics = nano2LintDiagnostics(initial)
+  assert(diagnostics.some((diagnostic) => diagnostic.rule === 'typo-teh' && diagnostic.replacement === 'the'))
+  assert(diagnostics.some((diagnostic) => diagnostic.rule === 'repeated-word' && diagnostic.replacement === 'very'))
+  assert(diagnostics.some((diagnostic) => diagnostic.rule === 'double-space' && diagnostic.replacement === ' '))
+
+  const typo = diagnostics.find((diagnostic) => diagnostic.rule === 'typo-teh')
+  assert(typo)
+  const change = nano2LintFixChange(initial, typo.id)
+  assert(change)
+  assert.equal(change.origin, 'nano2-linting')
+  assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1/text'])
+
+  const engine = createNanoDocument(initial)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  const fixedBlock = engine.value.blocks.find((block) => block.id === 'nano2-linting-target')
+  assert(fixedBlock)
+  assert.equal(fixedBlock.text.includes('teh'), false)
+  assert(fixedBlock.text.includes('the linting'), true)
+  assert.equal('diagnostics' in fixedBlock, false)
 })
 
 function nano2DocumentWithBlockText(document, blockId, text) {
