@@ -23,7 +23,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
     deviceScaleFactor: 1,
     mobile: false,
   })
-  await browser.send('Page.navigate', { url: `${url}artifacts/nano2` })
+  await browser.send('Page.navigate', { url: `${url}nano2` })
   await waitForExpression(browser, 'document.readyState !== "loading"')
   await waitForExpression(browser, 'location.pathname === "/nano2/basics"')
   await waitForExpression(browser, 'Boolean(document.querySelector(".nano2-example-link[data-example-id=\\"basics\\"]"))')

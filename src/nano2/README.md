@@ -28,7 +28,8 @@ Do not use Nano1 view/runtime/package-seam documents as authority for Nano2.
 Nano1 examples become fixture pressure only after the ProseMirror official
 example capability matrix is covered.
 
-The runnable example surface is Nano2-owned:
+The runnable example surface is Nano2-owned and mounted by
+`src/nano2/examples/main.ts`:
 
 ```text
 /nano2/basics
@@ -37,4 +38,5 @@ The runnable example surface is Nano2-owned:
 /nano2/tiptap-markdown-shortcuts
 ```
 
-The legacy demo artifact host does not own Nano2 examples.
+The legacy demo artifact host does not own Nano2 examples and should not expose
+Nano2 through `/artifacts/*` compatibility routes.

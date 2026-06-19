@@ -120,6 +120,8 @@ test('Base styles stay scoped to the nano surface', () => {
   const baseCss = readFileSync(new URL('../../src/styles/base.css', import.meta.url), 'utf8')
   const demoHostCss = readFileSync(new URL('../../src/styles/demo-host.css', import.meta.url), 'utf8')
   const main = readFileSync(new URL('../../src/main.ts', import.meta.url), 'utf8')
+  const demoMain = readFileSync(new URL('../../src/demo/main.ts', import.meta.url), 'utf8')
+  const nano2Main = readFileSync(new URL('../../src/nano2/examples/main.ts', import.meta.url), 'utf8')
   const nanoRule = /^\.nano \{([\s\S]*?)\n\}/m.exec(baseCss)
 
   assert(nanoRule, 'nano root rule should be present')
@@ -139,7 +141,14 @@ test('Base styles stay scoped to the nano surface', () => {
   assert(baseCss.includes('.nano .ProseMirror:focus-visible'))
   assert(demoHostCss.includes('body {'))
   assert(demoHostCss.includes('#app {'))
-  assert(main.includes("import './styles/demo-host.css'"))
+  assert.equal(main.includes("import './styles/demo-host.css'"), false)
+  assert.equal(main.includes("import './styles/nano2.css'"), false)
+  assert(demoMain.includes("import '../style.css'"))
+  assert(demoMain.includes("import '../styles/demo-host.css'"))
+  assert.equal(demoMain.includes('nano2.css'), false)
+  assert(nano2Main.includes("import '../../style.css'"))
+  assert(nano2Main.includes("import '../../styles/nano2.css'"))
+  assert.equal(nano2Main.includes('demo-host.css'), false)
 })
 
 test('Document surface wraps prose without emergency breaking by default', () => {

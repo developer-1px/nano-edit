@@ -17,8 +17,6 @@ import {
   type PersistedNano2ExampleDocument,
 } from './persistence'
 
-export { isNano2ExamplesPath } from './router'
-
 export interface Nano2ExamplesAppHandle {
   destroy(): void
 }
@@ -100,7 +98,7 @@ export function createNano2ExamplesApp(root: HTMLElement): Nano2ExamplesAppHandl
   })
 
   const initialExampleId = routeExampleId(window.location.pathname)
-  if (window.location.pathname === '/nano2' || window.location.pathname === '/nano2/' || window.location.pathname.startsWith('/artifacts/nano2')) {
+  if (window.location.pathname === '/nano2' || window.location.pathname === '/nano2/') {
     void nano2ExamplesRouter.navigate({
       to: '/nano2/$exampleId',
       params: { exampleId: initialExampleId },
@@ -196,7 +194,7 @@ function renderHeader(target: HTMLElement, example: Nano2ExampleDefinition): voi
   source.href = example.sourceHref
   source.rel = 'noreferrer'
   source.target = '_blank'
-  source.textContent = 'ProseMirror'
+  source.textContent = example.track === 'tiptap' ? 'Tiptap' : 'ProseMirror'
 
   target.replaceChildren(titleGroup, source)
 }
