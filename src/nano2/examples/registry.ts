@@ -10,6 +10,7 @@ import {
   nano2TiptapStarterKitDocument,
   nano2TiptapTablesDocument,
   nano2TiptapTasksDocument,
+  nano2TiptapTextDirectionDocument,
 } from './documents'
 
 export type Nano2ExamplePhase = 'P0' | 'P1' | 'P2' | 'P3'
@@ -99,6 +100,19 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     view: 'Nano2 maps keyboard command intent for bold, italic, underline, strike, inline code, paragraph, and heading levels through the ProseMirror view seed.',
     acceptance: 'Toggle formatting marks, convert text to a level-three heading, reload, and compare persisted NanoDocument mark ranges and block type.',
     document: nano2TiptapFormattingDocument,
+  },
+  {
+    id: 'tiptap-text-direction',
+    title: 'Tiptap Text Direction',
+    phase: 'T1',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/basics/text-direction',
+    track: 'tiptap',
+    pressure: 'Per-block LTR, RTL, and automatic text direction must survive editing and block type changes.',
+    headless: 'NanoDocument stores direction as a Zod-validated text block attr; json-document changes persist the attr beside text and marks.',
+    view: 'Nano2 projects block direction to DOM dir/data attrs and exposes direction keymaps through the ProseMirror view seed.',
+    acceptance: 'Render existing RTL blocks, switch blocks between LTR/RTL/AUTO, reload, and compare persisted NanoDocument textDirection attrs.',
+    document: nano2TiptapTextDirectionDocument,
   },
   {
     id: 'tiptap-images',

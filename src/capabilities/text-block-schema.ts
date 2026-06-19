@@ -6,5 +6,6 @@ export function createTextBlockBaseSchema<TMark extends z.ZodTypeAny>(markSchema
     id: NanoBlockIdSchema,
     text: z.string(),
     marks: z.array(markSchema).default([]),
+    textDirection: z.enum(['ltr', 'rtl', 'auto']).optional(),
   }).strict()
 }

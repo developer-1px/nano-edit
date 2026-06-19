@@ -11,13 +11,27 @@ import {
 } from './prosemirror-heading-attrs'
 import { foldIndicatorDomSpec } from '../../view/block-ui/fold-indicator'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
+import {
+  textDirectionAttrs,
+  textDirectionFromElement,
+} from './prosemirror-text-direction'
 
 export const paragraphNodeSpec: NodeSpec = {
   content: 'inline*',
   group: 'block',
-  attrs: { id: { default: null } },
-  parseDOM: [{ tag: 'p.nano-paragraph' }],
-  toDOM: (node) => ['p', { class: 'nano-block nano-paragraph', 'data-id': node.attrs.id }, 0],
+  attrs: { id: { default: null }, textDirection: { default: null } },
+  parseDOM: [{
+    tag: 'p.nano-paragraph',
+    getAttrs: (dom) => {
+      const element = dom instanceof HTMLElement ? dom : null
+      return element ? { textDirection: textDirectionFromElement(element) } : false
+    },
+  }],
+  toDOM: (node) => ['p', {
+    class: 'nano-block nano-paragraph',
+    'data-id': node.attrs.id,
+    ...textDirectionAttrs(node.attrs.textDirection),
+  }, 0],
 }
 
 export const headingNodeSpec: NodeSpec = {
@@ -33,14 +47,15 @@ export const headingNodeSpec: NodeSpec = {
     atxTextSpacing: { default: null },
     setextMarker: { default: null },
     setextLength: { default: null },
+    textDirection: { default: null },
   },
   parseDOM: [
-    { tag: 'h1', attrs: { level: 1 } },
-    { tag: 'h2', attrs: { level: 2 } },
-    { tag: 'h3', attrs: { level: 3 } },
-    { tag: 'h4', attrs: { level: 4 } },
-    { tag: 'h5', attrs: { level: 5 } },
-    { tag: 'h6', attrs: { level: 6 } },
+    headingParseRule('h1', 1),
+    headingParseRule('h2', 2),
+    headingParseRule('h3', 3),
+    headingParseRule('h4', 4),
+    headingParseRule('h5', 5),
+    headingParseRule('h6', 6),
   ],
   toDOM: (node) => [
     `h${clampHeadingLevel(node.attrs.level)}`,
@@ -50,6 +65,7 @@ export const headingNodeSpec: NodeSpec = {
       'data-heading-style': headingStyle(node.attrs.headingStyle, node.attrs.level),
       ...headingAtxDataAttrs(node.attrs),
       ...headingSetextDataAttrs(node.attrs),
+      ...textDirectionAttrs(node.attrs.textDirection),
     },
     foldIndicatorDomSpec('nano-heading-fold'),
     ['span', hiddenSourceTokenAttrs('nano-block-md-prefix'), headingPrefixToken(node.attrs.headingStyle, node.attrs.level, node.attrs.atxTextSpacing)],
@@ -63,6 +79,19 @@ export const headingNodeSpec: NodeSpec = {
       node.attrs.setextLength,
     ),
   ],
+}
+
+function headingParseRule(tag: string, level: number) {
+  return {
+    tag,
+    getAttrs: (dom: HTMLElement | string) => {
+      const element = dom instanceof HTMLElement ? dom : null
+      return {
+        level,
+        textDirection: element ? textDirectionFromElement(element) : null,
+      }
+    },
+  }
 }
 
 function headingAtxDataAttrs(attrs: Record<string, unknown>): Record<string, string> {

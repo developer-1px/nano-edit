@@ -12,6 +12,10 @@ import { inlineContentFromText } from './prosemirror-inline-content'
 import { nanoMarksFromProseMirrorNode } from './prosemirror-mark-normalize'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
+import {
+  textDirectionNanoAttrs,
+  textDirectionNodeAttrs,
+} from './prosemirror-text-direction'
 
 export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
   defineNanoBlockCodec({
@@ -22,6 +26,7 @@ export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
         id: block.id,
         quoteMarkerSpacing: normalizeQuoteMarkerSpacing(block.quoteMarkerSpacing),
         quoteMarkerDepths: normalizeQuoteMarkerDepths(block.quoteMarkerDepths),
+        ...textDirectionNodeAttrs(block.textDirection),
       },
       inlineContentFromText(block.text, block.marks),
     ),
@@ -41,6 +46,7 @@ export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
         ...(quoteMarkerDepths ? { quoteMarkerDepths } : {}),
         text,
         marks: nanoMarksFromProseMirrorNode(node),
+        ...textDirectionNanoAttrs(node.attrs.textDirection),
       }
     },
   }),
@@ -54,6 +60,7 @@ export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
         calloutMarkerDepths: normalizeQuoteMarkerDepths(block.calloutMarkerDepths),
         calloutMarkerSpacing: normalizeQuoteMarkerSpacing(block.calloutMarkerSpacing),
         calloutTextSpacing: quoteMarkerSpacingValue(block.calloutTextSpacing),
+        ...textDirectionNodeAttrs(block.textDirection),
       },
       inlineContentFromText(block.text, block.marks),
     ),
@@ -76,6 +83,7 @@ export const quoteCalloutBlockCodecs: readonly AnyNanoBlockCodec[] = [
         ...(calloutTextSpacing ? { calloutTextSpacing } : {}),
         text,
         marks: nanoMarksFromProseMirrorNode(node),
+        ...textDirectionNanoAttrs(node.attrs.textDirection),
       }
     },
   }),

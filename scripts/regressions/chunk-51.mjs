@@ -22,6 +22,7 @@ import { nanoMarkdownFromDocument } from '../../src/codecs/markdown/nano-markdow
 import { nano2TiptapDefaultEditorDocument } from '../../src/nano2/examples/documents.ts'
 import { nano2SetImageTransaction } from '../../src/nano2/images.ts'
 import { nano2MarkdownShortcutTransaction } from '../../src/nano2/markdown-shortcuts.ts'
+import { nano2SetTextDirectionTransaction } from '../../src/nano2/text-direction.ts'
 import {
   isNano2MinimalDocument,
   parseNano2MinimalDocument,
@@ -481,6 +482,72 @@ test('Nano2 T1 Default editor: common commands lower to NanoDocument state', () 
   assert(change.operations.some((operation) => operation.path.startsWith('/blocks')))
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)
   assert.deepEqual(engine.value, next)
+})
+
+test('Nano2 T1 Text direction: direction attrs lower to NanoDocument state', () => {
+  const initial = {
+    blocks: [
+      { id: 'rtl', type: 'paragraph', text: 'مرحبا', marks: [], textDirection: 'rtl' },
+      { id: 'target', type: 'paragraph', text: 'Target', marks: [] },
+      { id: 'list', type: 'list_item', kind: 'bullet', indent: 0, text: 'שלום', marks: [] },
+    ],
+  }
+
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+  assert.throws(() => NanoDocumentSchema.parse({
+    blocks: [{ id: 'bad', type: 'paragraph', text: 'Bad', marks: [], textDirection: 'sideways' }],
+  }))
+
+  const engine = createNanoDocument(initial)
+  let doc = prosemirrorDocFromNano(engine.value)
+  assert.equal(doc.child(0).attrs.textDirection, 'rtl')
+
+  let targetPosition = blockPositionById(doc, 'target')
+  assert.notEqual(targetPosition, null)
+  let state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, targetPosition + 1),
+  })
+  let transaction = nano2SetTextDirectionTransaction(state, 'ltr')
+  assert(transaction)
+  let next = nanoDocumentFromProseMirror(transaction.doc)
+  assert.deepEqual(next.blocks[1], {
+    id: 'target',
+    type: 'paragraph',
+    text: 'Target',
+    marks: [],
+    textDirection: 'ltr',
+  })
+
+  doc = transaction.doc
+  targetPosition = blockPositionById(doc, 'target')
+  const listPosition = blockPositionById(doc, 'list')
+  assert.notEqual(targetPosition, null)
+  assert.notEqual(listPosition, null)
+  state = EditorState.create({
+    schema: nanoSchema,
+    doc,
+    selection: TextSelection.create(doc, targetPosition + 1, listPosition + 1),
+  })
+  transaction = nano2SetTextDirectionTransaction(state, 'auto')
+  assert(transaction)
+  next = nanoDocumentFromProseMirror(transaction.doc)
+
+  assert.equal(next.blocks[1].textDirection, 'auto')
+  assert.equal(next.blocks[2].textDirection, 'auto')
+  assert.equal(prosemirrorDocFromNano(next).child(1).attrs.textDirection, 'auto')
+
+  const change = nanoDocumentChangeFromProseMirrorDoc(engine.value, transaction.doc, {
+    label: 'nano2-text-direction-auto',
+    origin: 'nano2-tiptap-text-direction',
+  })
+  assert(change)
+  assert(change.operations.some((operation) => operation.path.startsWith('/blocks')))
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
+  assert.equal(Boolean(engine.history.undo()), true)
+  assert.deepEqual(engine.value, initial)
 })
 
 test('Nano2 T1 Minimal setup: zod profile accepts only paragraph text blocks', () => {

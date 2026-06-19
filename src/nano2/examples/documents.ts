@@ -179,6 +179,47 @@ export const nano2TiptapFormattingDocument: NanoDocument = NanoDocumentSchema.pa
   ],
 })
 
+export const nano2TiptapTextDirectionDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-direction-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Text Direction',
+      marks: [],
+    },
+    {
+      id: 'nano2-direction-rtl',
+      type: 'paragraph',
+      text: 'مرحبا Nano2',
+      marks: [],
+      textDirection: 'rtl',
+    },
+    {
+      id: 'nano2-direction-ltr-target',
+      type: 'paragraph',
+      text: 'LTR target',
+      marks: [],
+      textDirection: 'rtl',
+    },
+    {
+      id: 'nano2-direction-auto-target',
+      type: 'paragraph',
+      text: 'Auto target',
+      marks: [],
+    },
+    {
+      id: 'nano2-direction-list',
+      type: 'list_item',
+      kind: 'bullet',
+      indent: 0,
+      text: 'שלום list',
+      marks: [],
+      textDirection: 'rtl',
+    },
+  ],
+})
+
 export const nano2TiptapImagesDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

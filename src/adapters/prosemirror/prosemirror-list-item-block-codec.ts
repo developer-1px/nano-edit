@@ -16,6 +16,10 @@ import { inlineContentFromText } from './prosemirror-inline-content'
 import { nanoMarksFromProseMirrorNode } from './prosemirror-mark-normalize'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
+import {
+  textDirectionNanoAttrs,
+  textDirectionNodeAttrs,
+} from './prosemirror-text-direction'
 
 export const listItemBlockCodec = defineNanoBlockCodec({
   nanoType: 'list_item',
@@ -31,6 +35,7 @@ export const listItemBlockCodec = defineNanoBlockCodec({
       orderedMarker: block.kind === 'ordered' ? orderedMarker(block.orderedMarker) : '.',
       orderedStartText: block.kind === 'ordered' ? orderedStartText(block.orderedStartText) : null,
       start: block.kind === 'ordered' ? orderedStart(block.start) : null,
+      ...textDirectionNodeAttrs(block.textDirection),
     },
     inlineContentFromText(block.text, block.marks),
   ),
@@ -59,6 +64,7 @@ export const listItemBlockCodec = defineNanoBlockCodec({
       ...(kind === 'ordered' && startText ? { orderedStartText: startText } : {}),
       text: node.textContent,
       marks: nanoMarksFromProseMirrorNode(node),
+      ...textDirectionNanoAttrs(node.attrs.textDirection),
     }
   },
 })

@@ -17,6 +17,10 @@ import {
 import { foldIndicatorDomSpec } from '../../view/block-ui/fold-indicator'
 import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { sourceTokenAttrs } from './prosemirror-source-token'
+import {
+  textDirectionAttrs,
+  textDirectionFromElement,
+} from './prosemirror-text-direction'
 
 export const listItemNodeSpec: NodeSpec = {
   content: 'inline*',
@@ -31,6 +35,7 @@ export const listItemNodeSpec: NodeSpec = {
     orderedMarker: { default: '.' },
     orderedStartText: { default: null },
     start: { default: null },
+    textDirection: { default: null },
   },
   parseDOM: [{
     tag: 'div.nano-list-item',
@@ -47,6 +52,7 @@ export const listItemNodeSpec: NodeSpec = {
         orderedMarker: orderedMarker(element.dataset.orderedMarker),
         orderedStartText: orderedStartText(element.dataset.orderedStartText),
         start: orderedStart(element.dataset.start),
+        textDirection: textDirectionFromElement(element),
       }
     },
   }],
@@ -62,6 +68,7 @@ export const listItemNodeSpec: NodeSpec = {
       ...(node.attrs.start ? { 'data-start': String(node.attrs.start) } : {}),
       ...blockIndentAttrs(node.attrs.indent),
       ...indentTextAttrs(node.attrs.indentText),
+      ...textDirectionAttrs(node.attrs.textDirection),
     },
     foldIndicatorDomSpec('nano-list-fold'),
     ['span', sourceTokenAttrs('nano-list-marker', {

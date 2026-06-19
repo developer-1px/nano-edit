@@ -23,6 +23,12 @@ import {
   indentTextAttrs,
 } from '../../adapters/prosemirror/prosemirror-list-attrs'
 import { prosemirrorParseDomElement } from '../../adapters/prosemirror/prosemirror-parse-dom'
+import {
+  textDirectionAttrs,
+  textDirectionFromElement,
+  textDirectionNanoAttrs,
+  textDirectionNodeAttrs,
+} from '../../adapters/prosemirror/prosemirror-text-direction'
 
 type TodoBlock = Extract<NanoBlock, { type: 'todo' }>
 
@@ -37,6 +43,7 @@ export const todoNodeSpec: NodeSpec = {
     indentText: { default: null },
     marker: { default: '-' },
     checkedMarker: { default: 'x' },
+    textDirection: { default: null },
   },
   parseDOM: [{
     tag: 'div.nano-todo',
@@ -51,6 +58,7 @@ export const todoNodeSpec: NodeSpec = {
         indentText: indentText(element.dataset.indentText),
         marker: bulletMarker(element.dataset.marker),
         checkedMarker: checkedMarker(element.dataset.checkedMarker),
+        textDirection: textDirectionFromElement(element),
       }
     },
   }],
@@ -65,6 +73,7 @@ export const todoNodeSpec: NodeSpec = {
       ...continuationIndentDataAttrs(node.attrs.continuationIndents),
       ...blockIndentAttrs(node.attrs.indent),
       ...indentTextAttrs(node.attrs.indentText),
+      ...textDirectionAttrs(node.attrs.textDirection),
     },
     foldIndicatorDomSpec('nano-list-fold'),
     ['span', {
@@ -91,6 +100,7 @@ export function todoNodeAttrsFromBlock(block: TodoBlock): Record<string, unknown
     indentText: indentText(block.indentText),
     marker: bulletMarker(block.marker),
     checkedMarker: checkedMarker(block.checkedMarker),
+    ...textDirectionNodeAttrs(block.textDirection),
   }
 }
 
@@ -117,6 +127,7 @@ export function todoBlockFromProseMirrorNode(
     ...(rawIndent ? { indentText: rawIndent } : {}),
     ...(bulletMarker(node.attrs.marker) !== '-' ? { marker: bulletMarker(node.attrs.marker) } : {}),
     ...(node.attrs.checked === true && checkedMarker(node.attrs.checkedMarker) !== 'x' ? { checkedMarker: checkedMarker(node.attrs.checkedMarker) } : {}),
+    ...textDirectionNanoAttrs(node.attrs.textDirection),
     text: node.textContent,
     marks,
   }

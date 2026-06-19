@@ -13,6 +13,10 @@ import { inlineContentFromText } from './prosemirror-inline-content'
 import { nanoMarksFromProseMirrorNode } from './prosemirror-mark-normalize'
 import { nanoNodeNames } from './prosemirror-names'
 import { nanoSchema } from './prosemirror-schema'
+import {
+  textDirectionNanoAttrs,
+  textDirectionNodeAttrs,
+} from './prosemirror-text-direction'
 
 export const headingBlockCodec = defineNanoBlockCodec({
   nanoType: 'heading',
@@ -27,6 +31,7 @@ export const headingBlockCodec = defineNanoBlockCodec({
       atxTextSpacing: block.headingStyle === 'setext' ? null : atxSpacingOrNull(block.atxTextSpacing),
       setextMarker: block.headingStyle === 'setext' ? setextMarker(block.setextMarker, block.level) : null,
       setextLength: block.headingStyle === 'setext' ? setextLength(block.setextLength) : null,
+      ...textDirectionNodeAttrs(block.textDirection),
     },
     inlineContentFromText(block.text, block.marks),
   ),
@@ -37,6 +42,7 @@ export const headingBlockCodec = defineNanoBlockCodec({
       level: clampHeadingLevel(node.attrs.level),
       text: node.textContent,
       marks: nanoMarksFromProseMirrorNode(node),
+      ...textDirectionNanoAttrs(node.attrs.textDirection),
     }
     if (headingStyle(node.attrs.headingStyle, node.attrs.level) === 'setext') {
       block.headingStyle = 'setext'

@@ -4,7 +4,10 @@ import {
   toggleMark,
 } from 'prosemirror-commands'
 import { keymap } from 'prosemirror-keymap'
-import type { Node as ProseMirrorNode } from 'prosemirror-model'
+import type {
+  Node as ProseMirrorNode,
+  NodeType as ProseMirrorNodeType,
+} from 'prosemirror-model'
 import { EditorState, TextSelection, type Command, type Plugin, type Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import type { Pointer, SelectionSnap } from '@interactive-os/json-document'
@@ -33,6 +36,10 @@ import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
 import { Nano2MentionRuntime } from './mention'
 import { nano2TablePlugin } from './tables'
 import { nano2TaskPlugin } from './tasks'
+import {
+  nano2SetTextDirectionTransaction,
+  type Nano2TextDirection,
+} from './text-direction'
 import type { Nano2ViewHandle, Nano2ViewOptions, Nano2ViewProfile } from './types'
 
 export function createNano2View(options: Nano2ViewOptions): Nano2ViewHandle {
@@ -144,6 +151,10 @@ class Nano2View {
         'Mod-u': this.toggleMarkCommand(nanoMarkNames.underline),
         'Mod-Shift-s': this.toggleMarkCommand(nanoMarkNames.strike),
         'Mod-e': this.toggleMarkCommand(nanoMarkNames.code),
+        'Mod-Alt-l': this.textDirectionCommand('ltr'),
+        'Mod-Alt-r': this.textDirectionCommand('rtl'),
+        'Mod-Alt-a': this.textDirectionCommand('auto'),
+        'Mod-Alt-0': this.textDirectionCommand(null),
         'Ctrl-Shift-0': this.setBlockTypeCommand(nanoNodeNames.paragraph),
         'Ctrl-Shift-1': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 1 }),
         'Ctrl-Shift-2': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 2 }),
@@ -250,10 +261,7 @@ class Nano2View {
     return nodeType
       ? (state, dispatch, view) => {
           const current = state.selection.$from.parent
-          return setBlockType(nodeType, {
-            id: current.attrs.id ?? null,
-            ...(attrs ?? {}),
-          })(state, dispatch, view)
+          return setBlockType(nodeType, attrsForBlockType(nodeType, current.attrs, attrs))(state, dispatch, view)
         }
       : () => false
   }
@@ -261,6 +269,15 @@ class Nano2View {
   private toggleMarkCommand(markName: string): Command {
     const markType = nanoSchema.marks[markName]
     return markType ? toggleMark(markType) : () => false
+  }
+
+  private textDirectionCommand(direction: Nano2TextDirection | null): Command {
+    return (state, dispatch) => {
+      const transaction = nano2SetTextDirectionTransaction(state, direction)
+      if (!transaction) return false
+      if (dispatch) dispatch(transaction.scrollIntoView())
+      return true
+    }
   }
 
   private toggleBlockTypeCommand(nodeName: string, attrs: Record<string, unknown> = {}): Command {
@@ -272,11 +289,8 @@ class Nano2View {
       const current = state.selection.$from.parent
       const active = current.type === nodeType && blockAttrsMatch(current.attrs, attrs)
       return active
-        ? setBlockType(paragraphType, { id: current.attrs.id ?? null })(state, dispatch)
-        : setBlockType(nodeType, {
-            id: current.attrs.id ?? null,
-            ...attrs,
-          })(state, dispatch)
+        ? setBlockType(paragraphType, attrsForBlockType(paragraphType, current.attrs))(state, dispatch)
+        : setBlockType(nodeType, attrsForBlockType(nodeType, current.attrs, attrs))(state, dispatch)
     }
   }
 
@@ -311,6 +325,28 @@ class Nano2View {
 
 function blockAttrsMatch(current: Record<string, unknown>, expected: Record<string, unknown>): boolean {
   return Object.entries(expected).every(([key, value]) => current[key] === value)
+}
+
+function attrsForBlockType(
+  nodeType: ProseMirrorNodeType,
+  current: Record<string, unknown>,
+  attrs: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    id: current.id ?? null,
+    ...preservedTextDirectionAttr(nodeType, current, attrs),
+    ...attrs,
+  }
+}
+
+function preservedTextDirectionAttr(
+  nodeType: ProseMirrorNodeType,
+  current: Record<string, unknown>,
+  attrs: Record<string, unknown>,
+): Record<string, unknown> {
+  if (attrs.textDirection !== undefined) return {}
+  if (!nodeType.spec.attrs?.textDirection) return {}
+  return current.textDirection ? { textDirection: current.textDirection } : {}
 }
 
 function transactionLabel(transaction: Transaction): string {

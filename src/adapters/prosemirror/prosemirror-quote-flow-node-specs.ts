@@ -14,11 +14,20 @@ import {
 } from './prosemirror-quote-marker-attrs'
 import { prosemirrorParseDomElement } from './prosemirror-parse-dom'
 import { hiddenSourceTokenAttrs } from './prosemirror-source-token'
+import {
+  textDirectionAttrs,
+  textDirectionFromElement,
+} from './prosemirror-text-direction'
 
 export const quoteNodeSpec: NodeSpec = {
   content: 'inline*',
   group: 'block',
-  attrs: { id: { default: null }, quoteMarkerSpacing: { default: null }, quoteMarkerDepths: { default: null } },
+  attrs: {
+    id: { default: null },
+    quoteMarkerSpacing: { default: null },
+    quoteMarkerDepths: { default: null },
+    textDirection: { default: null },
+  },
   parseDOM: [{
     tag: 'blockquote.nano-quote',
     getAttrs: (dom) => {
@@ -28,6 +37,7 @@ export const quoteNodeSpec: NodeSpec = {
       return {
         quoteMarkerSpacing: decodeQuoteMarkerSpacing(element.dataset.quoteMarkerSpacing),
         quoteMarkerDepths: decodeQuoteMarkerDepths(element.dataset.quoteMarkerDepths),
+        textDirection: textDirectionFromElement(element),
       }
     },
   }],
@@ -42,6 +52,7 @@ export const quoteNodeSpec: NodeSpec = {
       ...(encodeQuoteMarkerDepths(node.attrs.quoteMarkerDepths)
         ? { 'data-quote-marker-depths': encodeQuoteMarkerDepths(node.attrs.quoteMarkerDepths) }
         : {}),
+      ...textDirectionAttrs(node.attrs.textDirection),
     },
     ['span', hiddenSourceTokenAttrs('nano-block-md-prefix'), quotePrefixToken(node.attrs.quoteMarkerSpacing, node.attrs.quoteMarkerDepths)],
     ['span', { class: 'nano-block-content' }, 0],
@@ -58,6 +69,7 @@ export const calloutNodeSpec: NodeSpec = {
     calloutMarkerDepths: { default: null },
     calloutMarkerSpacing: { default: null },
     calloutTextSpacing: { default: null },
+    textDirection: { default: null },
   },
   parseDOM: [{
     tag: 'aside.nano-callout',
@@ -70,6 +82,7 @@ export const calloutNodeSpec: NodeSpec = {
         calloutMarkerDepths: decodeQuoteMarkerDepths(element.dataset.calloutMarkerDepths),
         calloutMarkerSpacing: decodeQuoteMarkerSpacing(element.dataset.calloutMarkerSpacing),
         calloutTextSpacing: quoteMarkerSpacingValue(element.dataset.calloutTextSpacing),
+        textDirection: textDirectionFromElement(element),
       }
     },
   }],
@@ -82,6 +95,7 @@ export const calloutNodeSpec: NodeSpec = {
         'data-id': node.attrs.id,
         'data-tone': tone,
         ...calloutDataAttrs(node.attrs),
+        ...textDirectionAttrs(node.attrs.textDirection),
       },
       ['span', { class: 'nano-callout-icon', contenteditable: 'false', 'aria-hidden': 'true' }, lucideIcon(calloutIcon(tone), 'nano-callout-icon-svg')],
       ['span', hiddenSourceTokenAttrs('nano-callout-marker'), calloutMarkerToken(

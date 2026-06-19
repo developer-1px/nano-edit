@@ -32,6 +32,7 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert.equal(await nano2ExampleHref(browser, 'basics'), '/nano2/basics')
   assert.equal(await nano2ExampleHref(browser, 'dinos'), '/nano2/dinos')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-default-editor'), '/nano2/tiptap-default-editor')
+  assert.equal(await nano2ExampleHref(browser, 'tiptap-text-direction'), '/nano2/tiptap-text-direction')
   assert.equal(await nano2ExampleHref(browser, 'tiptap-minimal-setup'), '/nano2/tiptap-minimal-setup')
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(editorSelector)}))`)
   await waitForExpression(browser, `Boolean(document.querySelector(${JSON.stringify(prosemirrorSelector)}))`)
@@ -246,6 +247,27 @@ await withBrowserRegression('nano-edit-nano2-demo-', async ({ browser, url }) =>
   assert(formattingTarget.marks.some((mark) => mark.type === 'strike' && formattingTarget.text.slice(mark.from, mark.to).trim() === 'STRIKE'))
   assert(formattingTarget.marks.some((mark) => mark.type === 'code' && formattingTarget.text.slice(mark.from, mark.to).trim() === 'CODE'))
   assert(storedFormatting.blocks.some((block) => block.id === 'nano2-formatting-heading-target' && block.type === 'heading' && block.level === 3 && block.text === 'Heading target'))
+
+  await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-text-direction"]')
+  await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-text-direction"')
+  await waitForExpression(browser, 'document.querySelector(".nano2-example-title")?.textContent.includes("Tiptap Text Direction")')
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-paragraph[data-id="nano2-direction-rtl"]')?.getAttribute('dir') === 'rtl'`)
+  await waitForExpression(browser, `document.querySelector('.nano2 .nano-list-item[data-id="nano2-direction-list"]')?.getAttribute('dir') === 'rtl'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-direction-ltr-target')
+  await pressKey(browser, 'l', 'KeyL', 76, modifier | 1)
+  await waitForExpression(browser, `document.querySelector('.nano2 [data-id="nano2-direction-ltr-target"]')?.getAttribute('dir') === 'ltr'`)
+
+  await setCursorAtBlockEndById(browser, 'nano2-direction-auto-target')
+  await pressKey(browser, 'a', 'KeyA', 65, modifier | 1)
+  await waitForExpression(browser, `document.querySelector('.nano2 [data-id="nano2-direction-auto-target"]')?.getAttribute('dir') === 'auto'`)
+
+  await wait(160)
+  const storedDirection = await storedNano2Document(browser, 'tiptap-text-direction')
+  assert(storedDirection.blocks.some((block) => block.id === 'nano2-direction-rtl' && block.textDirection === 'rtl'))
+  assert(storedDirection.blocks.some((block) => block.id === 'nano2-direction-ltr-target' && block.textDirection === 'ltr'))
+  assert(storedDirection.blocks.some((block) => block.id === 'nano2-direction-auto-target' && block.textDirection === 'auto'))
+  assert(storedDirection.blocks.some((block) => block.id === 'nano2-direction-list' && block.textDirection === 'rtl'))
 
   await clickTarget(browser, '.nano2-example-link[data-example-id="tiptap-images"]')
   await waitForExpression(browser, 'location.pathname === "/nano2/tiptap-images"')

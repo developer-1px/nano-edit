@@ -9,6 +9,7 @@ Sources:
 - <https://tiptap.dev/docs/editor/extensions/functionality/starterkit>
 - <https://tiptap.dev/docs/examples/basics/default-text-editor>
 - <https://tiptap.dev/docs/examples/basics/formatting>
+- <https://tiptap.dev/docs/examples/basics/text-direction>
 - <https://tiptap.dev/docs/editor/extensions/nodes/image>
 - <https://tiptap.dev/docs/examples/basics/images>
 - <https://tiptap.dev/docs/examples/basics/minimal-setup>
@@ -78,6 +79,10 @@ chrome.
 proves bold, italic, underline, strike, inline code, paragraph, and heading
 command intent as NanoDocument mark ranges and heading blocks.
 
+`/nano2/tiptap-text-direction` is the runnable T1 Text direction surface. It
+currently proves per-block LTR, RTL, and AUTO direction attrs projected to DOM
+`dir` and persisted as NanoDocument text block attrs.
+
 `/nano2/tiptap-images` is the runnable T1 Images surface. It currently proves
 existing image rendering, Markdown image paste, HTML img paste, and persisted
 NanoDocument image attrs.
@@ -109,7 +114,7 @@ toggles, keyboard checkbox toggles, and persisted NanoDocument `todo` blocks.
 | T1 | Minimal setup | Ready: mount paragraph-only Nano2 profile, type literal text, split paragraphs, and persist paragraph-only NanoDocument state. |
 | T1 | Tables | Ready: edit cells, paste tabular text across rows, preserve table schema, and persist row changes. |
 | T1 | Tasks | Ready: type task shortcuts, toggle task items through Nano todo blocks, and persist checked state. |
-| T1 | Text direction & RTL | Store direction as explicit attrs or session projection and test bidirectional selection. |
+| T1 | Text direction & RTL | Ready: store direction as NanoDocument text block attrs, project DOM `dir`, switch LTR/RTL/AUTO, and persist attrs. |
 | T2 | Long texts | Measure large document mount/edit latency and avoid full-DOM churn where possible. |
 | T2 | Menus | Bubble/floating menus reflect command state and emit Nano changes. |
 | T2 | Mentions | Suggestion menu inserts inline atoms as one-character Nano marks. |
