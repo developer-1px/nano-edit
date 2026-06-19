@@ -2,6 +2,7 @@ import type { NanoDocument } from '../../entities/document/nano-document-model'
 import {
   nano2BasicsDocument,
   nano2DinosDocument,
+  nano2TiptapFormattingDocument,
   nano2TiptapMarkdownShortcutsDocument,
   nano2TiptapStarterKitDocument,
   nano2TiptapTasksDocument,
@@ -79,6 +80,19 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     headless: 'Default content, commands, and persistence resolve to NanoDocument state instead of a Tiptap Editor instance.',
     view: 'The view supplies enough keymaps and DOM behavior to dogfood a default editor.',
     acceptance: 'Mount default content, edit it, run common commands, reload, and compare NanoDocument state.',
+  },
+  {
+    id: 'tiptap-formatting',
+    title: 'Tiptap Formatting',
+    phase: 'T1',
+    status: 'ready',
+    sourceHref: 'https://tiptap.dev/docs/examples/basics/formatting',
+    track: 'tiptap',
+    pressure: 'Text formatting commands and heading commands must work from the editor surface without becoming toolbar-owned state.',
+    headless: 'NanoDocument stores formatting as Zod-validated mark ranges and heading blocks committed through json-document changes.',
+    view: 'Nano2 maps keyboard command intent for bold, italic, underline, strike, inline code, paragraph, and heading levels through the ProseMirror view seed.',
+    acceptance: 'Toggle formatting marks, convert text to a level-three heading, reload, and compare persisted NanoDocument mark ranges and block type.',
+    document: nano2TiptapFormattingDocument,
   },
   {
     id: 'tiptap-markdown-shortcuts',

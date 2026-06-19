@@ -229,6 +229,11 @@
   font-size: 20px;
 }
 
+.nano.nano2 .nano-heading-3 {
+  margin-top: 18px;
+  font-size: 17px;
+}
+
 .nano.nano2 .nano-paragraph,
 .nano.nano2 .nano-list-item,
 .nano.nano2 .nano-todo {

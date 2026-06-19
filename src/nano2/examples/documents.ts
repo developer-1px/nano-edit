@@ -107,6 +107,42 @@ export const nano2TiptapStarterKitDocument: NanoDocument = NanoDocumentSchema.pa
   ],
 })
 
+export const nano2TiptapFormattingDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-formatting-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Formatting',
+      marks: [],
+    },
+    {
+      id: 'nano2-formatting-mark-target',
+      type: 'paragraph',
+      text: 'Format target',
+      marks: [],
+    },
+    {
+      id: 'nano2-formatting-heading-target',
+      type: 'paragraph',
+      text: 'Heading target',
+      marks: [],
+    },
+    {
+      id: 'nano2-formatting-existing',
+      type: 'paragraph',
+      text: 'Existing: bold italic underline strike code',
+      marks: [
+        { type: 'bold', from: 10, to: 14 },
+        { type: 'italic', from: 15, to: 21 },
+        { type: 'underline', from: 22, to: 31 },
+        { type: 'strike', from: 32, to: 38 },
+        { type: 'code', from: 39, to: 43 },
+      ],
+    },
+  ],
+})
+
 export const nano2TiptapMarkdownShortcutsDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

@@ -184,6 +184,13 @@ test('Nano2 T0 StarterKit: common marks lower to Nano mark ranges', () => {
 })
 
 test('Nano2 T0 StarterKit: block commands lower to Nano block variants', () => {
+  assert.deepEqual(setSingleBlock(nanoNodeNames.heading, { level: 3 }).blocks[0], {
+    id: 'b1',
+    type: 'heading',
+    level: 3,
+    text: 'Target',
+    marks: [],
+  })
   assert.deepEqual(setSingleBlock(nanoNodeNames.listItem, { kind: 'bullet', indent: 0, marker: '-' }).blocks[0], {
     id: 'b1',
     type: 'list_item',

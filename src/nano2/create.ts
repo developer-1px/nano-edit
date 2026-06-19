@@ -117,6 +117,7 @@ class Nano2View {
           'Ctrl-Shift-0': this.setBlockTypeCommand(nanoNodeNames.paragraph),
           'Ctrl-Shift-1': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 1 }),
           'Ctrl-Shift-2': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 2 }),
+          'Ctrl-Shift-3': this.setBlockTypeCommand(nanoNodeNames.heading, { level: 3 }),
           'Mod-Shift-8': this.toggleBlockTypeCommand(nanoNodeNames.listItem, { kind: 'bullet', indent: 0, marker: '-' }),
           'Mod-Shift-7': this.toggleBlockTypeCommand(nanoNodeNames.listItem, { kind: 'ordered', indent: 0, orderedMarker: '.', start: 1 }),
           'Mod-Shift-b': this.toggleBlockTypeCommand(nanoNodeNames.quote),
@@ -217,7 +218,15 @@ class Nano2View {
 
   private setBlockTypeCommand(nodeName: string, attrs?: Record<string, unknown>): Command {
     const nodeType = nanoSchema.nodes[nodeName]
-    return nodeType ? setBlockType(nodeType, attrs) : () => false
+    return nodeType
+      ? (state, dispatch, view) => {
+          const current = state.selection.$from.parent
+          return setBlockType(nodeType, {
+            id: current.attrs.id ?? null,
+            ...(attrs ?? {}),
+          })(state, dispatch, view)
+        }
+      : () => false
   }
 
   private toggleMarkCommand(markName: string): Command {
@@ -234,8 +243,11 @@ class Nano2View {
       const current = state.selection.$from.parent
       const active = current.type === nodeType && blockAttrsMatch(current.attrs, attrs)
       return active
-        ? setBlockType(paragraphType)(state, dispatch)
-        : setBlockType(nodeType, attrs)(state, dispatch)
+        ? setBlockType(paragraphType, { id: current.attrs.id ?? null })(state, dispatch)
+        : setBlockType(nodeType, {
+            id: current.attrs.id ?? null,
+            ...attrs,
+          })(state, dispatch)
     }
   }
 
