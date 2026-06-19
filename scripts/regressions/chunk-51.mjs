@@ -45,6 +45,12 @@ import {
   Nano2IFrameBlockSchema,
 } from '../../src/nano2/iframe.ts'
 import {
+  nano2InteractiveViewBlockType,
+  nano2InteractiveViewBlockWithCount,
+  nano2InteractiveViewBlockWithLabel,
+  Nano2InteractiveViewBlockSchema,
+} from '../../src/nano2/interactive-views.ts'
+import {
   nano2LintDiagnostics,
   nano2LintFixChange,
 } from '../../src/nano2/linting.ts'
@@ -58,6 +64,7 @@ import {
   nano2TiptapFigureDocument,
   nano2TiptapForcedContentStructureDocument,
   nano2TiptapIFrameDocument,
+  nano2TiptapInteractiveViewsDocument,
   nano2TiptapLintingDocument,
   nano2TiptapLongTextsDocument,
   nano2TiptapReactPerformanceDocument,
@@ -1238,6 +1245,41 @@ test('Nano2 T3 Drawing: custom block strokes stay NanoDocument JSON data', () =>
   assert(change)
   assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1'])
   assert.equal('canvas' in nextDrawingBlock.data, false)
+
+  const engine = createNanoDocument(initial)
+  assert.equal(commitNanoDocumentChange(engine, change).ok, true)
+  assert.deepEqual(engine.value, next)
+})
+
+test('Nano2 T3 Interactive views: component node view data stays NanoDocument JSON', () => {
+  const initial = nano2TiptapInteractiveViewsDocument
+  assert.deepEqual(NanoDocumentSchema.parse(initial), initial)
+
+  const block = initial.blocks.find((candidate) => candidate.id === 'nano2-interactive-counter')
+  assert(block)
+  assert.equal(block.type, nano2InteractiveViewBlockType)
+  assert.equal(Nano2InteractiveViewBlockSchema.parse(block).data.count, 2)
+
+  const counted = nano2InteractiveViewBlockWithCount(block, 3)
+  const labeled = nano2InteractiveViewBlockWithLabel(counted, 'Edited component')
+  assert.equal(labeled.data.count, 3)
+  assert.equal(labeled.data.label, 'Edited component')
+  assert.equal(labeled.text, 'Edited component: 3')
+
+  const next = {
+    ...initial,
+    blocks: initial.blocks.map((candidate) => candidate.id === labeled.id ? labeled : candidate),
+  }
+  assert.deepEqual(NanoDocumentSchema.parse(next), next)
+
+  const change = nanoDocumentChangeFromDocuments(initial, next, {
+    label: 'nano2-interactive-view-update',
+    origin: 'nano2-tiptap-interactive-views',
+  })
+  assert(change)
+  assert.deepEqual(change.operations.map((operation) => operation.path), ['/blocks/1'])
+  assert.equal('component' in labeled.data, false)
+  assert.equal('dom' in labeled.data, false)
 
   const engine = createNanoDocument(initial)
   assert.equal(commitNanoDocumentChange(engine, change).ok, true)

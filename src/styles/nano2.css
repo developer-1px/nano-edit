@@ -799,6 +799,71 @@
   color: #3f4145;
 }
 
+.nano.nano2 .nano2-interactive-view {
+  width: min(100%, 520px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin: 18px 0;
+  padding: 10px 12px;
+  border: 1px solid #e3e4e8;
+  background: #ffffff;
+}
+
+.nano.nano2 .nano2-interactive-view[data-tone='accent'] {
+  border-color: #e6d6d1;
+}
+
+.nano.nano2 .nano2-interactive-controls {
+  display: inline-grid;
+  grid-template-columns: 30px 38px 30px;
+  align-items: center;
+  gap: 2px;
+}
+
+.nano.nano2 .nano2-interactive-button {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #5e6269;
+}
+
+.nano.nano2 .nano2-interactive-button:hover,
+.nano.nano2 .nano2-interactive-button:focus-visible {
+  background: #f6f2ef;
+  color: #2f3135;
+}
+
+.nano.nano2 .nano2-interactive-button-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.nano.nano2 .nano2-interactive-value {
+  min-width: 38px;
+  color: #3f4145;
+  font: 680 13px/1.2 var(--nano-mono, ui-monospace, monospace);
+  text-align: center;
+}
+
+.nano.nano2 .nano2-interactive-label {
+  min-width: 0;
+  min-height: 1.5em;
+  outline: none;
+  color: #3f4145;
+  font-size: 15px;
+  font-weight: 620;
+  line-height: 1.5;
+}
+
+.nano.nano2 .nano2-interactive-label:focus {
+  color: #2f3135;
+}
+
 .nano.nano2 .nano2-lint-problem {
   border-bottom: 2px solid #d95b56;
   cursor: pointer;

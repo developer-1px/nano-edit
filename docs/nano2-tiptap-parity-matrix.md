@@ -169,6 +169,11 @@ focus return, and persisted NanoDocument mark/block changes.
 It currently proves host render/state reads update surrounding metrics while
 the Nano2 editor view stays mounted once and NanoDocument remains canonical.
 
+`/nano2/tiptap-interactive-views` is the runnable T3 Interactive React & Vue
+views surface. It currently proves framework-style component node views as
+replaceable `nano2.interactive-view` projections over NanoDocument custom block
+data.
+
 `/nano2/tiptap-slash-commands` is the runnable T3 Slash commands surface. It
 currently proves a `/` trigger, filtered command panel, heading/list/quote/code
 block command dispatch, and persisted NanoDocument block changes.
@@ -197,7 +202,7 @@ marks.
 | T2 | Forced content structure | Ready: Zod document profile enforces heading-first structure before mount and rejects invalid view transactions before persistence. |
 | T3 | Collaborative editing | Ready: NanoDocumentChange transport converges multiple independent Nano2 engines, including a late-joining peer. |
 | T3 | Drawing | Ready: custom node view projects canvas strokes while NanoDocument stores only `nano2.drawing` JSON data. |
-| T3 | Interactive React & Vue views | Framework node views become replaceable view projections over Nano paths. |
+| T3 | Interactive React & Vue views | Ready: framework-style node views become replaceable `nano2.interactive-view` projections over NanoDocument data paths. |
 | T3 | React performance | Ready: host renders and derived state reads are isolated so NanoDocument transactions do not remount the editor view tree. |
 | T3 | AI agent | Agent tools read and propose NanoDocument changes; accepted changes commit through json-document history. |
 | T3 | Syntax highlighting | Ready: lowlight token ranges render as view decorations while code text and language remain the only NanoDocument data. |

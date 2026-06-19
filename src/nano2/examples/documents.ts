@@ -715,6 +715,34 @@ export const nano2TiptapFigureDocument: NanoDocument = NanoDocumentSchema.parse(
   ],
 })
 
+export const nano2TiptapInteractiveViewsDocument: NanoDocument = NanoDocumentSchema.parse({
+  blocks: [
+    {
+      id: 'nano2-interactive-title',
+      type: 'heading',
+      level: 1,
+      text: 'Tiptap Interactive Views',
+      marks: [],
+    },
+    {
+      id: 'nano2-interactive-counter',
+      type: 'nano2.interactive-view',
+      text: 'Interactive node view: 2',
+      data: {
+        count: 2,
+        label: 'Interactive node view',
+        tone: 'accent',
+      },
+    },
+    {
+      id: 'nano2-interactive-note',
+      type: 'paragraph',
+      text: 'Component state is custom block JSON.',
+      marks: [],
+    },
+  ],
+})
+
 export const nano2TiptapReactPerformanceDocument: NanoDocument = NanoDocumentSchema.parse({
   blocks: [
     {

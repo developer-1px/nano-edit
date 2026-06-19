@@ -30,6 +30,14 @@ export {
   type Nano2IFrameData,
 } from './iframe'
 export {
+  nano2InteractiveViewBlockFromCustomBlock,
+  nano2InteractiveViewBlockType,
+  nano2InteractiveViewBlockWithCount,
+  nano2InteractiveViewBlockWithLabel,
+  type Nano2InteractiveViewBlock,
+  type Nano2InteractiveViewData,
+} from './interactive-views'
+export {
   nano2LintDiagnostics,
   nano2LintFixChange,
   type Nano2LintDiagnostic,

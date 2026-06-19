@@ -36,6 +36,7 @@ import { nano2CleverReplacementPlugin } from './clever-replacements'
 import { nano2DrawingNodeViews } from './drawing'
 import { nano2FigureNodeViews } from './figure'
 import { nano2IFrameNodeViews } from './iframe'
+import { nano2InteractiveViewNodeViews } from './interactive-views'
 import { nano2ImagePlugin } from './images'
 import { nano2LintPlugin } from './linting'
 import { nano2MarkdownShortcutPlugin } from './markdown-shortcuts'
@@ -136,6 +137,7 @@ class Nano2View {
     if (this.profile === 'drawing') return nano2DrawingNodeViews()
     if (this.profile === 'figure') return nano2FigureNodeViews()
     if (this.profile === 'iframe') return nano2IFrameNodeViews()
+    if (this.profile === 'interactive') return nano2InteractiveViewNodeViews()
     return {}
   }
 

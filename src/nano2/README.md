@@ -45,6 +45,7 @@ The runnable example surface is Nano2-owned and mounted by
 /nano2/tiptap-forced-content-structure
 /nano2/tiptap-images
 /nano2/tiptap-iframe
+/nano2/tiptap-interactive-views
 /nano2/tiptap-linting
 /nano2/tiptap-long-texts
 /nano2/tiptap-minimal-setup
