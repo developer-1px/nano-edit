@@ -431,18 +431,6 @@ export const nano2Examples: readonly Nano2ExampleDefinition[] = [
     viewProfile: 'linting',
   },
   {
-    id: 'tiptap-node-views',
-    title: 'Tiptap Node Views',
-    phase: 'T3',
-    status: 'planned',
-    sourceHref: 'https://tiptap.dev/docs/examples',
-    track: 'tiptap',
-    pressure: 'Interactive React/Vue node views, drawing, figures, iframe embeds, and syntax highlighting.',
-    headless: 'Each custom surface writes narrow NanoDocument data or path changes.',
-    view: 'The view owns nested focus, event isolation, resize/drag behavior, and projection rendering.',
-    acceptance: 'Mount custom node surfaces, edit their data, undo through Nano history, and reload the same NanoDocument.',
-  },
-  {
     id: 'markdown',
     title: 'Friendly Markdown',
     phase: 'P1',
